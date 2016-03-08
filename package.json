@@ -1,0 +1,37 @@
+{
+  "name": "slider-plate",
+  "version": "1.0.0",
+  "description": "embeddable panel of sliders and inputs for parameter setting",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freeman-lab/slider-plate.git"
+  },
+  "keywords": [
+    "slider",
+    "input",
+    "range",
+    "checkbox",
+    "component",
+    "dom",
+    "css"
+  ],
+  "author": "freeman-lab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/freeman-lab/slider-plate/issues"
+  },
+  "browserify": {
+    "transform": "brfs"
+  },
+  "homepage": "https://github.com/freeman-lab/slider-plate#readme",
+  "dependencies": {
+    "brfs": "^1.4.3",
+    "inherits": "^2.0.1",
+    "insert-css": "^0.2.0",
+    "is-numeric": "0.0.5"
+  }
+}
