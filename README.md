@@ -53,12 +53,12 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. 
 
 Some types have additional properties:
-- Inputs of type `range` can specify a `min`, `max`, and `step`.
+- Inputs of type `range` can specify a `min`, `max`, and `step`
 - Inputs of type `color` can specify a `format` as either `rgb` • `hex` • `array`
 
 The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel
-- `theme` can be a string specifying named theme or an object, see [`theme.js`](theme.js) for format
+- `theme` can specify `light` • `dark` or provide an object (see [`theme.js`](theme.js) for format)
 - `title` a title to add to the top of the panel
 - `position` where to place the panel, can be `top-left` • `top-right` • `bottom-left` • `bottom-right` 
 - `width` width of panel in pixels
