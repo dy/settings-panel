@@ -19,7 +19,6 @@ function Plate (items, opts) {
   var self = this
   opts = opts || {}
   opts.width = opts.width || 300
-  opts.background = opts.background || 'rgb(30,30,30)'
   opts.theme = opts.theme || 'dark'
   opts.theme = isstring(opts.theme) ? themes[opts.theme] : opts.theme
   opts.root = opts.root || document.body

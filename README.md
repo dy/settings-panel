@@ -44,7 +44,13 @@ var panel = input([
 
 #### `panel = input([item1, item2, ...], [opts])`
 
-The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with the initial value. Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. Some types have additional properties as specified below.
+The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with the initial value. For example,
+
+```javascript
+{type: 'checkbox', label: 'my checkbox', initial: true}
+```
+
+Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. Some types have additional properties as specified below.
 
 ##### `range`
 - `min` minimum value
@@ -53,6 +59,13 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 
 ##### `color`
 - `format` formatting for colors, can be `'rgb'`, `'hex'`, or `'array'`
+
+The following optional parameters can also be passed as `opts`
+- `root` root element to which to append the panel
+- `theme` can be a string specifying named theme or an object, see [`theme.js`](theme.js) for format
+- `title` a title to add to the top of the panel
+- `position` where to place the panel, can be `top-left` • `top-right` • `bottom-left` • `bottom-right` 
+- `width` width of panel in pixels
 
 #### `panel.on('input')`
 
