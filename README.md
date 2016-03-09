@@ -48,9 +48,7 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 
 ##### `range`
 - `min` minimum value
-
 - `max` maximum value
-
 - `step` step size
 
 ##### `color`
