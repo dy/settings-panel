@@ -60,6 +60,8 @@ function Plate (items, opts) {
   if (opts.position === 'top-right' || opts.position === 'top-left') css(box, {top: 8})
   else css(box, {bottom: 8})
 
+  if (opts.title) require('./components/title')(box, opts.title, opts.theme)
+
   var components = {
     text: require('./components/text'),
     range: require('./components/range'),
