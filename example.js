@@ -15,7 +15,3 @@ var el = plate([
 el.on('input', function (data) {
   console.log(data)
 })
-
-// el.on('change', function (data) {
-//   console.log(data)
-// })

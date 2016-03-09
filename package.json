@@ -4,6 +4,7 @@
   "description": "embeddable panel of sliders and inputs for parameter setting",
   "main": "index.js",
   "scripts": {
+    "star": "browserify"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
