@@ -65,7 +65,7 @@ Some types have additional properties:
 
 The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel
-- `theme` can specify `light` • `dark` or provide an object (see [`theme.js`](theme.js) for format)
+- `theme` can specify `light` • `dark` or provide an object (see [`themes.js`](themes.js) for format)
 - `title` a title to add to the top of the panel
 - `position` where to place the panel as `top-left` • `top-right` • `bottom-left` • `bottom-right` 
 - `width` width of panel in pixels
