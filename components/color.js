@@ -12,7 +12,6 @@ function Color (root, opts, theme) {
   opts = opts || {}
   opts.format = opts.format || 'rgb'
   opts.initial = opts.initial || '#123456'
-  console.log(opts)
   var self = this
 
   var container = require('./container')(root)
@@ -65,7 +64,6 @@ function Color (root, opts, theme) {
   })
 
   icon.onmouseout = function (e) {
-    console.log(e)
     picker.$el.style.display = 'none'
   }
 

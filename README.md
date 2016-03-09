@@ -1,16 +1,10 @@
 # input-panel
 
-Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Inspired by `dat-gui`, but streamlined and simplified.
+Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
-Supports the following input types:
-- range slider
-- checkbox
-- text
-- color
+Supports the following input types: `range` • `checkbox` • `text` • `color`
 
-And the following themes:
-- light
-- dark
+Includes the following themes: `dark` • `light`
 
 ## install
 
