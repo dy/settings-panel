@@ -42,9 +42,9 @@ var panel = input([
 
 ## usage
 
-#### `panel = input([item1, item2, ...], [opts])`
+#### `panel = input([input1, input2, ...], [opts])`
 
-The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with the initial value. For example,
+The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with an initial value. For example,
 
 ```javascript
 {type: 'checkbox', label: 'my checkbox', initial: true}
