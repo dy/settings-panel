@@ -1,7 +1,6 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
-var label = require('./label')
 
 module.exports = Text
 inherits(Text, EventEmitter)
@@ -12,7 +11,7 @@ function Text (root, opts, theme) {
 
   var container = require('./container')(root, opts.label)
   require('./label')(container, opts.label, theme)
-  
+
   var input = container.appendChild(document.createElement('input'))
   input.type = 'text'
   input.className = 'control-panel-text'

@@ -67,7 +67,7 @@ function Color (root, opts, theme) {
     picker.$el.style.display = 'none'
   }
 
-  picker.onChange( function (hex) {
+  picker.onChange(function (hex) {
     value.innerHTML = format(hex)
     css(icon, {backgroundColor: hex})
     self.emit('input', format(hex))
@@ -81,7 +81,9 @@ function Color (root, opts, theme) {
         return tinycolor(hex).toHexString()
       case 'array':
         var rgb = tinycolor(hex).toRgb()
-        return [rgb.r / 255, rgb.g / 255, rgb.b / 255].map(function (x) {return x.toFixed(2)})
+        return [rgb.r / 255, rgb.g / 255, rgb.b / 255].map(function (x) {
+          return x.toFixed(2)
+        })
       default:
         return hex
     }

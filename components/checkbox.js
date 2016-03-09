@@ -1,6 +1,5 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
-var css = require('dom-css')
 
 module.exports = Checkbox
 inherits(Checkbox, EventEmitter)
@@ -12,7 +11,7 @@ function Checkbox (root, opts, theme) {
 
   var container = require('./container')(root, opts.label)
   require('./label')(container, opts.label, theme)
-  
+
   var input = container.appendChild(document.createElement('input'))
   input.id = 'checkbox-' + opts.label
   input.type = 'checkbox'

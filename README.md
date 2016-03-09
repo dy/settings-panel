@@ -1,5 +1,10 @@
 # control-panel
 
+[![NPM version][npm-image]][npm-url]
+[![build status][travis-image]][travis-url]
+[![js-standard-style][standard-image]][standard-url]
+![experimental][experimental-image]
+
 Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
 ![dark](images/dark.png)![light](images/light.png)
@@ -68,3 +73,9 @@ The following optional parameters can also be passed as `opts`
 #### `panel.on('input')`
 
 Emitted every time any of the inputs change. Returns an object with the state of all inputs by label.
+
+[npm-image]: https://img.shields.io/npm/v/control-panel.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/control-panel
+[standard-image]: https://img.shields.io/badge/code%20style-standard-lightgray.svg?style=flat-square
+[standard-url]: https://github.com/feross/standard
+[experimental-image]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square

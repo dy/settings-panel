@@ -11,8 +11,8 @@ function Range (root, opts, theme) {
   var self = this
 
   var container = require('./container')(root, opts.label)
-  var label = require('./label')(container, opts.label, theme)
-  
+  require('./label')(container, opts.label, theme)
+
   var input = container.appendChild(document.createElement('input'))
   input.type = 'range'
   input.className = 'control-panel-range'

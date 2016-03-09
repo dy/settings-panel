@@ -8,7 +8,7 @@ var panel = input([
   {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(100,200,100)'},
   {type: 'color', label: 'color hex', format: 'hex', initial: '#30b2ba'},
   {type: 'range', label: 'one more', min: 0, max: 10}
-], 
+],
   {theme: 'dark', title: 'example panel'}
 )
 

@@ -72,11 +72,11 @@ function Plate (items, opts) {
   var element
   var state = {}
 
-  items.forEach( function (item) {
+  items.forEach(function (item) {
     state[item.label] = item.initial
   })
 
-  items.forEach( function (item) {
+  items.forEach(function (item) {
     element = components[item.type](box, item, opts.theme)
     element.on('input', function (data) {
       state[item.label] = data
