@@ -21,6 +21,7 @@ Embeddable panel of inputs for adding parameter selection to your app or visuali
 
 > `dark` • `light`
 
+Want to contribute a new theme or input type? Submit a PR!
 
 ## install
 
