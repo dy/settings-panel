@@ -29,6 +29,7 @@ Create a panel with four elements and add to your page in the top right.
 
 ```javascript
 var input = require('input-panel')
+
 var panel = input([
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
   {type: 'text', label: 'text', initial: 'my cool setting'},
