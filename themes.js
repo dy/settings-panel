@@ -8,7 +8,7 @@ module.exports = {
   },
 
   dark: {
-    background1: 'rgb(30,30,30)',
+    background1: 'rgb(35,35,35)',
     background2: 'rgb(54,54,54)',
     foreground1: 'rgb(112,112,112)',
     text1: 'rgb(235,235,235)',
