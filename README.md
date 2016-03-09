@@ -73,7 +73,7 @@ The following optional parameters can also be passed as `opts`
 
 #### `panel.on('input', cb(data))`
 
-This event is emitted every time any of the inputs change. The argument `data` will contain the state of all inputs keyed by label such as:
+This event is emitted every time any one of the inputs change. The callback argument `data` will contain the state of all inputs keyed by label such as:
 
 ```javascript
 {'my checkbox': false, 'my range': 75}
