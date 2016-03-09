@@ -50,10 +50,11 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 {type: 'checkbox', label: 'my checkbox', initial: true}
 ```
 
-Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. Some types have additional properties.
+Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. 
 
-Inputs of type `range` can specify a `min`, `max`, and `step`.
-Inputs of type `color` can specify a `format` for color formatting, can be `rgb` • `hex` • `array`
+Some types have additional properties:
+- Inputs of type `range` can specify a `min`, `max`, and `step`.
+- Inputs of type `color` can specify a `format` as either `rgb` • `hex` • `array`
 
 The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel
