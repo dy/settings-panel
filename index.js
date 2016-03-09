@@ -50,6 +50,7 @@ function Plate (items, opts) {
     background: opts.theme.background1,
     width: opts.width,
     padding: '1%',
+    paddingBottom: '0.5%',
     opacity: 0.95,
     position: 'absolute'
   })

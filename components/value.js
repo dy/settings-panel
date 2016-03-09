@@ -10,7 +10,7 @@ module.exports = function (root, text, theme, width) {
     position: 'absolute',
     right: 0,
     backgroundColor: theme.background2,
-    paddingLeft: '1%',
+    paddingLeft: '1.5%',
     height: '20px',
     width: width,
     display: 'inline-block',

@@ -19,8 +19,8 @@ npm install input-panel
 Create a panel with four elements and add to your page in the top right.
 
 ```javascript
-var inputpanel = require('input-panel')
-var panel = inputpanel([
+var input = require('input-panel')
+var panel = input([
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
   {type: 'text', label: 'text', initial: 'my cool setting'},
   {type: 'checkbox', label: 'checkbox', initial: true},
@@ -32,7 +32,7 @@ var panel = inputpanel([
 
 ## usage
 
-#### `panel = inputpanel([item1, item2, ...], [opts])`
+#### `panel = input([item1, item2, ...], [opts])`
 
 The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with the initial value. Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. Some types have additional properties as specified below.
 
