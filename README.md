@@ -14,7 +14,6 @@ Embeddable panel of inputs for adding parameter selection to your app or visuali
 
 > `dark` • `light`
 
-----------------
 
 ## install
 
@@ -52,7 +51,7 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 - `step` step size
 
 ##### `color`
-- `format` formatting for colors, can be `rgb`, `hex`, or `array`
+- `format` formatting for colors, can be `'rgb'`, `'hex'`, or `'array'`
 
 #### `panel.on('input')`
 
