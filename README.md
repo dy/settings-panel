@@ -3,6 +3,7 @@
 Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
 ![dark](images/dark.png)![light](images/light.png)
+
 ----------------
 
 > Supports the following input types
