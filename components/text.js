@@ -10,11 +10,12 @@ function Text (root, opts, theme) {
   if (!(this instanceof Text)) return new Text(root, opts, theme)
   var self = this
 
-  var container = require('./container')(root)
+  var container = require('./container')(root, opts.label)
   require('./label')(container, opts.label, theme)
   
   var input = container.appendChild(document.createElement('input'))
   input.type = 'text'
+  input.className = 'input-panel-text'
   if (opts.initial) input.value = opts.initial
 
   input.onfocus = function () {

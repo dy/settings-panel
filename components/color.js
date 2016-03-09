@@ -14,11 +14,11 @@ function Color (root, opts, theme) {
   opts.initial = opts.initial || '#123456'
   var self = this
 
-  var container = require('./container')(root)
+  var container = require('./container')(root, opts.label)
   require('./label')(container, opts.label, theme)
 
   var icon = container.appendChild(document.createElement('span'))
-  icon.id = 'color-icon-' + opts.label
+  icon.className = 'input-panel-color'
 
   var value = require('./value')(container, '', theme, '43%')
 

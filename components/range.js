@@ -10,12 +10,12 @@ function Range (root, opts, theme) {
   if (!(this instanceof Range)) return new Range(root, opts, theme)
   var self = this
 
-  var container = require('./container')(root)
+  var container = require('./container')(root, opts.label)
   var label = require('./label')(container, opts.label, theme)
   
   var input = container.appendChild(document.createElement('input'))
   input.type = 'range'
-  input.className = 'slider-plate-range'
+  input.className = 'input-panel-range'
   opts.max = (isnumeric(opts.max)) ? opts.max : 100
   opts.min = (isnumeric(opts.min)) ? opts.min : 100
   opts.step = (isnumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100

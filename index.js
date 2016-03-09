@@ -26,7 +26,8 @@ function Plate (items, opts) {
   opts.position = opts.position || 'top-left'
 
   var box = document.createElement('div')
-  box.className = 'slider-plate'
+  box.className = 'input-panel'
+  box.id = 'input-panel'
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
@@ -38,6 +39,12 @@ function Plate (items, opts) {
   insertcss(colorcss)
   insertcss(basecss)
   insertcss(checkboxcss)
+
+  var elem = document.createElement('style')
+  elem.setAttribute('type', 'text/css')
+  elem.setAttribute('rel', 'stylesheet')
+  elem.setAttribute('href', '//cdn.jsdelivr.net/font-hack/2.019/css/hack.min.css')
+  document.getElementsByTagName('head')[0].appendChild(elem)
 
   css(box, {
     background: opts.theme.background1,

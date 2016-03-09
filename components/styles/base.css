@@ -1,5 +1,5 @@
-.slider-plate {
-  font-family: 'Hack';
+.input-panel {
+  font-family: 'Hack', monospace;
   font-size: 11px;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -8,7 +8,7 @@
   cursor: default;
 }
 
-.slider-plate input {
+.input-panel input {
   font-family: 'Hack';
   font-size: 11px;
 }

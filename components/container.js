@@ -1,7 +1,9 @@
 var css = require('dom-css')
+var format = require('param-case')
 
-module.exports = function (root) {
+module.exports = function (root, label) {
   var container = root.appendChild(document.createElement('div'))
+  container.id = 'input-panel-' + format(label)
   css(container, {
     position: 'relative',
     height: '25px'
