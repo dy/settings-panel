@@ -1,6 +1,6 @@
 # input-panel
 
-Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS, and can easily be added to any app or page. Inspired by `dat-gui`, but streamlined and simplified.
+Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Inspired by `dat-gui`, but streamlined and simplified.
 
 Supports the following input types:
 - range slider
