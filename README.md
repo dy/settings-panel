@@ -52,7 +52,7 @@ The first argument is a list of items. Each one must have a `type` and `label` p
 {type: 'checkbox', label: 'my checkbox', initial: true}
 ```
 
-Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. 
+Each `type` must be one of `range` • `input` • `checkbox` • `color`. Each `label` must be unique. 
 
 Some types have additional properties:
 - Inputs of type `range` can specify a `min`, `max`, and `step`
