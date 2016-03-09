@@ -1,9 +1,9 @@
 # control-panel
 
 [![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
-[![js-standard-style][standard-image]][standard-url]
 ![experimental][experimental-image]
+[![js-standard-style][standard-image]][standard-url]
+
 
 Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
