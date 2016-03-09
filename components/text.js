@@ -15,7 +15,7 @@ function Text (root, opts, theme) {
   
   var input = container.appendChild(document.createElement('input'))
   input.type = 'text'
-  input.className = 'input-panel-text'
+  input.className = 'control-panel-text'
   if (opts.initial) input.value = opts.initial
 
   input.onfocus = function () {

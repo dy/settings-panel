@@ -18,7 +18,7 @@ function Color (root, opts, theme) {
   require('./label')(container, opts.label, theme)
 
   var icon = container.appendChild(document.createElement('span'))
-  icon.className = 'input-panel-color'
+  icon.className = 'control-panel-color'
 
   var value = require('./value')(container, '', theme, '46%')
 

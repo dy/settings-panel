@@ -25,8 +25,8 @@ function Plate (items, opts) {
   opts.position = opts.position || 'top-left'
 
   var box = document.createElement('div')
-  box.className = 'input-panel'
-  box.id = 'input-panel'
+  box.className = 'control-panel'
+  box.id = 'control-panel'
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)

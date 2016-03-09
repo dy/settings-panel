@@ -15,7 +15,7 @@ function Range (root, opts, theme) {
   
   var input = container.appendChild(document.createElement('input'))
   input.type = 'range'
-  input.className = 'input-panel-range'
+  input.className = 'control-panel-range'
   opts.max = (isnumeric(opts.max)) ? opts.max : 100
   opts.min = (isnumeric(opts.min)) ? opts.min : 0
   opts.step = (isnumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100

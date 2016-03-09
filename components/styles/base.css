@@ -1,4 +1,4 @@
-.input-panel {
+.control-panel {
   font-family: 'Hack', monospace;
   font-size: 11px;
   -webkit-user-select: none;
@@ -8,7 +8,7 @@
   cursor: default;
 }
 
-.input-panel input {
+.control-panel input {
   font-family: 'Hack';
   font-size: 11px;
 }

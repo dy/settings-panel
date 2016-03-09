@@ -17,10 +17,11 @@ function Checkbox (root, opts, theme) {
   input.id = 'checkbox-' + opts.label
   input.type = 'checkbox'
   input.checked = opts.initial
-  input.className = 'input-panel-checkbox'
+  input.className = 'control-panel-checkbox'
 
   var label = container.appendChild(document.createElement('label'))
   label.htmlFor = 'checkbox-' + opts.label
+  label.className = 'control-panel-checkbox'
 
   input.oninput = function (data) {
     self.emit('input', data.target.value)

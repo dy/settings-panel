@@ -1,4 +1,4 @@
-# input-panel
+# control-panel
 
 Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
@@ -22,7 +22,7 @@ Embeddable panel of inputs for adding parameter selection to your app or visuali
 Add to your project with
 
 ```
-npm install input-panel
+npm install control-panel
 ```
 
 ## example
@@ -30,9 +30,9 @@ npm install input-panel
 Create a panel with four elements and add to your page in the top right.
 
 ```javascript
-var input = require('input-panel')
+var control = require('control-panel')
 
-var panel = input([
+var panel = control([
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
   {type: 'text', label: 'text', initial: 'my cool setting'},
   {type: 'checkbox', label: 'checkbox', initial: true},
@@ -44,7 +44,7 @@ var panel = input([
 
 ## usage
 
-#### `panel = input([input1, input2, ...], [opts])`
+#### `panel = control([input1, input2, ...], [opts])`
 
 The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with an initial value. For example,
 

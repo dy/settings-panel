@@ -1,5 +1,5 @@
 {
-  "name": "input-panel",
+  "name": "control-panel",
   "version": "1.0.0",
   "description": "embeddable panel of inputs for parameter setting",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/freeman-lab/input-panel.git"
+    "url": "git+https://github.com/freeman-lab/control-panel.git"
   },
   "keywords": [
     "slider",
@@ -24,12 +24,12 @@
   "author": "freeman-lab",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/freeman-lab/input-panel/issues"
+    "url": "https://github.com/freeman-lab/control-panel/issues"
   },
   "browserify": {
     "transform": "brfs"
   },
-  "homepage": "https://github.com/freeman-lab/input-panel#readme",
+  "homepage": "https://github.com/freeman-lab/control-panel#readme",
   "dependencies": {
     "brfs": "^1.4.3",
     "dom-css": "^2.0.0",
