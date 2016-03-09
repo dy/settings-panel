@@ -39,10 +39,10 @@ Create a panel with four elements and add to your page in the top right.
 var control = require('control-panel')
 
 var panel = control([
-  {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
-  {type: 'text', label: 'text', initial: 'my cool setting'},
-  {type: 'checkbox', label: 'checkbox', initial: true},
-  {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(10,200,0)'}
+  {type: 'range', label: 'my range', min: 0, max: 100, initial: 20},
+  {type: 'text', label: 'my text', initial: 'my cool setting'},
+  {type: 'checkbox', label: 'my checkbox', initial: true},
+  {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)'}
 ], 
   {theme: 'light', position: 'top-right'}
 )
@@ -71,9 +71,13 @@ The following optional parameters can also be passed as `opts`
 - `position` where to place the panel as `top-left` • `top-right` • `bottom-left` • `bottom-right` 
 - `width` width of panel in pixels
 
-#### `panel.on('input')`
+#### `panel.on('input', cb(data))`
 
-Emitted every time any of the inputs change. Returns an object with the state of all inputs by label.
+This event is emitted every time any of the inputs change. The argument `data` will contain the state of all inputs keyed by label such as:
+
+```javascript
+{'my checkbox': false, 'my range': 75}
+```
 
 [npm-image]: https://img.shields.io/badge/npm-v1.0.1-lightgray.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/control-panel
