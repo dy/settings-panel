@@ -42,7 +42,7 @@ var panel = control([
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
   {type: 'text', label: 'text', initial: 'my cool setting'},
   {type: 'checkbox', label: 'checkbox', initial: true},
-  {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(100,200,100)'}
+  {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(10,200,0)'}
 ], 
   {theme: 'light', position: 'top-right'}
 )
@@ -52,7 +52,7 @@ var panel = control([
 
 #### `panel = control([input1, input2, ...], [opts])`
 
-The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with an initial value. For example,
+The first argument is a list of inputs. Each one must have a `type` and `label` property, and can have an `initial` property with an initial value. For example,
 
 ```javascript
 {type: 'checkbox', label: 'my checkbox', initial: true}
