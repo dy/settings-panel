@@ -1,0 +1,14 @@
+.slider-plate {
+  font-family: 'Hack';
+  font-size: 11px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  cursor: default;
+}
+
+.slider-plate input {
+  font-family: 'Hack';
+  font-size: 11px;
+}

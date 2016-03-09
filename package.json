@@ -30,8 +30,12 @@
   "homepage": "https://github.com/freeman-lab/slider-plate#readme",
   "dependencies": {
     "brfs": "^1.4.3",
+    "dom-css": "^2.0.0",
     "inherits": "^2.0.1",
     "insert-css": "^0.2.0",
-    "is-numeric": "0.0.5"
+    "is-numeric": "0.0.5",
+    "is-string": "^1.0.4",
+    "simple-color-picker": "0.0.9",
+    "tinycolor2": "^1.3.0"
   }
 }

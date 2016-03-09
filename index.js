@@ -1,11 +1,15 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var fs = require('fs')
-var insertCss = require('insert-css')
+var css = require('dom-css')
+var insertcss = require('insert-css')
 var path = require('path')
-console.log(path.join(__dirname, 'components', 'style.css'))
-var css = fs.readFileSync(path.join(__dirname, 'components', 'style.css'))
-insertCss(css)
+var isstring = require('is-string')
+var themes = require('./themes')
+var basecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'base.css'))
+var colorcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'color.css'))
+var rangecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'range.css'))
+var checkboxcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'checkbox.css'))
 
 module.exports = Plate
 inherits(Plate, EventEmitter)
@@ -13,7 +17,41 @@ inherits(Plate, EventEmitter)
 function Plate (items, opts) {
   if (!(this instanceof Plate)) return new Plate(items, opts)
   var self = this
-  var root = document.body.appendChild(document.createElement('div'))
+  opts = opts || {}
+  opts.width = opts.width || 300
+  opts.background = opts.background || 'rgb(30,30,30)'
+  opts.theme = opts.theme || 'dark'
+  opts.theme = isstring(opts.theme) ? themes[opts.theme] : opts.theme
+  opts.root = opts.root || document.body
+  opts.position = opts.position || 'top-left'
+
+  var box = document.createElement('div')
+  box.className = 'slider-plate'
+
+  rangecss = String(rangecss)
+    .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
+  checkboxcss = String(checkboxcss)
+    .replace(new RegExp('{{ BOX_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ ICON_COLOR }}', 'g'), opts.theme.foreground1)
+  insertcss(rangecss)
+  insertcss(colorcss)
+  insertcss(basecss)
+  insertcss(checkboxcss)
+
+  css(box, {
+    background: opts.theme.background1,
+    width: opts.width,
+    padding: '1%',
+    opacity: 0.95,
+    position: 'absolute'
+  })
+
+  if (opts.position === 'top-right' || opts.position === 'bottom-right') css(box, {right: 8})
+  else css(box, {left: 8})
+
+  if (opts.position === 'top-right' || opts.position === 'top-left') css(box, {top: 8})
+  else css(box, {bottom: 8})
 
   var components = {
     text: require('./components/text'),
@@ -23,17 +61,19 @@ function Plate (items, opts) {
   }
 
   var element
+  var state = {}
 
   items.forEach( function (item) {
-    console.log(item.type)
-    element = components[item.type](root, item)
+    state[item.label] = item.initial
+  })
+
+  items.forEach( function (item) {
+    element = components[item.type](box, item, opts.theme)
     element.on('input', function (data) {
-      self.emit('input', data)
+      state[item.label] = data
+      self.emit('input', state)
     })
   })
+
+  opts.root.appendChild(box)
 }
-// create a container
-// create a state
-// for each input, add an element
-// each element should have an event listener
-// for each one, set a listener to reset the state and emit the current state

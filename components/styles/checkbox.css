@@ -1,0 +1,26 @@
+input[type="checkbox"] {
+  display:none;
+  cursor: pointer; 
+}
+
+input[type=checkbox] + label:before {
+  content: "";  
+  display: inline-block;  
+  width: 18px;  
+  height: 18px;  
+  padding: 0px;
+  vertical-align:middle;
+  margin-right: 8px; 
+  margin-top: 2px; 
+  background-color: {{ BOX_COLOR }};  
+  border-radius: 0px; 
+  cursor: pointer; 
+}
+
+input[type=checkbox]:checked + label:before {
+  width: 10px;  
+  height: 10px;  
+  background-color: {{ ICON_COLOR }};
+  border: solid 4px {{ BOX_COLOR }};
+  cursor: pointer; 
+}
