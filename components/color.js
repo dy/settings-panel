@@ -20,7 +20,7 @@ function Color (root, opts, theme) {
   var icon = container.appendChild(document.createElement('span'))
   icon.className = 'input-panel-color'
 
-  var value = require('./value')(container, '', theme, '43%')
+  var value = require('./value')(container, '', theme, '46%')
 
   icon.onmouseover = function () {
     picker.$el.style.display = ''
@@ -58,7 +58,7 @@ function Color (root, opts, theme) {
   css(icon, {
     position: 'relative',
     display: 'inline-block',
-    width: '12%',
+    width: '12.5%',
     height: '20px',
     backgroundColor: picker.getHexString()
   })

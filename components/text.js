@@ -26,7 +26,7 @@ function Text (root, opts, theme) {
     position: 'absolute',
     paddingLeft: '6px',
     height: '20px',
-    width: '55.6%',
+    width: '59.5%',
     border: 'none',
     background: theme.background2,
     color: theme.text2

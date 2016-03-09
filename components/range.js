@@ -17,7 +17,7 @@ function Range (root, opts, theme) {
   input.type = 'range'
   input.className = 'input-panel-range'
   opts.max = (isnumeric(opts.max)) ? opts.max : 100
-  opts.min = (isnumeric(opts.min)) ? opts.min : 100
+  opts.min = (isnumeric(opts.min)) ? opts.min : 0
   opts.step = (isnumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100
   input.min = opts.min
   input.max = opts.max
@@ -25,10 +25,10 @@ function Range (root, opts, theme) {
   if (opts.initial) input.value = opts.initial
 
   css(input, {
-    width: '45%'
+    width: '47.5%'
   })
 
-  var value = require('./value')(container, input.value, theme, '10%')
+  var value = require('./value')(container, input.value, theme, '11%')
 
   input.oninput = function (data) {
     value.innerHTML = data.target.value

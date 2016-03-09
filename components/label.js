@@ -4,7 +4,7 @@ module.exports = function (root, text, theme) {
   var background = root.appendChild(document.createElement('div'))
   css(background, {
     left: 0,
-    width: '40%',
+    width: '36%',
     display: 'inline-block',
     height: '20px',
     paddingRight: '2%',

@@ -10,7 +10,7 @@ module.exports = function (root, text, theme) {
     color: theme.text2,
     textTransform: 'uppercase',
     height: '20px',
-    marginBottom: '2px'
+    marginBottom: '4px'
   })
 
   return title
