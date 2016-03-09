@@ -46,12 +46,12 @@ var panel = input([
 The first argument is a list of items. Each one must have a `type` and `label` property, and can have an `initial` property with the initial value. Each `type` must be one of `range`, `input`, `checkbox`, and `color`. Each `label` must be unique. Some types have additional properties as specified below.
 
 ##### `range`
-- `min` minimum value
-- `max` maximum value
-- `step` step size
+`min` minimum value
+`max` maximum value
+`step` step size
 
 ##### `color`
-- `format` formatting for colors, can be `'rgb'`, `'hex'`, or `'array'`
+`format` formatting for colors, can be `'rgb'`, `'hex'`, or `'array'`
 
 #### `panel.on('input')`
 
