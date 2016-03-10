@@ -22,7 +22,7 @@ function Checkbox (root, opts, theme) {
   label.htmlFor = 'checkbox-' + opts.label
   label.className = 'control-panel-checkbox'
 
-  input.oninput = function (data) {
-    self.emit('input', data.target.value)
+  input.onchange = function (data) {
+    self.emit('input', data.target.checked)
   }
 }
