@@ -6,10 +6,7 @@ var insertcss = require('insert-css')
 var path = require('path')
 var isstring = require('is-string')
 var themes = require('./themes')
-var basecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'base.css'))
-var colorcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'color.css'))
-var rangecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'range.css'))
-var checkboxcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'checkbox.css'))
+var uuid = require('node-uuid')
 
 module.exports = Plate
 inherits(Plate, EventEmitter)
@@ -22,18 +19,26 @@ function Plate (items, opts) {
   opts.theme = opts.theme || 'dark'
   opts.theme = isstring(opts.theme) ? themes[opts.theme] : opts.theme
   opts.root = opts.root || document.body
-  opts.position = opts.position || 'top-left'
+  opts.position = opts.position
 
   var box = document.createElement('div')
+  var id = uuid.v4()
   box.className = 'control-panel'
-  box.id = 'control-panel'
+  box.id = 'control-panel' + id
+
+  var basecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'base.css'))
+  var colorcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'color.css'))
+  var rangecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'range.css'))
+  var checkboxcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'checkbox.css'))
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
     .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
   checkboxcss = String(checkboxcss)
     .replace(new RegExp('{{ BOX_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ ICON_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
   insertcss(rangecss)
   insertcss(colorcss)
   insertcss(basecss)
@@ -50,9 +55,13 @@ function Plate (items, opts) {
     width: opts.width,
     padding: '1%',
     paddingBottom: '0.5%',
-    opacity: 0.95,
-    position: 'absolute'
+    opacity: 0.95
   })
+
+  if (opts.position === 'top-right' 
+    || opts.position === 'top-left' 
+    || opts.position === 'bottom-right'
+    || opts.position === 'bottom-left') css(box, {position: 'absolute'})
 
   if (opts.position === 'top-right' || opts.position === 'bottom-right') css(box, {right: 8})
   else css(box, {left: 8})
@@ -77,7 +86,7 @@ function Plate (items, opts) {
   })
 
   items.forEach(function (item) {
-    element = components[item.type](box, item, opts.theme)
+    element = components[item.type](box, item, opts.theme, id)
     element.on('input', function (data) {
       state[item.label] = data
       self.emit('input', state)

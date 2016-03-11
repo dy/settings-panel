@@ -1,9 +1,9 @@
-input[type="checkbox"].control-panel-checkbox {
+input[type="checkbox"].control-panel-checkbox-{{ UUID }} {
   display:none;
   cursor: pointer; 
 }
 
-input[type=checkbox].control-panel-checkbox + label:before {
+input[type=checkbox].control-panel-checkbox-{{ UUID }} + label:before {
   content: "";  
   display: inline-block;  
   width: 18px;  
@@ -17,7 +17,7 @@ input[type=checkbox].control-panel-checkbox + label:before {
   cursor: pointer; 
 }
 
-input[type=checkbox]:checked.control-panel-checkbox  + label:before {
+input[type=checkbox]:checked.control-panel-checkbox-{{ UUID }}  + label:before {
   width: 10px;  
   height: 10px;  
   background-color: {{ ICON_COLOR }};

@@ -6,8 +6,8 @@ var css = require('dom-css')
 module.exports = Range
 inherits(Range, EventEmitter)
 
-function Range (root, opts, theme) {
-  if (!(this instanceof Range)) return new Range(root, opts, theme)
+function Range (root, opts, theme, uuid) {
+  if (!(this instanceof Range)) return new Range(root, opts, theme, uuid)
   var self = this
 
   var container = require('./container')(root, opts.label)
@@ -15,7 +15,7 @@ function Range (root, opts, theme) {
 
   var input = container.appendChild(document.createElement('input'))
   input.type = 'range'
-  input.className = 'control-panel-range'
+  input.className = 'control-panel-range-' + uuid
   opts.max = (isnumeric(opts.max)) ? opts.max : 100
   opts.min = (isnumeric(opts.min)) ? opts.min : 0
   opts.step = (isnumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100
