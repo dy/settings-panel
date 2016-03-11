@@ -12,3 +12,8 @@
   font-family: 'Hack';
   font-size: 11px;
 }
+
+.control-panel a {
+  color: inherit;
+  text-decoration: none;
+}
