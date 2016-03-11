@@ -9,7 +9,7 @@ var panel = input([
   {type: 'color', label: 'color hex', format: 'hex', initial: '#30b2ba'},
   {type: 'range', label: 'one more', min: 0, max: 10}
 ],
-  {theme: 'dark', title: 'example panel'}
+  {theme: 'light', title: 'example panel', position: 'top-left'}
 )
 
 panel.on('input', function (data) {
