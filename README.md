@@ -70,8 +70,8 @@ The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel
 - `theme` can specify `light` • `dark` or provide an object (see [`themes.js`](themes.js) for format)
 - `title` a title to add to the top of the panel
-- `position` where to place the panel as `top-left` • `top-right` • `bottom-left` • `bottom-right`, if `undefined` will just use relative positioning
 - `width` width of panel in pixels
+- `position` where to place the panel as `top-left` • `top-right` • `bottom-left` • `bottom-right`, if `undefined` will just use relative positioning
 
 #### `panel.on('input', cb(data))`
 
