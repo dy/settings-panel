@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "watchify-server example.js | garnish",
-    "test": "browserify test.js | testron | tap-spec"
+    "test": "browserify test.js | testron | tap-spec",
+    "build": "browserify demo/index.js -o demo/bundle.js",
+    "deploy": "surge demo control-panel.surge.sh"
   },
   "repository": {
     "type": "git",
