@@ -1,6 +1,6 @@
-var input = require('./')
+var control = require('./')
 
-var panel = input([
+var panel = control([
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
   {type: 'range', label: 'range stepped', min: 0, max: 1, step: 0.2},
   {type: 'text', label: 'text', initial: 'my setting'},
