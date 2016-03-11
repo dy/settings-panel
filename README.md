@@ -81,7 +81,7 @@ This event is emitted every time any one of the inputs change. The callback argu
 {'my checkbox': false, 'my range': 75}
 ```
 
-[npm-image]: https://img.shields.io/badge/npm-v1.0.2-lightgray.svg?style=flat-square
+[npm-image]: https://img.shields.io/badge/npm-v1.1.0-lightgray.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/control-panel
 [standard-image]: https://img.shields.io/badge/code%20style-standard-lightgray.svg?style=flat-square
 [standard-url]: https://github.com/feross/standard
