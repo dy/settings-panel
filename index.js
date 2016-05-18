@@ -52,12 +52,12 @@ function Plate (items, opts) {
     .replace(new RegExp('{{ INTERVAL_COLOR }}', 'g'), opts.theme.foreground1)
     .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
-  insertcss(buttoncss)
   insertcss(rangecss)
   insertcss(colorcss)
   insertcss(basecss)
   insertcss(checkboxcss)
   insertcss(intervalcss)
+  insertcss(buttoncss)
 
   var elem = document.createElement('style')
   elem.setAttribute('type', 'text/css')
