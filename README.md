@@ -67,8 +67,8 @@ Each `type` must be one of `range` • `input` • `checkbox` • `color` • `i
 Some types have additional properties:
 - Inputs of type `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `initial` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).
 - Inputs of type `color` can specify a `format` as either `rgb` • `hex` • `array`
-- Inputs of tyep `button` can specify an `action` callback. Button inputs are not reflected in the state and do not trigger an `'input'` event.
-- Inputs of interval obey the same semantics as `range` inputs, excep the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `initial: [1, 7.5]`.
+- Inputs of type `button` can specify an `action` callback. Button inputs are not reflected in the state and do not trigger an `'input'` event.
+- Inputs of type `interval` obey the same semantics as `range` inputs, except the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `initial: [1, 7.5]`.
 
 The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel
