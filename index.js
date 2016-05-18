@@ -99,6 +99,11 @@ function Plate (items, opts) {
 
   items.forEach(function (item) {
     element = components[item.type](box, item, opts.theme, id)
+
+    element.on('initialized', function (data) {
+      state[item.label] = data
+    })
+
     element.on('input', function (data) {
       state[item.label] = data
       self.emit('input', state)
