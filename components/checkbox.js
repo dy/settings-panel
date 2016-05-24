@@ -1,6 +1,5 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
-var uuid = require('node-uuid')
 
 module.exports = Checkbox
 inherits(Checkbox, EventEmitter)
