@@ -25,9 +25,12 @@ module.exports = function (root, text, theme, width, left) {
   css(value, {
     color: theme.text2,
     display: 'inline-block',
-    verticalAlign: 'sub',
     userSelect: 'text',
-    cursor: 'text'
+    cursor: 'text',
+    overflow: 'hidden',
+    lineHeight: '20px',
+    wordBreak: 'break-all',
+    height: 20
   })
 
   return value
