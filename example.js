@@ -15,9 +15,11 @@ var panel = control([
   {type: 'interval', label: 'an interval', min: 0, max: 10, initial: [3, 4], steps: 20},
   {type: 'interval', label: 'log interval', min: 0.1, max: 10, initial: [0.1, 1], scale: 'log', steps: 20},
   {type: 'interval', label: 'neg log interval', min: -0.1, max: -10, initial: [-0.1, -1], scale: 'log', steps: 20},
-  {type: 'range', label: 'one more', min: 0, max: 10}
+  {type: 'range', label: 'one more', min: 0, max: 10},
+  {type: 'select', label: 'key/value select', options: {state1: 'State One', state2: 'State Two'}, initial: 'state1'},
+  {type: 'select', label: 'array select', options: ['State One', 'State Two'], initial: 'State One'}
 ],
-  {theme: 'light', title: 'example panel', position: 'top-left', width: 400}
+  {theme: 'dark', title: 'example panel', position: 'top-left', width: 400}
 )
 
 panel.on('input', function (data) {

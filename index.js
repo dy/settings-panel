@@ -32,6 +32,7 @@ function Plate (items, opts) {
   var checkboxcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'checkbox.css'))
   var buttoncss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'button.css'))
   var intervalcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'interval.css'))
+  var selectcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'select.css'))
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
@@ -52,6 +53,12 @@ function Plate (items, opts) {
     .replace(new RegExp('{{ INTERVAL_COLOR }}', 'g'), opts.theme.foreground1)
     .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
+  selectcss = String(selectcss)
+    .replace(new RegExp('{{ TEXT_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ BG_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ BG_COLOR_HOVER }}', 'g'), opts.theme.background2hover)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
+  insertcss(selectcss)
   insertcss(rangecss)
   insertcss(colorcss)
   insertcss(basecss)
@@ -92,7 +99,8 @@ function Plate (items, opts) {
     range: require('./components/range'),
     checkbox: require('./components/checkbox'),
     color: require('./components/color'),
-    interval: require('./components/interval')
+    interval: require('./components/interval'),
+    select: require('./components/select')
   }
 
   var element

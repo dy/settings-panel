@@ -61,3 +61,11 @@ test('button', function (t) {
   t.end()
   window.close()
 })
+
+test('select', function (t) {
+  control([{type: 'select', label: 'select label', options: ['option 1', 'option 2']}])
+  assertId(t, 'control-panel-select-label')
+  assertSelector(t, '[class^=control-panel-select-]')
+  t.end()
+  window.close()
+})
