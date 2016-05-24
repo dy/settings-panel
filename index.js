@@ -24,7 +24,7 @@ function Plate (items, opts) {
   var box = document.createElement('div')
   var id = uuid.v4()
   box.className = 'control-panel'
-  box.id = 'control-panel' + id
+  box.id = 'control-panel-' + id
 
   var basecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'base.css'))
   var colorcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'color.css'))

@@ -22,7 +22,6 @@ function Range (root, opts, theme, uuid) {
   input.type = 'range'
   input.className = 'control-panel-range-' + uuid
 
-
   // Create scale functions for converting to/from the desired scale:
   if (opts.scale === 'log') {
     scaleValue = function (x) {
@@ -32,7 +31,7 @@ function Range (root, opts, theme, uuid) {
       return (Math.log(y * logsign) - Math.log(logmin)) * 100 / (Math.log(logmax) - Math.log(logmin))
     }
   } else {
-    scaleValue = scaleValueInverse = function (x) {return x}
+    scaleValue = scaleValueInverse = function (x) { return x }
   }
 
   // Get initial value:
@@ -71,7 +70,6 @@ function Range (root, opts, theme, uuid) {
     if (opts.initial * scaleValueInverse(opts.max) <= 0) {
       throw new Error('Log range initial value must have the same sign as min/max and must not equal zero. Got initial value = ' + opts.initial)
     }
-
   } else {
     // If linear, this is much simpler:
     opts.max = (isnumeric(opts.max)) ? opts.max : 100
@@ -79,7 +77,6 @@ function Range (root, opts, theme, uuid) {
     opts.step = (isnumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100
 
     opts.initial = isnumeric(opts.initial) ? opts.initial : (opts.min + opts.max) * 0.5
-
   }
 
   // If we got a number of steps, use that instead:
@@ -98,7 +95,7 @@ function Range (root, opts, theme, uuid) {
   input.value = opts.initial
 
   css(input, {
-    width: '47.5%',
+    width: '47.5%'
   })
 
   var value = require('./value')(container, scaleValue(opts.initial), theme, '11%')

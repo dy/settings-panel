@@ -7,7 +7,6 @@ inherits(Button, EventEmitter)
 
 function Button (root, opts, theme) {
   if (!(this instanceof Button)) return new Button(root, opts, theme)
-  var self = this
 
   var container = require('./container')(root, opts.label)
   require('./label')(container, '', theme)
@@ -19,7 +18,7 @@ function Button (root, opts, theme) {
     css(input, {outline: 'none'})
   }
 
-  input.textContent = opts.label;
+  input.textContent = opts.label
 
   css(input, {
     position: 'absolute',
@@ -31,5 +30,5 @@ function Button (root, opts, theme) {
     right: 0
   })
 
-  input.addEventListener('click', opts.action);
+  input.addEventListener('click', opts.action)
 }

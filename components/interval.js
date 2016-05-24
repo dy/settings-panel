@@ -13,7 +13,7 @@ function clamp (x, min, max) {
 function Range (root, opts, theme, uuid) {
   if (!(this instanceof Range)) return new Range(root, opts, theme, uuid)
   var self = this
-  var scaleValue, scaleValueInverse, logmin, logmax, logsign
+  var scaleValue, scaleValueInverse, logmin, logmax, logsign, panel, input, handle
 
   var container = require('./container')(root, opts.label)
   require('./label')(container, opts.label, theme)
@@ -22,18 +22,16 @@ function Range (root, opts, theme, uuid) {
     throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
   }
 
-  var panel
   setTimeout(function () {
-    panel = document.getElementById('control-panel' + uuid)
+    panel = document.getElementById('control-panel-' + uuid)
   })
 
-  var input = container.appendChild(document.createElement('span'))
+  input = container.appendChild(document.createElement('span'))
   input.className = 'control-panel-interval-' + uuid
 
-  var handle = document.createElement('span')
+  handle = document.createElement('span')
   handle.className = 'control-panel-interval-handle'
   input.appendChild(handle)
-
 
   // Create scale functions for converting to/from the desired scale:
   if (opts.scale === 'log') {
@@ -44,7 +42,7 @@ function Range (root, opts, theme, uuid) {
       return (Math.log(y * logsign) - Math.log(logmin)) * 100 / (Math.log(logmax) - Math.log(logmin))
     }
   } else {
-    scaleValue = scaleValueInverse = function (x) {return x}
+    scaleValue = scaleValueInverse = function (x) { return x }
   }
 
   if (!Array.isArray(opts.initial)) {
@@ -89,7 +87,6 @@ function Range (root, opts, theme, uuid) {
     if (scaleValue(opts.initial[0]) * scaleValue(opts.max) <= 0 || scaleValue(opts.initial[1]) * scaleValue(opts.max) <= 0) {
       throw new Error('Log range initial value must have the same sign as min/max and must not equal zero. Got initial value = [' + scaleValue(opts.initial[0]) + ', ' + scaleValue(opts.initial[1]) + ']')
     }
-
   } else {
     // If linear, this is much simpler:
     opts.max = (isnumeric(opts.max)) ? opts.max : 100
@@ -116,7 +113,7 @@ function Range (root, opts, theme, uuid) {
   function setHandleCSS () {
     css(handle, {
       left: ((value[0] - opts.min) / (opts.max - opts.min) * 100) + '%',
-      right: (100 - (value[1] - opts.min) / (opts.max - opts.min) * 100) + '%',
+      right: (100 - (value[1] - opts.min) / (opts.max - opts.min) * 100) + '%'
     })
   }
 
@@ -132,7 +129,7 @@ function Range (root, opts, theme, uuid) {
 
   function mouseX (ev) {
     // Get mouse position in page coords relative to the container:
-    return ev.pageX - input.getBoundingClientRect().left;
+    return ev.pageX - input.getBoundingClientRect().left
   }
 
   function setActiveValue (fraction) {
@@ -143,7 +140,6 @@ function Range (root, opts, theme, uuid) {
     // Get the position in the range [0, 1]:
     var lofrac = (value[0] - opts.min) / (opts.max - opts.min)
     var hifrac = (value[1] - opts.min) / (opts.max - opts.min)
-
 
     // Clip against the other bound:
     if (activeIndex === 0) {
@@ -160,7 +156,7 @@ function Range (root, opts, theme, uuid) {
 
     // Update and send the event:
     setHandleCSS()
-    input.oninput();
+    input.oninput()
   }
 
   var mousemoveListener = function (ev) {

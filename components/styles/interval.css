@@ -21,7 +21,7 @@
   height: 20px;
   min-width: 1px;
 }
-#control-panel{{ UUID }}.control-panel-interval-dragging * {
+#control-panel-{{ UUID }}.control-panel-interval-dragging * {
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
   -khtml-user-select: none !important;
