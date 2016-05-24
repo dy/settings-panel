@@ -19,7 +19,7 @@ var panel = control([
   {type: 'select', label: 'key/value select', options: {state1: 'State One', state2: 'State Two'}, initial: 'state1'},
   {type: 'select', label: 'array select', options: ['State One', 'State Two'], initial: 'State One'}
 ],
-  {theme: 'dark', title: 'example panel', position: 'top-left', width: 400}
+  {theme: 'light', title: 'example panel', position: 'top-left', width: 400}
 )
 
 panel.on('input', function (data) {
