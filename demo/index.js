@@ -15,10 +15,10 @@ var inputs = [
   {type: 'range', label: 'one more', min: 0, max: 10}
 ]
 
-var panel1 = control(inputs,
+control(inputs,
   {theme: 'light', title: 'example panel 1', root: div1}
 )
 
-var panel2 = control(inputs,
+control(inputs,
   {theme: 'dark', title: 'example panel 2', root: div2}
 )
