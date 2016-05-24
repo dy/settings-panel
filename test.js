@@ -33,4 +33,5 @@ test('checkbox', function (t) {
   t.equal(typeof document.querySelector('.input-panel-checkbox'), 'object')
   t.equal(typeof document.querySelector('#input-panel-label'), 'object')
   t.end()
+  window.close()
 })

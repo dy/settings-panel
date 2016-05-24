@@ -73,10 +73,10 @@ function Plate (items, opts) {
     opacity: 0.95
   })
 
-  if (opts.position === 'top-right'
-    || opts.position === 'top-left'
-    || opts.position === 'bottom-right'
-    || opts.position === 'bottom-left') css(box, {position: 'absolute'})
+  if (opts.position === 'top-right' ||
+    opts.position === 'top-left' ||
+    opts.position === 'bottom-right' ||
+    opts.position === 'bottom-left') css(box, {position: 'absolute'})
 
   if (opts.position === 'top-right' || opts.position === 'bottom-right') css(box, {right: 8})
   else css(box, {left: 8})

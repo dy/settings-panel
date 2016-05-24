@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "watchify-server example.js | garnish",
-    "test": "browserify test.js | testron | tap-spec",
+    "test": "standard && browserify test.js | smokestack | tap-spec",
     "build": "browserify demo/index.js -o demo/bundle.js",
     "deploy": "surge demo control-panel.surge.sh"
   },
@@ -46,9 +46,9 @@
   },
   "devDependencies": {
     "garnish": "^5.0.1",
+    "smokestack": "^3.4.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1",
-    "testron": "^1.2.0",
     "watchify-server": "^1.0.2"
   }
 }
