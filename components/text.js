@@ -5,7 +5,7 @@ var css = require('dom-css')
 module.exports = Text
 inherits(Text, EventEmitter)
 
-function Text (root, opts, theme) {
+function Text (root, opts, theme, uuid) {
   if (!(this instanceof Text)) return new Text(root, opts, theme)
   var self = this
 
@@ -14,7 +14,7 @@ function Text (root, opts, theme) {
 
   var input = container.appendChild(document.createElement('input'))
   input.type = 'text'
-  input.className = 'control-panel-text'
+  input.className = 'control-panel-text-' + uuid
   if (opts.initial) input.value = opts.initial
 
   input.onfocus = function () {
@@ -28,7 +28,8 @@ function Text (root, opts, theme) {
     width: '59.5%',
     border: 'none',
     background: theme.background2,
-    color: theme.text2
+    color: theme.text2,
+    fontFamily: 'inherit'
   })
 
   setTimeout(function () {

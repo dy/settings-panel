@@ -27,14 +27,14 @@ test('range', function (t) {
 test('color', function (t) {
   control([{type: 'color', label: 'color label', min: 0, max: 100, initial: 20}])
   assertId(t, 'control-panel-color-label')
-  assertSelector(t, '.control-panel-color')
+  assertSelector(t, '[class^=control-panel-color-]')
   t.end()
 })
 
 test('text', function (t) {
   control([{type: 'text', label: 'text label', min: 0, max: 100, initial: 20}])
   assertId(t, 'control-panel-text-label')
-  assertSelector(t, '.control-panel-text')
+  assertSelector(t, '[class^=control-panel-text]')
   t.end()
 })
 
@@ -57,7 +57,7 @@ test('interval', function (t) {
 test('button', function (t) {
   control([{type: 'button', label: 'button label', action: function () { }}])
   assertId(t, 'control-panel-button-label')
-  assertSelector(t, '.control-panel-button')
+  assertSelector(t, '[class^=control-panel-button-]')
   t.end()
   window.close()
 })

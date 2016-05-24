@@ -7,7 +7,7 @@ var tinycolor = require('tinycolor2')
 module.exports = Color
 inherits(Color, EventEmitter)
 
-function Color (root, opts, theme) {
+function Color (root, opts, theme, uuid) {
   if (!(this instanceof Color)) return new Color(root, opts, theme)
   opts = opts || {}
   opts.format = opts.format || 'rgb'
@@ -18,7 +18,7 @@ function Color (root, opts, theme) {
   require('./label')(container, opts.label, theme)
 
   var icon = container.appendChild(document.createElement('span'))
-  icon.className = 'control-panel-color'
+  icon.className = 'control-panel-color-' + uuid
 
   var value = require('./value')(container, '', theme, '46%')
 
