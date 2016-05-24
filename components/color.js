@@ -8,7 +8,7 @@ module.exports = Color
 inherits(Color, EventEmitter)
 
 function Color (root, opts, theme, uuid) {
-  if (!(this instanceof Color)) return new Color(root, opts, theme)
+  if (!(this instanceof Color)) return new Color(root, opts, theme, uuid)
   opts = opts || {}
   opts.format = opts.format || 'rgb'
   opts.initial = opts.initial || '#123456'

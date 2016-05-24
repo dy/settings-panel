@@ -6,7 +6,7 @@ module.exports = Button
 inherits(Button, EventEmitter)
 
 function Button (root, opts, theme, uuid) {
-  if (!(this instanceof Button)) return new Button(root, opts, theme)
+  if (!(this instanceof Button)) return new Button(root, opts, theme, uuid)
 
   var container = require('./container')(root, opts.label)
   require('./label')(container, '', theme)

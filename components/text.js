@@ -6,7 +6,7 @@ module.exports = Text
 inherits(Text, EventEmitter)
 
 function Text (root, opts, theme, uuid) {
-  if (!(this instanceof Text)) return new Text(root, opts, theme)
+  if (!(this instanceof Text)) return new Text(root, opts, theme, uuid)
   var self = this
 
   var container = require('./container')(root, opts.label)
