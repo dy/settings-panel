@@ -1,18 +1,22 @@
 var control = require('../')
+var css = require('dom-css')
 
 document.body.style.background = 'rgb(150,150,150)'
 var div1 = document.body.appendChild(document.createElement('div'))
-div1.style.marginBottom = '10px'
+css(div1, {marginRight: '14px', display: 'inline-block'})
 var div2 = document.body.appendChild(document.createElement('div'))
+css(div2, {display: 'inline-block'})
 
 var inputs = [
   {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
-  {type: 'range', label: 'range stepped', min: 0, max: 1, step: 0.2},
+  {type: 'range', label: 'stepped slider', min: 0, max: 1, step: 0.2, initial: 0.6},
+  {type: 'interval', label: 'interval', min: 0, max: 100, initial: [25, 50]},
   {type: 'text', label: 'text', initial: 'my setting'},
   {type: 'checkbox', label: 'checkbox', initial: true},
   {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(100,200,100)'},
   {type: 'color', label: 'color hex', format: 'hex', initial: '#30b2ba'},
-  {type: 'range', label: 'one more', min: 0, max: 10}
+  {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
+  {type: 'select', label: 'selection', options: ['option 1', 'option 2']}
 ]
 
 control(inputs,

@@ -27,7 +27,8 @@ function Button (root, opts, theme, uuid) {
     width: '62%',
     border: 'none',
     cursor: 'pointer',
-    right: 0
+    right: 0,
+    fontFamily: 'inherit'
   })
 
   input.addEventListener('click', opts.action)

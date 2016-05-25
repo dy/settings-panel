@@ -55,7 +55,7 @@ function Plate (items, opts) {
     .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
   selectcss = String(selectcss)
-    .replace(new RegExp('{{ TEXT_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ TEXT_COLOR }}', 'g'), opts.theme.text2)
     .replace(new RegExp('{{ BG_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ BG_COLOR_HOVER }}', 'g'), opts.theme.background2hover)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
@@ -76,8 +76,8 @@ function Plate (items, opts) {
   css(box, {
     background: opts.theme.background1,
     width: opts.width,
-    padding: '1%',
-    paddingBottom: '0.5%',
+    padding: '14px',
+    paddingBottom: '8px',
     opacity: 0.95
   })
 
