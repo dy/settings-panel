@@ -7,7 +7,7 @@
 
 Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
 
-**[live demo](http://control-panel.surge.sh)**
+**[`LIVE DEMO`](http://control-panel.surge.sh)**
 
 [![themes](images/themes.png)](http://control-panel.surge.sh)
 
