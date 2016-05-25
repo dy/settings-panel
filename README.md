@@ -15,7 +15,7 @@ Embeddable panel of inputs for adding parameter selection to your app or visuali
 
 > Supports the following input types
 
-> `range` • `checkbox` • `text` • `color`
+> `range` • `checkbox` • `text` • `color` • `button` • `interval` • `select`
 
 ----------------
 
@@ -42,9 +42,12 @@ var control = require('control-panel')
 
 var panel = control([
   {type: 'range', label: 'my range', min: 0, max: 100, initial: 20},
+  {type: 'range', label: 'log range', min: 0.1, max: 100, initial: 20, scale: 'log'},
   {type: 'text', label: 'my text', initial: 'my cool setting'},
   {type: 'checkbox', label: 'my checkbox', initial: true},
-  {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)'}
+  {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)'},
+  {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
+  {type: 'select', label: 'select one', options: ['option 1', 'option 2'], initial: 'option 1'}
 ], 
   {theme: 'light', position: 'top-right'}
 )
@@ -60,11 +63,14 @@ The first argument is a list of inputs. Each one must have a `type` and `label` 
 {type: 'checkbox', label: 'my checkbox', initial: true}
 ```
 
-Each `type` must be one of `range` • `input` • `checkbox` • `color`. Each `label` must be unique. 
+Each `type` must be one of `range` • `input` • `checkbox` • `color` • `interval` • `select`. Each `label` must be unique. 
 
 Some types have additional properties:
-- Inputs of type `range` can specify a `min`, `max`, and `step`
+- Inputs of type `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `initial` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).
 - Inputs of type `color` can specify a `format` as either `rgb` • `hex` • `array`
+- Inputs of type `button` can specify an `action` callback. Button inputs are not reflected in the state and do not trigger an `'input'` event.
+- Inputs of type `interval` obey the same semantics as `range` inputs, except the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `initial: [1, 7.5]`.
+- Inputs of type `select` can specify a list of options, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
 
 The following optional parameters can also be passed as `opts`
 - `root` root element to which to append the panel

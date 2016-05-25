@@ -24,12 +24,15 @@ function Plate (items, opts) {
   var box = document.createElement('div')
   var id = uuid.v4()
   box.className = 'control-panel'
-  box.id = 'control-panel' + id
+  box.id = 'control-panel-' + id
 
   var basecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'base.css'))
   var colorcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'color.css'))
   var rangecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'range.css'))
   var checkboxcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'checkbox.css'))
+  var buttoncss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'button.css'))
+  var intervalcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'interval.css'))
+  var selectcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'select.css'))
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
@@ -39,10 +42,30 @@ function Plate (items, opts) {
     .replace(new RegExp('{{ BOX_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ ICON_COLOR }}', 'g'), opts.theme.foreground1)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
+  buttoncss = String(buttoncss)
+    .replace(new RegExp('{{ BUTTON_COLOR }}', 'g'), opts.theme.text2)
+    .replace(new RegExp('{{ BUTTON_BG }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ BUTTON_COLOR_HOVER }}', 'g'), opts.theme.text2)
+    .replace(new RegExp('{{ BUTTON_BG_HOVER }}', 'g'), opts.theme.background2hover)
+    .replace(new RegExp('{{ BUTTON_COLOR_ACTIVE }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ BUTTON_BG_ACTIVE }}', 'g'), opts.theme.text2)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
+  intervalcss = String(intervalcss)
+    .replace(new RegExp('{{ INTERVAL_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ TRACK_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
+  selectcss = String(selectcss)
+    .replace(new RegExp('{{ TEXT_COLOR }}', 'g'), opts.theme.foreground1)
+    .replace(new RegExp('{{ BG_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ BG_COLOR_HOVER }}', 'g'), opts.theme.background2hover)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
+  insertcss(basecss)
   insertcss(rangecss)
   insertcss(colorcss)
-  insertcss(basecss)
   insertcss(checkboxcss)
+  insertcss(buttoncss)
+  insertcss(intervalcss)
+  insertcss(selectcss)
 
   var elem = document.createElement('style')
   elem.setAttribute('type', 'text/css')
@@ -72,21 +95,31 @@ function Plate (items, opts) {
   if (opts.title) require('./components/title')(box, opts.title, opts.theme)
 
   var components = {
+    button: require('./components/button'),
     text: require('./components/text'),
     range: require('./components/range'),
     checkbox: require('./components/checkbox'),
-    color: require('./components/color')
+    color: require('./components/color'),
+    interval: require('./components/interval'),
+    select: require('./components/select')
   }
 
   var element
   var state = {}
 
   items.forEach(function (item) {
-    state[item.label] = item.initial
+    if (item.type !== 'button') {
+      state[item.label] = item.initial
+    }
   })
 
   items.forEach(function (item) {
     element = components[item.type](box, item, opts.theme, id)
+
+    element.on('initialized', function (data) {
+      state[item.label] = data
+    })
+
     element.on('input', function (data) {
       state[item.label] = data
       self.emit('input', state)
