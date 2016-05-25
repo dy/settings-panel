@@ -15,7 +15,7 @@ var inputs = [
   {type: 'checkbox', label: 'checkbox', initial: true},
   {type: 'color', label: 'color rgb', format: 'rgb', initial: 'rgb(100,200,100)'},
   {type: 'color', label: 'color hex', format: 'hex', initial: '#30b2ba'},
-  {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
+  {type: 'button', label: 'gimme an alert', action: function () { window.alert('hello!') }},
   {type: 'select', label: 'selection', options: ['option 1', 'option 2']}
 ]
 
