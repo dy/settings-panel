@@ -9,7 +9,7 @@ Embeddable panel of inputs for adding parameter selection to your app or visuali
 
 **[live demo](http://control-panel.surge.sh)**
 
-[![dark](images/dark.png)](http://control-panel.surge.sh)[![light](images/light.png)](http://control-panel.surge.sh)
+[![themes](images/themes.png)](http://control-panel.surge.sh)
 
 ----------------
 
