@@ -3,7 +3,7 @@ var css = require('dom-css')
 
 document.body.style.background = 'rgb(150,150,150)'
 var div1 = document.body.appendChild(document.createElement('div'))
-css(div1, {marginRight: '14px', display: 'inline-block'})
+css(div1, {marginRight: '11px', display: 'inline-block'})
 var div2 = document.body.appendChild(document.createElement('div'))
 css(div2, {display: 'inline-block'})
 
