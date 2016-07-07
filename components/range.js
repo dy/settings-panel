@@ -120,6 +120,7 @@ function Range (root, opts, theme, uuid) {
   input.oninput = function (data) {
     var scaledValue = scaleValue(parseFloat(data.target.value))
     value.value = scaledValue
+    opts.input && opts.input(scaledValue)
     self.emit('input', scaledValue)
   }
 }

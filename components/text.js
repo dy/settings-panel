@@ -37,6 +37,7 @@ function Text (root, opts, theme, uuid) {
   })
 
   input.oninput = function (data) {
+    opts.input && opts.input(data.target.value)
     self.emit('input', data.target.value)
   }
 }

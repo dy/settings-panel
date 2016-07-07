@@ -27,6 +27,7 @@ function Checkbox (root, opts, theme, uuid) {
   })
 
   input.onchange = function (data) {
+    opts.input && opts.input(data.target.checked)
     self.emit('input', data.target.checked)
   }
 }

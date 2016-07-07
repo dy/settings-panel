@@ -218,6 +218,7 @@ function Range (root, opts, theme, uuid) {
     var scaledRValue = scaleValue(value[1])
     lValue.value = scaledLValue
     rValue.value = scaledRValue
+    opts.input && opts.input([scaledLValue, scaledRValue])
     self.emit('input', [scaledLValue, scaledRValue])
   }
 }
