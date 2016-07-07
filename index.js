@@ -67,12 +67,6 @@ function Plate (items, opts) {
   insertcss(intervalcss)
   insertcss(selectcss)
 
-  var elem = document.createElement('style')
-  elem.setAttribute('type', 'text/css')
-  elem.setAttribute('rel', 'stylesheet')
-  elem.setAttribute('href', '//cdn.jsdelivr.net/font-hack/2.019/css/hack.min.css')
-  document.getElementsByTagName('head')[0].appendChild(elem)
-
   css(box, {
     background: opts.theme.background1,
     width: opts.width,

@@ -1,5 +1,5 @@
 .control-panel {
-  font-family: 'Hack', monospace;
+  font-family: monospace;
   font-size: 11px;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -11,7 +11,7 @@
 }
 
 .control-panel input {
-  font-family: 'Hack';
+  font-family: monospace;
   font-size: 11px;
 }
 
