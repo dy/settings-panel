@@ -2,6 +2,7 @@ var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var isnumeric = require('is-numeric')
 var css = require('dom-css')
+var isMobile = require('is-mobile')();
 
 module.exports = Range
 inherits(Range, EventEmitter)
@@ -128,8 +129,8 @@ function Range (root, opts, theme, uuid) {
   var activeIndex = -1
 
   function mouseX (ev) {
-    // Get mouse position in page coords relative to the container:
-    return ev.pageX - input.getBoundingClientRect().left
+    // Get mouse/touch position in page coords relative to the container:
+    return (ev.touches && ev.touches[0] || ev).pageX - input.getBoundingClientRect().left
   }
 
   function setActiveValue (fraction) {
@@ -160,6 +161,8 @@ function Range (root, opts, theme, uuid) {
   }
 
   var mousemoveListener = function (ev) {
+    if (ev.target === input || ev.target === handle) ev.preventDefault();
+
     var fraction = clamp(mouseX(ev) / input.offsetWidth, 0, 1)
 
     setActiveValue(fraction)
@@ -167,17 +170,14 @@ function Range (root, opts, theme, uuid) {
 
   var mouseupListener = function (ev) {
     panel.classList.remove('control-panel-interval-dragging')
-    var fraction = clamp(mouseX(ev) / input.offsetWidth, 0, 1)
 
-    setActiveValue(fraction)
-
-    document.removeEventListener('mousemove', mousemoveListener)
-    document.removeEventListener('mouseup', mouseupListener)
+    document.removeEventListener(isMobile ? 'touchmove' : 'mousemove', mousemoveListener)
+    document.removeEventListener(isMobile ? 'touchend' : 'mouseup', mouseupListener)
 
     activeIndex = -1
   }
 
-  input.addEventListener('mousedown', function (ev) {
+  input.addEventListener(isMobile ? 'touchstart' : 'mousedown', function (ev) {
     // Tweak control to make dragging experience a little nicer:
     panel.classList.add('control-panel-interval-dragging')
 
@@ -201,8 +201,8 @@ function Range (root, opts, theme, uuid) {
 
     // Attach this to *document* so that we can still drag if the mouse
     // passes outside the container:
-    document.addEventListener('mousemove', mousemoveListener)
-    document.addEventListener('mouseup', mouseupListener)
+    document.addEventListener(isMobile ? 'touchmove' : 'mousemove', mousemoveListener)
+    document.addEventListener(isMobile ? 'touchend' : 'mouseup', mouseupListener)
   })
 
   setTimeout(function () {
