@@ -20,7 +20,7 @@ function Color (root, opts, theme, uuid) {
   var icon = container.appendChild(document.createElement('span'))
   icon.className = 'control-panel-color-' + uuid
 
-  var value = require('./value')(container, {initial: '', theme: theme, width: '46%', uuid: uuid})
+  var value = require('./value')(container, {initial: '', theme: theme, width: '50%', uuid: uuid})
 
   icon.onmouseover = function () {
     picker.$el.style.display = ''

@@ -1,7 +1,7 @@
 .control-panel-select-{{ UUID }}-dropdown {
   display: inline-block;
   position: absolute;
-  width: 62%;
+  width: 64%;
   padding-left: 1.5%;
   height: 2em;
   border: none;

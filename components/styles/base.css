@@ -10,11 +10,20 @@
   box-sizing: border-box;
 }
 
+.control-panel * {
+  box-sizing: border-box;
+}
+
 .control-panel input,
 .control-panel button,
 .control-panel select {
+  padding: 0 0 0 .5em;
   font-size: 12px;
   font-family: monospace;
+}
+
+.control-panel input[type="range"] {
+  padding: 0;
 }
 
 .control-panel a {

@@ -95,13 +95,13 @@ function Range (root, opts, theme, uuid) {
   input.value = opts.initial
 
   css(input, {
-    width: '47.5%'
+    width: '50%'
   })
 
   var value = require('./value')(container, {
     initial: scaleValue(opts.initial),
     theme: theme,
-    width: '11%',
+    width: '12%',
     type: opts.scale === 'log' ? 'text' : 'number',
     uuid: uuid,
     min: scaleValue(opts.min),

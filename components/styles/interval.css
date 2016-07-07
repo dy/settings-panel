@@ -3,8 +3,8 @@
   position: absolute;
   height: 2em;
   margin: 0px 0;
-  width: 33%;
-  left: 52.5%;
+  width: 36%;
+  left: 50%;
   background-color: {{ TRACK_COLOR }};
   cursor: ew-resize;
 

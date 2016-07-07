@@ -122,8 +122,8 @@ function Range (root, opts, theme, uuid) {
   setHandleCSS()
 
   // Display the values:
-  var lValue = require('./value')(container, {initial: scaleValue(opts.initial[0]), theme: theme, width: '11%', type: 'text', left: true, uuid: uuid})
-  var rValue = require('./value')(container, {initial: scaleValue(opts.initial[1]), theme: theme, width: '11%', type: 'text', uuid: uuid})
+  var lValue = require('./value')(container, {initial: scaleValue(opts.initial[0]), theme: theme, width: '12%', type: 'text', left: true, uuid: uuid})
+  var rValue = require('./value')(container, {initial: scaleValue(opts.initial[1]), theme: theme, width: '12%', type: 'text', uuid: uuid})
 
   // An index to track what's being dragged:
   var activeIndex = -1

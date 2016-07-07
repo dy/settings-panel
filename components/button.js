@@ -24,7 +24,7 @@ function Button (root, opts, theme, uuid) {
     position: 'absolute',
     textAlign: 'center',
     height: '2em',
-    width: '62%',
+    width: '64%',
     border: 'none',
     cursor: 'pointer',
     right: 0,

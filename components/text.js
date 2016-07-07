@@ -23,9 +23,8 @@ function Text (root, opts, theme, uuid) {
 
   css(input, {
     position: 'absolute',
-    padding: '.1em .1em .1em .6em',
     height: '2em',
-    width: '59.5%',
+    width: '64%',
     border: 'none',
     background: theme.background2,
     color: theme.text2,
