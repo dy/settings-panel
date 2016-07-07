@@ -23,7 +23,7 @@ function Button (root, opts, theme, uuid) {
   css(input, {
     position: 'absolute',
     textAlign: 'center',
-    height: '20px',
+    height: '2em',
     width: '62%',
     border: 'none',
     cursor: 'pointer',

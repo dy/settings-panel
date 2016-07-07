@@ -50,7 +50,7 @@ function Color (root, opts, theme, uuid) {
   })
 
   css(picker.$el, {
-    marginTop: '20px',
+    marginTop: '2em',
     display: 'none',
     position: 'absolute'
   })
@@ -59,7 +59,7 @@ function Color (root, opts, theme, uuid) {
     position: 'relative',
     display: 'inline-block',
     width: '12.5%',
-    height: '20px',
+    height: '2em',
     backgroundColor: picker.getHexString()
   })
 

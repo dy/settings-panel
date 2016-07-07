@@ -9,7 +9,7 @@ module.exports = function (root, text, theme) {
     textAlign: 'center',
     color: theme.text2,
     textTransform: 'uppercase',
-    height: '20px',
+    height: '2em',
     marginBottom: '4px'
   })
 

@@ -48,7 +48,7 @@ var panel = control([
   {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)'},
   {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
   {type: 'select', label: 'select one', options: ['option 1', 'option 2'], initial: 'option 1'}
-], 
+],
   {theme: 'light', position: 'top-right'}
 )
 ```
@@ -63,7 +63,7 @@ The first argument is a list of inputs. Each one must have a `type` and `label` 
 {type: 'checkbox', label: 'my checkbox', initial: true}
 ```
 
-Each `type` must be one of `range` • `input` • `checkbox` • `color` • `interval` • `select`. Each `label` must be unique. 
+Each `type` must be one of `range` • `input` • `checkbox` • `color` • `interval` • `select`. Each `label` must be unique.
 
 Some types have additional properties:
 - Inputs of type `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `initial` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).

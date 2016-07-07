@@ -6,7 +6,7 @@ module.exports = function (root, text, theme) {
     left: 0,
     width: '36%',
     display: 'inline-block',
-    height: '20px',
+    height: '2em',
     paddingRight: '2%',
     verticalAlign: 'top'
   })

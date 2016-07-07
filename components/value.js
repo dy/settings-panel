@@ -10,7 +10,7 @@ module.exports = function (root, text, theme, width, left) {
     position: 'absolute',
     backgroundColor: theme.background2,
     paddingLeft: '1.5%',
-    height: '20px',
+    height: '2em',
     width: width,
     display: 'inline-block',
     overflow: 'hidden'
@@ -28,7 +28,7 @@ module.exports = function (root, text, theme, width, left) {
     userSelect: 'text',
     cursor: 'text',
     overflow: 'hidden',
-    lineHeight: '20px',
+    lineHeight: '2em',
     wordBreak: 'break-all',
     height: 20
   })
