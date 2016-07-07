@@ -98,7 +98,20 @@ function Range (root, opts, theme, uuid) {
     width: '47.5%'
   })
 
-  var value = require('./value')(container, scaleValue(opts.initial), theme, '11%')
+  var value = require('./value')(container, {
+    initial: scaleValue(opts.initial),
+    theme: theme,
+    width: '11%',
+    type: opts.scale === 'log' ? 'text' : 'number',
+    uuid: uuid,
+    min: scaleValue(opts.min),
+    max: scaleValue(opts.max),
+    step: opts.step,
+    input: function (v) {
+      input.value = v;
+      value.value = scaleValue(v);
+    }
+  })
 
   setTimeout(function () {
     self.emit('initialized', parseFloat(input.value))
@@ -106,7 +119,7 @@ function Range (root, opts, theme, uuid) {
 
   input.oninput = function (data) {
     var scaledValue = scaleValue(parseFloat(data.target.value))
-    value.innerHTML = scaledValue
+    value.value = scaledValue
     self.emit('input', scaledValue)
   }
 }

@@ -20,7 +20,7 @@ function Color (root, opts, theme, uuid) {
   var icon = container.appendChild(document.createElement('span'))
   icon.className = 'control-panel-color-' + uuid
 
-  var value = require('./value')(container, '', theme, '46%')
+  var value = require('./value')(container, {initial: '', theme: theme, width: '46%', uuid: uuid})
 
   icon.onmouseover = function () {
     picker.$el.style.display = ''
@@ -72,7 +72,7 @@ function Color (root, opts, theme, uuid) {
   })
 
   picker.onChange(function (hex) {
-    value.innerHTML = format(hex)
+    value.value = format(hex)
     css(icon, {backgroundColor: hex})
     self.emit('input', format(hex))
   })

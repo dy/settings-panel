@@ -121,8 +121,8 @@ function Range (root, opts, theme, uuid) {
   setHandleCSS()
 
   // Display the values:
-  var lValue = require('./value')(container, scaleValue(opts.initial[0]), theme, '11%', true)
-  var rValue = require('./value')(container, scaleValue(opts.initial[1]), theme, '11%')
+  var lValue = require('./value')(container, {initial: scaleValue(opts.initial[0]), theme: theme, width: '11%', type: 'text', left: true, uuid: uuid})
+  var rValue = require('./value')(container, {initial: scaleValue(opts.initial[1]), theme: theme, width: '11%', type: 'text', uuid: uuid})
 
   // An index to track what's being dragged:
   var activeIndex = -1
@@ -208,16 +208,16 @@ function Range (root, opts, theme, uuid) {
   setTimeout(function () {
     var scaledLValue = scaleValue(value[0])
     var scaledRValue = scaleValue(value[1])
-    lValue.innerHTML = scaledLValue
-    rValue.innerHTML = scaledRValue
+    lValue.value = scaledLValue
+    rValue.value = scaledRValue
     self.emit('initialized', [scaledLValue, scaledRValue])
   })
 
   input.oninput = function () {
     var scaledLValue = scaleValue(value[0])
     var scaledRValue = scaleValue(value[1])
-    lValue.innerHTML = scaledLValue
-    rValue.innerHTML = scaledRValue
+    lValue.value = scaledLValue
+    rValue.value = scaledRValue
     self.emit('input', [scaledLValue, scaledRValue])
   }
 }

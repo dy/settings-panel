@@ -33,6 +33,7 @@ function Plate (items, opts) {
   var buttoncss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'button.css'))
   var intervalcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'interval.css'))
   var selectcss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'select.css'))
+  var valuecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'value.css'))
 
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)
@@ -59,6 +60,10 @@ function Plate (items, opts) {
     .replace(new RegExp('{{ BG_COLOR }}', 'g'), opts.theme.background2)
     .replace(new RegExp('{{ BG_COLOR_HOVER }}', 'g'), opts.theme.background2hover)
     .replace(new RegExp('{{ UUID }}', 'g'), id)
+  valuecss = String(valuecss)
+    .replace(new RegExp('{{ TEXT_COLOR }}', 'g'), opts.theme.text2)
+    .replace(new RegExp('{{ BG_COLOR }}', 'g'), opts.theme.background2)
+    .replace(new RegExp('{{ UUID }}', 'g'), id)
   insertcss(basecss)
   insertcss(rangecss)
   insertcss(colorcss)
@@ -66,6 +71,7 @@ function Plate (items, opts) {
   insertcss(buttoncss)
   insertcss(intervalcss)
   insertcss(selectcss)
+  insertcss(valuecss)
 
   css(box, {
     background: opts.theme.background1,
