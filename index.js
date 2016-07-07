@@ -6,7 +6,7 @@ var insertcss = require('insert-css')
 var path = require('path')
 var isstring = require('is-string')
 var themes = require('./themes')
-var uuid = require('node-uuid')
+var uuid = require('get-uid')
 
 module.exports = Plate
 inherits(Plate, EventEmitter)
@@ -22,7 +22,7 @@ function Plate (items, opts) {
   opts.position = opts.position
 
   var box = document.createElement('div')
-  var id = uuid.v4()
+  var id = uuid()
   box.className = 'control-panel'
   box.id = 'control-panel-' + id
 
