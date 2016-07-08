@@ -11,8 +11,10 @@ function Range (root, opts, theme, uuid) {
   var self = this
   var scaleValue, scaleValueInverse, logmin, logmax, logsign
 
+  var id = 'control-panel-range-value-' + opts.label + '-' + uuid
+
   var container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+  require('./label')(container, opts.label, theme, id)
 
   if (!!opts.step && !!opts.steps) {
     throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
@@ -21,6 +23,7 @@ function Range (root, opts, theme, uuid) {
   var input = container.appendChild(document.createElement('input'))
   input.type = 'range'
   input.className = 'control-panel-range-' + uuid
+  input.id = 'control-panel-range-' + uuid
 
   // Create scale functions for converting to/from the desired scale:
   if (opts.scale === 'log') {
@@ -99,6 +102,7 @@ function Range (root, opts, theme, uuid) {
   })
 
   var value = require('./value')(container, {
+    id: id,
     initial: scaleValue(opts.initial),
     theme: theme,
     width: '12%',

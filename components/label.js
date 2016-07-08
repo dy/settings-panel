@@ -1,14 +1,16 @@
 var css = require('dom-css')
 
-module.exports = function (root, text, theme) {
+module.exports = function (root, text, theme, id) {
   var background = root.appendChild(document.createElement('label'))
-  background.for = '';
+  background.htmlFor = id || text
+
   css(background, {
     left: 0,
     width: '36%',
     display: 'inline-block',
-    paddingTop: '.2em',
-    lineHeight: '1.5',
+    paddingTop: '.3em',
+    marginBottom: '.5em',
+    lineHeight: '1.25',
     paddingRight: '2%',
     verticalAlign: 'top'
   })

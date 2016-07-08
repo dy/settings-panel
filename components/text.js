@@ -10,10 +10,14 @@ function Text (root, opts, theme, uuid) {
   var self = this
 
   var container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+
+  var id = 'control-panel-text-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+
+  require('./label')(container, opts.label, theme, id)
 
   var input = container.appendChild(document.createElement('input'))
   input.type = 'text'
+  input.id = id
   input.className = 'control-panel-text-' + uuid
   if (opts.initial) input.value = opts.initial
 

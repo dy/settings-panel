@@ -6,21 +6,21 @@ input[type="checkbox"].control-panel-checkbox-{{ UUID }} {
 input[type=checkbox].control-panel-checkbox-{{ UUID }} + label:before {
   content: "";
   display: inline-block;
-  width: 1.8em;
-  height: 1.8em;
+  width: 2em;
+  height: 2em;
   padding: 0px;
   vertical-align:middle;
   margin-right: .8em;
-  margin-top: .2em;
+  margin-top: .15em;
   background-color: {{ BOX_COLOR }};
   border-radius: 0px;
   cursor: pointer;
 }
 
 input[type=checkbox]:checked.control-panel-checkbox-{{ UUID }}  + label:before {
-  width: 1em;
-  height: 1em;
+  width: 2em;
+  height: 2em;
+  box-shadow: inset 0 0 0 4px {{ BOX_COLOR }};
   background-color: {{ ICON_COLOR }};
-  border: solid .4em {{ BOX_COLOR }};
   cursor: pointer;
 }

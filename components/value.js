@@ -17,6 +17,7 @@ module.exports = function (root, opts) {
 
   value.value = opts.initial
 
+  value.id = opts.id || 'control-panel-value-' + opts.uuid
   value.className = 'control-panel-value-' + opts.uuid
   root.appendChild(value)
 

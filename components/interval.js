@@ -16,8 +16,10 @@ function Range (root, opts, theme, uuid) {
   var self = this
   var scaleValue, scaleValueInverse, logmin, logmax, logsign, panel, input, handle
 
+  var id = 'control-panel-interval-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
   var container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+  require('./label')(container, opts.label, theme, id)
+
 
   if (!!opts.step && !!opts.steps) {
     throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
@@ -28,6 +30,7 @@ function Range (root, opts, theme, uuid) {
   })
 
   input = container.appendChild(document.createElement('span'))
+  input.id = 'control-panel-interval-' + uuid
   input.className = 'control-panel-interval-' + uuid
 
   handle = document.createElement('span')
@@ -122,8 +125,22 @@ function Range (root, opts, theme, uuid) {
   setHandleCSS()
 
   // Display the values:
-  var lValue = require('./value')(container, {initial: scaleValue(opts.initial[0]), theme: theme, width: '12%', type: 'text', left: true, uuid: uuid})
-  var rValue = require('./value')(container, {initial: scaleValue(opts.initial[1]), theme: theme, width: '12%', type: 'text', uuid: uuid})
+  var lValue = require('./value')(container, {
+    initial: scaleValue(opts.initial[0]),
+    theme: theme,
+    width: '12%',
+    type: 'text',
+    left: true,
+    id: id,
+    uuid: uuid
+  })
+  var rValue = require('./value')(container, {
+    initial: scaleValue(opts.initial[1]),
+    theme: theme,
+    width: '12%',
+    type: 'text',
+    uuid: uuid
+  })
 
   // An index to track what's being dragged:
   var activeIndex = -1

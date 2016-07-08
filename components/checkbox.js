@@ -9,17 +9,19 @@ function Checkbox (root, opts, theme, uuid) {
   opts = opts || {}
   var self = this
 
+  var id = 'checkbox-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+
   var container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+  require('./label')(container, opts.label, theme, id)
 
   var input = container.appendChild(document.createElement('input'))
-  input.id = 'checkbox-' + opts.label + uuid
+  input.id = id
   input.type = 'checkbox'
   input.checked = opts.initial
   input.className = 'control-panel-checkbox-' + uuid
 
   var label = container.appendChild(document.createElement('label'))
-  label.htmlFor = 'checkbox-' + opts.label + uuid
+  label.htmlFor = id
   label.className = 'control-panel-checkbox-' + uuid
 
   setTimeout(function () {

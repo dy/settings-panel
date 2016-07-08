@@ -9,10 +9,13 @@ function Select (root, opts, theme, uuid) {
   var self = this
   var i, container, input, downTriangle, upTriangle, key, option, el, keys
 
+  var id = 'control-panel-select-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+
   container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+  require('./label')(container, opts.label, theme, id)
 
   input = document.createElement('select')
+  input.id = id
   input.className = 'control-panel-select-' + uuid + '-dropdown'
 
   downTriangle = document.createElement('span')

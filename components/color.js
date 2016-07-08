@@ -14,13 +14,22 @@ function Color (root, opts, theme, uuid) {
   opts.initial = opts.initial || '#123456'
   var self = this
 
+  var id = 'control-panel-color-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
+
   var container = require('./container')(root, opts.label)
-  require('./label')(container, opts.label, theme)
+  require('./label')(container, opts.label, theme, id)
 
   var icon = container.appendChild(document.createElement('span'))
+  icon.id = 'control-panel-color-' + uuid
   icon.className = 'control-panel-color-' + uuid
 
-  var value = require('./value')(container, {initial: '', theme: theme, width: '50%', uuid: uuid})
+  var value = require('./value')(container, {
+    initial: '',
+    theme: theme,
+    width: '50%',
+    uuid: uuid,
+    id: id
+  })
 
   icon.onmouseover = function () {
     picker.$el.style.display = ''
