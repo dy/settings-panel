@@ -1,5 +1,6 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
+var format = require('param-case')
 
 module.exports = Checkbox
 inherits(Checkbox, EventEmitter)
@@ -9,7 +10,7 @@ function Checkbox (root, opts, theme, uuid) {
   opts = opts || {}
   var self = this
 
-  var id = 'checkbox-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+  var id = 'checkbox-' + format(opts.label) + '-' + uuid
 
   var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)

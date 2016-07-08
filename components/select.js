@@ -1,5 +1,6 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
+var format = require('param-case')
 
 module.exports = Select
 inherits(Select, EventEmitter)
@@ -9,7 +10,7 @@ function Select (root, opts, theme, uuid) {
   var self = this
   var i, container, input, downTriangle, upTriangle, key, option, el, keys
 
-  var id = 'control-panel-select-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+  var id = 'control-panel-select-' + format(opts.label) + '-' + uuid
 
   container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)

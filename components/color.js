@@ -3,6 +3,7 @@ var ColorPicker = require('simple-color-picker')
 var inherits = require('inherits')
 var css = require('dom-css')
 var tinycolor = require('tinycolor2')
+var format = require('param-case')
 
 module.exports = Color
 inherits(Color, EventEmitter)
@@ -14,7 +15,7 @@ function Color (root, opts, theme, uuid) {
   opts.initial = opts.initial || '#123456'
   var self = this
 
-  var id = 'control-panel-color-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
+  var id = 'control-panel-color-value-' + format(opts.label) + '-' + uuid;
 
   var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)

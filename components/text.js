@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
+var format = require('param-case')
 
 module.exports = Text
 inherits(Text, EventEmitter)
@@ -11,7 +12,7 @@ function Text (root, opts, theme, uuid) {
 
   var container = require('./container')(root, opts.label, opts.help)
 
-  var id = 'control-panel-text-' + opts.label.replace(/\s/g, '-') + '-' + uuid
+  var id = 'control-panel-text-' + format(opts.label) + '-' + uuid
 
   require('./label')(container, opts.label, theme, id)
 

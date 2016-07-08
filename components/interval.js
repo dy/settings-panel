@@ -3,6 +3,7 @@ var inherits = require('inherits')
 var isnumeric = require('is-numeric')
 var css = require('dom-css')
 var isMobile = require('is-mobile')();
+var format = require('param-case')
 
 module.exports = Range
 inherits(Range, EventEmitter)
@@ -16,7 +17,7 @@ function Range (root, opts, theme, uuid) {
   var self = this
   var scaleValue, scaleValueInverse, logmin, logmax, logsign, panel, input, handle
 
-  var id = 'control-panel-interval-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
+  var id = 'control-panel-interval-value-' + format(opts.label) + '-' + uuid;
   var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
