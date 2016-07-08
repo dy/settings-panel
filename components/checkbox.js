@@ -11,7 +11,7 @@ function Checkbox (root, opts, theme, uuid) {
 
   var id = 'checkbox-' + opts.label.replace(/\s/g, '-') + '-' + uuid
 
-  var container = require('./container')(root, opts.label)
+  var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
   var input = container.appendChild(document.createElement('input'))

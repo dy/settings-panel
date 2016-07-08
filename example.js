@@ -8,7 +8,7 @@ document.head.appendChild(meta);
 
 
 var panel = control([
-  {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20},
+  {type: 'range', label: 'range slider', min: 0, max: 100, initial: 20, help: 'Default slider'},
   {type: 'range', label: 'range stepped', min: 0, max: 1, step: 0.2, initial: 0.6},
   {type: 'range', scale: 'log', label: 'range slider (log)', min: 0.01, max: 100, initial: 1},
   {type: 'range', scale: 'log', label: 'range stepped (log)', min: 0.01, max: 100, steps: 10, initial: 1},

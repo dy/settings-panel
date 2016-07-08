@@ -17,7 +17,7 @@ function Range (root, opts, theme, uuid) {
   var scaleValue, scaleValueInverse, logmin, logmax, logsign, panel, input, handle
 
   var id = 'control-panel-interval-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
-  var container = require('./container')(root, opts.label)
+  var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
 

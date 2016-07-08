@@ -11,7 +11,7 @@ function Select (root, opts, theme, uuid) {
 
   var id = 'control-panel-select-' + opts.label.replace(/\s/g, '-') + '-' + uuid
 
-  container = require('./container')(root, opts.label)
+  container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
   input = document.createElement('select')

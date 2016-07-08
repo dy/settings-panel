@@ -16,7 +16,7 @@ function Color (root, opts, theme, uuid) {
 
   var id = 'control-panel-color-value-' + opts.label.replace(/\s/g, '-') + '-' + uuid;
 
-  var container = require('./container')(root, opts.label)
+  var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
   var icon = container.appendChild(document.createElement('span'))

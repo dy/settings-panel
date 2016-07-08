@@ -13,7 +13,7 @@ function Range (root, opts, theme, uuid) {
 
   var id = 'control-panel-range-value-' + opts.label + '-' + uuid
 
-  var container = require('./container')(root, opts.label)
+  var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
 
   if (!!opts.step && !!opts.steps) {

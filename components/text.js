@@ -9,7 +9,7 @@ function Text (root, opts, theme, uuid) {
   if (!(this instanceof Text)) return new Text(root, opts, theme, uuid)
   var self = this
 
-  var container = require('./container')(root, opts.label)
+  var container = require('./container')(root, opts.label, opts.help)
 
   var id = 'control-panel-text-' + opts.label.replace(/\s/g, '-') + '-' + uuid
 
