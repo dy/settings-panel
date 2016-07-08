@@ -43,7 +43,7 @@ var control = require('control-panel')
 var panel = control([
   {type: 'range', label: 'my range', min: 0, max: 100, initial: 20},
   {type: 'range', label: 'log range', min: 0.1, max: 100, initial: 20, scale: 'log'},
-  {type: 'text', label: 'my text', initial: 'my cool setting'},
+  {type: 'text', label: 'my text', initial: 'my cool setting', help: 'why this is cool'},
   {type: 'checkbox', label: 'my checkbox', initial: true},
   {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)', input: function (value) {console.log(value);}},
   {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
@@ -57,7 +57,7 @@ var panel = control([
 
 #### `panel = control([input1, input2, ...], [opts])`
 
-The first argument is a list of inputs. Each one must have a `type` and `label` property, and can have an `initial` property with an initial value. Also it may have an `input` callback, which will be invoked if value changed. For example,
+The first argument is a list of inputs. Each one must have a `type`, `label` and `help` property, and can have an `initial` property with an initial value. Also it may have an `input` callback, which will be invoked if value changed. For example,
 
 ```javascript
 {type: 'checkbox', label: 'my checkbox', initial: true, input: function (value) {}}
