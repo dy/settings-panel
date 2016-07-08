@@ -21,7 +21,7 @@ function Plate (items, opts) {
   opts.root = opts.root || document.body
   opts.position = opts.position
 
-  var box = document.createElement('div')
+  var box = document.createElement('form')
   var id = uuid()
   box.className = 'control-panel'
   box.id = 'control-panel-' + id
