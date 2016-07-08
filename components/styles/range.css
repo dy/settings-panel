@@ -60,6 +60,7 @@ input[type=range].control-panel-range-{{ UUID }}::-ms-fill-upper {
 input[type=range].control-panel-range-{{ UUID }}::-ms-thumb {
   width: 1em;
   border-radius: 0px;
+  border: 0;
   background: {{ THUMB_COLOR }};
   cursor: ew-resize;
   height: 2em;

@@ -8,7 +8,7 @@ module.exports = function (root, text, theme, id) {
     left: 0,
     width: '36%',
     display: 'inline-block',
-    paddingTop: '.3em',
+    marginTop: '.4em',
     marginBottom: '.5em',
     lineHeight: '1.25',
     paddingRight: '2%',
