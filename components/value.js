@@ -9,7 +9,7 @@ module.exports = function (root, opts) {
     if (opts.min != null) value.min = opts.min
     if (opts.max != null) value.max = opts.max
     if (opts.step != null) value.step = opts.step
-    else value.step = (opts.max - opts.min) / 100 || 1;
+    else value.step = (opts.max - opts.min) / 100 || 1
     value.addEventListener('input', function () {
       opts.input && opts.input(value.value)
     })
@@ -20,7 +20,6 @@ module.exports = function (root, opts) {
   value.id = opts.id || 'control-panel-value-' + opts.uuid
   value.className = 'control-panel-value-' + opts.uuid
   root.appendChild(value)
-
 
   var bgcss = {
     width: opts.width

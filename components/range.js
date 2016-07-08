@@ -113,8 +113,8 @@ function Range (root, opts, theme, uuid) {
     max: scaleValue(opts.max),
     step: opts.step,
     input: function (v) {
-      input.value = v;
-      value.value = scaleValue(v);
+      input.value = v
+      value.value = scaleValue(v)
     }
   })
 

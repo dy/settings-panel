@@ -3,7 +3,7 @@ var ColorPicker = require('simple-color-picker')
 var inherits = require('inherits')
 var css = require('dom-css')
 var tinycolor = require('tinycolor2')
-var format = require('param-case')
+var formatParam = require('param-case')
 
 module.exports = Color
 inherits(Color, EventEmitter)
@@ -15,7 +15,7 @@ function Color (root, opts, theme, uuid) {
   opts.initial = opts.initial || '#123456'
   var self = this
 
-  var id = 'control-panel-color-value-' + format(opts.label) + '-' + uuid;
+  var id = 'control-panel-color-value-' + formatParam(opts.label) + '-' + uuid
 
   var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
@@ -84,7 +84,7 @@ function Color (root, opts, theme, uuid) {
   picker.onChange(function (hex) {
     value.value = format(hex)
     css(icon, {backgroundColor: hex})
-    opts.input && opts.input(format(hex));
+    opts.input && opts.input(format(hex))
     self.emit('input', format(hex))
   })
 

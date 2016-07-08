@@ -2,7 +2,7 @@ var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var isnumeric = require('is-numeric')
 var css = require('dom-css')
-var isMobile = require('is-mobile')();
+var isMobile = require('is-mobile')()
 var format = require('param-case')
 
 module.exports = Range
@@ -17,10 +17,9 @@ function Range (root, opts, theme, uuid) {
   var self = this
   var scaleValue, scaleValueInverse, logmin, logmax, logsign, panel, input, handle
 
-  var id = 'control-panel-interval-value-' + format(opts.label) + '-' + uuid;
+  var id = 'control-panel-interval-value-' + format(opts.label) + '-' + uuid
   var container = require('./container')(root, opts.label, opts.help)
   require('./label')(container, opts.label, theme, id)
-
 
   if (!!opts.step && !!opts.steps) {
     throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
@@ -179,7 +178,7 @@ function Range (root, opts, theme, uuid) {
   }
 
   var mousemoveListener = function (ev) {
-    if (ev.target === input || ev.target === handle) ev.preventDefault();
+    if (ev.target === input || ev.target === handle) ev.preventDefault()
 
     var fraction = clamp(mouseX(ev) / input.offsetWidth, 0, 1)
 
