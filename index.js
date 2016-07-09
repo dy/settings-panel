@@ -116,6 +116,25 @@ function Plate (items, opts) {
   })
 
   items.forEach(function (item) {
+    // detect item type, if undefined, from other options
+    if (!item.type) {
+      if (item.initial && item.initial.length) {
+        item.type = 'interval'
+      } else if (item.scale || item.max || item.steps || typeof item.initial === 'number') {
+        item.type = 'range'
+      } else if (item.options) {
+        item.type = 'select'
+      } else if (item.format) {
+        item.type = 'color'
+      } else if (typeof item.initial === 'boolean') {
+        item.type = 'checkbox'
+      } else if (item.action) {
+        item.type = 'button'
+      } else {
+        item.type = 'text'
+      }
+    }
+
     element = components[item.type](box, item, opts.theme, id)
 
     element.on('initialized', function (data) {
