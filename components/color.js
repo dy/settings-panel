@@ -29,7 +29,10 @@ function Color (root, opts, theme, uuid) {
     theme: theme,
     width: '50%',
     uuid: uuid,
-    id: id
+    id: id,
+    change: function (v) {
+      picker.setColor(v)
+    }
   })
 
   icon.onmouseover = function () {

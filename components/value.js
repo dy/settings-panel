@@ -10,8 +10,16 @@ module.exports = function (root, opts) {
     if (opts.max != null) value.max = opts.max
     if (opts.step != null) value.step = opts.step
     else value.step = (opts.max - opts.min) / 100 || 1
+  }
+
+  if (opts.input) {
     value.addEventListener('input', function () {
-      opts.input && opts.input(value.value)
+      opts.input(value.value)
+    })
+  }
+  if (opts.change) {
+    value.addEventListener('change', function () {
+      opts.change(value.value)
     })
   }
 
