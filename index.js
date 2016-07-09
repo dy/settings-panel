@@ -107,7 +107,7 @@ function Plate (items, opts) {
   }
 
   var element
-  var state = {}
+  var state = this.state = {}
 
   items.forEach(function (item) {
     if (item.type !== 'button') {
