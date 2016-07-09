@@ -55,7 +55,6 @@ function Select (root, opts, theme, uuid) {
   container.appendChild(input)
 
   input.onchange = function (data) {
-    opts.input && opts.input(data.target.value)
     self.emit('input', data.target.value)
   }
 }

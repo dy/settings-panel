@@ -124,6 +124,7 @@ function Plate (items, opts) {
 
     element.on('input', function (data) {
       state[item.label] = data
+      item.input && item.input(data, state)
       self.emit('input', state)
     })
   })

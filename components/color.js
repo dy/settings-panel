@@ -84,7 +84,6 @@ function Color (root, opts, theme, uuid) {
   picker.onChange(function (hex) {
     value.value = format(hex)
     css(icon, {backgroundColor: hex})
-    opts.input && opts.input(format(hex))
     self.emit('input', format(hex))
   })
 
