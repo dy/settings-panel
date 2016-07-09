@@ -17,7 +17,7 @@ function Text (root, opts, theme, uuid) {
   require('./label')(container, opts.label, theme, id)
 
   var input = container.appendChild(document.createElement('input'))
-  input.type = 'text'
+  input.type = opts.type
   input.id = id
   input.className = 'control-panel-text-' + uuid
   if (opts.initial) input.value = opts.initial

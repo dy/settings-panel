@@ -118,7 +118,7 @@ function Plate (items, opts) {
   })
 
   items.forEach(function (item) {
-    element = components[item.type](box, item, opts.theme, id)
+    element = (components[item.type] || components.text)(box, item, opts.theme, id)
 
     element.on('initialized', function (data) {
       state[item.label] = data
