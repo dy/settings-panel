@@ -7,9 +7,8 @@ module.exports = function (root, text, theme, id) {
   css(background, {
     left: 0,
     width: '36%',
+    paddingTop: '.45em',
     display: 'inline-block',
-    marginTop: '.4em',
-    marginBottom: '.5em',
     lineHeight: '1.25',
     paddingRight: '2%',
     verticalAlign: 'top'
