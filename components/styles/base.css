@@ -20,6 +20,7 @@
   border-radius: 0;
   padding: 0 0 0 .5em;
   font-size: 11px;
+  vertical-align: top;
   font-family: monospace;
 }
 
