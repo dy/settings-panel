@@ -1,6 +1,6 @@
 .control-panel {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 11px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -19,7 +19,7 @@
 .control-panel select {
   border-radius: 0;
   padding: 0 0 0 .5em;
-  font-size: 12px;
+  font-size: 11px;
   font-family: monospace;
 }
 
