@@ -36,6 +36,8 @@ function Plate (items, opts) {
   var valuecss = fs.readFileSync(path.join(__dirname, 'components', 'styles', 'value.css'))
 
   basecss = String(basecss)
+    .replace(new RegExp('{{ FONT_FAMILY }}', 'g'), opts.theme.fontFamily)
+    .replace(new RegExp('{{ FONT_SIZE }}', 'g'), opts.theme.fontSize)
     .replace(new RegExp('{{ HELP_COLOR }}', 'g'), opts.theme.foreground1)
   rangecss = String(rangecss)
     .replace(new RegExp('{{ THUMB_COLOR }}', 'g'), opts.theme.foreground1)

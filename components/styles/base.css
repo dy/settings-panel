@@ -1,6 +1,4 @@
 .control-panel {
-  font-family: monospace;
-  font-size: 11px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -8,6 +6,8 @@
   cursor: default;
   text-align: left;
   box-sizing: border-box;
+  font-family: {{ FONT_FAMILY }};
+  font-size: {{ FONT_SIZE }};
 }
 
 .control-panel * {
@@ -19,9 +19,9 @@
 .control-panel select {
   border-radius: 0;
   padding: 0 0 0 .5em;
-  font-size: 11px;
   vertical-align: top;
-  font-family: monospace;
+  font-family: {{ FONT_FAMILY }};
+  font-size: {{ FONT_SIZE }};
 }
 
 .control-panel input[type="range"] {

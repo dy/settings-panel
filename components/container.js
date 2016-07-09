@@ -8,7 +8,7 @@ module.exports = function (root, label, help) {
   css(container, {
     position: 'relative',
     minHeight: '2em',
-    lineHeight: '1',
+    lineHeight: '1.5',
     marginBottom: '.5em'
   })
   if (help) container.setAttribute('data-help', help)

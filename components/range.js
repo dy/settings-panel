@@ -106,7 +106,7 @@ function Range (root, opts, theme, uuid) {
     id: id,
     initial: scaleValue(opts.initial),
     theme: theme,
-    width: '12%',
+    width: '13%',
     type: opts.scale === 'log' ? 'text' : 'number',
     uuid: uuid,
     min: scaleValue(opts.min),

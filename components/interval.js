@@ -128,7 +128,7 @@ function Range (root, opts, theme, uuid) {
   var lValue = require('./value')(container, {
     initial: scaleValue(opts.initial[0]),
     theme: theme,
-    width: '12%',
+    width: '13%',
     type: 'text',
     left: true,
     id: id,
@@ -137,7 +137,7 @@ function Range (root, opts, theme, uuid) {
   var rValue = require('./value')(container, {
     initial: scaleValue(opts.initial[1]),
     theme: theme,
-    width: '12%',
+    width: '13%',
     type: 'text',
     uuid: uuid
   })

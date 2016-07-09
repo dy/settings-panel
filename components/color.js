@@ -68,7 +68,8 @@ function Color (root, opts, theme, uuid) {
   css(icon, {
     position: 'relative',
     display: 'inline-block',
-    width: '12.5%',
+    verticalAlign: 'top',
+    width: '13%',
     height: '2em',
     backgroundColor: picker.getHexString()
   })
