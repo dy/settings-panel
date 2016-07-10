@@ -85,16 +85,18 @@ function Plate (items, opts) {
     opacity: 0.95
   })
 
-  if (opts.position === 'top-right' ||
-    opts.position === 'top-left' ||
-    opts.position === 'bottom-right' ||
-    opts.position === 'bottom-left') css(box, {position: 'absolute'})
+  if (opts.position) {
+    if (opts.position === 'top-right' ||
+      opts.position === 'top-left' ||
+      opts.position === 'bottom-right' ||
+      opts.position === 'bottom-left') css(box, {position: 'absolute'})
 
-  if (opts.position === 'top-right' || opts.position === 'bottom-right') css(box, {right: 8})
-  else css(box, {left: 8})
+    if (opts.position === 'top-right' || opts.position === 'bottom-right') css(box, {right: 8})
+    else css(box, {left: 8})
 
-  if (opts.position === 'top-right' || opts.position === 'top-left') css(box, {top: 8})
-  else css(box, {bottom: 8})
+    if (opts.position === 'top-right' || opts.position === 'top-left') css(box, {top: 8})
+    else css(box, {bottom: 8})
+  }
 
   if (opts.title) require('./components/title')(box, opts.title, opts.theme)
 
