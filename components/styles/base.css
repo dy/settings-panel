@@ -20,8 +20,8 @@
   border-radius: 0;
   padding: 0 0 0 .5em;
   vertical-align: top;
-  font-family: {{ FONT_FAMILY }};
-  font-size: {{ FONT_SIZE }};
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .control-panel input[type="range"] {
