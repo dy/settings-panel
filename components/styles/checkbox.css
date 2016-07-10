@@ -9,9 +9,9 @@ input[type=checkbox].control-panel-checkbox-{{ UUID }} + label:before {
   width: 2em;
   height: 2em;
   padding: 0px;
-  vertical-align:middle;
+  vertical-align: top;
   margin-right: .8em;
-  margin-top: .15em;
+  margin-top: 0;
   background-color: {{ BOX_COLOR }};
   border-radius: 0px;
   cursor: pointer;
