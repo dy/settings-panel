@@ -127,7 +127,7 @@ Panel.components = {
 	// checkbox: require('./src/checkbox'),
 	color: require('./src/color'),
 	interval: require('./src/interval'),
-	// select: require('./src/select')
+	select: require('./src/select')
 };
 
 

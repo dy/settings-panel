@@ -48,8 +48,8 @@ function Color (opts) {
 	var picker = new ColorPicker({
 		el: icon,
 		color: initial,
-		width: 200,
-		height: 160
+		width: 160,
+		height: 120
 	});
 
 	picker.$el.style.display = 'none';

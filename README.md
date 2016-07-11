@@ -9,13 +9,13 @@
 var createPanel = require('settings-panel')
 
 var panel = createPanel([
-  {type: 'range', name: 'my range', min: 0, max: 100, value: 20},
-  {type: 'range', name: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
-  {type: 'text', name: 'my text', value: 'my cool setting', help: 'why this is cool'},
-  {type: 'checkbox', name: 'my checkbox', value: true},
-  {type: 'color', name: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
-  {type: 'button', name: 'gimme an alert', change: () => alert('hello!')},
-  {type: 'select', name: 'select one', values: ['option 1', 'option 2'], value: 'option 1'}
+  {type: 'range', label: 'my range', min: 0, max: 100, value: 20},
+  {type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
+  {type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
+  {type: 'checkbox', label: 'my checkbox', value: true},
+  {type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', input: value => console.log(value)},
+  {type: 'button', label: 'gimme an alert', input: () => alert('hello!')},
+  {type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 ],
   {theme: 'light'}
 );
