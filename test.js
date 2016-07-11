@@ -1,71 +1,36 @@
-var test = require('tape')
-var control = require('./index')
+var createPanel = require('./')
 
-function assertSelector (t, selector) {
-  var el = document.querySelector(selector)
-  t.notEqual(el, null, 'element ' + selector + ' is present')
-}
-function assertId (t, id) {
-  var el = document.getElementById(id)
-  t.notEqual(el, null, 'element #' + id + ' is present')
-}
+// prepare mobile
+var meta = document.createElement('meta')
+meta.setAttribute('name', 'viewport')
+meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=0')
+document.head.appendChild(meta)
 
-test('construction', function (t) {
-  control([{type: 'range', label: 'range label', min: 0, max: 100, initial: 20}])
-  assertId(t, 'control-panel-range-label')
-  assertSelector(t, '[class^=control-panel-range-]')
-  t.end()
-})
 
-test('range', function (t) {
-  control([{type: 'range', label: 'range label', min: 0, max: 100, initial: 20}])
-  assertId(t, 'control-panel-range-label')
-  assertSelector(t, '[class^=control-panel-range-]')
-  t.end()
-})
+var panel = createPanel([
+	{type: 'title', value: 'Example panel'},
+	{type: 'title', value: 'Range'},
+	{type: 'range', label: 'range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
+	{type: 'range', label: 'range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
+	{type: 'range', scale: 'log', label: 'range slider (log)', min: 0.01, max: 100, value: 1},
+	{type: 'range', scale: 'log', label: 'range stepped (log)', min: 0.01, max: 100, steps: 10, value: 1},
+	{type: 'range', scale: 'log', label: 'range slider (-log)', min: -0.01, max: -100, value: -1},
+	{type: 'range', scale: 'log', label: 'range stepped (-log)', min: -0.01, max: -100, steps: 10, value: -1},
+	{type: 'title', value: 'Text'},
+	{type: 'text', label: 'text', value: 'my setting'},
+	// {type: 'checkbox', label: 'checkbox', value: true},
+	// {type: 'color', label: 'color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
+	// {type: 'color', label: 'color hex', format: 'hex', value: '#30b2ba'},
+	// {type: 'button', label: 'gimme an alert', action: function () { window.alert('hello!') }},
+	// {type: 'interval', label: 'an interval', min: 0, max: 10, value: [3, 4], steps: 20},
+	// {type: 'interval', label: 'log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
+	// {type: 'interval', label: 'neg log interval', min: -0.1, max: -10, value: [-0.1, -1], scale: 'log', steps: 20},
+	// {type: 'range', label: 'one more', min: 0, max: 10},
+	// {type: 'select', label: 'key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
+	// {type: 'select', label: 'array select', options: ['State One', 'State Two'], value: 'State One'},
+	// {type: 'email', label: 'email'}
+])
 
-test('color', function (t) {
-  control([{type: 'color', label: 'color label', min: 0, max: 100, initial: 20}])
-  assertId(t, 'control-panel-color-label')
-  assertSelector(t, '[class^=control-panel-color-]')
-  t.end()
-})
-
-test('text', function (t) {
-  control([{type: 'text', label: 'text label', min: 0, max: 100, initial: 20}])
-  assertId(t, 'control-panel-text-label')
-  assertSelector(t, '[class^=control-panel-text]')
-  t.end()
-})
-
-test('checkbox', function (t) {
-  control([{type: 'checkbox', label: 'checkbox label', initial: false}])
-  assertId(t, 'control-panel-checkbox-label')
-  assertSelector(t, '[class^=control-panel-checkbox-]')
-  t.end()
-  window.close()
-})
-
-test('interval', function (t) {
-  control([{type: 'interval', label: 'interval label', min: 0, max: 100, initial: [20, 40]}])
-  assertId(t, 'control-panel-interval-label')
-  assertSelector(t, '[class^=control-panel-interval-]')
-  t.end()
-  window.close()
-})
-
-test('button', function (t) {
-  control([{type: 'button', label: 'button label', action: function () { }}])
-  assertId(t, 'control-panel-button-label')
-  assertSelector(t, '[class^=control-panel-button-]')
-  t.end()
-  window.close()
-})
-
-test('select', function (t) {
-  control([{type: 'select', label: 'select label', options: ['option 1', 'option 2']}])
-  assertId(t, 'control-panel-select-label')
-  assertSelector(t, '[class^=control-panel-select-]')
-  t.end()
-  window.close()
+panel.on('input', function (data) {
+	console.log(data)
 })

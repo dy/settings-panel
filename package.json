@@ -1,17 +1,15 @@
 {
-  "name": "control-panel",
-  "version": "1.2.0",
-  "description": "embeddable panel of inputs for parameter setting",
+  "name": "settings-panel",
+  "version": "1.0.0",
+  "description": "Panel of inputs for parameter setting",
   "main": "index.js",
   "scripts": {
-    "start": "watchify-server example.js | garnish",
-    "test": "standard && browserify test.js | smokestack | tap-spec",
     "build": "browserify demo/index.js -o demo/bundle.js",
-    "deploy": "npm run build && surge demo control-panel.surge.sh"
+    "test:browser": "budo test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/freeman-lab/control-panel.git"
+    "url": "git+https://github.com/dfcreative/settings-panel.git"
   },
   "keywords": [
     "slider",
@@ -21,17 +19,26 @@
     "component",
     "color-picker",
     "dom",
-    "css"
+    "css",
+    "settings-panel",
+    "control-panel",
+    "options",
+    "form"
   ],
   "author": "freeman-lab",
+  "contributors": [
+    "dfcreative <df.creativr@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/freeman-lab/control-panel/issues"
+    "url": "https://github.com/dfcreative/settings-panel/issues"
   },
   "browserify": {
-    "transform": "brfs"
+    "transform": [
+      "brfs"
+    ]
   },
-  "homepage": "https://github.com/freeman-lab/control-panel#readme",
+  "homepage": "https://github.com/dfcreative/settings-panel#readme",
   "dependencies": {
     "brfs": "^1.4.3",
     "dom-css": "^2.0.0",
@@ -40,17 +47,14 @@
     "insert-css": "^0.2.0",
     "is-mobile": "^0.2.2",
     "is-numeric": "0.0.5",
-    "is-string": "^1.0.4",
+    "mumath": "^2.3.0",
+    "mutype": "^0.3.9",
     "param-case": "^1.1.2",
     "simple-color-picker": "0.0.9",
-    "tinycolor2": "^1.3.0"
+    "tinycolor2": "^1.3.0",
+    "xtend": "^4.0.1"
   },
   "devDependencies": {
-    "garnish": "^5.0.1",
-    "smokestack": "^3.4.1",
-    "standard": "^7.1.0",
-    "tap-spec": "^4.1.1",
-    "tape": "^4.5.1",
-    "watchify-server": "^1.0.2"
+    "bubleify": "^0.5.0"
   }
 }

@@ -1,66 +1,34 @@
-# control-panel
-
-[![NPM version][npm-image]][npm-url]
-![experimental][experimental-image]
-[![js-standard-style][standard-image]][standard-url]
+# settings-panel
 
 
-Embeddable panel of inputs for adding parameter selection to your app or visualization. Modern and minimalist design. Fully encapsulated module including JS and CSS. Can easily be added to any app or page. Heavily inspired by [`dat-gui`](https://github.com/dataarts/dat.gui), but streamlined, simplified, and written as a npm module for use with browserify.
+## Usage
 
-**[`LIVE DEMO`](http://control-panel.surge.sh)**
-
-[![themes](images/themes.png)](http://control-panel.surge.sh)
-
-----------------
-
-> Supports the following input types
-
-> `range` • `checkbox` • `text` • `color` • `button` • `interval` • `select`
-
-----------------
-
-> Includes the following themes
-
-> `dark` • `light`
-
-Want to contribute a new theme or input type? Submit a PR!
-
-## install
-
-Add to your project with
-
-```
-npm install control-panel
-```
-
-## example
-
-Create a panel with four elements and add to your page in the top right.
+[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
 
 ```javascript
-var control = require('control-panel')
+var createPanel = require('settings-panel')
 
-var panel = control([
-  {type: 'range', label: 'my range', min: 0, max: 100, initial: 20},
-  {type: 'range', label: 'log range', min: 0.1, max: 100, initial: 20, scale: 'log'},
-  {type: 'text', label: 'my text', initial: 'my cool setting', help: 'why this is cool'},
-  {type: 'checkbox', label: 'my checkbox', initial: true},
-  {type: 'color', label: 'my color', format: 'rgb', initial: 'rgb(10,200,0)', input: function (value) {console.log(value);}},
-  {type: 'button', label: 'gimme an alert', action: function () {alert('hello!');}},
-  {type: 'select', label: 'select one', options: ['option 1', 'option 2'], initial: 'option 1'}
+var panel = createPanel([
+  {type: 'range', name: 'my range', min: 0, max: 100, value: 20},
+  {type: 'range', name: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
+  {type: 'text', name: 'my text', value: 'my cool setting', help: 'why this is cool'},
+  {type: 'checkbox', name: 'my checkbox', value: true},
+  {type: 'color', name: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
+  {type: 'button', name: 'gimme an alert', change: () => alert('hello!')},
+  {type: 'select', name: 'select one', values: ['option 1', 'option 2'], value: 'option 1'}
 ],
-  {theme: 'light', position: 'top-right'}
-)
+  {theme: 'light'}
+);
 ```
 
-## usage
+## API
 
 #### `panel = control([input1, input2, ...], [opts])`
 
-The first argument is a list of inputs. Each one must have a `type`, `label` and `help` property, and can have an `initial` property with an initial value. Also it may have an `input` callback, which will be invoked if value changed. For example,
+The first argument is a list of inputs. Each one must have a `type`, `name` and `help` property, and can have an `value` property with an initial value. Also it may have a `change` callback, which will be invoked if value changed. For example,
 
 ```javascript
-{type: 'checkbox', label: 'my checkbox', initial: true, input: function (value) {}}
+{type: 'checkbox', name: 'My Checkbox', initial: true, change: function (value) {}}
 ```
 
 Each `type` must be one of `range` • `input` • `checkbox` • `color` • `interval` • `select`. Each `label` must be unique.
@@ -87,8 +55,11 @@ This event is emitted every time any one of the inputs change. The callback argu
 {'my checkbox': false, 'my range': 75}
 ```
 
-[npm-image]: https://img.shields.io/badge/npm-v1.2.0-lightgray.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/control-panel
-[standard-image]: https://img.shields.io/badge/code%20style-standard-lightgray.svg?style=flat-square
-[standard-url]: https://github.com/feross/standard
-[experimental-image]: https://img.shields.io/badge/stability-experimental-lightgray.svg?style=flat-square
+#### `panel.get()`
+
+
+## See also
+
+* [prama](https://github.com/dfcreative/prama) — wrapper for super-control-panel, providing popup, button, state management etc.
+* [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
+* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
