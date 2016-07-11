@@ -74,6 +74,13 @@
 .settings-panel-button {
 	color: white;
 	background-color: black;
+	position: absolute;
+	text-align: center;
+	height: 2em;
+	width: 64%;
+	border: none;
+	cursor: pointer;
+	right: 0;
 }
 .settings-panel-button:hover {
 	color: black;
@@ -209,7 +216,7 @@
 	user-select: none;
 }
 .settings-panel-interval .settings-panel-interval-handle {
-	background-color: gray;
+	background-color: black;
 	position: absolute;
 	height: 2em;
 	min-width: 1px;
@@ -224,6 +231,14 @@
 
 	cursor: ew-resize !important;
 }
+
+.settings-panel-interval ~ .settings-panel-value {
+	width: 13%;
+}
+.settings-panel-interval + .settings-panel-value  + .settings-panel-value {
+	right: 0;
+}
+
 
 
 

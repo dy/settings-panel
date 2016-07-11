@@ -5,31 +5,16 @@ var css = require('dom-css')
 module.exports = Button
 inherits(Button, EventEmitter)
 
-function Button (container, opts, theme) {
-  if (!(this instanceof Button)) return new Button(container, opts, theme)
+function Button (opts) {
+	if (!(this instanceof Button)) return new Button(opts)
 
-  var container = require('./container')(container, opts.label, opts.help)
-  require('./label')(container, '', theme)
+	var input = opts.container.appendChild(document.createElement('button'))
+	input.className = 'settings-panel-button';
 
-  var input = container.appendChild(document.createElement('button'))
-  input.className = 'control-panel-button';
+	input.innerHTML = opts.value || opts.label
 
-  input.onfocus = function () {
-    css(input, {outline: 'none'})
-  }
-
-  input.textContent = opts.label
-
-  css(input, {
-    position: 'absolute',
-    textAlign: 'center',
-    height: '2em',
-    width: '64%',
-    border: 'none',
-    cursor: 'pointer',
-    right: 0,
-    fontFamily: 'inherit'
-  })
-
-  input.addEventListener('click', opts.action)
+	input.addEventListener('click', (e) => {
+		e.preventDefault();
+		this.emit('input');
+	})
 }

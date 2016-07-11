@@ -76,6 +76,7 @@ Panel.prototype.set = function (name, value) {
 		item = {value: value};
 	}
 
+	item.panel = this;
 	item.label = name;
 
 	//create field container
@@ -91,7 +92,7 @@ Panel.prototype.set = function (name, value) {
 	if (item.help) field.setAttribute('data-help', item.help);
 
 	//create field label
-	if (item.label || item.label === '') {
+	if (item.type !== 'button' && item.type !== 'title' && (item.label || item.label === '')) {
 		var label = field.appendChild(document.createElement('label'))
 		label.className = 'settings-panel-label';
 		label.htmlFor = item.id;
@@ -121,11 +122,11 @@ Panel.prototype.set = function (name, value) {
 Panel.components = {
 	title: require('./src/title'),
 	range: require('./src/range'),
-	// button: require('./src/button'),
+	button: require('./src/button'),
 	text: require('./src/text'),
 	// checkbox: require('./src/checkbox'),
 	color: require('./src/color'),
-	// interval: require('./src/interval'),
+	interval: require('./src/interval'),
 	// select: require('./src/select')
 };
 
