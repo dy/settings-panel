@@ -43,7 +43,7 @@
 .settings-panel-field:after {
 	content: attr(data-help);
 	display: block;
-	margin-left: 36%;
+	margin-left: 33%;
 }
 .settings-panel-label {
 	left: 0;
@@ -404,7 +404,7 @@
 	vertical-align: top;
 	border: none;
 	position: relative;
-	background: gray;
+	box-shadow: inset 0 0 0 2px gray;
 }
 
 .settings-panel-switch-input {
@@ -420,4 +420,8 @@
 	float: left;
 	text-align: center;
 	cursor: pointer;
+}
+
+.settings-panel-switch-input:checked + .settings-panel-switch-label {
+	background: gray;
 }
