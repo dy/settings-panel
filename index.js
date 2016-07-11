@@ -124,7 +124,7 @@ Panel.components = {
 	range: require('./src/range'),
 	button: require('./src/button'),
 	text: require('./src/text'),
-	// checkbox: require('./src/checkbox'),
+	checkbox: require('./src/checkbox'),
 	color: require('./src/color'),
 	interval: require('./src/interval'),
 	select: require('./src/select')

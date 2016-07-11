@@ -12,26 +12,25 @@ insertCSS(`
 	body {
 		margin: 0;
 	}
+	.settings-panel {
+		margin: 2rem auto;
+	}
 `);
 
 
 var panel = createPanel([
-	{type: 'title', value: 'Example panel'},
-	{type: 'title', value: 'Range'},
+	{type: 'title', value: 'Settings'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
 	{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},
 	{type: 'range', scale: 'log', label: 'Range stepped (log)', min: 0.01, max: 100, steps: 10, value: 1},
 	{type: 'range', scale: 'log', label: 'Range slider (-log)', min: -0.01, max: -100, value: -1},
 	{type: 'range', scale: 'log', label: 'Range stepped (-log)', min: -0.01, max: -100, steps: 10, value: -1},
-	{type: 'title', value: 'Text'},
-	{type: 'text', label: 'text', value: 'my setting'},
-	// {type: 'checkbox', label: 'checkbox', value: true},
-	{type: 'title', value: 'Color'},
+	{type: 'text', label: 'Text', value: 'my setting'},
+	{type: 'checkbox', label: 'Checkbox', value: true},
 	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
 	{type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
 	{type: 'button', label: 'Gimme an alert', input: function () { window.alert('hello!') }},
-	{type: 'title', value: 'interval'},
 	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
 	{type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
 	{type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.1, -1], scale: 'log', steps: 20},

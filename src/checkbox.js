@@ -5,31 +5,26 @@ var format = require('param-case')
 module.exports = Checkbox
 inherits(Checkbox, EventEmitter)
 
-function Checkbox (root, opts, theme, uuid) {
-  if (!(this instanceof Checkbox)) return new Checkbox(root, opts, theme, uuid)
-  opts = opts || {}
-  var self = this
+function Checkbox (opts) {
+	if (!(this instanceof Checkbox)) return new Checkbox(opts)
+	opts = opts || {}
+	var self = this
 
-  var id = 'checkbox-' + format(opts.label) + '-' + uuid
+	var input = opts.container.appendChild(document.createElement('input'))
+	input.id = opts.id
+	input.type = 'checkbox'
+	input.checked = opts.value
+	input.className = 'settings-panel-checkbox'
 
-  var container = require('./container')(root, opts.label, opts.help)
-  require('./label')(container, opts.label, theme, id)
+	var label = opts.container.appendChild(document.createElement('label'))
+	label.htmlFor = opts.id
+	label.className = 'settings-panel-checkbox-label'
 
-  var input = container.appendChild(document.createElement('input'))
-  input.id = id
-  input.type = 'checkbox'
-  input.checked = opts.initial
-  input.className = 'control-panel-checkbox-' + uuid
+	setTimeout(function () {
+		self.emit('initialized', input.checked)
+	})
 
-  var label = container.appendChild(document.createElement('label'))
-  label.htmlFor = id
-  label.className = 'control-panel-checkbox-' + uuid
-
-  setTimeout(function () {
-    self.emit('initialized', input.checked)
-  })
-
-  input.onchange = function (data) {
-    self.emit('input', data.target.checked)
-  }
+	input.onchange = function (data) {
+		self.emit('input', data.target.checked)
+	}
 }
