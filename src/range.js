@@ -69,10 +69,10 @@ function Range (opts) {
 			opts.step = 1
 		}
 
-		opts.initial = scaleValueInverse(isNumeric(opts.initial) ? opts.initial : scaleValue((opts.min + opts.max) * 0.5))
+		opts.value = scaleValueInverse(isNumeric(opts.value) ? opts.value : scaleValue((opts.min + opts.max) * 0.5))
 
-		if (opts.initial * scaleValueInverse(opts.max) <= 0) {
-			throw new Error('Log range initial value must have the same sign as min/max and must not equal zero. Got initial value = ' + opts.initial)
+		if (opts.value * scaleValueInverse(opts.max) <= 0) {
+			throw new Error('Log range initial value must have the same sign as min/max and must not equal zero. Got initial value = ' + opts.value)
 		}
 	} else {
 		// If linear, this is much simpler:
@@ -80,7 +80,7 @@ function Range (opts) {
 		opts.min = (isNumeric(opts.min)) ? opts.min : 0
 		opts.step = (isNumeric(opts.step)) ? opts.step : (opts.max - opts.min) / 100
 
-		opts.initial = isNumeric(opts.initial) ? opts.initial : (opts.min + opts.max) * 0.5
+		opts.value = isNumeric(opts.value) ? opts.value : (opts.min + opts.max) * 0.5
 	}
 
 	// If we got a number of steps, use that instead:
@@ -89,22 +89,23 @@ function Range (opts) {
 	}
 
 	// Quantize the initial value to the requested step:
-	var initialStep = Math.round((opts.initial - opts.min) / opts.step)
-	opts.initial = opts.min + opts.step * initialStep
+	var initialStep = Math.round((opts.value - opts.min) / opts.step)
+	opts.value = opts.min + opts.step * initialStep
 
 	// Set value on the input itself:
 	input.min = opts.min
 	input.max = opts.max
 	input.step = opts.step
-	input.value = opts.initial
+	input.value = opts.value
 
 	css(input, {
 		width: '50%'
 	})
 
-	var value = require('./value')(opts.container, {
+	var value = require('./value')({
 		id: opts.id,
-		initial: scaleValue(opts.initial),
+		container: opts.container,
+		value: scaleValue(opts.value),
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),
 		max: scaleValue(opts.max),

@@ -1,6 +1,6 @@
 var css = require('dom-css')
 
-module.exports = function (root, opts) {
+module.exports = function (opts) {
   opts = opts || {}
   var value = document.createElement('input')
   value.setAttribute('type', opts.type || 'text')
@@ -23,17 +23,15 @@ module.exports = function (root, opts) {
     })
   }
 
-  value.value = opts.initial
+  value.value = opts.value
 
   value.id = opts.id;
   value.className = 'settings-panel-value';
-  root.appendChild(value)
+  opts.container.appendChild(value)
 
   // if (!opts.left) {
   //   bgcss.right = 0
   // }
-
-  // css(value, bgcss)
 
   return value
 }

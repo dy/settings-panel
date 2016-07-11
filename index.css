@@ -128,15 +128,24 @@
 
 
 /** Color picker style */
+.settings-panel-color {
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	width: 13%;
+	height: 2em;
+}
+.settings-panel-color + .settings-panel-value {
+	width: 50%;
+}
 .Scp {
-	width: 125px;
-	height: 100px;
 	-webkit-user-select: none;
 		 -moz-user-select: none;
 			-ms-user-select: none;
 					user-select: none;
-	position: relative;
-	z-index: 1000;
+	margin-top: 2em;
+	position: absolute;
+	z-index: 10;
 	cursor: pointer;
 }
 .Scp-saturation {
@@ -145,7 +154,6 @@
 	height: 100%;
 	background: linear-gradient(to right, #fff 0%, #f00 100%);
 	float: left;
-	margin-right: 5px;
 }
 .Scp-brightness {
 	width: 100%;
