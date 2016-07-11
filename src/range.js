@@ -98,10 +98,6 @@ function Range (opts) {
 	input.step = opts.step
 	input.value = opts.value
 
-	css(input, {
-		width: '50%'
-	})
-
 	var value = require('./value')({
 		id: opts.id,
 		container: opts.container,

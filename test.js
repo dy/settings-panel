@@ -20,6 +20,7 @@ insertCSS(`
 
 var panel = createPanel([
 	{type: 'title', value: 'Settings'},
+	{type: 'switch', label: 'Switch', options: ['One', 'Two'], value: 'One'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
 	{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},

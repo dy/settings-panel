@@ -1,4 +1,12 @@
 module.exports = {
+	orange: {
+
+	},
+
+	crema: {
+
+	},
+
 	light: {
 		align: 'left',
 

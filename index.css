@@ -8,10 +8,10 @@
 	box-sizing: border-box;
 	font-family: sans-serif;
 	font-size: 1rem;
-	width: 500px;
+	width: 32em;
 	opacity: .95;
 	background: rgb(240,240,240);
-	padding: 1rem;
+	padding: 1em;
 }
 
 .settings-panel * {
@@ -27,10 +27,6 @@
 	font-family: inherit;
 	font-size: inherit;
 	background: gray;
-}
-
-.settings-panel input[type="range"] {
-	padding: 0;
 }
 
 .settings-panel a {
@@ -51,11 +47,11 @@
 }
 .settings-panel-label {
 	left: 0;
-	width: 36%;
+	width: calc(33% - .5em);
+	margin-right: .5em;
 	padding-top: .45em;
 	display: inline-block;
 	line-height: 1.25;
-	padding-right: 2%;
 	vertical-align: top;
 }
 
@@ -75,7 +71,7 @@
 	position: absolute;
 	text-align: center;
 	height: 2em;
-	width: 64%;
+	width: 67%;
 	border: none;
 	cursor: pointer;
 	right: 0;
@@ -94,7 +90,7 @@
 .settings-panel-text {
 	position: absolute;
 	height: 2em;
-	width: 64%;
+	width: 67%;
 	border: none;
 	font-family: inherit;
 }
@@ -104,12 +100,12 @@
 
 
 /** Checkbox style */
-.settings-panel input[type="checkbox"].settings-panel-checkbox {
+.settings-panel-checkbox {
 	display: none;
 	cursor: pointer;
 }
 
-.settings-panel input[type=checkbox].settings-panel-checkbox + label:before {
+.settings-panel-checkbox + .settings-panel-checkbox-label:before {
 	content: "";
 	display: inline-block;
 	width: 2em;
@@ -123,7 +119,7 @@
 	cursor: pointer;
 }
 
-.settings-panel input[type=checkbox]:checked.settings-panel-checkbox  + label:before {
+.settings-panel-checkbox:checked  + .settings-panel-checkbox-label:before {
 	width: 2em;
 	height: 2em;
 	box-shadow: inset 0 0 0 .4em black;
@@ -137,11 +133,11 @@
 	position: relative;
 	display: inline-block;
 	vertical-align: top;
-	width: calc(14% - .5em);
+	width: calc(15% - .5em);
 	height: 2em;
 }
 .settings-panel-color + .settings-panel-value {
-	width: 50%;
+	width: 52%;
 	margin-left: .5em;
 }
 .Scp {
@@ -202,8 +198,8 @@
 	position: absolute;
 	height: 2em;
 	margin: 0px 0;
-	width: 36%;
-	left: 50%;
+	width: 37%;
+	left: 48%;
 	background-color: gray;
 	cursor: ew-resize;
 
@@ -220,7 +216,7 @@
 	height: 2em;
 	min-width: 1px;
 }
-#settings-panel.settings-panel-interval-dragging * {
+.settings-panel.settings-panel-interval-dragging * {
 	-webkit-touch-callout: none !important;
 	-webkit-user-select: none !important;
 	-khtml-user-select: none !important;
@@ -232,7 +228,7 @@
 }
 
 .settings-panel-interval ~ .settings-panel-value {
-	width: calc(14% - .5em);
+	width: calc(15% - .5em);
 }
 .settings-panel-interval + .settings-panel-value  + .settings-panel-value {
 	right: 0;
@@ -246,7 +242,8 @@
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	width: 100%;
+	width: 52%;
+	padding: 0;
 	margin: 0px 0;
 	height: 2em;
 }
@@ -318,7 +315,7 @@
 }
 
 .settings-panel-range + .settings-panel-value {
-	width: calc(14% - .5em);
+	width: calc(15% - .5em);
 	margin-left: .5em;
 }
 
@@ -327,7 +324,7 @@
 .settings-panel-select {
 	display: inline-block;
 	position: absolute;
-	width: 64%;
+	width: 67%;
 	padding-left: 1.5%;
 	height: 2em;
 	border: none;
@@ -376,7 +373,6 @@
 	cursor: text;
 	display: inline-block;
 	position: absolute;
-	width: calc(62% - .5em);
 	height: 2em;
 	border: none;
 	border-radius: 0;
@@ -388,4 +384,40 @@
 .settings-panel-value:focus {
 	outline: 0;
 	box-shadow: 0;
+}
+
+
+
+/** Switch style */
+.settings-panel-switch {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	vertical-align: top;
+	display: inline-block;
+	border: none;
+	margin: 0;
+	border-radius: 0;
+	padding: 0;
+	height: auto;
+	background: none;
+	vertical-align: top;
+	border: none;
+	position: relative;
+	background: gray;
+}
+
+.settings-panel-switch-input {
+	display: none;
+}
+
+.settings-panel-switch-label {
+	position: relative;
+	height: 2em;
+	line-height: 2em;
+	width: 4em;
+	z-index: 2;
+	float: left;
+	text-align: center;
+	cursor: pointer;
 }
