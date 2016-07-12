@@ -25,11 +25,16 @@ insertCSS(`
 	}
 `);
 
+var theme = createPanel.prototype.themes[createPanel.prototype.theme];
 
 var panel = createPanel([
 	{type: 'title', label: 'Config panel'},
 	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
-	{type: 'select', label: 'Theme', options: ['light', 'dark']},
+	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: ['light', 'dark'], input: v => {
+		theme = createPanel.prototype.themes[v];
+		ex.update(v);
+		panel.set(theme);
+	}},
 	{type: 'title', label: 'Theme params'},
 	{type: 'color', label: 'background'},
 	{type: 'color', label: 'primary'},

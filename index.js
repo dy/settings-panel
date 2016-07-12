@@ -73,6 +73,16 @@ Panel.prototype.set = function (name, value) {
 		return this;
 	}
 
+	if (name && arguments.length === 1) {
+		let items = name;
+		for (let key in items) {
+			let item = items[key];
+			this.set(key, item)
+		}
+
+		return this;
+	}
+
 	var item = this.items[name];
 	if (!item) item = this.items[name] = {};
 
@@ -166,13 +176,13 @@ Panel.prototype.update = function (theme) {
 		container.appendChild(this.style);
 	}
 
-	let className = 'settings-panel';
+	let sel = '#settings-panel-' + this.id;
 	this.style.innerHTML = `
-		.${className} {
+		${sel} {
 			background: ${theme.background};
 			font-size: ${theme.fontSize};
 			font-family: ${theme.fontFamily};
-			color: ${theme.color};
+			color: ${theme.secondary};
 		}
 	`;
 
