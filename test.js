@@ -1,5 +1,7 @@
 var createPanel = require('./')
 var insertCSS = require('insert-css');
+var extend = require('xtend/mutable');
+
 
 // prepare mobile
 var meta = document.createElement('meta')
@@ -25,27 +27,30 @@ insertCSS(`
 	}
 `);
 
-var theme = createPanel.prototype.themes[createPanel.prototype.theme];
-
 var panel = createPanel([
-	{type: 'title', label: 'Config panel'},
+	{type: 'title', label: 'Customize panel'},
 	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
 	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: ['light', 'dark'], input: v => {
-		theme = createPanel.prototype.themes[v];
-		ex.update(v);
-		panel.set(theme);
+		panel.set(panel.themes[v]);
 	}},
 	{type: 'title', label: 'Theme params'},
 	{type: 'color', label: 'background'},
 	{type: 'color', label: 'primary'},
 	{type: 'color', label: 'secondary'},
 	{type: 'text', label: 'fontFamily'},
-	{type: 'range', label: 'fontSize'},
+	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
 	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right'], value: 'left'},
-	{type: 'range', label: 'labelWidth', min: 10, max: 50, step: 1},
+	{type: 'range', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
-	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'}
-]);
+	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'},
+	{type: 'button', label: 'Get theme json', input: () => {
+		alert('Your json, sir!')
+	}}
+]).on('input', (theme) => {
+	ex.update(theme);
+});
+
+panel.set(createPanel.prototype.themes[createPanel.prototype.theme]);
 
 
 var ex = createPanel([

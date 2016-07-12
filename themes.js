@@ -1,7 +1,7 @@
 module.exports = {
 	light: {
 		fontFamily: '"Hack", monospace',
-		fontSize: '11px',
+		fontSize: 11,
 		background: 'rgb(227,227,227)',
 		primary: 'rgb(36,36,36)',
 		secondary: 'rgb(36,36,36)',
@@ -14,7 +14,7 @@ module.exports = {
 
 	dark: {
 		fontFamily: '"Hack", monospace',
-		fontSize: '11px',
+		fontSize: 11,
 		background: 'rgb(35,35,35)',
 		primary: 'rgb(235,235,235)',
 		secondary: 'rgb(235,235,235)',

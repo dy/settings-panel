@@ -2,16 +2,17 @@
  * @module settings-panel
  */
 
-const Emitter = require('events').EventEmitter
-const inherits = require('inherits')
-const extend = require('xtend/mutable')
-const css = require('dom-css')
-const themes = require('./themes')
-const uid = require('get-uid')
-const fs = require('fs')
-const insertCSS = require('insert-css')
+const Emitter = require('events').EventEmitter;
+const inherits = require('inherits');
+const extend = require('xtend/mutable');
+const css = require('dom-css');
+const themes = require('./themes');
+const uid = require('get-uid');
+const fs = require('fs');
+const insertCSS = require('insert-css');
 const isPlainObject = require('mutype/is-object');
-const format = require('param-case')
+const format = require('param-case');
+const px = require('add-px-to-style');
 
 module.exports = Panel
 
@@ -84,7 +85,7 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	var item = this.items[name];
-	if (!item) item = this.items[name] = {};
+	if (!item) item = this.items[name] = { label: name, panel: this};
 
 	if (isPlainObject(value)) {
 		item = extend(item, value);
@@ -93,8 +94,7 @@ Panel.prototype.set = function (name, value) {
 		item.value = value;
 	}
 
-	item.panel = this;
-	item.label = name;
+	this.state[name] = item.value;
 
 	var fieldId;
 	if (item.label) {
@@ -132,11 +132,11 @@ Panel.prototype.set = function (name, value) {
 
 	if (component.on) {
 		component.on('init', (data) => {
-			this.state[item.label] = data
+			item.value = this.state[item.label] = data
 		});
 
 		component.on('input', (data) => {
-			this.state[item.label] = data
+			item.value = this.state[item.label] = data
 			item.input && item.input(data, this.state)
 			this.emit('input', this.state)
 		});
@@ -180,7 +180,7 @@ Panel.prototype.update = function (theme) {
 	this.style.innerHTML = `
 		${sel} {
 			background: ${theme.background};
-			font-size: ${theme.fontSize};
+			font-size: ${px('font-size', theme.fontSize)};
 			font-family: ${theme.fontFamily};
 			color: ${theme.secondary};
 		}
