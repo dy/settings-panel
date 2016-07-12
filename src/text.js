@@ -12,10 +12,11 @@ function Text (opts) {
 	input.type = opts.type
 	input.id = opts.id
 	input.className = 'settings-panel-text'
-	if (opts.initial) input.value = opts.initial
+	if (opts.placeholder) input.placeholder = opts.placeholder;
+	if (opts.value) input.value = opts.value
 
 	setTimeout(() => {
-		this.emit('initialized', input.value)
+		this.emit('init', input.value)
 	})
 
 	input.oninput = (data) => {

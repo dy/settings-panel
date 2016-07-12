@@ -35,6 +35,10 @@ function Switch (opts) {
 
 	this.switch.innerHTML = html;
 
+	setTimeout(() => {
+		this.emit('init', opts.value)
+	})
+
 	this.switch.onchange = (e) => {
 		this.emit('input', e.target.getAttribute('data-value'));
 	}

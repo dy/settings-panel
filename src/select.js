@@ -27,7 +27,7 @@ function Select (opts) {
 			option = opts.options[i]
 			el = document.createElement('option')
 			el.value = el.textContent = option
-			if (opts.initial === option) {
+			if (opts.value === option) {
 				el.selected = 'selected'
 			}
 			input.appendChild(el)
@@ -38,7 +38,7 @@ function Select (opts) {
 			key = keys[i]
 			el = document.createElement('option')
 			el.value = key
-			if (opts.initial === key) {
+			if (opts.value === key) {
 				el.selected = 'selected'
 			}
 			el.textContent = opts.options[key]
@@ -47,6 +47,10 @@ function Select (opts) {
 	}
 
 	opts.container.appendChild(input)
+
+	setTimeout(() => {
+		this.emit('init', opts.value)
+	})
 
 	input.onchange = (data) => {
 		this.emit('input', data.target.value)

@@ -14,14 +14,14 @@ function Checkbox (opts) {
 	input.id = opts.id
 	input.type = 'checkbox'
 	input.checked = opts.value
-	input.className = 'settings-panel-checkbox'
+	input.className = opts.className || 'settings-panel-checkbox'
 
 	var label = opts.container.appendChild(document.createElement('label'))
 	label.htmlFor = opts.id
-	label.className = 'settings-panel-checkbox-label'
+	label.className = (opts.className || 'settings-panel-checkbox') + '-label'
 
 	setTimeout(function () {
-		self.emit('initialized', input.checked)
+		self.emit('init', input.checked)
 	})
 
 	input.onchange = function (data) {

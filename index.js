@@ -4,7 +4,7 @@
 
 const Emitter = require('events').EventEmitter
 const inherits = require('inherits')
-const extend = require('xtend')
+const extend = require('xtend/mutable')
 const css = require('dom-css')
 const themes = require('./themes')
 const uid = require('get-uid')
@@ -17,6 +17,7 @@ module.exports = Panel
 
 
 insertCSS(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
+
 
 /**
  * @constructor
@@ -36,10 +37,7 @@ function Panel (items, opts) {
 	this.element = document.createElement('form')
 	this.element.className = 'settings-panel';
 	this.element.id = 'settings-panel-' + this.id;
-
-	if (typeof this.theme === 'string') {
-		this.theme = Panel.themes[this.theme];
-	}
+	if (this.className) this.element.classList.add(this.className);
 
 	//create state for values
 	this.state = {};
@@ -50,9 +48,13 @@ function Panel (items, opts) {
 	if (this.container) {
 		this.container.appendChild(this.element)
 	}
+
+	//create theme style
+	this.update();
 }
 
 inherits(Panel, Emitter);
+
 
 /**
  * Set item value/options
@@ -99,7 +101,7 @@ Panel.prototype.set = function (name, value) {
 		label.innerHTML = item.label;
 	}
 
-	var components = Panel.components;
+	let components = this.components;
 	let component = (components[item.type] || components.text)(item)
 
 	if (component.on) {
@@ -119,11 +121,51 @@ Panel.prototype.set = function (name, value) {
 	return this;
 }
 
-Panel.components = {
+
+/**
+ * Update theme
+ */
+Panel.prototype.update = function (theme) {
+	theme = theme || this.theme;
+
+	if (typeof theme === 'string') {
+		theme = this.themes[theme];
+	}
+
+	this.theme = theme;
+
+	//create dynamic style
+	if (!this.style) {
+		this.style = document.createElement('style');
+		this.style.className = 'settings-panel-style';
+		this.style.type = 'text/css';
+		let container = document.head || this.container;
+		container.appendChild(this.style);
+	}
+
+	let className = 'settings-panel';
+	this.style.innerHTML = `
+		.${className} {
+			background: ${theme.background};
+			font-size: ${theme.fontSize};
+			font-family: ${theme.fontFamily};
+			color: ${theme.color};
+		}
+	`;
+
+	return this;
+}
+
+
+/**
+ * Registered components
+ */
+Panel.prototype.components = {
 	title: require('./src/title'),
 	range: require('./src/range'),
 	button: require('./src/button'),
 	text: require('./src/text'),
+	textarea: require('./src/textarea'),
 	checkbox: require('./src/checkbox'),
 	switch: require('./src/switch'),
 	color: require('./src/color'),
@@ -132,5 +174,14 @@ Panel.components = {
 };
 
 
+/**
+ * Additional class name
+ */
+Panel.prototype.className;
+
+
+/**
+ * Registered themes
+ */
 Panel.prototype.theme = 'dark';
-Panel.themes = require('./themes');
+Panel.prototype.themes = require('./themes');

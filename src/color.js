@@ -59,7 +59,7 @@ function Color (opts) {
 	}
 
 	setTimeout(() => {
-		this.emit('initialized', initial)
+		this.emit('init', initial)
 	})
 
 	picker.onChange((hex) => {

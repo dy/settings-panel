@@ -60,6 +60,6 @@ This event is emitted every time any one of the inputs change. The callback argu
 
 ## See also
 
-* [prama](https://github.com/dfcreative/prama) — wrapper for super-control-panel, providing popup, button, state management etc.
+* [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing popup, button, state management etc.
 * [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
 * [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.

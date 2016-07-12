@@ -13,13 +13,37 @@ insertCSS(`
 		margin: 0;
 	}
 	.settings-panel {
-		margin: 2rem auto;
+		display: inline-block;
+		vertical-align: top;
+		width: 40%;
+		margin-right: 10%;
+	}
+
+	.settings-panel-preview {
+		margin-right: 0;
+		width: 50%;
 	}
 `);
 
 
 var panel = createPanel([
-	{type: 'title', value: 'Settings'},
+	{type: 'title', label: 'Config panel'},
+	{type: 'select', label: 'Theme', options: ['light', 'dark']},
+	{type: 'title', label: 'Theme params'},
+	{type: 'color', label: 'background'},
+	{type: 'color', label: 'primary'},
+	{type: 'color', label: 'secondary'},
+	{type: 'text', label: 'fontFamily'},
+	{type: 'range', label: 'fontSize'},
+	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right'], value: 'left'},
+	{type: 'range', label: 'labelWidth', min: 10, max: 50, step: 1},
+	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
+	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'}
+]);
+
+
+var examplePanel = createPanel([
+	{type: 'title', value: 'Preview'},
 	{type: 'switch', label: 'Switch', options: ['One', 'Two'], value: 'One'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
@@ -38,9 +62,9 @@ var panel = createPanel([
 	{type: 'range', label: 'One more', min: 0, max: 10},
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
-	{type: 'email', label: 'Email'}
-])
+	{type: 'email', label: 'Email', placeholder: 'email'}
+], {theme: 'dark', className: 'settings-panel-preview'});
 
-panel.on('input', function (data) {
+examplePanel.on('input', function (data) {
 	console.log(data)
 })

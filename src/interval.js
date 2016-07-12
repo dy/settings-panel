@@ -215,7 +215,7 @@ function Range (opts) {
 		var scaledRValue = scaleValue(value[1])
 		lValue.value = scaledLValue
 		rValue.value = scaledRValue
-		this.emit('initialized', [scaledLValue, scaledRValue])
+		this.emit('init', [scaledLValue, scaledRValue])
 	})
 
 	input.oninput = () => {
