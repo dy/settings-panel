@@ -9,7 +9,6 @@
 	font-family: sans-serif;
 	font-size: 1rem;
 	width: 40em;
-	opacity: .95;
 	padding: 1em;
 }
 
@@ -431,7 +430,6 @@
 	vertical-align: top;
 	border: none;
 	position: relative;
-	box-shadow: 0 0 0 2px gray;
 }
 
 .settings-panel-switch-input {

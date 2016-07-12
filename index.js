@@ -39,8 +39,11 @@ function Panel (items, opts) {
 	this.element.id = 'settings-panel-' + this.id;
 	if (this.className) this.element.classList.add(this.className);
 
-	//create state for values
+	//state is values of items
 	this.state = {};
+
+	//items is all items settings
+	this.items = {};
 
 	//create fields
 	this.set(items);
@@ -70,30 +73,43 @@ Panel.prototype.set = function (name, value) {
 		return this;
 	}
 
-	var item;
+	var item = this.items[name];
+	if (!item) item = this.items[name] = {};
+
 	if (isPlainObject(value)) {
-		item = value;
+		item = extend(item, value);
 	}
 	else {
-		item = {value: value};
+		item.value = value;
 	}
 
 	item.panel = this;
 	item.label = name;
 
-	//create field container
-	let field = document.createElement('div');
-	field.className = 'settings-panel-field';
-	item.container = field;
-
+	var fieldId;
 	if (item.label) {
-		field.id = 'settings-panel-field-' + format(item.label);
-		item.id = 'settings-panel-field-input-' + format(item.label);
+		let label = item.label.replace(/\-/g,'dash-');
+		fieldId = 'settings-panel-field-' + format(label);
+		item.id = 'settings-panel-field-input-' + format(label);
 	}
+
+	//create field container
+	var field = this.element.querySelector('#' + fieldId);
+
+	if (!field) {
+		field = document.createElement('div');
+		field.className = 'settings-panel-field';
+		field.id = fieldId;
+		item.container = field;
+		this.element.appendChild(field);
+	}
+
+	field.innerHTML = '';
 
 	if (item.help) field.setAttribute('data-help', item.help);
 
 	//create field label
+	//FIXME: there should be a better way to disable label, like preset component's view
 	if (item.type !== 'button' && item.type !== 'title' && (item.label || item.label === '')) {
 		var label = field.appendChild(document.createElement('label'))
 		label.className = 'settings-panel-label';
@@ -115,8 +131,6 @@ Panel.prototype.set = function (name, value) {
 			this.emit('input', this.state)
 		});
 	}
-
-	this.element.appendChild(field);
 
 	return this;
 }

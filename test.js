@@ -28,6 +28,7 @@ insertCSS(`
 
 var panel = createPanel([
 	{type: 'title', label: 'Config panel'},
+	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
 	{type: 'select', label: 'Theme', options: ['light', 'dark']},
 	{type: 'title', label: 'Theme params'},
 	{type: 'color', label: 'background'},
@@ -42,8 +43,8 @@ var panel = createPanel([
 ]);
 
 
-var examplePanel = createPanel([
-	{type: 'title', value: 'Preview'},
+var ex = createPanel([
+	{type: 'title', label: 'Preview'},
 	{type: 'switch', label: 'Switch', options: ['One', 'Two'], value: 'One'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
@@ -65,6 +66,6 @@ var examplePanel = createPanel([
 	{type: 'email', label: 'Email', placeholder: 'email'}
 ], {theme: 'dark', className: 'settings-panel-preview'});
 
-examplePanel.on('input', function (data) {
+ex.on('input', function (data) {
 	console.log(data)
 })
