@@ -137,6 +137,15 @@ Panel.prototype.set = function (name, value) {
 
 
 /**
+ * Return property value or a list
+ */
+Panel.prototype.get = function (name) {
+	if (name == null) return this.state;
+	return this.state[name];
+}
+
+
+/**
  * Update theme
  */
 Panel.prototype.update = function (theme) {
