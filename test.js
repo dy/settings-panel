@@ -30,7 +30,7 @@ insertCSS(`
 var panel = createPanel([
 	{type: 'title', label: 'Customize panel'},
 	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
-	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: ['light', 'dark'], input: v => {
+	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: Object.keys(createPanel.prototype.themes), input: v => {
 		panel.set(panel.themes[v]);
 	}},
 	{type: 'title', label: 'Theme params'},
@@ -40,7 +40,8 @@ var panel = createPanel([
 	{type: 'text', label: 'fontFamily'},
 	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
 	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left'},
-	{type: 'range', label: 'labelWidth', min: 7, max: 50, step: 1},
+	{type: 'switch', label: 'labelAlign', options: ['left', 'center', 'right'], value: 'left', input: v => console.log(v)},
+	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
 	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'},
 	{type: 'button', label: 'Get theme json', input: () => {
@@ -74,7 +75,7 @@ var ex = createPanel([
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'}
-], {theme: 'dark', className: 'settings-panel-preview'});
+], {className: 'settings-panel-preview'});
 
 ex.on('input', function (data) {
 	console.log(data)

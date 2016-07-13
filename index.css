@@ -51,7 +51,6 @@
 .settings-panel-label {
 	left: 0;
 	width: calc(33% - .5em);
-	margin-right: .5em;
 	padding-top: .4em;
 	display: inline-block;
 	line-height: 1.25;
@@ -124,7 +123,7 @@
 	position: relative;
 	display: inline-block;
 	vertical-align: top;
-	width: calc(15% - .5em);
+	width: calc(20% - .5em);
 	height: 2em;
 	cursor: pointer;
 	background-color: gray;

@@ -207,12 +207,17 @@ Panel.prototype.update = function (theme) {
 	}
 
 	let sel = '#settings-panel-' + this.id;
+
 	let style = `
 		${sel} {
 			background: ${theme.background};
 			font-size: ${px('font-size', theme.fontSize)};
 			font-family: ${theme.fontFamily};
 			color: ${theme.secondary};
+		}
+
+		${sel} .settings-panel-label {
+			text-align: ${theme.labelAlign};
 		}
 	`;
 
@@ -227,18 +232,6 @@ Panel.prototype.update = function (theme) {
 
 			${sel} .settings-panel-input {
 				width: 100%;
-			}
-		`;
-	}
-	else if (theme.labelPosition === 'right') {
-		style += `
-			${sel} .settings-panel-label {
-				display: block;
-				margin-right: 0;
-				float: right;
-			}
-
-			${sel} .settings-panel-input {
 			}
 		`;
 	}
@@ -259,8 +252,32 @@ Panel.prototype.update = function (theme) {
 			}
 		`;
 	}
-	else {
+	else if (theme.labelPosition === 'right') {
+		style += `
+			${sel} .settings-panel-label {
+				display: block;
+				margin-right: 0;
+				float: right;
+				width: ${theme.labelWidth};
+				padding-left: .5em;
+			}
 
+			${sel} .settings-panel-input {
+				width: calc(100% - ${theme.labelWidth});
+			}
+		`;
+	}
+	else {
+		style += `
+			${sel} .settings-panel-label {
+				width: ${theme.labelWidth};
+				padding-right: .5em;
+			}
+
+			${sel} .settings-panel-input {
+				width: calc(100% - ${theme.labelWidth});
+			}
+		`
 	}
 
 	this.style.innerHTML = style;
@@ -295,5 +312,5 @@ Panel.prototype.className;
 /**
  * Registered themes
  */
-Panel.prototype.theme = 'dark';
+Panel.prototype.theme = 'merka';
 Panel.prototype.themes = require('./themes');

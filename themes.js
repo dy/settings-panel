@@ -1,4 +1,16 @@
 module.exports = {
+	merka: {
+		fontFamily: 'sans-serif',
+		fontSize: 11,
+		background: 'rgb(227,227,227)',
+		primary: 'rgb(36,36,36)',
+		secondary: 'rgb(36,36,36)',
+
+		labelPosition: 'left',
+		labelAlign: 'left',
+		labelWidth: '33%'
+	},
+
 	light: {
 		fontFamily: '"Hack", monospace',
 		fontSize: 11,
@@ -7,7 +19,8 @@ module.exports = {
 		secondary: 'rgb(36,36,36)',
 
 		labelPosition: 'left',
-		labelAlign: 'left'
+		labelAlign: 'left',
+		labelWidth: '33%'
 
 		// background2: 'rgb(204,204,204)',
 		// background2hover: 'rgb(208,208,208)',
@@ -23,7 +36,8 @@ module.exports = {
 		secondary: 'rgb(235,235,235)',
 
 		labelPosition: 'left',
-		labelAlign: 'left'
+		labelAlign: 'left',
+		labelWidth: '33%'
 
 		// background1: 'rgb(35,35,35)',
 		// background2: 'rgb(54,54,54)',
