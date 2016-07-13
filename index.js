@@ -390,6 +390,7 @@ Panel.prototype.components = {
 	text: require('./src/text'),
 	textarea: require('./src/textarea'),
 	checkbox: require('./src/checkbox'),
+	toggle: require('./src/checkbox'),
 	switch: require('./src/switch'),
 	color: require('./src/color'),
 	interval: require('./src/interval'),

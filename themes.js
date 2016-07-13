@@ -11,10 +11,6 @@ module.exports = {
 		labelWidth: '12em',
 
 		radius: 0
-
-		// background2: 'rgb(204,204,204)',
-		// background2hover: 'rgb(208,208,208)',
-		// text2: 'rgb(87,87,87)'
 	},
 
 	dark: {
@@ -29,11 +25,5 @@ module.exports = {
 		labelWidth: '12em',
 
 		radius: 0
-
-		// background1: 'rgb(35,35,35)',
-		// background2: 'rgb(54,54,54)',
-		// background2hover: 'rgb(58,58,58)',
-		// text1: 'rgb(235,235,235)',
-		// text2: 'rgb(161,161,161)'
 	}
 }
