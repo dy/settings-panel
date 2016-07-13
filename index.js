@@ -40,6 +40,13 @@ function Panel (items, opts) {
 	this.element.id = 'settings-panel-' + this.id;
 	if (this.className) this.element.classList.add(this.className);
 
+	//create title
+	if (this.title) {
+		let title = this.element.appendChild(document.createElement('h2'));
+		title.innerHTML = this.title;
+		title.className = 'settings-panel-title';
+	}
+
 	//state is values of items
 	this.state = {};
 
@@ -135,7 +142,7 @@ Panel.prototype.set = function (name, value) {
 
 	if (!field) {
 		field = document.createElement('div');
-		field.className = 'settings-panel-field';
+		field.className = 'settings-panel-field settings-panel-field-' + item.type;
 		field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
@@ -226,14 +233,6 @@ Panel.prototype.update = function (theme) {
 			color: ${theme.secondary};
 		}
 
-		${sel} .settings-panel-field {
-			${s(theme.fieldStyle)}
-		}
-
-		${sel} .settings-panel-label {
-			${s(theme.labelStyle)}
-		}
-
 		/** Inputs fill */
 		${sel} .settings-panel-interval,
 		${sel} .settings-panel-value,
@@ -241,10 +240,13 @@ Panel.prototype.update = function (theme) {
 		${sel} .settings-panel-text,
 		${sel} .settings-panel-checkbox-label {
 			background: ${theme.foreground};
+			color: ${theme.primary};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 
 		/** Checkbox */
 		${sel} .settings-panel-checkbox-label:before {
+			border-radius: ${px('border-radius', theme.radius)};
 			background: ${theme.background}
 		}
 		${sel} .settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
@@ -254,32 +256,57 @@ Panel.prototype.update = function (theme) {
 		/** Slider */
 		${sel} .settings-panel-range::-webkit-slider-runnable-track {
 			background: ${theme.foreground};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 		${sel} .settings-panel-range::-moz-range-track {
 			background: ${theme.foreground};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 		${sel} .settings-panel-range::-ms-fill-lower {
 			background: ${theme.foreground};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 		${sel} .settings-panel-range::-ms-fill-upper {
 			background: ${theme.foreground};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 
 		${sel} .settings-panel-range::-webkit-slider-thumb {
-			background: ${theme.secondary};
+			background: ${theme.primary};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 		${sel} .settings-panel-range::-moz-range-thumb {
-			background: ${theme.secondary};
+			background: ${theme.primary};
+			border-radius: ${px('border-radius', theme.radius)};
 		}
 		${sel} .settings-panel-range::-ms-thumb {
-			background: ${theme.secondary};
+			background: ${theme.primary};
+			border-radius: ${px('border-radius', theme.radius)};
+		}
+		${sel} .settings-panel-interval-handle {
+			background: ${theme.primary};
 		}
 
-		/** Title */
-		${sel} .settings-panel-title {
-			${s(theme.titleStyle)}
+		/** Switch */
+		${sel} .settings-panel-switch {
+			color: ${theme.primary};
+			border-radius: ${px('border-radius', theme.radius)};
+			background: ${theme.background}
+		}
+		${sel} .settings-panel-switch-input:checked + .settings-panel-switch-label {
+			background: ${theme.foreground};
+		}
+
+		/** Button */
+		${sel} .settings-panel-button {
+			background: ${theme.foreground};
+			color: ${theme.primary}
+		}
+		${sel} .settings-panel-button:hover {
+			background: ${theme.foreground};
 		}
 	`;
+
 
 	if (theme.labelPosition === 'top') {
 		style += `
@@ -291,6 +318,7 @@ Panel.prototype.update = function (theme) {
 			}
 
 			${sel} .settings-panel-input {
+				display: block;
 				width: 100%;
 			}
 		`;
@@ -314,15 +342,20 @@ Panel.prototype.update = function (theme) {
 	}
 	else if (theme.labelPosition === 'right') {
 		style += `
+			${sel} .settings-panel-field {
+			}
 			${sel} .settings-panel-label {
 				display: block;
 				margin-right: 0;
 				float: right;
 				width: ${px('width', theme.labelWidth)};
 				padding-left: .5em;
+				padding-top: .4em;
 			}
 
 			${sel} .settings-panel-input {
+				display: block;
+				width: calc(100% - ${px('width', theme.labelWidth)});
 			}
 		`;
 	}
@@ -334,6 +367,10 @@ Panel.prototype.update = function (theme) {
 			}
 
 			${sel} .settings-panel-input {
+			}
+
+			${sel} .settings-panel-button {
+				margin-left: ${px('width', theme.labelWidth)};
 			}
 		`
 	}
@@ -348,7 +385,6 @@ Panel.prototype.update = function (theme) {
  * Registered components
  */
 Panel.prototype.components = {
-	title: require('./src/title'),
 	range: require('./src/range'),
 	button: require('./src/button'),
 	text: require('./src/text'),
@@ -370,5 +406,5 @@ Panel.prototype.className;
 /**
  * Registered themes
  */
-Panel.prototype.theme = 'merka';
+Panel.prototype.theme = 'light';
 Panel.prototype.themes = require('./themes');

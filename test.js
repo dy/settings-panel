@@ -28,8 +28,6 @@ insertCSS(`
 `);
 
 var panel = createPanel([
-	{type: 'title', label: 'Customize panel'},
-	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
 	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: Object.keys(createPanel.prototype.themes), input: v => {
 		panel.set(filter(
 			panel.themes[v],
@@ -37,7 +35,6 @@ var panel = createPanel([
 		));
 		}
 	},
-	{type: 'title', label: 'Theme params'},
 	{type: 'color', label: 'background'},
 	{type: 'color', label: 'foreground'},
 	{type: 'color', label: 'primary'},
@@ -45,13 +42,12 @@ var panel = createPanel([
 	{type: 'text', label: 'fontFamily'},
 	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
 	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left'},
-	{type: 'switch', label: 'labelAlign', options: ['left', 'center', 'right'], value: 'left', input: v => console.log(v)},
 	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
 	{type: 'button', label: 'Get theme json', input: () => {
-		alert('Your json, sir!')
+		window.prompt('Your JSON, sir!', JSON.stringify(panel.get()))
 	}}
-]).on('input', (theme) => {
+], {title: 'Customize panel'}).on('input', (theme) => {
 	ex.update(theme);
 });
 panel.set(filter(
@@ -61,8 +57,7 @@ panel.set(filter(
 
 
 var ex = createPanel([
-	{type: 'title', label: 'Preview'},
-	{type: 'switch', label: 'Switch', options: ['One', 'Two'], value: 'One'},
+	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
 	{type: 'range', scale: 'log', label: 'Range slider (log)', min: 0.01, max: 100, value: 1},
@@ -81,7 +76,7 @@ var ex = createPanel([
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'}
-], {className: 'settings-panel-preview'});
+], {title: 'Preview', className: 'settings-panel-preview'});
 
 ex.on('input', function (data) {
 	console.log(data)

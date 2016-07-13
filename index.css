@@ -41,8 +41,8 @@
 /** Basic layout */
 .settings-panel-field {
 	position: relative;
+	line-height: 2em;
 	min-height: 2em;
-	line-height: 2;
 	margin-bottom: .5em;
 	clear: both;
 	display: table;
@@ -56,10 +56,9 @@
 }*/
 .settings-panel-label {
 	left: 0;
-	width: 33%;
-	padding-top: .4em;
+	width: 33.33%;
 	display: table-cell;
-	line-height: 1.25;
+	line-height: 1.2;
 	vertical-align: middle;
 }
 .settings-panel-input {
@@ -73,7 +72,12 @@
 
 .settings-panel-title {
 	width: 100%;
-	line-height: 1.2;
+	text-align: center;
+	font-size: 1.2em;
+	min-height: 2em;
+	text-transform: uppercase;
+	letter-spacing: .1ex;
+	line-height: 1.25;
 	margin-top: 0;
 	margin-bottom: 0;
 }
@@ -84,17 +88,19 @@
 	color: white;
 	background-color: black;
 	text-align: center;
-	height: 2em;
-	padding: 0 2em;
+	min-height: 2em;
+	line-height: 1.2;
+	padding: .5em 2em;
 	border: none;
 	cursor: pointer;
 }
+.settings-panel-button:focus {
+	outline: none;
+}
 .settings-panel-button:hover {
-	color: black;
 	background-color: white;
 }
 .settings-panel-button:active {
-	color: black;
 	background-color: white;
 }
 
@@ -281,6 +287,7 @@
 	padding: 0;
 	margin: 0px 0;
 	height: 2em;
+	background: none;
 }
 .settings-panel-range:focus {
 	outline: none;
@@ -438,6 +445,7 @@
 	vertical-align: top;
 	border: none;
 	position: relative;
+	overflow: hidden;
 }
 
 .settings-panel-switch-input {
@@ -448,7 +456,8 @@
 	position: relative;
 	height: 2em;
 	line-height: 2em;
-	width: 4em;
+	min-width: 4em;
+	padding: 0 1em;
 	z-index: 2;
 	float: left;
 	text-align: center;
