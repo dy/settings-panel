@@ -27,7 +27,7 @@ var panel = createPanel([
 
 ## API
 
-#### `panel = control([field1, field2, ...], [opts])`
+### panel = Panel([field1, field2, ...], [opts])
 
 The first argument is a list of fields. Each one must have a `type`, `label` and `value` property with an initial value. Also it may have a `input` callback, which will be invoked if value changed. For example,
 
@@ -51,7 +51,7 @@ The following optional parameters can also be passed as `opts`
 - `theme` can specify `light` • `dark` or provide an object (see [`themes.js`](themes.js) for format)
 - `title` a title to add to the top of the panel
 
-#### `panel.on('input', cb(data))`
+### panel.on('input', cb(data))
 
 This event is emitted every time any one of the inputs change. The callback argument `data` will contain the state of all inputs keyed by label such as:
 
@@ -59,11 +59,11 @@ This event is emitted every time any one of the inputs change. The callback argu
 {'my checkbox': false, 'my range': 75}
 ```
 
-#### `panel.get(name?)`
+### panel.get(name?)
 
 Get the value of a field defined by `name`. Or get full list of values, if `name` is undefined.
 
-#### `panel.set(name, value|options)`
+### panel.set(name, value|options)
 
 Update specific field, with value or field options. You can also pass an object or array to update multiple fields:
 
