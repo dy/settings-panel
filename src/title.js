@@ -1,6 +1,8 @@
 var css = require('dom-css')
 
-module.exports = function Title (opts) {
+module.exports = Title;
+
+function Title (opts) {
 	if (!(this instanceof Title)) return new Title(opts);
 
 	if (opts.value == null) opts.value = opts.label;
@@ -9,3 +11,5 @@ module.exports = function Title (opts) {
 	this.title.innerHTML = opts.value;
 	this.title.className = 'settings-panel-title';
 }
+
+Title.prototype.label = false;

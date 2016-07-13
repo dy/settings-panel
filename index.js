@@ -96,6 +96,28 @@ Panel.prototype.set = function (name, value) {
 
 	this.state[name] = item.value;
 
+	//detect type
+	if (!item.type) {
+		if (item.value && item.value.length) {
+			item.type = 'interval'
+		} else if (item.scale || item.max || item.steps || item.step || typeof item.value === 'number') {
+			item.type = 'range'
+		} else if (item.options) {
+			if (Array.isArray(item.options) && item.options.join('').length < 90 ) {
+				item.type = 'switch'
+			}
+			else {
+				item.type = 'select'
+			}
+		} else if (item.format) {
+			item.type = 'color'
+		} else if (typeof item.value === 'boolean') {
+			item.type = 'checkbox'
+		} else {
+			item.type = 'text'
+		}
+	}
+
 	var fieldId;
 	if (item.label) {
 		let label = item.label.replace(/\-/g,'dash-');
@@ -110,25 +132,33 @@ Panel.prototype.set = function (name, value) {
 		field = document.createElement('div');
 		field.className = 'settings-panel-field';
 		field.id = fieldId;
-		item.container = field;
 		this.element.appendChild(field);
+		item.field = field;
 	}
 
 	field.innerHTML = '';
 
-	if (item.help) field.setAttribute('data-help', item.help);
+	//createe container for the input
+	let inputContainer = document.createElement('div');
+	inputContainer.className = 'settings-panel-input';
+	item.container = inputContainer;
 
-	//create field label
-	//FIXME: there should be a better way to disable label, like preset component's view
-	if (item.type !== 'button' && item.type !== 'title' && (item.label || item.label === '')) {
-		var label = field.appendChild(document.createElement('label'))
-		label.className = 'settings-panel-label';
-		label.htmlFor = item.id;
-		label.innerHTML = item.label;
-	}
+	if (item.help) field.setAttribute('data-help', item.help);
 
 	let components = this.components;
 	let component = (components[item.type] || components.text)(item)
+
+	//create field label
+	//FIXME: there should be a better way to disable label, like preset component's view
+	if (component.label !== false && (item.label || item.label === '')) {
+		var label = document.createElement('label')
+		label.className = 'settings-panel-label';
+		label.htmlFor = item.id;
+		label.innerHTML = item.label;
+		field.appendChild(label);
+	}
+
+	field.appendChild(inputContainer);
 
 	if (component.on) {
 		component.on('init', (data) => {
@@ -177,7 +207,7 @@ Panel.prototype.update = function (theme) {
 	}
 
 	let sel = '#settings-panel-' + this.id;
-	this.style.innerHTML = `
+	let style = `
 		${sel} {
 			background: ${theme.background};
 			font-size: ${px('font-size', theme.fontSize)};
@@ -185,6 +215,55 @@ Panel.prototype.update = function (theme) {
 			color: ${theme.secondary};
 		}
 	`;
+
+	if (theme.labelPosition === 'top') {
+		style += `
+			${sel} .settings-panel-label {
+				display: block;
+				width: auto;
+				margin-right: 0;
+				padding-top: 0;
+			}
+
+			${sel} .settings-panel-input {
+				width: 100%;
+			}
+		`;
+	}
+	else if (theme.labelPosition === 'right') {
+		style += `
+			${sel} .settings-panel-label {
+				display: block;
+				margin-right: 0;
+				float: right;
+			}
+
+			${sel} .settings-panel-input {
+			}
+		`;
+	}
+	else if (theme.labelPosition === 'bottom') {
+		style += `
+			${sel} .settings-panel-label {
+				display: block;
+				width: auto;
+				margin-right: 0;
+				padding-top: 0;
+				border-top: 2em solid transparent;
+			}
+
+			${sel} .settings-panel-input {
+				width: 100%;
+				position: absolute;
+				top: 0;
+			}
+		`;
+	}
+	else {
+
+	}
+
+	this.style.innerHTML = style;
 
 	return this;
 }

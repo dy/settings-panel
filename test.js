@@ -39,7 +39,7 @@ var panel = createPanel([
 	{type: 'color', label: 'secondary'},
 	{type: 'text', label: 'fontFamily'},
 	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
-	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right'], value: 'left'},
+	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left'},
 	{type: 'range', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
 	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'},

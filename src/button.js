@@ -18,3 +18,5 @@ function Button (opts) {
 		this.emit('input');
 	})
 }
+
+Button.prototype.label = false;

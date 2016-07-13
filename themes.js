@@ -6,6 +6,9 @@ module.exports = {
 		primary: 'rgb(36,36,36)',
 		secondary: 'rgb(36,36,36)',
 
+		labelPosition: 'left',
+		labelAlign: 'left'
+
 		// background2: 'rgb(204,204,204)',
 		// background2hover: 'rgb(208,208,208)',
 		// foreground1: 'rgb(105,105,105)',
@@ -18,6 +21,9 @@ module.exports = {
 		background: 'rgb(35,35,35)',
 		primary: 'rgb(235,235,235)',
 		secondary: 'rgb(235,235,235)',
+
+		labelPosition: 'left',
+		labelAlign: 'left'
 
 		// background1: 'rgb(35,35,35)',
 		// background2: 'rgb(54,54,54)',

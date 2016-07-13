@@ -21,7 +21,6 @@
 .settings-panel textarea,
 .settings-panel select {
 	border-radius: 0;
-	padding-left: .5em;
 	vertical-align: top;
 	font-family: inherit;
 	font-size: inherit;
@@ -40,7 +39,8 @@
 	position: relative;
 	min-height: 2em;
 	line-height: 2;
-	margin-bottom: .5em;
+	padding-bottom: .5em;
+	clear: both;
 }
 .settings-panel-field:after {
 	content: attr(data-help);
@@ -57,6 +57,14 @@
 	line-height: 1.25;
 	vertical-align: top;
 }
+.settings-panel-input {
+	display: inline-block;
+	vertical-align: top;
+	width: 67%;
+	position: relative;
+	min-height: 2em;
+}
+
 
 
 .settings-panel-title {
@@ -71,13 +79,11 @@
 .settings-panel-button {
 	color: white;
 	background-color: black;
-	position: absolute;
 	text-align: center;
 	height: 2em;
-	width: 67%;
+	padding: 0 2em;
 	border: none;
 	cursor: pointer;
-	right: 0;
 }
 .settings-panel-button:hover {
 	color: black;
@@ -91,9 +97,8 @@
 
 /** Default text and alike style */
 .settings-panel-text {
-	position: absolute;
 	height: 2em;
-	width: 67%;
+	width: 100%;
 	border: none;
 	font-family: inherit;
 }
@@ -103,7 +108,7 @@
 
 .settings-panel-textarea {
 	min-height: 2em;
-	width: 67%;
+	width: 100%;
 	border: 0;
 	padding-top: .4em;
 }
@@ -159,11 +164,11 @@
 	position: relative;
 	display: inline-block;
 	vertical-align: top;
-	width: calc(15% - .5em);
+	width: calc(20% - .5em);
 	height: 2em;
 }
 .settings-panel-color + .settings-panel-value {
-	width: 52%;
+	width: 80%;
 	margin-left: .5em;
 }
 .Scp {
@@ -224,8 +229,8 @@
 	position: absolute;
 	height: 2em;
 	margin: 0px 0;
-	width: 37%;
-	left: 48%;
+	width: 60%;
+	left: 20%;
 	background-color: gray;
 	cursor: ew-resize;
 
@@ -254,7 +259,7 @@
 }
 
 .settings-panel-interval ~ .settings-panel-value {
-	width: calc(15% - .5em);
+	width: calc(20% - .5em);
 }
 .settings-panel-interval + .settings-panel-value  + .settings-panel-value {
 	right: 0;
@@ -268,7 +273,7 @@
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	width: 52%;
+	width: 80%;
 	padding: 0;
 	margin: 0px 0;
 	height: 2em;
@@ -341,7 +346,7 @@
 }
 
 .settings-panel-range + .settings-panel-value {
-	width: calc(15% - .5em);
+	width: calc(20% - .5em);
 	margin-left: .5em;
 }
 
@@ -349,8 +354,7 @@
 /** Select style */
 .settings-panel-select {
 	display: inline-block;
-	position: absolute;
-	width: 67%;
+	width: 100%;
 	padding-left: 1.5%;
 	height: 2em;
 	border: none;
