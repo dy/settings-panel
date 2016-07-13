@@ -1,4 +1,4 @@
-# settings-panel
+# settings-panel [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
 Simple settings panel for your app, demo or tests.
 
@@ -27,12 +27,12 @@ var panel = createPanel([
 
 ## API
 
-### panel = Panel([field1, field2, ...], [opts])
+### panel = Panel([field1, field2, ...], opts?)
 
-The first argument is a list of fields. Each one must have a `type`, `label` and `value` property with an initial value. Also it may have a `input` callback, which will be invoked if value changed. For example,
+The first argument is a list of fields. Each one must have a `type`, `label` and `value` properties. Also it may have an `input` callback, which will be invoked if value changed. For example,
 
 ```javascript
-{type: 'checkbox', name: 'My Checkbox', initial: true, change: function (value) {}}
+{type: 'checkbox', name: 'My Checkbox', value: true, change: value => {}}
 ```
 
 Each `type` must be one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `textarea` • `text` or any `<input>` type.
