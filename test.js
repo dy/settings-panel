@@ -1,7 +1,7 @@
 var createPanel = require('./')
 var insertCSS = require('insert-css');
 var extend = require('xtend/mutable');
-
+var filter = require('filter-obj');
 
 // prepare mobile
 var meta = document.createElement('meta')
@@ -31,10 +31,15 @@ var panel = createPanel([
 	{type: 'title', label: 'Customize panel'},
 	{type: 'text', label: 'Title', value: 'Preview', input: v => ex.set('Preview', v)},
 	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: Object.keys(createPanel.prototype.themes), input: v => {
-		panel.set(panel.themes[v]);
-	}},
+		panel.set(filter(
+			panel.themes[v],
+			Object.keys(panel.get())
+		));
+		}
+	},
 	{type: 'title', label: 'Theme params'},
 	{type: 'color', label: 'background'},
+	{type: 'color', label: 'foreground'},
 	{type: 'color', label: 'primary'},
 	{type: 'color', label: 'secondary'},
 	{type: 'text', label: 'fontFamily'},
@@ -43,15 +48,16 @@ var panel = createPanel([
 	{type: 'switch', label: 'labelAlign', options: ['left', 'center', 'right'], value: 'left', input: v => console.log(v)},
 	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
-	{type: 'textarea', label: 'style', placeholder: '.settings-panel {...}'},
 	{type: 'button', label: 'Get theme json', input: () => {
 		alert('Your json, sir!')
 	}}
 ]).on('input', (theme) => {
 	ex.update(theme);
 });
-
-panel.set(createPanel.prototype.themes[createPanel.prototype.theme]);
+panel.set(filter(
+	createPanel.prototype.themes[createPanel.prototype.theme],
+	Object.keys(panel.get())
+));
 
 
 var ex = createPanel([

@@ -26,8 +26,10 @@
 	font-size: inherit;
 }
 
-.settings-panel input[type="range"] {
-	padding: 0;
+.settings-panel textarea,
+.settings-panel input:not([type="range"]),
+.settings-panel select {
+	padding-left: .5em;
 }
 
 .settings-panel a {
@@ -35,31 +37,34 @@
 	text-decoration: none;
 }
 
+
+/** Basic layout */
 .settings-panel-field {
 	position: relative;
 	min-height: 2em;
 	line-height: 2;
-	padding-bottom: .5em;
+	margin-bottom: .5em;
 	clear: both;
+	display: table;
+	width: 100%;
 }
-.settings-panel-field:after {
+/*.settings-panel-field:after {
 	content: attr(data-help);
 	display: block;
 	margin-left: 33%;
 	font-size: .8em;
-}
+}*/
 .settings-panel-label {
 	left: 0;
-	width: calc(33% - .5em);
+	width: 33%;
 	padding-top: .4em;
-	display: inline-block;
+	display: table-cell;
 	line-height: 1.25;
-	vertical-align: top;
+	vertical-align: middle;
 }
 .settings-panel-input {
-	display: inline-block;
+	display: table-cell;
 	vertical-align: top;
-	width: 67%;
 	position: relative;
 	min-height: 2em;
 }
@@ -70,7 +75,7 @@
 	width: 100%;
 	line-height: 1.2;
 	margin-top: 0;
-	margin-bottom: 1em;
+	margin-bottom: 0;
 }
 
 
@@ -100,6 +105,8 @@
 	width: 100%;
 	border: none;
 	font-family: inherit;
+	background-color: gray;
+	color: inherit;
 }
 .settings-panel-text:focus {
 	outline: none;
@@ -142,16 +149,14 @@
 	transition: .4s;
 }
 .settings-panel-checkbox:checked + .settings-panel-checkbox-label {
-	background-color: rgb(36,37,38);
+	background-color: gray;
 	box-shadow: none;
 }
 .settings-panel-checkbox:focus + .settings-panel-checkbox-label {
-	box-shadow: 0 0 1px rgb(36,37,38);
+	box-shadow: 0 0 1px gray;
 }
 .settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-	-webkit-transform: translateX(2em);
-	-ms-transform: translateX(2em);
-	transform: translateX(2em);
+	left: calc(100% - 1.6em);
 	box-shadow: none;
 	background-color: white;
 }
@@ -289,7 +294,7 @@
 .settings-panel-range::-webkit-slider-thumb {
 	height: 2em;
 	width: 1em;
-	background: black;
+	background: white;
 	border: 0;
 	cursor: ew-resize;
 	-webkit-appearance: none;
@@ -310,7 +315,7 @@
 	border-radius: 0px;
 	height: 2em;
 	width: 1em;
-	background: black;
+	background: white;
 	cursor: ew-resize;
 }
 .settings-panel-range::-ms-track {
@@ -331,7 +336,7 @@
 	width: 1em;
 	border-radius: 0px;
 	border: 0;
-	background: black;
+	background: white;
 	cursor: ew-resize;
 	height: 2em;
 }
@@ -365,7 +370,7 @@
 	appearance:none;
 	font-family: inherit;
 	background-color: gray;
-	color: black;
+	color: inherit;
 }
 .settings-panel-select::-ms-expand {
 	display:none;
@@ -408,7 +413,7 @@
 	outline: none;
 	font-family: inherit;
 	background-color: gray;
-	color: black;
+	color: inherit;
 }
 .settings-panel-value:focus {
 	outline: 0;

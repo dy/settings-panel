@@ -18,8 +18,8 @@ function Textarea (opts) {
 	if (opts.value) input.value = opts.value;
 
 	autosize(input);
-
 	setTimeout(() => {
+		autosize.update(input);
 		this.emit('init', input.value)
 	})
 

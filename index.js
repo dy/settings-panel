@@ -10,7 +10,7 @@ const themes = require('./themes');
 const uid = require('get-uid');
 const fs = require('fs');
 const insertCSS = require('insert-css');
-const isPlainObject = require('mutype/is-object');
+const isPlainObject = require('is-plain-obj');
 const format = require('param-case');
 const px = require('add-px-to-style');
 
@@ -98,7 +98,7 @@ Panel.prototype.set = function (name, value) {
 
 	//detect type
 	if (!item.type) {
-		if (item.value && item.value.length) {
+		if (item.value && Array.isArray(item.value)) {
 			item.type = 'interval'
 		} else if (item.scale || item.max || item.steps || item.step || typeof item.value === 'number') {
 			item.type = 'range'
@@ -114,7 +114,12 @@ Panel.prototype.set = function (name, value) {
 		} else if (typeof item.value === 'boolean') {
 			item.type = 'checkbox'
 		} else {
-			item.type = 'text'
+			if (item.value && (item.value.length > 140 || /\n/.test(item.value))) {
+				item.type = 'textarea'
+			}
+			else {
+				item.type = 'text'
+			}
 		}
 	}
 
@@ -208,6 +213,11 @@ Panel.prototype.update = function (theme) {
 
 	let sel = '#settings-panel-' + this.id;
 
+	function s (arg) {
+		if (arg instanceof Function) return arg(theme);
+		else return arg;
+	}
+
 	let style = `
 		${sel} {
 			background: ${theme.background};
@@ -216,8 +226,58 @@ Panel.prototype.update = function (theme) {
 			color: ${theme.secondary};
 		}
 
+		${sel} .settings-panel-field {
+			${s(theme.fieldStyle)}
+		}
+
 		${sel} .settings-panel-label {
-			text-align: ${theme.labelAlign};
+			${s(theme.labelStyle)}
+		}
+
+		/** Inputs fill */
+		${sel} .settings-panel-interval,
+		${sel} .settings-panel-value,
+		${sel} .settings-panel-select,
+		${sel} .settings-panel-text,
+		${sel} .settings-panel-checkbox-label {
+			background: ${theme.foreground};
+		}
+
+		/** Checkbox */
+		${sel} .settings-panel-checkbox-label:before {
+			background: ${theme.background}
+		}
+		${sel} .settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
+			background: ${theme.primary}
+		}
+
+		/** Slider */
+		${sel} .settings-panel-range::-webkit-slider-runnable-track {
+			background: ${theme.foreground};
+		}
+		${sel} .settings-panel-range::-moz-range-track {
+			background: ${theme.foreground};
+		}
+		${sel} .settings-panel-range::-ms-fill-lower {
+			background: ${theme.foreground};
+		}
+		${sel} .settings-panel-range::-ms-fill-upper {
+			background: ${theme.foreground};
+		}
+
+		${sel} .settings-panel-range::-webkit-slider-thumb {
+			background: ${theme.secondary};
+		}
+		${sel} .settings-panel-range::-moz-range-thumb {
+			background: ${theme.secondary};
+		}
+		${sel} .settings-panel-range::-ms-thumb {
+			background: ${theme.secondary};
+		}
+
+		/** Title */
+		${sel} .settings-panel-title {
+			${s(theme.titleStyle)}
 		}
 	`;
 
@@ -258,24 +318,22 @@ Panel.prototype.update = function (theme) {
 				display: block;
 				margin-right: 0;
 				float: right;
-				width: ${theme.labelWidth};
+				width: ${px('width', theme.labelWidth)};
 				padding-left: .5em;
 			}
 
 			${sel} .settings-panel-input {
-				width: calc(100% - ${theme.labelWidth});
 			}
 		`;
 	}
 	else {
 		style += `
 			${sel} .settings-panel-label {
-				width: ${theme.labelWidth};
+				width: ${px('width', theme.labelWidth)};
 				padding-right: .5em;
 			}
 
 			${sel} .settings-panel-input {
-				width: calc(100% - ${theme.labelWidth});
 			}
 		`
 	}
