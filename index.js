@@ -308,7 +308,7 @@ Panel.prototype.update = function (theme) {
 	`;
 
 
-	if (theme.labelPosition === 'top') {
+	if (this.labelPosition === 'top') {
 		style += `
 			${sel} .settings-panel-label {
 				display: block;
@@ -323,7 +323,7 @@ Panel.prototype.update = function (theme) {
 			}
 		`;
 	}
-	else if (theme.labelPosition === 'bottom') {
+	else if (this.labelPosition === 'bottom') {
 		style += `
 			${sel} .settings-panel-label {
 				display: block;
@@ -340,7 +340,7 @@ Panel.prototype.update = function (theme) {
 			}
 		`;
 	}
-	else if (theme.labelPosition === 'right') {
+	else if (this.labelPosition === 'right') {
 		style += `
 			${sel} .settings-panel-field {
 			}
@@ -348,21 +348,21 @@ Panel.prototype.update = function (theme) {
 				display: block;
 				margin-right: 0;
 				float: right;
-				width: ${px('width', theme.labelWidth)};
+				width: ${px('width', this.labelWidth)};
 				padding-left: .5em;
 				padding-top: .4em;
 			}
 
 			${sel} .settings-panel-input {
 				display: block;
-				width: calc(100% - ${px('width', theme.labelWidth)});
+				width: calc(100% - ${px('width', this.labelWidth)});
 			}
 		`;
 	}
 	else {
 		style += `
 			${sel} .settings-panel-label {
-				width: ${px('width', theme.labelWidth)};
+				width: ${px('width', this.labelWidth)};
 				padding-right: .5em;
 			}
 
@@ -370,7 +370,7 @@ Panel.prototype.update = function (theme) {
 			}
 
 			${sel} .settings-panel-button {
-				margin-left: ${px('width', theme.labelWidth)};
+				margin-left: ${px('width', this.labelWidth)};
 			}
 		`
 	}
@@ -409,3 +409,10 @@ Panel.prototype.className;
  */
 Panel.prototype.theme = 'light';
 Panel.prototype.themes = require('./themes');
+
+
+/**
+ * Additional visual setup
+ */
+Panel.prototype.labelPosition = 'left';
+Panel.prototype.labelWidth = '12em';

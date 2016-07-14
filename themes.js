@@ -7,9 +7,6 @@ module.exports = {
 		primary: 'rgb(36,36,36)',
 		secondary: 'rgb(87,87,87)',
 
-		labelPosition: 'left',
-		labelWidth: '12em',
-
 		radius: 0
 	},
 
@@ -20,9 +17,6 @@ module.exports = {
 		foreground: 'rgb(112, 112, 112)',
 		primary: 'rgb(235,235,235)',
 		secondary: 'rgb(235,235,235)',
-
-		labelPosition: 'left',
-		labelWidth: '12em',
 
 		radius: 0
 	}

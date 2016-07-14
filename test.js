@@ -28,6 +28,10 @@ insertCSS(`
 `);
 
 var panel = createPanel([
+	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left', input: (side) => {ex.labelPosition = side; ex.update();} },
+	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1, value: createPanel.prototype.labelWidth, input: (value) => {
+		ex.labelWidth = value; ex.update();
+	}},
 	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: Object.keys(createPanel.prototype.themes), input: v => {
 		panel.set(filter(
 			panel.themes[v],
@@ -41,8 +45,6 @@ var panel = createPanel([
 	{type: 'color', label: 'secondary'},
 	{type: 'text', label: 'fontFamily'},
 	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
-	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left'},
-	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1},
 	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
 	{type: 'button', label: 'Get theme json', input: () => {
 		window.prompt('Your JSON, sir!', JSON.stringify(panel.get()))

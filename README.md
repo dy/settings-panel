@@ -46,10 +46,12 @@ Some types have additional properties:
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select` can specify a list of options, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
 
-The following optional parameters can also be passed as `opts`
+The following optional parameters can also be passed as `opts`:
+
 - `container` element to which to append the panel
 - `theme` can specify `light` • `dark` or provide an object (see [`themes.js`](themes.js) for format)
 - `title` a title to add to the top of the panel
+- `labelPosition` can specify `top` • `left` • `bottom` • `right`, may come handy in case of responsive design
 
 ### panel.on('input', cb(data))
 
