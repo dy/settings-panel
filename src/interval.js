@@ -5,6 +5,7 @@ const format = require('param-case')
 const clamp = require('mumath/clamp')
 const EventEmitter = require('events').EventEmitter
 const inherits = require('inherits');
+const precision = require('mumath/precision');
 
 module.exports = Range
 
@@ -17,6 +18,13 @@ function Range (opts) {
 
 	if (!!opts.step && !!opts.steps) {
 		throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
+	}
+
+	if (opts.step) {
+		var prec = precision(opts.step) || 1;
+	}
+	else {
+		var prec = precision( (opts.max - opts.min) / opts.steps ) || 1;
 	}
 
 	panel = opts.panel.element;
@@ -119,14 +127,14 @@ function Range (opts) {
 	// Display the values:
 	var lValue = require('./value')({
 		container: opts.container,
-		value: scaleValue(opts.value[0]),
+		value: scaleValue(opts.value[0]).toFixed(prec),
 		type: 'text',
 		left: true,
 		id: opts.id
 	})
 	var rValue = require('./value')({
 		container: opts.container,
-		value: scaleValue(opts.value[1]),
+		value: scaleValue(opts.value[1]).toFixed(prec),
 		type: 'text'
 	})
 
@@ -213,16 +221,16 @@ function Range (opts) {
 	setTimeout(() => {
 		var scaledLValue = scaleValue(value[0])
 		var scaledRValue = scaleValue(value[1])
-		lValue.value = scaledLValue
-		rValue.value = scaledRValue
+		lValue.value = scaledLValue.toFixed(prec)
+		rValue.value = scaledRValue.toFixed(prec)
 		this.emit('init', [scaledLValue, scaledRValue])
 	})
 
 	input.oninput = () => {
 		var scaledLValue = scaleValue(value[0])
 		var scaledRValue = scaleValue(value[1])
-		lValue.value = scaledLValue
-		rValue.value = scaledRValue
+		lValue.value = scaledLValue.toFixed(prec)
+		rValue.value = scaledRValue.toFixed(prec)
 		this.emit('input', [scaledLValue, scaledRValue])
 	}
 }

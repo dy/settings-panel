@@ -234,6 +234,9 @@
 
 
 /** Interval style */
+.settings-panel-field-interval {
+	height: 2em;
+}
 .settings-panel-interval {
 	-webkit-appearance: none;
 	position: absolute;

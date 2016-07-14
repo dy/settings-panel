@@ -3,6 +3,7 @@ var inherits = require('inherits')
 var isNumeric = require('is-numeric')
 var css = require('dom-css')
 var format = require('param-case')
+var precision = require('mumath/precision')
 
 module.exports = Range
 inherits(Range, EventEmitter)
@@ -98,17 +99,31 @@ function Range (opts) {
 	input.step = opts.step
 	input.value = opts.value
 
+	if (opts.scale === 'log') {
+		//FIXME: not every log is of precision 3
+		var prec = 3;
+	}
+	else {
+		if (opts.step) {
+			var prec = precision(opts.step);
+		}
+		else if (opts.steps) {
+			var prec = precision( (opts.max - opts.min) / opts.steps );
+		}
+	}
+
 	var value = require('./value')({
 		id: opts.id,
 		container: opts.container,
-		value: scaleValue(opts.value),
+		value: scaleValue(opts.value).toFixed(prec),
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),
 		max: scaleValue(opts.max),
 		step: opts.step,
-		input: function (v) {
+		input: (v) => {
 			input.value = v
-			value.value = scaleValue(v)
+			value.value = scaleValue(v).toFixed(prec)
+			this.emit('input', v)
 		}
 	})
 
@@ -118,7 +133,7 @@ function Range (opts) {
 
 	input.oninput = (data) => {
 		var scaledValue = scaleValue(parseFloat(data.target.value))
-		value.value = scaledValue
+		value.value = scaledValue.toFixed(prec)
 		this.emit('input', scaledValue)
 	}
 }

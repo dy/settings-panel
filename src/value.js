@@ -14,12 +14,16 @@ module.exports = function (opts) {
 
   if (opts.input) {
     value.addEventListener('input', function () {
-      opts.input(value.value)
+      let v = value.value;
+      if (opts.type === 'number') v = parseFloat(v);
+      opts.input(v)
     })
   }
   if (opts.change) {
     value.addEventListener('change', function () {
-      opts.change(value.value)
+      let v = value.value;
+      if (opts.type === 'number') v = parseFloat(v);
+      opts.change(v)
     })
   }
 
