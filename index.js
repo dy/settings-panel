@@ -148,6 +148,15 @@ Panel.prototype.set = function (name, value) {
 		item.field = field;
 	}
 
+	if (item.style) {
+		if (isPlainObject(item.style)) {
+			css(field, item.style);
+		}
+		else if (typeof item.style === 'string') {
+			field.style = item.style;
+		}
+	}
+
 	field.innerHTML = '';
 
 	//createe container for the input

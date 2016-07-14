@@ -133,6 +133,7 @@
 	padding: .5em 2em;
 	border: none;
 	cursor: pointer;
+	margin-left: 12em;
 }
 .settings-panel-button:focus {
 	outline: none;
