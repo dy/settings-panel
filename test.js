@@ -14,49 +14,12 @@ insertCSS(`
 	body {
 		margin: 0;
 	}
-	.settings-panel {
-		display: inline-block;
-		vertical-align: top;
-		width: 40%;
-		margin-right: 10%;
-	}
 
 	.settings-panel-preview {
-		margin-right: 0;
+		margin: 2em auto;
 		width: 50%;
 	}
 `);
-
-var panel = createPanel([
-	{type: 'switch', label: 'labelPosition', options: ['top', 'left', 'right', 'bottom'], value: 'left', input: (side) => {ex.labelPosition = side; ex.update();} },
-	{type: 'text', label: 'labelWidth', min: 7, max: 50, step: 1, value: createPanel.prototype.labelWidth, input: (value) => {
-		ex.labelWidth = value; ex.update();
-	}},
-	{type: 'select', label: 'Theme', value: createPanel.prototype.theme, options: Object.keys(createPanel.prototype.themes), input: v => {
-		panel.set(filter(
-			panel.themes[v],
-			Object.keys(panel.get())
-		));
-		}
-	},
-	{type: 'color', label: 'background'},
-	{type: 'color', label: 'foreground'},
-	{type: 'color', label: 'primary'},
-	{type: 'color', label: 'secondary'},
-	{type: 'text', label: 'fontFamily'},
-	{type: 'range', label: 'fontSize', min: 8, max: 20, step: .5},
-	{type: 'range', label: 'radius', min: 0, max: 10, step: .5},
-	{type: 'button', label: 'Get theme json', input: () => {
-		window.prompt('Your JSON, sir!', JSON.stringify(panel.get()))
-	}}
-], {title: 'Customize panel'}).on('input', (theme) => {
-	ex.update(theme);
-});
-panel.set(filter(
-	createPanel.prototype.themes[createPanel.prototype.theme],
-	Object.keys(panel.get())
-));
-
 
 var ex = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
@@ -77,9 +40,9 @@ var ex = createPanel([
 	{type: 'range', label: 'One more', min: 0, max: 10},
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
-	{type: 'email', label: 'Email', placeholder: 'email'}
+	{type: 'email', label: 'Email', placeholder: 'email'},
 ], {title: 'Preview', className: 'settings-panel-preview'});
 
-ex.on('input', function (data) {
-	console.log(data)
+ex.on('input', function (name, value, data) {
+	console.log(name, value, data)
 })

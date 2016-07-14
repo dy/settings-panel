@@ -59,7 +59,8 @@
 	width: 33.33%;
 	display: table-cell;
 	line-height: 1.2;
-	vertical-align: middle;
+	vertical-align: top;
+	padding-top: .5em;
 }
 .settings-panel-input {
 	display: table-cell;
@@ -68,6 +69,45 @@
 	min-height: 2em;
 }
 
+.settings-panel-label--top {
+	display: block;
+	width: auto;
+	margin-right: 0;
+	padding-top: 0;
+}
+.settings-panel-label--top + .settings-panel-input {
+	display: block;
+	width: 100%;
+}
+.settings-panel-label--bottom {
+	display: block;
+	width: auto;
+	margin-right: 0;
+	padding-top: 0;
+	border-top: 2em solid transparent;
+}
+.settings-panel-label--bottom + .settings-panel-input {
+	width: 100%;
+	position: absolute;
+	top: 0;
+}
+
+.settings-panel-label--left {
+	width: 12em;
+	padding-right: .5em;
+}
+.settings-panel-label--right {
+	display: block;
+	margin-right: 0;
+	float: right;
+	width: 12em;
+	padding-left: .5em;
+	padding-top: .4em;
+}
+.settings-panel-label--right + .settings-panel-input {
+	display: block;
+	width: calc(100% - 12em);
+}
 
 
 .settings-panel-title {
@@ -234,7 +274,7 @@
 
 
 /** Interval style */
-.settings-panel-field-interval {
+.settings-panel-field--interval {
 	height: 2em;
 }
 .settings-panel-interval {

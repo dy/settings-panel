@@ -142,7 +142,7 @@ Panel.prototype.set = function (name, value) {
 
 	if (!field) {
 		field = document.createElement('div');
-		field.className = 'settings-panel-field settings-panel-field-' + item.type;
+		field.className = 'settings-panel-field settings-panel-field--' + item.type;
 		field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
@@ -164,9 +164,10 @@ Panel.prototype.set = function (name, value) {
 	//FIXME: there should be a better way to disable label, like preset component's view
 	if (component.label !== false && (item.label || item.label === '')) {
 		var label = document.createElement('label')
-		label.className = 'settings-panel-label';
+		label.className = 'settings-panel-label settings-panel-label--' + (item.orientation || this.orientation);
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
+
 		field.appendChild(label);
 	}
 
@@ -180,7 +181,7 @@ Panel.prototype.set = function (name, value) {
 		component.on('input', (data) => {
 			item.value = this.state[item.label] = data
 			item.input && item.input(data, this.state)
-			this.emit('input', this.state)
+			this.emit('input', item.label, data, this.state)
 		});
 	}
 
@@ -308,73 +309,6 @@ Panel.prototype.update = function (theme) {
 	`;
 
 
-	if (this.labelPosition === 'top') {
-		style += `
-			${sel} .settings-panel-label {
-				display: block;
-				width: auto;
-				margin-right: 0;
-				padding-top: 0;
-			}
-
-			${sel} .settings-panel-input {
-				display: block;
-				width: 100%;
-			}
-		`;
-	}
-	else if (this.labelPosition === 'bottom') {
-		style += `
-			${sel} .settings-panel-label {
-				display: block;
-				width: auto;
-				margin-right: 0;
-				padding-top: 0;
-				border-top: 2em solid transparent;
-			}
-
-			${sel} .settings-panel-input {
-				width: 100%;
-				position: absolute;
-				top: 0;
-			}
-		`;
-	}
-	else if (this.labelPosition === 'right') {
-		style += `
-			${sel} .settings-panel-field {
-			}
-			${sel} .settings-panel-label {
-				display: block;
-				margin-right: 0;
-				float: right;
-				width: ${px('width', this.labelWidth)};
-				padding-left: .5em;
-				padding-top: .4em;
-			}
-
-			${sel} .settings-panel-input {
-				display: block;
-				width: calc(100% - ${px('width', this.labelWidth)});
-			}
-		`;
-	}
-	else {
-		style += `
-			${sel} .settings-panel-label {
-				width: ${px('width', this.labelWidth)};
-				padding-right: .5em;
-			}
-
-			${sel} .settings-panel-input {
-			}
-
-			${sel} .settings-panel-button {
-				margin-left: ${px('width', this.labelWidth)};
-			}
-		`
-	}
-
 	this.style.innerHTML = style;
 
 	return this;
@@ -414,5 +348,5 @@ Panel.prototype.themes = require('./themes');
 /**
  * Additional visual setup
  */
-Panel.prototype.labelPosition = 'left';
-Panel.prototype.labelWidth = '12em';
+Panel.prototype.orientation = 'left';
+// Panel.prototype.labelWidth = '12em';
