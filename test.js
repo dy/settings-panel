@@ -1,7 +1,5 @@
 var createPanel = require('./')
 var insertCSS = require('insert-css');
-var extend = require('xtend/mutable');
-var filter = require('filter-obj');
 
 // prepare mobile
 var meta = document.createElement('meta')
