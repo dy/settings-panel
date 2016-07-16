@@ -109,7 +109,10 @@ function Range (opts) {
 		value: scaleValue(opts.value[0]).toFixed(prec),
 		type: 'text',
 		left: true,
-		id: opts.id
+		id: opts.id,
+		input: v => {
+			//TODO
+		}
 	})
 
 	panel = opts.container.parentNode;
@@ -135,7 +138,10 @@ function Range (opts) {
 	var rValue = require('./value')({
 		container: opts.container,
 		value: scaleValue(opts.value[1]).toFixed(prec),
-		type: 'text'
+		type: 'text',
+		input: v => {
+			//TODO
+		}
 	})
 
 	function setHandleCSS () {
