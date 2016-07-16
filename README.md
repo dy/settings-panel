@@ -2,6 +2,8 @@
 
 Simple settings panel for your app, demo or tests.
 
+[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/master/preview.png "settings-panel")](http://requirebin.com/?gist=797d1f7e065dae3380eb940545f06340)
+
 ## Usage
 
 [![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
@@ -46,7 +48,7 @@ For example,
 
 Some types have additional properties:
 
-- `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `initial` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).
+- `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `value` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).
 - `interval` obeys the same semantics as `range` inputs, except the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `value: [1, 7.5]`.
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select` and `switch` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
@@ -81,6 +83,6 @@ panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 
 ## See also
 
-* [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing popup, button, state management etc.
+* [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing themes, popup, button, state management etc.
 * [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
 * [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
