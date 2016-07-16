@@ -57,8 +57,6 @@ The following optional parameters can also be passed as `opts`:
 - `container` element to which to append the panel
 - `title` a title to add to the top of the panel
 - `orientation` specifies label position relative to input: `top` • `left` • `bottom` • `right`
-- `palette` defines colors for a theme. Might list of colors, see [nice-color-palettes](https://github.com/Jam3/nice-color-palettes).
-- `theme` defines style for a panel. Switch theme by `theme: require('settings-panel/themes/*.js')`. Available themes: `rect`,
 
 ### panel.on('input', cb(name, value, data))
 
