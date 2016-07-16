@@ -27,16 +27,6 @@ function Range (opts) {
 		var prec = precision( (opts.max - opts.min) / opts.steps ) || 1;
 	}
 
-	panel = opts.panel.element;
-
-	input = opts.container.appendChild(document.createElement('span'))
-	input.id = 'settings-panel-interval'
-	input.className = 'settings-panel-interval'
-
-	handle = document.createElement('span')
-	handle.className = 'settings-panel-interval-handle'
-	input.appendChild(handle)
-
 	// Create scale functions for converting to/from the desired scale:
 	if (opts.scale === 'log') {
 		scaleValue = function (x) {
@@ -112,19 +102,8 @@ function Range (opts) {
 	opts.value[0] = opts.min + opts.step * Math.round((opts.value[0] - opts.min) / opts.step)
 	opts.value[1] = opts.min + opts.step * Math.round((opts.value[1] - opts.min) / opts.step)
 
-	var value = opts.value
 
-	function setHandleCSS () {
-		css(handle, {
-			left: ((value[0] - opts.min) / (opts.max - opts.min) * 100) + '%',
-			right: (100 - (value[1] - opts.min) / (opts.max - opts.min) * 100) + '%'
-		})
-	}
-
-	// Initialize CSS:
-	setHandleCSS()
-
-	// Display the values:
+	//create DOM
 	var lValue = require('./value')({
 		container: opts.container,
 		value: scaleValue(opts.value[0]).toFixed(prec),
@@ -132,12 +111,44 @@ function Range (opts) {
 		left: true,
 		id: opts.id
 	})
+
+	panel = opts.container.parentNode;
+
+	input = opts.container.appendChild(document.createElement('span'))
+	input.id = 'settings-panel-interval'
+	input.className = 'settings-panel-interval'
+
+	let fill = document.createElement('meter');
+	fill.className = 'settings-panel-interval-fill';
+	input.appendChild(fill);
+
+	handle = document.createElement('meter')
+	handle.className = 'settings-panel-interval-handle'
+	handle.value = 50;
+	handle.min = 0;
+	handle.max = 50;
+	input.appendChild(handle)
+
+	var value = opts.value
+
+	// Display the values:
 	var rValue = require('./value')({
 		container: opts.container,
 		value: scaleValue(opts.value[1]).toFixed(prec),
 		type: 'text'
 	})
 
+	function setHandleCSS () {
+		let left = ((value[0] - opts.min) / (opts.max - opts.min) * 100);
+		let right = (100 - (value[1] - opts.min) / (opts.max - opts.min) * 100);
+		css(handle, {
+			left:  left + '%',
+			width: (100 - left - right) + '%'
+		})
+	}
+
+	// Initialize CSS:
+	setHandleCSS()
 	// An index to track what's being dragged:
 	var activeIndex = -1
 

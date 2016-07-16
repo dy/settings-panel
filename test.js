@@ -14,12 +14,11 @@ insertCSS(`
 	body {
 		margin: 0;
 	}
-
 	.settings-panel-preview {
 		margin: 2em auto;
-		width: 50%;
 	}
 `);
+
 
 var ex = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
@@ -41,6 +40,7 @@ var ex = createPanel([
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'},
+	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
 ], {title: 'Preview', className: 'settings-panel-preview'});
 
 ex.on('input', function (name, value, data) {

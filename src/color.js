@@ -1,9 +1,10 @@
-var EventEmitter = require('events').EventEmitter
-var ColorPicker = require('simple-color-picker')
-var inherits = require('inherits')
-var css = require('dom-css')
-var tinycolor = require('tinycolor2')
-var formatParam = require('param-case')
+const EventEmitter = require('events').EventEmitter
+const ColorPicker = require('simple-color-picker')
+const inherits = require('inherits')
+const css = require('dom-css')
+const tinycolor = require('tinycolor2')
+const formatParam = require('param-case')
+const num = require('input-number')
 
 module.exports = Color
 inherits(Color, EventEmitter)
@@ -17,14 +18,16 @@ function Color (opts) {
 	var icon = opts.container.appendChild(document.createElement('span'))
 	icon.className = 'settings-panel-color'
 
-	var value = require('./value')({
-		container: opts.container,
-		value: '',
-		id: opts.id,
-		change: function (v) {
-			picker.setColor(v)
-		}
-	})
+	var valueInput = opts.container.appendChild(document.createElement('input'));
+	valueInput.id = opts.id;
+	valueInput.className = 'settings-panel-color-value';
+	num(valueInput);
+	valueInput.onchange = () => {
+		picker.setColor(valueInput.value);
+	};
+	valueInput.oninput = () => {
+		picker.setColor(valueInput.value);
+	};
 
 	icon.onmouseover = function () {
 		picker.$el.style.display = ''
@@ -63,7 +66,8 @@ function Color (opts) {
 	})
 
 	picker.onChange((hex) => {
-		value.value = format(hex)
+		let v = format(hex);
+		if (v !== valueInput.value) valueInput.value = v;
 		css(icon, {backgroundColor: hex})
 		this.emit('input', format(hex))
 	})

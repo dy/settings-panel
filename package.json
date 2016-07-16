@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "browserify demo/index.js -o demo/bundle.js",
-    "test:browser": "budo test.js -- -t bubleify"
+    "test:browser": "budo test.js -- -g bubleify"
   },
   "repository": {
     "type": "git",
@@ -58,8 +58,10 @@
   },
   "devDependencies": {
     "bubleify": "^0.5.0",
+    "colormap": "^2.2.0",
     "filter-obj": "^1.1.0",
     "input-number": "^1.0.0",
+    "nice-color-palettes": "^1.0.1",
     "tst": "^1.3.1"
   }
 }

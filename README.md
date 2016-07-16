@@ -19,8 +19,7 @@ var panel = createPanel([
   {type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 ],
   {
-  	title: 'Settings',
-  	theme: 'light'
+    title: 'Settings'
   }
 );
 ```
@@ -42,7 +41,7 @@ The first argument is a list of fields. Each one may have following properties:
 For example,
 
 ```javascript
-{type: 'checkbox', name: 'My Checkbox', value: true, change: value => {}}
+{type: 'checkbox', name: 'My Checkbox', value: true, input: value => {}}
 ```
 
 Some types have additional properties:
@@ -56,9 +55,10 @@ Some types have additional properties:
 The following optional parameters can also be passed as `opts`:
 
 - `container` element to which to append the panel
-- `theme` can specify `light` • `dark` or provide an object (see [`themes.js`](themes.js) for format)
 - `title` a title to add to the top of the panel
 - `orientation` specifies label position relative to input: `top` • `left` • `bottom` • `right`
+- `palette` defines colors for a theme. Might list of colors, see [nice-color-palettes](https://github.com/Jam3/nice-color-palettes).
+- `theme` defines style for a panel. Switch theme by `theme: require('settings-panel/themes/*.js')`. Available themes: `rect`,
 
 ### panel.on('input', cb(name, value, data))
 

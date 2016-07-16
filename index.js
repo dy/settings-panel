@@ -92,7 +92,7 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	var item = this.items[name];
-	if (!item) item = this.items[name] = { label: name, panel: this};
+	if (!item) item = this.items[name] = { label: name };
 
 	if (isPlainObject(value)) {
 		item = extend(item, value);
@@ -173,6 +173,8 @@ Panel.prototype.set = function (name, value) {
 
 	if (item.help) field.setAttribute('data-help', item.help);
 
+	field.appendChild(inputContainer);
+
 	let components = this.components;
 	let component = (components[item.type] || components.text)(item)
 
@@ -184,10 +186,9 @@ Panel.prototype.set = function (name, value) {
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
 
-		field.appendChild(label);
+		field.insertBefore(label, inputContainer);
 	}
 
-	field.appendChild(inputContainer);
 
 	if (component.on) {
 		component.on('init', (data) => {
@@ -217,14 +218,8 @@ Panel.prototype.get = function (name) {
 /**
  * Update theme
  */
-Panel.prototype.update = function (theme) {
-	theme = theme || this.theme;
-
-	if (typeof theme === 'string') {
-		theme = this.themes[theme];
-	}
-
-	this.theme = theme;
+Panel.prototype.update = function () {
+	if (!this.theme) return;
 
 	//create dynamic style
 	if (!this.style) {
@@ -235,97 +230,7 @@ Panel.prototype.update = function (theme) {
 		container.appendChild(this.style);
 	}
 
-	let sel = '#settings-panel-' + this.id;
-
-	function s (arg) {
-		if (arg instanceof Function) return arg(theme);
-		else return arg;
-	}
-
-	let style = `
-		${sel} {
-			background: ${theme.background};
-			font-size: ${px('font-size', theme.fontSize)};
-			font-family: ${theme.fontFamily};
-			color: ${theme.secondary};
-		}
-
-		/** Inputs fill */
-		${sel} .settings-panel-interval,
-		${sel} .settings-panel-value,
-		${sel} .settings-panel-select,
-		${sel} .settings-panel-text,
-		${sel} .settings-panel-checkbox-label {
-			background: ${theme.foreground};
-			color: ${theme.primary};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-
-		/** Checkbox */
-		${sel} .settings-panel-checkbox-label:before {
-			border-radius: ${px('border-radius', theme.radius)};
-			background: ${theme.background}
-		}
-		${sel} .settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-			background: ${theme.primary}
-		}
-
-		/** Slider */
-		${sel} .settings-panel-range::-webkit-slider-runnable-track {
-			background: ${theme.foreground};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-range::-moz-range-track {
-			background: ${theme.foreground};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-range::-ms-fill-lower {
-			background: ${theme.foreground};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-range::-ms-fill-upper {
-			background: ${theme.foreground};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-
-		${sel} .settings-panel-range::-webkit-slider-thumb {
-			background: ${theme.primary};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-range::-moz-range-thumb {
-			background: ${theme.primary};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-range::-ms-thumb {
-			background: ${theme.primary};
-			border-radius: ${px('border-radius', theme.radius)};
-		}
-		${sel} .settings-panel-interval-handle {
-			background: ${theme.primary};
-		}
-
-		/** Switch */
-		${sel} .settings-panel-switch {
-			color: ${theme.primary};
-			border-radius: ${px('border-radius', theme.radius)};
-			background: ${theme.background}
-		}
-		${sel} .settings-panel-switch-input:checked + .settings-panel-switch-label {
-			background: ${theme.foreground};
-		}
-
-		/** Button */
-		${sel} .settings-panel-button {
-			background: ${theme.foreground};
-			color: ${theme.primary}
-		}
-		${sel} .settings-panel-button:hover {
-			background: ${theme.foreground};
-		}
-	`;
-
-
-	this.style.innerHTML = style;
+	this.style.innerHTML = this.theme();
 
 	return this;
 }
@@ -355,14 +260,17 @@ Panel.prototype.className;
 
 
 /**
- * Registered themes
+ * Color palette for the theme
  */
-Panel.prototype.theme = 'light';
-Panel.prototype.themes = require('./themes');
+Panel.prototype.palette = [];
+
+/**
+ * Registered theme
+ */
+Panel.prototype.theme;
 
 
 /**
  * Additional visual setup
  */
 Panel.prototype.orientation = 'left';
-// Panel.prototype.labelWidth = '12em';
