@@ -2,7 +2,7 @@
 
 Simple settings panel for your app, demo or tests.
 
-[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/master/preview.png "settings-panel")](http://requirebin.com/?gist=797d1f7e065dae3380eb940545f06340)
+[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/master/preview.png "settings-panel")](http://requirebin.com/embed?gist=6264704)
 
 ## Usage
 

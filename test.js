@@ -18,7 +18,7 @@ insertCSS(`
 `);
 
 
-var ex = createPanel([
+var panel = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
 	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
 	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
@@ -41,6 +41,6 @@ var ex = createPanel([
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
 ], {title: 'Preview', className: 'settings-panel-preview'});
 
-ex.on('input', function (name, value, data) {
+panel.on('input', function (name, value, data) {
 	console.log(name, value, data)
 })
