@@ -6,7 +6,6 @@ const Emitter = require('events').EventEmitter;
 const inherits = require('inherits');
 const extend = require('xtend/mutable');
 const css = require('dom-css');
-const themes = require('./themes');
 const uid = require('get-uid');
 const fs = require('fs');
 const insertCSS = require('insert-css');

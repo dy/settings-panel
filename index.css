@@ -90,20 +90,20 @@
 }
 
 .settings-panel-label--left {
-	width: 12em;
+	width: 9em;
 	padding-right: 1em;
 }
 .settings-panel-label--right {
 	display: block;
 	margin-right: 0;
 	float: right;
-	width: 12em;
+	width: 9em;
 	padding-left: 1em;
 	padding-top: .4em;
 }
 .settings-panel-label--right + .settings-panel-input {
 	display: block;
-	width: calc(100% - 12em);
+	width: calc(100% - 9em);
 }
 
 
@@ -123,10 +123,10 @@
 /** Button */
 .settings-panel-button {
 	vertical-align: top;
-	margin-left: 12em;
+	margin-left: 9em;
 	min-height: 2em;
 	line-height: 1.2;
-	padding: 0 1em;
+	padding: .5em 1em;
 }
 
 
@@ -227,7 +227,7 @@
 	margin: 0px 0;
 	width: 60%;
 	left: 20%;
-	background: none;
+	background: #ddd;
 	cursor: ew-resize;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -244,7 +244,7 @@
 	position: absolute;
 }
 .settings-panel-interval-handle {
-	background-color: black;
+	background: #7a4;
 	position: absolute;
 	height: 2em;
 	min-width: 1px;
@@ -259,7 +259,6 @@
 
 	cursor: ew-resize !important;
 }
-
 
 .settings-panel-interval + .settings-panel-value {
 	right: 0;
