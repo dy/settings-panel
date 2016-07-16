@@ -23,3 +23,7 @@
 * + it makes title in code visually easier to find
 * - title is not really a field
 * - subgroups are better done in subpanels
+
+# Q: what is the optimal way to organize themes?
+* use themes/*.js with functions, returning dynamic css based off variables
+* use palette instead of picked colors to allow for dynamic switching without theme change.

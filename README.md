@@ -36,7 +36,8 @@ The first argument is a list of fields. Each one may have following properties:
 * `value` for initial value.
 * `input` callback, invoked if value changed.
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `opts.orientation`.
-* `style` appends additinal style to the field, can be an object or a style string.
+* `style` appends additinal style to the field, can be an object or a css string.
+* `hidden` defines whether field should be visually hidden, but present as a value.
 
 For example,
 
@@ -50,6 +51,7 @@ Some types have additional properties:
 - `interval` obeys the same semantics as `range` inputs, except the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `value: [1, 7.5]`.
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select` and `switch` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
+- `text` and `textarea` can specify `placeholder`.
 
 The following optional parameters can also be passed as `opts`:
 

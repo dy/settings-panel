@@ -1,6 +1,7 @@
-var EventEmitter = require('events').EventEmitter
-var inherits = require('inherits')
-var css = require('dom-css')
+const EventEmitter = require('events').EventEmitter
+const inherits = require('inherits')
+const css = require('dom-css')
+const num = require('input-number');
 
 module.exports = Text
 inherits(Text, EventEmitter)
@@ -14,6 +15,8 @@ function Text (opts) {
 	input.className = 'settings-panel-text'
 	if (opts.placeholder) input.placeholder = opts.placeholder;
 	if (opts.value) input.value = opts.value
+
+	num(input);
 
 	setTimeout(() => {
 		this.emit('init', input.value)

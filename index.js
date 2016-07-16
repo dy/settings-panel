@@ -157,6 +157,13 @@ Panel.prototype.set = function (name, value) {
 		}
 	}
 
+	if (item.hidden) {
+		field.setAttribute('hidden', true);
+	}
+	else {
+		field.removeAttribute('hidden');
+	}
+
 	field.innerHTML = '';
 
 	//createe container for the input

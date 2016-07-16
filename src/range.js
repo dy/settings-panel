@@ -1,9 +1,9 @@
-var EventEmitter = require('events').EventEmitter
-var inherits = require('inherits')
-var isNumeric = require('is-numeric')
-var css = require('dom-css')
-var format = require('param-case')
-var precision = require('mumath/precision')
+const EventEmitter = require('events').EventEmitter
+const inherits = require('inherits')
+const isNumeric = require('is-numeric')
+const css = require('dom-css')
+const format = require('param-case')
+const precision = require('mumath/precision')
 
 module.exports = Range
 inherits(Range, EventEmitter)
@@ -119,10 +119,11 @@ function Range (opts) {
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),
 		max: scaleValue(opts.max),
-		step: opts.step,
+		//FIXME: step here might vary
+		step: opts.scale === 'log' ? 0.01 : opts.step,
 		input: (v) => {
-			input.value = v
-			value.value = scaleValue(v).toFixed(prec)
+			input.value = scaleValueInverse(v)
+			// value.value = v
 			this.emit('input', v)
 		}
 	})

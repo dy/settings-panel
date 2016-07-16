@@ -1,4 +1,4 @@
-var css = require('dom-css')
+const num = require('input-number');
 
 module.exports = function (opts) {
   opts = opts || {}
@@ -10,6 +10,9 @@ module.exports = function (opts) {
     if (opts.max != null) value.max = opts.max
     if (opts.step != null) value.step = opts.step
     else value.step = (opts.max - opts.min) / 100 || 1
+  }
+  else {
+    num(value, opts);
   }
 
   if (opts.input) {
@@ -32,10 +35,6 @@ module.exports = function (opts) {
   value.id = opts.id;
   value.className = 'settings-panel-value';
   opts.container.appendChild(value)
-
-  // if (!opts.left) {
-  //   bgcss.right = 0
-  // }
 
   return value
 }

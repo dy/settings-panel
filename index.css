@@ -12,6 +12,10 @@
 	padding: 1em;
 }
 
+.settings-panel [hidden] {
+	display: none!important;
+}
+
 .settings-panel * {
 	box-sizing: border-box;
 }
