@@ -28,7 +28,7 @@ var panel = createPanel([
 
 ## API
 
-### panel = Panel([field1, field2, ...], opts?)
+### panel = Panel([field1, field2, ...], options?)
 
 The first argument is a list of fields. Each one may have following properties:
 
@@ -36,7 +36,7 @@ The first argument is a list of fields. Each one may have following properties:
 * `label` used as id and a label for input, must be unique.
 * `value` for initial value.
 * `input` callback, invoked if value changed.
-* `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `opts.orientation`.
+* `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
 * `style` appends additinal style to the field, can be an object or a css string.
 * `hidden` defines whether field should be visually hidden, but present as a value.
 
@@ -54,11 +54,13 @@ Some types have additional properties:
 - `select` and `switch` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
 - `text` and `textarea` can specify `placeholder`.
 
-The following optional parameters can also be passed as `opts`:
+#### options
 
 - `container` element to which to append the panel
 - `title` a title to add to the top of the panel
 - `orientation` specifies label position relative to input: `top` • `left` • `bottom` • `right`
+- `css` inserts dynamic style for the panel instance, can be a css string or a function returning string. Useful to implement dynamic theme.
+- `className` appends additional className to the panel element.
 
 ### panel.on('input', cb(name, value, data))
 
@@ -79,6 +81,10 @@ Update specific field, with value or field options. You can also pass an object 
 ```js
 panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 ```
+
+### panel.update(opts)
+
+Rerender panel with new options.
 
 
 ## See also

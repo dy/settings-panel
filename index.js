@@ -4,7 +4,7 @@
 
 const Emitter = require('events').EventEmitter;
 const inherits = require('inherits');
-const extend = require('xtend/mutable');
+const extend = require('just-extend');
 const css = require('dom-css');
 const uid = require('get-uid');
 const fs = require('fs');
@@ -37,13 +37,12 @@ function Panel (items, opts) {
 	this.element = document.createElement('form')
 	this.element.className = 'settings-panel';
 	this.element.id = 'settings-panel-' + this.id;
-	if (this.className) this.element.classList.add(this.className);
+	if (this.className) this.element.className += ' ' + this.className;
 
 	//create title
 	if (this.title) {
-		let title = this.element.appendChild(document.createElement('h2'));
-		title.innerHTML = this.title;
-		title.className = 'settings-panel-title';
+		this.titleEl = this.element.appendChild(document.createElement('h2'));
+		this.titleEl.className = 'settings-panel-title';
 	}
 
 	//state is values of items
@@ -97,6 +96,8 @@ Panel.prototype.set = function (name, value) {
 		item = extend(item, value);
 	}
 	else {
+		//ignore nothing-changed set
+		if (value === item.value && value !== undefined) return this;
 		item.value = value;
 	}
 
@@ -147,6 +148,8 @@ Panel.prototype.set = function (name, value) {
 		item.field = field;
 	}
 
+	if (item.orientation) field.className += ' settings-panel-orientation-' + item.orientation;
+
 	if (item.style) {
 		if (isPlainObject(item.style)) {
 			css(field, item.style);
@@ -181,7 +184,7 @@ Panel.prototype.set = function (name, value) {
 	//FIXME: there should be a better way to disable label, like preset component's view
 	if (component.label !== false && (item.label || item.label === '')) {
 		var label = document.createElement('label')
-		label.className = 'settings-panel-label settings-panel-label--' + (item.orientation || this.orientation);
+		label.className = 'settings-panel-label';
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
 
@@ -217,8 +220,18 @@ Panel.prototype.get = function (name) {
 /**
  * Update theme
  */
-Panel.prototype.update = function () {
-	if (!this.theme) return;
+Panel.prototype.update = function (opts) {
+	extend(this, opts);
+
+	//update title, if any
+	this.titleEl.innerHTML = this.title;
+
+	//update orientation
+	this.element.classList.remove('settings-panel-orientation-top');
+	this.element.classList.remove('settings-panel-orientation-bottom');
+	this.element.classList.remove('settings-panel-orientation-left');
+	this.element.classList.remove('settings-panel-orientation-right');
+	this.element.classList.add('settings-panel-orientation-' + this.orientation);
 
 	//create dynamic style
 	if (!this.style) {
@@ -229,11 +242,21 @@ Panel.prototype.update = function () {
 		container.appendChild(this.style);
 	}
 
-	this.style.innerHTML = this.theme();
+	//apply style
+	if (this.css) {
+		if (this.css instanceof Function) {
+			this.style.innerHTML = this.css().trim();
+		}
+		else if (typeof this.css === 'string') {
+			this.style.innerHTML = this.css.trim();
+		}
+	}
 
 	return this;
 }
 
+//instance css
+Panel.prototype.css = ``;
 
 /**
  * Registered components
@@ -256,17 +279,6 @@ Panel.prototype.components = {
  * Additional class name
  */
 Panel.prototype.className;
-
-
-/**
- * Color palette for the theme
- */
-Panel.prototype.palette = [];
-
-/**
- * Registered theme
- */
-Panel.prototype.theme;
 
 
 /**

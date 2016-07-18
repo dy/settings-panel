@@ -39,6 +39,7 @@ var panel = createPanel([
 	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'},
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
+	{type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left', input: v => panel.update({orientation: v}) }
 ], {title: 'Preview', className: 'settings-panel-preview'});
 
 panel.on('input', function (name, value, data) {

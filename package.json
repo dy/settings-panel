@@ -4,7 +4,7 @@
   "description": "Panel of inputs for parameter setting",
   "main": "index.js",
   "scripts": {
-    "build": "browserify demo/index.js -o demo/bundle.js",
+    "build": "browserify test.js -o demo/index.js",
     "test:browser": "budo test.js -- -g bubleify"
   },
   "repository": {
@@ -54,8 +54,8 @@
     "mumath": "^2.3.0",
     "param-case": "^1.1.2",
     "simple-color-picker": "0.0.9",
-    "tinycolor2": "^1.3.0",
-    "xtend": "^4.0.1"
+    "just-extend": "^1.1.18",
+    "tinycolor2": "^1.3.0"
   },
   "devDependencies": {
     "bubleify": "^0.5.0",
