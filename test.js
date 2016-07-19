@@ -1,5 +1,5 @@
 var createPanel = require('./')
-var insertCSS = require('insert-css');
+var insertCSS = require('insert-styles');
 
 // prepare mobile
 var meta = document.createElement('meta')
