@@ -8,7 +8,7 @@ const extend = require('just-extend');
 const css = require('dom-css');
 const uid = require('get-uid');
 const fs = require('fs');
-const insertCSS = require('insert-css');
+const insertCss = require('insert-styles');
 const isPlainObject = require('is-plain-obj');
 const format = require('param-case');
 const px = require('add-px-to-style');
@@ -17,7 +17,7 @@ const scopeCss = require('scope-css');
 module.exports = Panel
 
 
-insertCSS(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
+insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
 
 
 /**
@@ -252,16 +252,6 @@ Panel.prototype.update = function (opts) {
 	this.element.classList.remove('settings-panel-orientation-right');
 	this.element.classList.add('settings-panel-orientation-' + this.orientation);
 
-	//create dynamic style
-	if (!this.style) {
-		this.style = document.createElement('style');
-		this.style.className = 'settings-panel-style';
-		this.style.type = 'text/css';
-		this.style.id = 'settings-panel-' + this.id + '-style';
-		let container = document.head || this.container;
-		container.appendChild(this.style);
-	}
-
 	//apply style
 	if (this.css) {
 		let cssStr;
@@ -273,9 +263,11 @@ Panel.prototype.update = function (opts) {
 		}
 
 		//scope each rule
-		cssStr = scopeCss(cssStr, '#settings-panel-' + this.id);
+		cssStr = scopeCss(cssStr || '', '#settings-panel-' + this.id) || '';
 
-		this.style.innerHTML = cssStr.trim();
+		insertCss(cssStr.trim(), {
+			id: this.id
+		});
 	}
 
 	return this;

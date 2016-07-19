@@ -47,7 +47,7 @@
     "get-uid": "^1.0.1",
     "inherits": "^2.0.1",
     "input-number": "^1.0.5",
-    "insert-css": "^0.2.0",
+    "insert-styles": "^1.2.1",
     "is-mobile": "^0.2.2",
     "is-numeric": "0.0.5",
     "is-plain-obj": "^1.1.0",
