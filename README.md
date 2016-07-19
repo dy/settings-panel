@@ -16,8 +16,8 @@ var panel = createPanel([
   {type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
   {type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
   {type: 'checkbox', label: 'my checkbox', value: true},
-  {type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', input: value => console.log(value)},
-  {type: 'button', label: 'gimme an alert', input: () => alert('hello!')},
+  {type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
+  {type: 'button', label: 'gimme an alert', change: () => alert('hello!')},
   {type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 ],
   {
@@ -35,10 +35,12 @@ The first argument is a list of fields. Each one may have following properties:
 * `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `textarea` • `text` or any `<input>` type.
 * `label` used as id and a label for input, must be unique.
 * `value` for initial value.
-* `input` callback, invoked if value changed.
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
 * `style` appends additinal style to the field, can be an object or a css string.
 * `hidden` defines whether field should be visually hidden, but present as a value.
+* `input` callback, invoked if value changed.
+* `init` invoked once component is set up.
+* `change` invoked each time field value changed, whether through `input` or API.
 
 For example,
 

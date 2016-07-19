@@ -92,6 +92,8 @@ Panel.prototype.set = function (name, value) {
 	var item = this.items[name];
 	if (!item) item = this.items[name] = { label: name };
 
+	var initialValue = item.value;
+
 	if (isPlainObject(value)) {
 		item = extend(item, value);
 	}
@@ -181,7 +183,6 @@ Panel.prototype.set = function (name, value) {
 	let component = (components[item.type] || components.text)(item)
 
 	//create field label
-	//FIXME: there should be a better way to disable label, like preset component's view
 	if (component.label !== false && (item.label || item.label === '')) {
 		var label = document.createElement('label')
 		label.className = 'settings-panel-label';
@@ -195,13 +196,30 @@ Panel.prototype.set = function (name, value) {
 	if (component.on) {
 		component.on('init', (data) => {
 			item.value = this.state[item.label] = data
+			item.init && item.init(data, this.state)
+			this.emit('init', item.label, data, this.state)
+			item.change && item.change(data, this.state)
+			this.emit('change', item.label, data, this.state)
 		});
 
 		component.on('input', (data) => {
 			item.value = this.state[item.label] = data
 			item.input && item.input(data, this.state)
 			this.emit('input', item.label, data, this.state)
+			item.change && item.change(data, this.state)
+			this.emit('change', item.label, data, this.state)
 		});
+
+		component.on('change', (data) => {
+			item.value = this.state[item.label] = data
+			item.change && item.change(data, this.state)
+			this.emit('change', item.label, data, this.state)
+		});
+	}
+
+	//emit change
+	if (initialValue !== item.value) {
+		this.emit('change', item.label, item.value, this.state)
 	}
 
 	return this;
@@ -238,6 +256,7 @@ Panel.prototype.update = function (opts) {
 		this.style = document.createElement('style');
 		this.style.className = 'settings-panel-style';
 		this.style.type = 'text/css';
+		this.style.id = 'settings-panel-' + this.id + '-style';
 		let container = document.head || this.container;
 		container.appendChild(this.style);
 	}
