@@ -12,6 +12,7 @@ const insertCSS = require('insert-css');
 const isPlainObject = require('is-plain-obj');
 const format = require('param-case');
 const px = require('add-px-to-style');
+const scopeCss = require('scope-css');
 
 module.exports = Panel
 
@@ -263,12 +264,18 @@ Panel.prototype.update = function (opts) {
 
 	//apply style
 	if (this.css) {
+		let cssStr;
 		if (this.css instanceof Function) {
-			this.style.innerHTML = this.css().trim();
+			cssStr = this.css();
 		}
 		else if (typeof this.css === 'string') {
-			this.style.innerHTML = this.css.trim();
+			cssStr = this.css;
 		}
+
+		//scope each rule
+		cssStr = scopeCss(cssStr, '#settings-panel-' + this.id);
+
+		this.style.innerHTML = cssStr.trim();
 	}
 
 	return this;

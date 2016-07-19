@@ -40,10 +40,13 @@
 .settings-panel-field {
 	position: relative;
 	min-height: 2em;
-	margin-bottom: .5em;
+	margin-bottom: 1em;
 	clear: both;
 	display: table;
 	width: 100%;
+}
+.settings-panel-field:last-child {
+	margin-bottom: 0;
 }
 /*.settings-panel-field:after {
 	content: attr(data-help);
@@ -324,6 +327,7 @@
 	vertical-align: middle;
 	padding: 0;
 	margin: 0;
+	line-height: 2em;
 }
 .settings-panel-switch-input {
 	margin: 0;

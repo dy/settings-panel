@@ -40,7 +40,10 @@ var panel = createPanel([
 	{type: 'email', label: 'Email', placeholder: 'email'},
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
 	{type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left', input: v => panel.update({orientation: v}) }
-], {title: 'Preview', className: 'settings-panel-preview', css: () => '.settings-panel {font-size: 11px}'});
+], {title: 'Preview', className: 'settings-panel-preview', css: () => `
+	.settings-panel-label {font-size: 12px}
+	:host {font-size: 10px;}
+`});
 
 panel.on('input', function (name, value, data) {
 	console.log(name, value, data)
