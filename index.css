@@ -41,7 +41,6 @@
 	position: relative;
 	min-height: 2em;
 	margin-bottom: 1em;
-	clear: both;
 	display: table;
 	width: 100%;
 }
@@ -85,7 +84,7 @@
 	margin-right: 0;
 	line-height: 1.5;
 	padding-top: 0;
-	border-top: 2em solid transparent;
+	border-top: 2.5em solid transparent;
 }
 .settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {
 	width: 100%;
@@ -112,14 +111,12 @@
 
 .settings-panel-title {
 	width: 100%;
-	text-align: center;
-	font-size: 1.2em;
+	font-size: 1.6em;
 	min-height: 2em;
-	text-transform: uppercase;
-	letter-spacing: .1ex;
 	line-height: 1.25;
 	margin-top: 0;
 	margin-bottom: 0;
+	text-align: center;
 }
 
 
@@ -146,6 +143,9 @@
 }
 
 /** Checkbox style */
+.settings-panel-field--checkbox .settings-panel-input {
+	line-height: 2em;
+}
 .settings-panel-checkbox {
 	display: inline-block;
 	width: 1.2em;
@@ -323,7 +323,7 @@
 	-moz-appearance: none;
 	appearance: none;
 	border: none;
-	display: inline-block;
+	display: block;
 	vertical-align: middle;
 	padding: 0;
 	margin: 0;
@@ -331,7 +331,7 @@
 }
 .settings-panel-switch-input {
 	margin: 0;
-	vertical-align: top;
+	vertical-align: middle;
 	width: 1.2em;
 	height: 1.2em;
 }

@@ -91,7 +91,7 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	var item = this.items[name];
-	if (!item) item = this.items[name] = { label: name };
+	if (!item) item = this.items[name] = { label: name, panel: this };
 
 	var initialValue = item.value;
 
@@ -197,24 +197,30 @@ Panel.prototype.set = function (name, value) {
 	if (component.on) {
 		component.on('init', (data) => {
 			item.value = this.state[item.label] = data
-			item.init && item.init(data, this.state)
-			this.emit('init', item.label, data, this.state)
-			item.change && item.change(data, this.state)
-			this.emit('change', item.label, data, this.state)
+			let state = extend({}, this.state);
+
+			item.init && item.init(data, state)
+			this.emit('init', item.label, data, state)
+			item.change && item.change(data, state)
+			this.emit('change', item.label, data, state)
 		});
 
 		component.on('input', (data) => {
 			item.value = this.state[item.label] = data
-			item.input && item.input(data, this.state)
-			this.emit('input', item.label, data, this.state)
-			item.change && item.change(data, this.state)
-			this.emit('change', item.label, data, this.state)
+			let state = extend({}, this.state);
+
+			item.input && item.input(data, state)
+			this.emit('input', item.label, data, state)
+			item.change && item.change(data, state)
+			this.emit('change', item.label, data, state)
 		});
 
 		component.on('change', (data) => {
 			item.value = this.state[item.label] = data
-			item.change && item.change(data, this.state)
-			this.emit('change', item.label, data, this.state)
+			let state = extend({}, this.state);
+
+			item.change && item.change(data, state)
+			this.emit('change', item.label, data, state)
 		});
 	}
 
@@ -289,6 +295,7 @@ Panel.prototype.components = {
 	switch: require('./src/switch'),
 	color: require('./src/color'),
 	interval: require('./src/interval'),
+	custom: require('./src/custom'),
 	select: require('./src/select')
 };
 

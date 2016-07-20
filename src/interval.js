@@ -121,11 +121,7 @@ function Range (opts) {
 	input.id = 'settings-panel-interval'
 	input.className = 'settings-panel-interval'
 
-	let fill = document.createElement('meter');
-	fill.className = 'settings-panel-interval-fill';
-	input.appendChild(fill);
-
-	handle = document.createElement('meter')
+	handle = document.createElement('span')
 	handle.className = 'settings-panel-interval-handle'
 	handle.value = 50;
 	handle.min = 0;

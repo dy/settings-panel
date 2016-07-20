@@ -19,9 +19,6 @@ function Select (opts) {
 	upTriangle = document.createElement('span')
 	upTriangle.className = 'settings-panel-select-triangle settings-panel-select-triangle--up'
 
-	opts.container.appendChild(downTriangle)
-	opts.container.appendChild(upTriangle)
-
 	if (Array.isArray(opts.options)) {
 		for (i = 0; i < opts.options.length; i++) {
 			option = opts.options[i]
@@ -47,6 +44,8 @@ function Select (opts) {
 	}
 
 	opts.container.appendChild(input)
+	opts.container.appendChild(downTriangle)
+	opts.container.appendChild(upTriangle)
 
 	setTimeout(() => {
 		this.emit('init', opts.value)

@@ -32,7 +32,7 @@ var panel = createPanel([
 
 The first argument is a list of fields. Each one may have following properties:
 
-* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `textarea` • `text` or any `<input>` type.
+* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `custom` • `textarea` • `text` or any `<input>` type.
 * `label` used as id and a label for input, must be unique.
 * `value` for initial value.
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
@@ -55,6 +55,7 @@ Some types have additional properties:
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select` and `switch` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
 - `text` and `textarea` can specify `placeholder`.
+- `custom` can define `create` method, returning HTML string, element or documentFragment.
 
 #### options
 

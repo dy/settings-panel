@@ -99,6 +99,10 @@ function Range (opts) {
 	input.step = opts.step
 	input.value = opts.value
 
+	//preser container data for display
+	opts.container.setAttribute('data-min', opts.min);
+	opts.container.setAttribute('data-max', opts.max);
+
 	if (opts.scale === 'log') {
 		//FIXME: not every log is of precision 3
 		var prec = 3;
