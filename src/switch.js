@@ -1,7 +1,7 @@
 const inherits = require('inherits');
 const Emitter = require('events').EventEmitter;
 const format = require('param-case');
-const extend = require('xtend/mutable');
+const extend = require('just-extend');
 
 module.exports = Switch;
 
