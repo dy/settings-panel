@@ -248,7 +248,7 @@ Panel.prototype.update = function (opts) {
 	extend(this, opts);
 
 	//update title, if any
-	this.titleEl.innerHTML = this.title;
+	if (this.titleEl) this.titleEl.innerHTML = this.title;
 
 	//update orientation
 	this.element.classList.remove('settings-panel-orientation-top');
