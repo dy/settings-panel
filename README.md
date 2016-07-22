@@ -41,6 +41,7 @@ The first argument is a list of fields. Each one may have following properties:
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
 * `change` invoked each time field value changed, whether through `input` or API.
+* `before` and `after` defines an html to display before or after the element. That may come handy in displaying help messages, validation, separators, additional buttons etc.
 
 For example,
 

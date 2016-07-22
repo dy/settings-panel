@@ -29,8 +29,7 @@ function Switch (opts) {
 	}
 
 	function createOption (label, value) {
-		let html = `<input type="radio" class="settings-panel-switch-input" ${value === opts.value ? 'checked' : ''} id="settings-panel-switch-input-${format(opts.label)}-${format(label)}" name="${opts.label}" data-value="${value}"/>
-		<label for="settings-panel-switch-input-${format(opts.label)}-${format(label)}" class="settings-panel-switch-label">${label}</label>`;
+		let html = `<input type="radio" class="settings-panel-switch-input" ${value === opts.value ? 'checked' : ''} id="settings-panel-switch-input-${format(opts.label)}-${format(label)}" name="${opts.label}" data-value="${value}"/><label for="settings-panel-switch-input-${format(opts.label)}-${format(label)}" class="settings-panel-switch-label">${label}</label>`;
 		return html;
 	}
 

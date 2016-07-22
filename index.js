@@ -192,6 +192,31 @@ Panel.prototype.set = function (name, value) {
 		field.insertBefore(label, inputContainer);
 	}
 
+	//handle after and before
+	if (item.before) {
+		let before = item.before;
+		if (before instanceof Function) {
+			before = item.before.call(item, component);
+		}
+		if (before instanceof HTMLElement) {
+			this.element.insertBefore(before, field);
+		}
+		else {
+			field.insertAdjacentHTML('beforebegin', before);
+		}
+	}
+	if (item.after) {
+		let after = item.after;
+		if (after instanceof Function) {
+			after = item.after.call(item, component);
+		}
+		if (after instanceof HTMLElement) {
+			this.element.insertBefore(after, field.nextSibling);
+		}
+		else {
+			field.insertAdjacentHTML('afterend', after);
+		}
+	}
 
 	if (component.on) {
 		component.on('init', (data) => {

@@ -26,6 +26,12 @@ function Custom (opts) {
 			this.container.appendChild(el);
 		}
 	}
+	else if (typeof this.create === 'string') {
+		this.container.innerHTML = el;
+	}
+	else if (this.create instanceof Element) {
+		this.container.appendChild(el);
+	}
 	else {
 		throw Error('`create` should be a function returning html element or string');
 	}
