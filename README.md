@@ -28,7 +28,7 @@ var panel = createPanel([
 
 ## API
 
-### panel = Panel([field1, field2, ...], options?)
+<details><summary>**`panel = Panel([field1, field2, ...], {title, container, orientation, ..})`**</summary>
 
 The first argument is a list of fields. Each one may have following properties:
 
@@ -65,7 +65,9 @@ Some types have additional properties:
 - `css` inserts dynamic style for the panel instance, can be a css string or a function returning string. Useful to implement dynamic theme.
 - `className` appends additional className to the panel element.
 
-### panel.on('input', cb(name, value, data))
+</details>
+
+<details><summary>**`panel.on('input', cb(name, value, data))`**</summary>
 
 Emitted every time any one of the inputs change. The callback argument `data` will contain the state of all inputs keyed by label such as:
 
@@ -73,11 +75,15 @@ Emitted every time any one of the inputs change. The callback argument `data` wi
 {'my checkbox': false, 'my range': 75}
 ```
 
-### panel.get(name?)
+</details>
+
+<details><summary>**`panel.get(name?)`**</summary>
 
 Get the value of a field defined by `name`. Or get full list of values, if `name` is undefined.
 
-### panel.set(name, value|options)
+</details>
+
+<details><summary>**`panel.set(name, value|options)`**</summary>
 
 Update specific field, with value or field options. You can also pass an object or array to update multiple fields:
 
@@ -85,13 +91,17 @@ Update specific field, with value or field options. You can also pass an object 
 panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 ```
 
-### panel.update(opts)
+</details>
+
+<details><summary>**`panel.update(opts)`**</summary>
 
 Rerender panel with new options.
 
+</details>
 
 ## See also
 
 * [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing themes, popup, button, state management etc.
 * [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
+* [oui](https://github.com/wearekuva/oui)
 * [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.

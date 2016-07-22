@@ -36,8 +36,7 @@ function Panel (items, opts) {
 	//create element
 	this.id = uid()
 	this.element = document.createElement('form')
-	this.element.className = 'settings-panel';
-	this.element.id = 'settings-panel-' + this.id;
+	this.element.className = 'settings-panel settings-panel-' + this.id;
 	if (this.className) this.element.className += ' ' + this.className;
 
 	//create title
@@ -259,22 +258,20 @@ Panel.prototype.update = function (opts) {
 	this.element.classList.add('settings-panel-orientation-' + this.orientation);
 
 	//apply style
-	if (this.css) {
-		let cssStr;
-		if (this.css instanceof Function) {
-			cssStr = this.css();
-		}
-		else if (typeof this.css === 'string') {
-			cssStr = this.css;
-		}
-
-		//scope each rule
-		cssStr = scopeCss(cssStr || '', '#settings-panel-' + this.id) || '';
-
-		insertCss(cssStr.trim(), {
-			id: this.id
-		});
+	let cssStr = '';
+	if (this.css instanceof Function) {
+		cssStr = this.css();
 	}
+	else if (typeof this.css === 'string') {
+		cssStr = this.css;
+	}
+
+	//scope each rule
+	cssStr = scopeCss(cssStr || '', '.settings-panel-' + this.id) || '';
+
+	insertCss(cssStr.trim(), {
+		id: this.id
+	});
 
 	return this;
 }
