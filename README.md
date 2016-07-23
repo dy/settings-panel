@@ -32,17 +32,18 @@ var panel = createPanel([
 
 The first argument is a list of fields. Each one may have following properties:
 
-* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `custom` • `textarea` • `text` or any `<input>` type.
-* `id` used as key to identify the fiels.
+* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `custom` • `textarea` • `text` or any `<input>` type. If undefined, type will be detected from the value.
+* `id` used as key to identify the field. If undefined, the label will be used instead.
 * `label` label for the input. If label is false, it will be hidden.
-* `value` for initial value.
+* `value` current value of the field.
+* `default` explicitly defines default value, if differs from the initial value.
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
-* `style` appends additinal style to the field, can be an object or a css string.
+* `style` appends additinal style to the field, can be a css object or css string.
 * `hidden` defines whether field should be visually hidden, but present as a value.
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
-* `change` invoked each time field value changed, whether through `input` or API.
-* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning such. That may come handy in displaying help, info or validation messages, separators, additional buttons etc.
+* `change` invoked each time the field value changed, whether through `input` or API.
+* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons etc.
 
 For example,
 

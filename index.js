@@ -95,9 +95,8 @@ Panel.prototype.set = function (name, value) {
 
 	var item = this.items[name];
 	if (!item) item = this.items[name] = { id: name, panel: this };
-	if (!item.id) item.id = name;
 
-	var initialValue = item.default == null ? item.value : item.default;
+	var initialValue = item.value;
 
 	if (isPlainObject(value)) {
 		item = extend(item, value);
@@ -107,6 +106,9 @@ Panel.prototype.set = function (name, value) {
 		if (value === item.value && value !== undefined) return this;
 		item.value = value;
 	}
+
+	if (!item.id) item.id = name;
+	if (item.value === undefined) item.value = item.default;
 
 	this.state[name] = item.value;
 
