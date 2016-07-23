@@ -24,12 +24,14 @@ function Switch (opts) {
 		}
 	} else {
 		for (let key in opts.options) {
-			html += createOption(key, opts.options[key]);
+			html += createOption(opts.options[key], key);
 		}
 	}
 
 	function createOption (label, value) {
-		let html = `<input type="radio" class="settings-panel-switch-input" ${value === opts.value ? 'checked' : ''} id="settings-panel-switch-input-${format(opts.label)}-${format(label)}" name="${opts.label}" data-value="${value}"/><label for="settings-panel-switch-input-${format(opts.label)}-${format(label)}" class="settings-panel-switch-label">${label}</label>`;
+		let htmlFor = `settings-panel-${format(opts.panel.id)}-${format(opts.id)}-input-${format(value)}`;
+
+		let html = `<input type="radio" class="settings-panel-switch-input" ${value === opts.value ? 'checked' : ''} id="${htmlFor}" name="${opts.label}" data-value="${value}"/><label for="${htmlFor}" class="settings-panel-switch-label">${label}</label>`;
 		return html;
 	}
 

@@ -1,0 +1,5 @@
+@class .button {
+	height: 1px;
+	width: @width;
+	line-height: 10px;
+}

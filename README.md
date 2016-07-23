@@ -33,7 +33,8 @@ var panel = createPanel([
 The first argument is a list of fields. Each one may have following properties:
 
 * `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `custom` • `textarea` • `text` or any `<input>` type.
-* `label` used as id and a label for input, must be unique.
+* `id` used as key to identify the fiels.
+* `label` label for the input. If label is false, it will be hidden.
 * `value` for initial value.
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
 * `style` appends additinal style to the field, can be an object or a css string.
@@ -41,7 +42,7 @@ The first argument is a list of fields. Each one may have following properties:
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
 * `change` invoked each time field value changed, whether through `input` or API.
-* `before` and `after` defines an html to display before or after the element. That may come handy in displaying help messages, validation, separators, additional buttons etc.
+* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning such. That may come handy in displaying help, info or validation messages, separators, additional buttons etc.
 
 For example,
 
@@ -60,11 +61,28 @@ Some types have additional properties:
 
 #### options
 
-- `container` element to which to append the panel
-- `title` a title to add to the top of the panel
-- `orientation` specifies label position relative to input: `top` • `left` • `bottom` • `right`
-- `css` inserts dynamic style for the panel instance, can be a css string or a function returning string. Useful to implement dynamic theme.
-- `className` appends additional className to the panel element.
+```js
+// element to which to append the panel
+container: document.body,
+
+// a title to add to the top of the panel
+title: 'Settings',
+
+// specifies label position relative to the input: `top` • `left` • `bottom` • `right`
+orientation: 'left',
+
+// use a theme, see `theme` folder.
+theme: require('settings-panel/theme/none'),
+
+//theme customization, can redefine theme defaults
+palette: ['black', 'white'],
+labelWidth: '9em',
+fontFamily: 'sans-serif',
+fontSize: 13,
+
+//appends additional className to the panel element.
+className: ''
+```
 
 </details>
 

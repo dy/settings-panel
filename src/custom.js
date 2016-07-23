@@ -19,6 +19,8 @@ function Custom (opts) {
 	var el;
 	if (this.create instanceof Function) {
 		el = this.create(this);
+		if (!el) return;
+
 		if (typeof el === 'string') {
 			this.container.innerHTML = el;
 		}

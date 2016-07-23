@@ -73,7 +73,7 @@ Panel.prototype.set = function (name, value) {
 	if (Array.isArray(name)) {
 		let items = name;
 		items.forEach((item) => {
-			this.set(item.label, item);
+			this.set(item.id || item.label, item);
 		});
 
 		return this;
@@ -89,10 +89,15 @@ Panel.prototype.set = function (name, value) {
 		return this;
 	}
 
-	var item = this.items[name];
-	if (!item) item = this.items[name] = { label: name, panel: this };
+	//format name
+	name = name.replace(/\-/g,'dash-');
+	name = format(name);
 
-	var initialValue = item.value;
+	var item = this.items[name];
+	if (!item) item = this.items[name] = { id: name, panel: this };
+	if (!item.id) item.id = name;
+
+	var initialValue = item.default == null ? item.value : item.default;
 
 	if (isPlainObject(value)) {
 		item = extend(item, value);
@@ -132,12 +137,7 @@ Panel.prototype.set = function (name, value) {
 		}
 	}
 
-	var fieldId;
-	if (item.label) {
-		let label = item.label.replace(/\-/g,'dash-');
-		fieldId = 'settings-panel-field-' + format(label);
-		item.id = 'settings-panel-field-input-' + format(label);
-	}
+	var fieldId = 'settings-panel-field-' + item.id;
 
 	//create field container
 	var field = this.element.querySelector('#' + fieldId);
@@ -159,6 +159,9 @@ Panel.prototype.set = function (name, value) {
 		else if (typeof item.style === 'string') {
 			field.style = item.style;
 		}
+	}
+	else if (item.style !== undefined) {
+		field.style = null;
 	}
 
 	if (item.hidden) {
@@ -220,37 +223,37 @@ Panel.prototype.set = function (name, value) {
 
 	if (component.on) {
 		component.on('init', (data) => {
-			item.value = this.state[item.label] = data
+			item.value = this.state[item.id] = data
 			let state = extend({}, this.state);
 
 			item.init && item.init(data, state)
-			this.emit('init', item.label, data, state)
+			this.emit('init', item.id, data, state)
 			item.change && item.change(data, state)
-			this.emit('change', item.label, data, state)
+			this.emit('change', item.id, data, state)
 		});
 
 		component.on('input', (data) => {
-			item.value = this.state[item.label] = data
+			item.value = this.state[item.id] = data
 			let state = extend({}, this.state);
 
 			item.input && item.input(data, state)
-			this.emit('input', item.label, data, state)
+			this.emit('input', item.id, data, state)
 			item.change && item.change(data, state)
-			this.emit('change', item.label, data, state)
+			this.emit('change', item.id, data, state)
 		});
 
 		component.on('change', (data) => {
-			item.value = this.state[item.label] = data
+			item.value = this.state[item.id] = data
 			let state = extend({}, this.state);
 
 			item.change && item.change(data, state)
-			this.emit('change', item.label, data, state)
+			this.emit('change', item.id, data, state)
 		});
 	}
 
 	//emit change
 	if (initialValue !== item.value) {
-		this.emit('change', item.label, item.value, this.state)
+		this.emit('change', item.id, item.value, this.state)
 	}
 
 	return this;
@@ -284,11 +287,11 @@ Panel.prototype.update = function (opts) {
 
 	//apply style
 	let cssStr = '';
-	if (this.css instanceof Function) {
-		cssStr = this.css();
+	if (this.theme instanceof Function) {
+		cssStr = this.theme.call(this, this);
 	}
-	else if (typeof this.css === 'string') {
-		cssStr = this.css;
+	else if (typeof this.theme === 'string') {
+		cssStr = this.theme;
 	}
 
 	//scope each rule
@@ -301,8 +304,8 @@ Panel.prototype.update = function (opts) {
 	return this;
 }
 
-//instance css
-Panel.prototype.css = ``;
+//instance theme
+Panel.prototype.theme = require('./theme/none');
 
 /**
  * Registered components
