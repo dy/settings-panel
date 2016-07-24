@@ -195,6 +195,9 @@ var settings = createPanel([
 	// 		else panel.palette = v.split(/\s*,\s*/);
 	// 	}
 	// }
+	{type: 'text', label: 'Field height, em', value: panel.theme.inputHeight, input: (v) => {
+		panel.update({inputHeight: v});
+	}},
 	{type: 'button', label: 'Get the code!', before: '<hr/>', input: () => {
 		alert('code');
 	}}

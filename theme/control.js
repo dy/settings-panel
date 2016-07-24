@@ -17,7 +17,7 @@ control.palette = ['#292929', '#e7e7e7'];
 control.fontSize = '12px';
 control.fontFamily = '"Space Mono", monospace';
 control.labelWidth = '33.3%';
-control.inputHeight = 1.666;
+control.inputHeight = 1.66666;
 
 fonts.add({
 	'Space Mono': true
@@ -65,9 +65,25 @@ function control (opts) {
 		color: ${black};
 		width: ${labelWidth};
 	}
+	:host.settings-panel-orientation-bottom .settings-panel-label {
+		border-top-width: ${h}em;
+	}
+	:host.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {
+		top: ${h/8}em;
+	}
+	:host.settings-panel-orientation-left .settings-panel-label {
+		padding-right: ${h/2}em;
+	}
+	:host.settings-panel-orientation-right .settings-panel-label {
+		padding-left: ${h/2}em;
+	}
+	:host.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {
+		width: calc(100% - ${labelWidth});
+	}
 
 	.settings-panel-input {
 		min-height: ${h}em;
+		line-height: ${h}em;
 	}
 
 	/** Text */
@@ -207,11 +223,11 @@ function control (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
-		display: inline-block;
-		vertical-align: top;
-		margin-top: ${h*.15}em;
+		display: block;
+		margin-top: ${h*.075}em;
 		width: ${h*.85}em;
 		height: ${h*.85}em;
+		margin-bottom: ${h*.075}em;
 		cursor: pointer;
 		background: ${light};
 	}
@@ -224,16 +240,14 @@ function control (opts) {
 	/** Color */
 	.settings-panel-color {
 		width: calc(20% - ${h/4}em);
-		display: inline-block;
 		margin-right: ${h/4}em;
-		position: relative;
-		vertical-align: top;
 		height: ${h}em;
 	}
 	.settings-panel-color-value {
 		border: none;
 		padding-left: ${h/4}em;
 		width: 80%;
+		margin-left: 20%;
 		height: ${h}em;
 		font-family: inherit;
 		background: ${light};
@@ -270,8 +284,6 @@ function control (opts) {
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		appearance: none;
-		vertical-align: top;
-		display: inline-block;
 		border: none;
 		margin: 0;
 		border-radius: 0;
@@ -281,7 +293,6 @@ function control (opts) {
 		vertical-align: top;
 		border: none;
 		position: relative;
-		overflow: hidden;
 	}
 	.settings-panel-switch-input {
 		display: none;

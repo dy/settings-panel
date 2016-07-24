@@ -123,7 +123,7 @@
 	text-align: center;
 }
 .settings-panel-button {
-	vertical-align: top;
+	vertical-align: middle;
 	line-height: 1;
 	min-height: 2em;
 	padding: .2em 1em;
@@ -135,7 +135,7 @@
 .settings-panel-text {
 	height: 2em;
 	width: 100%;
-	vertical-align: top;
+	vertical-align: middle;
 }
 .settings-panel-textarea {
 	min-height: 2em;
@@ -162,6 +162,9 @@
 	width: 2em;
 	height: 2em;
 	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin: auto;
 }
 .settings-panel-color-value {
 	width: 100%;
@@ -221,16 +224,10 @@
 
 
 /** Interval style */
-.settings-panel-field--interval {
-	height: 2em;
-}
-.settings-panel-field--interval .settings-panel-input {
-	vertical-align: top;
-}
 .settings-panel-interval {
 	-webkit-appearance: none;
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: middle;
 	height: 2em;
 	margin: 0px 0;
 	width: 70%;
@@ -274,7 +271,7 @@
 	padding: 0;
 	margin: 0px 0;
 	height: 2em;
-	vertical-align: top;
+	vertical-align: middle;
 }
 .settings-panel-range + .settings-panel-value {
 	padding-left: .5em;
@@ -286,6 +283,7 @@
 	display: inline-block;
 	width: 100%;
 	height: 2em;
+	vertical-align: middle;
 }
 
 /** Value style */
@@ -296,6 +294,7 @@
 	appearance: none;
 	padding: 0 0 0 0em;
 	display: inline-block;
+	vertical-align: middle;
 	cursor: text;
 	height: 2em;
 	border: none;
