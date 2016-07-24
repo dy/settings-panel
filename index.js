@@ -303,6 +303,18 @@ Panel.prototype.update = function (opts) {
 		id: this.id
 	});
 
+	if (this.style) {
+		if (isPlainObject(this.style)) {
+			css(this.element, this.style);
+		}
+		else if (typeof this.style === 'string') {
+			this.element.style = this.style;
+		}
+	}
+	else if (this.style !== undefined) {
+		this.element.style = null;
+	}
+
 	return this;
 }
 

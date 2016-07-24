@@ -12,11 +12,16 @@ const lerp = require('interpolation-arrays');
 module.exports = control;
 
 
-control.palette = ['red', 'blue', 'green'];
+control.palette = ['#292929', '#e7e7e7'];
 
-control.fontSize = 12;
-control.font = '"Space Mono", monospace';
-control.labelWidth = '9em';
+control.fontSize = '12px';
+control.fontFamily = '"Space Mono", monospace';
+control.labelWidth = '33.3%';
+control.inputHeight = 1.666;
+
+fonts.add({
+	'Space Mono': true
+});
 
 
 function control (opts) {
@@ -26,278 +31,300 @@ function control (opts) {
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
 
 	let pick = lerp(palette);
-	let white = color(pick(0.1)).toString();
-	let black = color(pick(1)).toString();
-	let gray = color(pick(.5)).toString();
+	let white = color(pick(0)).toString();
+	let light = color(pick(.1)).toString();
+	let gray = color(pick(.55)).toString();
 	let dark = color(pick(.75)).toString();
-	let light = color(pick(.25)).toString();
+	let black = color(pick(1)).toString();
 
+	let h = opts.inputHeight || control.inputHeight;
 	let labelWidth = opts.labelWidth || control.labelWidth;
 
-
 	return `
-:host {
-	background: ${white};
-}
+	:host {
+		background: ${white};
+		font-family: ${font};
+		font-size: ${px('font-size',fs)};
+		color: ${gray};
+	}
 
-.settings-panel input,
-.settings-panel button,
-.settings-panel textarea,
-.settings-panel select {
-	border-radius: 0;
-	font-family: inherit;
-	font-size: inherit;
-}
+	.settings-panel-title {
+		text-transform: uppercase;
+		font-size: 1.1em;
+		min-height: ${h}em;
+		letter-spacing: .1ex;
+		padding: ${h/8}em 0 ${h/2}em;
+		font-weight: normal;
+	}
 
-.settings-panel textarea,
-.settings-panel input:not([type="range"]),
-.settings-panel select {
-	padding-left: .4em;
-}
+	.settings-panel-field {
+		padding: ${h/8}em;
+	}
 
-/** Text */
-.settings-panel-text {
-	border: none;
-	font-family: inherit;
-	background: none;
-	color: inherit;
-}
-.settings-panel-text:focus {
-	outline: none;
-}
+	.settings-panel-label {
+		color: ${black};
+		width: ${labelWidth};
+	}
 
-.settings-panel-textarea {
-	background: none;
-	border: 0;
-}
-.settings-panel-text:focus,
-.settings-panel-textarea:focus {
-	outline: none;
-}
+	.settings-panel-input {
+		min-height: ${h}em;
+	}
 
-
-/** Range */
-.settings-panel-range {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	background: none;
-}
-.settings-panel-range:focus {
-	outline: none;
-}
-.settings-panel-range::-webkit-slider-runnable-track {
-	width: 100%;
-	height: 2em;
-	cursor: ew-resize;
-	background: none;
-}
-.settings-panel-range::-webkit-slider-thumb {
-	height: 2em;
-	width: 1em;
-	background: black;
-	border: 0;
-	cursor: ew-resize;
-	-webkit-appearance: none;
-	margin-top: 0px;
-}
-.settings-panel-range:focus::-webkit-slider-runnable-track {
-	background: none;
-	outline: none;
-}
-.settings-panel-range::-moz-range-track {
-	width: 100%;
-	height: 2em;
-	cursor: ew-resize;
-	background: none;
-}
-.settings-panel-range::-moz-range-thumb {
-	border: 0px solid rgba(0, 0, 0, 0);
-	border-radius: 0px;
-	height: 2em;
-	width: 1em;
-	background: black;
-	cursor: ew-resize;
-}
-.settings-panel-range::-ms-track {
-	width: 100%;
-	height: 2em;
-	cursor: ew-resize;
-	background: transparent;
-	border-color: transparent;
-	color: transparent;
-}
-.settings-panel-range::-ms-fill-lower {
-	background: none;
-}
-.settings-panel-range::-ms-fill-upper {
-	background: none;
-}
-.settings-panel-range::-ms-thumb {
-	width: 1em;
-	border-radius: 0px;
-	border: 0;
-	background: black;
-	cursor: ew-resize;
-	height: 2em;
-}
-.settings-panel-range:focus::-ms-fill-lower {
-	background: none;
-	outline: none;
-}
-.settings-panel-range:focus::-ms-fill-upper {
-	background: none;
-	outline: none;
-}
+	/** Text */
+	.settings-panel-text,
+	.settings-panel-textarea {
+		padding-left: .4em;
+		border: none;
+		font-family: inherit;
+		background: ${light};
+		color: inherit;
+		height: ${h}em;
+	}
+	.settings-panel-text:focus,
+	.settings-panel-textarea:focus {
+		outline: none;
+		color: ${dark};
+	}
 
 
-/** Select */
-.settings-panel-select {
-	font-family: inherit;
-	background: none;
-	color: inherit;
-	border-radius: 0;
-	outline: none;
-	border: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	-o-appearance:none;
-	appearance:none;
-}
-.settings-panel-select::-ms-expand {
-	display:none;
-}
-.settings-panel-select-triangle {
-	content: ' ';
-	border-right: .3em solid transparent;
-	border-left: .3em solid transparent;
-	line-height: 2em;
-	position: absolute;
-	right: 2.5%;
-	z-index: 1;
-}
-.settings-panel-select-triangle--down {
-	top: 1.1em;
-	border-top: .5em solid black;
-	border-bottom: .0 transparent;
-}
-.settings-panel-select-triangle--up {
-	top: .4em;
-	border-bottom: .5em solid black;
-	border-top: 0px transparent;
-}
+	/** Range */
+	.settings-panel-range {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		background: ${light};
+		width: 80%;
+		height: ${h}em;
+	}
+	.settings-panel-range:focus {
+		outline: none;
+	}
+	.settings-panel-range::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		height: ${h}em;
+		width: ${h/2}em;
+		background: ${gray};
+		border: 0;
+		cursor: ew-resize;
+		margin-top: 0px;
+	}
+	.settings-panel-range::-moz-range-thumb {
+		-moz-appearance: none;
+		background: ${gray};
+		border: none;
+		border-radius: 0px;
+		height: ${h}em;
+		width: ${h/2}em;
+		cursor: ew-resize;
+	}
+	.settings-panel-range::-ms-thumb {
+		width: ${h/2}em;
+		border-radius: 0px;
+		border: 0;
+		background: ${gray};
+		cursor: ew-resize;
+		height: ${h}em;
+	}
+	.settings-panel-range:focus::-ms-fill-lower {
+		background: none;
+		outline: none;
+	}
+	.settings-panel-range:focus::-ms-fill-upper {
+		background: none;
+		outline: none;
+	}
 
 
+	/** Interval */
+	.settings-panel-interval-handle {
+		background: ${gray};
+	}
+	.settings-panel-interval {
+		height: ${h}em;
+		background: ${light};
+		position: relative;
+		width: 60%;
+	}
 
-/** Checkbox */
-.settings-panel-checkbox {
-	display: none;
-}
-.settings-panel-checkbox-label {
-	position: relative;
-	display: inline-block;
-	vertical-align: top;
-	width: calc(20% - .5em);
-	height: 2em;
-	cursor: pointer;
-	background: none;
-	-webkit-transition: .4s;
-	transition: .4s;
-}
-.settings-panel-checkbox-label:before {
-	position: absolute;
-	content: "";
-	height: 1.2em;
-	width: 1.2em;
-	left: .4em;
-	bottom: .4em;
-	background-color: black;
-	-webkit-transition: .4s;
-	transition: .4s;
-}
-.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
-	background: none;
-	box-shadow: none;
-}
-.settings-panel-checkbox:focus + .settings-panel-checkbox-label {
-	box-shadow: 0 0 1px gray;
-}
-.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-	left: calc(100% - 1.6em);
-	box-shadow: none;
-	background-color: black;
-}
+	/** Values */
+	.settings-panel-value {
+		height: ${h}em;
+		background: ${light};
+		margin-left: ${h/4}em;
+		width: calc(20% - ${h/4}em);
+		padding-left: .4em;
+	}
+	.settings-panel-value:first-child {
+		margin-left: 0;
+		margin-right: ${h/4}em;
+	}
 
 
-/** Button */
-.settings-panel-button {
-	color: white;
-	background-color: black;
-	text-align: center;
-	border: none;
-	cursor: pointer;
-}
-.settings-panel-button:focus {
-	outline: none;
-}
-.settings-panel-button:hover {
-	background-color: gray;
-}
-.settings-panel-button:active {
-	background-color: white;
-}
+	/** Select */
+	.settings-panel-select {
+		font-family: inherit;
+		background: ${light};
+		color: inherit;
+		padding-left: .4em;
+		border-radius: 0;
+		outline: none;
+		border: none;
+		height: ${h}em;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		-o-appearance:none;
+		appearance:none;
+	}
+	.settings-panel-select::-ms-expand {
+		display:none;
+	}
+	.settings-panel-select-triangle {
+		content: ' ';
+		border-right: .3em solid transparent;
+		border-left: .3em solid transparent;
+		line-height: ${h}em;
+		position: absolute;
+		right: 2.5%;
+		z-index: 1;
+		pointer-events: none;
+	}
+	.settings-panel-select-triangle--down {
+		top: ${h/2 + .1}em;
+		border-top: ${h/4}em solid ${gray};
+		border-bottom: .0 transparent;
+	}
+	.settings-panel-select-triangle--up {
+		bottom: ${h/2 + .1}em;
+		border-bottom: ${h/4}em solid ${gray};
+		border-top: 0px transparent;
+	}
 
 
 
-/** Switch style */
-.settings-panel-switch {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	vertical-align: top;
-	display: inline-block;
-	border: none;
-	margin: 0;
-	border-radius: 0;
-	padding: 0;
-	height: auto;
-	background: none;
-	vertical-align: top;
-	border: none;
-	position: relative;
-	overflow: hidden;
-}
-.settings-panel-switch-input {
-	display: none;
-}
-.settings-panel-switch-label {
-	position: relative;
-	height: 2em;
-	line-height: 2em;
-	min-width: 4em;
-	padding: 0 1em;
-	z-index: 2;
-	float: left;
-	text-align: center;
-	cursor: pointer;
-}
-.settings-panel-switch-input:checked + .settings-panel-switch-label {
-	background: black;
-	color: white;
-}
+	/** Checkbox */
+	.settings-panel-checkbox {
+		display: none;
+	}
+	.settings-panel-checkbox-label {
+		position: relative;
+		display: inline-block;
+		vertical-align: top;
+		margin-top: ${h*.15}em;
+		width: ${h*.85}em;
+		height: ${h*.85}em;
+		cursor: pointer;
+		background: ${light};
+	}
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
+		background: ${gray};
+		box-shadow: inset 0 0 0 ${h*.2}em ${light};
+	}
+
+
+	/** Color */
+	.settings-panel-color {
+		width: calc(20% - ${h/4}em);
+		display: inline-block;
+		margin-right: ${h/4}em;
+		position: relative;
+		vertical-align: top;
+		height: ${h}em;
+	}
+	.settings-panel-color-value {
+		border: none;
+		padding-left: ${h/4}em;
+		width: 80%;
+		height: ${h}em;
+		font-family: inherit;
+		background: ${light};
+		color: inherit;
+	}
+	.settings-panel-color-value:focus {
+		outline: none;
+		color: ${dark};
+	}
+
+
+	/** Button */
+	.settings-panel-button {
+		color: ${black};
+		background: ${light};
+		text-align: center;
+		border: none;
+		cursor: pointer;
+		min-height: ${h}em;
+	}
+	.settings-panel-button:focus {
+		outline: none;
+	}
+	.settings-panel-button:hover {
+		background: ${gray};
+	}
+	.settings-panel-button:active {
+		background: ${dark};
+	}
+
+
+	/** Switch style */
+	.settings-panel-switch {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		vertical-align: top;
+		display: inline-block;
+		border: none;
+		margin: 0;
+		border-radius: 0;
+		padding: 0;
+		height: auto;
+		background: none;
+		vertical-align: top;
+		border: none;
+		position: relative;
+		overflow: hidden;
+	}
+	.settings-panel-switch-input {
+		display: none;
+	}
+	.settings-panel-switch-label {
+		position: relative;
+		min-height: ${h}em;
+		line-height: ${h}em;
+		padding: 0 ${h/2}em;
+		margin: 0;
+		z-index: 2;
+		float: left;
+		text-align: center;
+		cursor: pointer;
+	}
+	.settings-panel-switch-input:checked + .settings-panel-switch-label {
+		background: ${light};
+		color: ${black};
+	}
+
+	/** Decorations */
+	::-webkit-input-placeholder {
+		color: ${gray};
+	}
+	::-moz-placeholder {
+		color: ${gray};
+	}
+	:-ms-input-placeholder {
+		color: ${gray};
+	}
+	:-moz-placeholder {
+		color: ${gray};
+	}
+	::-moz-selection {
+		color: ${white};
+		background: ${dark};
+	}
+	::selection {
+		color: ${black};
+		background: ${white};
+	}
+	:host hr {
+		margin: ${h/4}em ${h/8}em;
+		color: ${light}
+	}
 `};
-
-
-
-
-function alpha (c, value) {
-	return color(c).setAlpha(value).toString();
-}
-
-function darken (c, value) {
-	return color(c).darken(value*100).toString();
-}
-
-function lighten (c, value) {
-	return color(c).lighten(value*100).toString();
-}

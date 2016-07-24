@@ -78,6 +78,7 @@ theme: require('settings-panel/theme/none'),
 //theme customization, can redefine theme defaults
 palette: ['black', 'white'],
 labelWidth: '9em',
+fieldHeight: '1.6em',
 fontFamily: 'sans-serif',
 fontSize: 13,
 
