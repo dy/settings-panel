@@ -8,12 +8,21 @@ const colorScales = require('colormap/colorScales');
 const color = require('tinycolor2');
 let palettes = require('nice-color-palettes/500');
 
-var cm = (colormap({
-	colormap: cm,
-	nshades: 128,
-	format: 'rgba',
-	alpha: 1
-}));
+let colormaps = {};
+
+for (var name in colorScales) {
+	if (name === 'alpha') continue;
+	if (name === 'hsv') continue;
+	if (name === 'rainbow') continue;
+	if (name === 'rainbow-soft') continue;
+	if (name === 'phase') continue;
+
+	colormaps[name] = colormap({
+		colormap: colorScales[name],
+		nshades: 16,
+		format: 'rgbaString'
+	});
+}
 
 palettes = palettes
 //sort by readability
@@ -61,7 +70,6 @@ insertCSS(`
 		bottom: 0;
 		font-size: 12px;
 		width: 240px;
-		background: white;
 		box-shadow: -1px 0 3px rgba(0,0,0,.05);
 	}
 `);
@@ -131,9 +139,103 @@ var settings = createPanel([
 	}},
 
 	{label: 'Palette', type: 'custom', id: 'palette', options: palettes, save: false, value: panel.theme.palette, create: function (opts) {
-			let list = document.createElement('ul');
-
 			let palette = opts.value || this.value;
+
+			let list = this.field.querySelector('.palette');
+			if (!list) {
+				list = document.createElement('ul');
+				list.className = 'palette';
+				css(list, {
+					listStyle: 'none',
+					margin: '.5em 0 0',
+					padding: 0,
+					minHeight: '2em',
+					display: 'inline-block'
+				});
+				setTimeout(() => {
+					this.emit('init', palette);
+				});
+			}
+
+			//add randomize btn
+			let randomize = list.querySelector('.palette-randomize');
+			if (!randomize) {
+				randomize = document.createElement('li');
+				randomize.className = 'palette-randomize';
+				randomize.innerHTML = '<button style="margin: 0; font-size: 1.6em; width: 100%; height: 100%; padding: 0; line-height: 0; cursor: pointer">⚂</button>';
+				css(randomize, {
+					height: '2em',
+					width: '2em',
+					float: 'left',
+					clear: 'left',
+					marginTop: '.5em',
+					lineHeight: '2em',
+					textAlign: 'center'
+				});
+				randomize.title = 'Randomize palette';
+				randomize.onclick = () => {
+					palette = palettes[Math.floor(Math.random() * palettes.length)];
+					this.emit('change', palette.slice());
+					settings.set('palette', palette.slice());
+					colormap.firstChild.value = 'custom';
+				};
+				list.appendChild(randomize);
+			}
+
+			//add reverse btn
+			let reverse = list.querySelector('.palette-reverse');
+			if (!reverse) {
+				reverse = document.createElement('li');
+				reverse.className = 'palette-reverse';
+				reverse.innerHTML = '<button style="margin: 0; font-size: 1.3em; width: 100%; height: 100%; padding: 0; line-height: 0; cursor: pointer">↻</button>';
+				css(reverse, {
+					height: '2em',
+					width: '2em',
+					float: 'left',
+					marginTop: '.5em',
+					lineHeight: '2em',
+					textAlign: 'center'
+				});
+				reverse.title = 'Reverse palette';
+				reverse.onclick = () => {
+					palette = palette.reverse();
+					this.emit('change', palette.slice());
+					settings.set('palette', palette.slice());
+					colormap.firstChild.value = 'custom';
+				};
+				list.appendChild(reverse);
+			}
+
+			//add colormap select
+			let colormap = list.querySelector('.palette-colormap');
+			if (!colormap) {
+				colormap = document.createElement('li');
+				colormap.className = 'palette-colormap';
+				colormap.innerHTML = `<select style="margin: 0; width: 100%; height: 100%; padding: 0; line-height: 0; cursor: pointer"><option value="custom">custom</option>${Object.keys(colormaps).map(key => `<option value="${key}">${key}</option>`)}</select>`;
+				css(colormap, {
+					height: '2em',
+					width: 'auto',
+					marginLeft: '.5em',
+					float: 'left',
+					marginTop: '.5em',
+					lineHeight: '2em',
+					textAlign: 'center'
+				});
+				colormap.title = 'Choose colormap';
+				colormap.onchange = (e) => {
+					let cm = e.target.value;
+					palette = colormaps[cm] || panel.theme.palette;
+					this.emit('change', palette.slice());
+					settings.set('palette', palette.slice());
+				};
+				list.appendChild(colormap);
+			}
+
+			//update palette
+			let els = list.querySelectorAll('.palette-color');
+			[].forEach.call(els, (el) => {
+				list.removeChild(el);
+			});
 
 			if (typeof palette === 'string') {
 				palette = palette.split(',');
@@ -141,14 +243,6 @@ var settings = createPanel([
 			else if (Array.isArray(palette[0])) {
 				palette = palette.map((arr) => `rgb(${arr.map(v => v.toFixed(0))})`);
 			}
-
-			css(list, {
-				listStyle: 'none',
-				margin: '.5em 0 0',
-				padding: 0,
-				height: '2em',
-				display: 'inline-block'
-			});
 
 			palette.forEach((color) => {
 				let item = document.createElement('li');
@@ -158,11 +252,11 @@ var settings = createPanel([
 				css(item, {
 					height: '2em',
 					width: '2em',
-					display: 'inline-block',
+					float: 'left',
 					background: color,
 					cursor: 'move'
 				});
-				list.appendChild(item);
+				list.insertBefore(item, randomize);
 
 				//create picker for each color
 				let picker = new Picker({
@@ -179,59 +273,22 @@ var settings = createPanel([
 				picker.onChange((color) => {
 					css(item, {background: color});
 					item.setAttribute('data-id', color);
-					sortman && this.emit('change', sortman.toArray());
+					opts.sortable && this.emit('change', opts.sortable.toArray());
 				})
 			});
 
-			//add randomize btn
-			let randomize = document.createElement('li');
-			randomize.className = 'palette-randomize';
-			randomize.innerHTML = '<button style="margin: 0; font-size: 1.6em; width: 100%; height: 100%; padding: 0; line-height: 0; cursor: pointer">⚂</button>';
-			css(randomize, {
-				height: '2em',
-				width: '2em',
-				display: 'inline-block',
-				verticalAlign: 'top',
-				lineHeight: '2em',
-				textAlign: 'center',
-				marginLeft: '.5em'
-			});
-			randomize.title = 'Randomize palette';
-			randomize.onclick = () => {
-				let palette = palettes[Math.floor(Math.random() * palettes.length)];
-				settings.set('palette', palette);
-			};
-			list.appendChild(randomize);
+			if (opts.sortable) {
+				opts.sortable.destroy();
+				opts.sortable = null;
+			}
 
-			//add reverse btn
-			let reverse = document.createElement('li');
-			reverse.className = 'palette-reverse';
-			reverse.innerHTML = '<button style="margin: 0; font-size: 1.3em; width: 100%; height: 100%; padding: 0; line-height: 0; cursor: pointer">↻</button>';
-			css(reverse, {
-				height: '2em',
-				width: '2em',
-				display: 'inline-block',
-				verticalAlign: 'top',
-				lineHeight: '2em',
-				textAlign: 'center'
-			});
-			reverse.title = 'Reverse palette';
-			reverse.onclick = () => {
-				settings.set('palette', palette.slice().reverse());
-			};
-			list.appendChild(reverse);
-
-			let sortman = new Sortable(list, {
-				filter: '.palette-randomize',
+			opts.sortable = new Sortable(list, {
 				draggable: '.palette-color',
 				forceFallback: true,
 				onUpdate: (e) => {
-					this.emit('change', sortman.toArray());
+					this.emit('change', opts.sortable.toArray());
+					settings.set('palette', opts.sortable.toArray());
 				}
-			});
-
-			setTimeout(() => {
-				this.emit('init', palette);
 			});
 
 			return list;
@@ -285,5 +342,5 @@ var settings = createPanel([
 	className: 'sidebar',
 	orientation: 'top',
 	labelWidth: '22%',
-	style: 'background: rgba(252, 252, 252, .666)'
+	style: 'background: rgba(253,253,253,.82);'
 });

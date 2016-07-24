@@ -187,29 +187,71 @@ Panel.prototype.set = function (name, value) {
 		field.removeAttribute('hidden');
 	}
 
-	field.innerHTML = '';
-
 	//createe container for the input
-	let inputContainer = document.createElement('div');
-	inputContainer.className = 'settings-panel-input';
-	item.container = inputContainer;
+	let inputContainer = field.querySelector('.settings-panel-input');
 
-	field.appendChild(inputContainer);
+	if (!inputContainer) {
+		inputContainer = document.createElement('div');
+		inputContainer.className = 'settings-panel-input';
+		item.container = inputContainer;
+		field.appendChild(inputContainer);
+	}
 
 	if (item.disabled) field.className += ' settings-panel-field--disabled';
 
 	let components = this.components;
-	let component = (components[item.type] || components.text)(item)
+	let component = item.component;
+
+	if (!component) {
+		item.component = component = (components[item.type] || components.text)(item);
+
+		if (component.on) {
+			component.on('init', (data) => {
+				item.value = this.state[item.id] = data
+				let state = extend({}, this.state);
+
+				item.init && item.init(data, state)
+				this.emit('init', item.id, data, state)
+				item.change && item.change(data, state)
+				this.emit('change', item.id, data, state)
+			});
+
+			component.on('input', (data) => {
+				item.value = this.state[item.id] = data
+				let state = extend({}, this.state);
+
+				item.input && item.input(data, state)
+				this.emit('input', item.id, data, state)
+				item.change && item.change(data, state)
+				this.emit('change', item.id, data, state)
+			});
+
+			component.on('change', (data) => {
+				item.value = this.state[item.id] = data
+				let state = extend({}, this.state);
+
+				item.change && item.change(data, state)
+				this.emit('change', item.id, data, state)
+			});
+		}
+	}
+	else {
+		component.update(item);
+	}
 
 	//create field label
 	if (component.label !== false && (item.label || item.label === '')) {
-		var label = document.createElement('label')
-		label.className = 'settings-panel-label';
+		let label = field.querySelector('.settings-panel-label');
+		if (!label) {
+			label = document.createElement('label')
+			label.className = 'settings-panel-label';
+			field.insertBefore(label, inputContainer);
+		}
+
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
 		label.title = item.title || item.label;
 
-		field.insertBefore(label, inputContainer);
 	}
 
 	//handle after and before
@@ -236,36 +278,6 @@ Panel.prototype.set = function (name, value) {
 		else {
 			field.insertAdjacentHTML('afterend', after);
 		}
-	}
-
-	if (component.on) {
-		component.on('init', (data) => {
-			item.value = this.state[item.id] = data
-			let state = extend({}, this.state);
-
-			item.init && item.init(data, state)
-			this.emit('init', item.id, data, state)
-			item.change && item.change(data, state)
-			this.emit('change', item.id, data, state)
-		});
-
-		component.on('input', (data) => {
-			item.value = this.state[item.id] = data
-			let state = extend({}, this.state);
-
-			item.input && item.input(data, state)
-			this.emit('input', item.id, data, state)
-			item.change && item.change(data, state)
-			this.emit('change', item.id, data, state)
-		});
-
-		component.on('change', (data) => {
-			item.value = this.state[item.id] = data
-			let state = extend({}, this.state);
-
-			item.change && item.change(data, state)
-			this.emit('change', item.id, data, state)
-		});
 	}
 
 	//emit change

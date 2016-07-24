@@ -11,10 +11,16 @@ inherits(Color, EventEmitter)
 
 function Color (opts) {
 	if (!(this instanceof Color)) return new Color(opts)
+
+	this.update(opts);
+}
+
+Color.prototype.update = function (opts) {
+	opts.container.innerHTML = '';
+
 	opts = opts || {}
 	opts.format = opts.format || 'rgb'
-	opts.value = opts.value || '#123456'
-
+	opts.value = opts.value || '#123456';
 	var icon = opts.container.appendChild(document.createElement('span'))
 	icon.className = 'settings-panel-color'
 
@@ -86,5 +92,7 @@ function Color (opts) {
 			default:
 				return hex
 		}
-	}
+	};
+
+	return this;
 }

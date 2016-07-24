@@ -6,8 +6,15 @@ module.exports = Select
 inherits(Select, EventEmitter)
 
 function Select (opts) {
-	if (!(this instanceof Select)) return new Select(opts)
+	if (!(this instanceof Select)) return new Select(opts);
+
+	this.update(opts);
+}
+
+Select.prototype.update = function (opts) {
 	var i, container, input, downTriangle, upTriangle, key, option, el, keys
+
+	opts.container.innerHTML = '';
 
 	input = document.createElement('select')
 	input.id = opts.id
@@ -56,4 +63,6 @@ function Select (opts) {
 	input.onchange = (data) => {
 		this.emit('input', data.target.value)
 	}
+
+	return this;
 }

@@ -12,13 +12,20 @@ module.exports = Range
 inherits(Range, EventEmitter);
 
 function Range (opts) {
-	if (!(this instanceof Range)) return new Range(opts)
+	if (!(this instanceof Range)) return new Range(opts);
+
+	this.update(opts);
+}
+
+Range.prototype.update = function (opts) {
 	var self = this
 	var scaleValue, scaleValueInverse, logmin, logmax, logsign, input, handle, panel;
 
 	if (!!opts.step && !!opts.steps) {
 		throw new Error('Cannot specify both step and steps. Got step = ' + opts.step + ', steps = ', opts.steps)
 	}
+
+	opts.container.innerHTML = '';
 
 	if (opts.step) {
 		var prec = precision(opts.step) || 1;
@@ -248,4 +255,6 @@ function Range (opts) {
 		rValue.value = scaledRValue.toFixed(prec)
 		this.emit('input', [scaledLValue, scaledRValue])
 	}
+
+	return this;
 }

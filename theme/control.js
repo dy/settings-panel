@@ -29,7 +29,6 @@ function control (opts) {
 	let fs = opts.fontSize || control.fontSize;
 	let font = opts.fontFamily || control.fontFamily;
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
-
 	let pick = lerp(palette);
 	let white = color(pick(0)).toString();
 	let light = color(pick(.1)).toString();

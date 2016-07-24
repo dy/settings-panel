@@ -10,23 +10,40 @@ inherits(Switch, Emitter);
 function Switch (opts) {
 	if (!(this instanceof Switch)) return new Switch(opts);
 
-	this.switch = document.createElement('fieldset');
-	this.switch.className = 'settings-panel-switch';
+	this.switch = opts.container.querySelector('.settings-panel-switch');
+
+	if (!this.switch) {
+		this.switch = document.createElement('fieldset');
+		this.switch.className = 'settings-panel-switch';
+		opts.container.appendChild(this.switch);
+
+		var html = '';
+
+		if (Array.isArray(opts.options)) {
+			for (i = 0; i < opts.options.length; i++) {
+				let option = opts.options[i]
+				html += createOption(option, option);
+			}
+		} else {
+			for (let key in opts.options) {
+				html += createOption(opts.options[key], key);
+			}
+		}
+
+		this.switch.innerHTML = html;
+
+		this.switch.onchange = (e) => {
+			this.emit('input', e.target.getAttribute('data-value'));
+		}
+
+		setTimeout(() => {
+			this.emit('init', opts.value)
+		})
+	}
+
 	this.switch.id = opts.id;
 
-
-	var html = '';
-
-	if (Array.isArray(opts.options)) {
-		for (i = 0; i < opts.options.length; i++) {
-			let option = opts.options[i]
-			html += createOption(option, option);
-		}
-	} else {
-		for (let key in opts.options) {
-			html += createOption(opts.options[key], key);
-		}
-	}
+	this.update(opts);
 
 	function createOption (label, value) {
 		let htmlFor = `settings-panel-${format(opts.panel.id)}-${format(opts.id)}-input-${format(value)}`;
@@ -34,16 +51,8 @@ function Switch (opts) {
 		let html = `<input type="radio" class="settings-panel-switch-input" ${value === opts.value ? 'checked' : ''} id="${htmlFor}" name="${opts.label}" data-value="${value}" title="${value}"/><label for="${htmlFor}" class="settings-panel-switch-label" title="${value}">${label}</label>`;
 		return html;
 	}
+}
 
-	this.switch.innerHTML = html;
-
-	setTimeout(() => {
-		this.emit('init', opts.value)
-	})
-
-	this.switch.onchange = (e) => {
-		this.emit('input', e.target.getAttribute('data-value'));
-	}
-
-	opts.container.appendChild(this.switch);
+Switch.prototype.update = function (opts) {
+	return this;
 }
