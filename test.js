@@ -25,12 +25,6 @@ for (var name in colorScales) {
 }
 
 palettes = palettes
-//sort by readability
-// .map((palette) => {
-// 	return palette.sort( (a, b) => {
-// 		color.mostReadable
-// 	});
-// });
 //filter not readable palettes
 .filter((palette) => {
 	return color.isReadable(palette[0], palette.slice(-1)[0], {
@@ -86,7 +80,7 @@ const themes = {
 	// lucy: require('./theme/lucy'),
 	// typer: require('./theme/typer'),
 	control: require('./theme/control'),
-	// dragon: require('./theme/dragon'),
+	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
 };
 
@@ -139,7 +133,7 @@ var settings = createPanel([
 			'font-size': panel.fontSize,
 			'font-family': panel.fontFamily,
 			'label-width': panel.labelWidth,
-			'input-height': panel.inputHeight,
+			'input-height': panel.inputHeight
 		});
 		settings.set('palette', panel.theme.palette);
 	}},
@@ -153,7 +147,7 @@ var settings = createPanel([
 				list.className = 'palette';
 				css(list, {
 					listStyle: 'none',
-					margin: '.5em 0 0',
+					margin: '0 0 0',
 					padding: 0,
 					minHeight: '2em',
 					display: 'inline-block'

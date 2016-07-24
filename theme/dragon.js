@@ -3,11 +3,11 @@
  *
  * Minimalistic theme
  */
-
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
+const lerp = require('interpolation-arrays');
 
 module.exports = dragon;
 
@@ -19,77 +19,45 @@ dragon.palette = [
 	'#fff',
 	'#999',
 	'#131522',
-	'#333',
-	'#222'
+	'#373737',
+	'#222',
 ];
 
-dragon.fontSize = 12;
+dragon.fontSize = '12px';
+dragon.fontFamily = '"Roboto", sans-serif';
+dragon.labelWidth = '33.3%';
+dragon.inputHeight = 1.66666;
 
-function dragon () {
-let defaultPalette = dragon.palette;
+function dragon (opts) {
+	opts = opts || {};
 
-let palette = this.palette || defaultPalette;
+	let h = opts.inputHeight || dragon.inputHeight;
+	let labelWidth = opts.labelWidth || dragon.labelWidth;
+	let fontSize = opts.fontSize || dragon.fontSize;
+	let font = opts.fontFamily || dragon.fontFamily;
+	let palette = (opts.palette || dragon.palette).map(v => color(v).toRgb());
+	let pick = lerp(palette);
 
-let primary = palette[0] || defaultPalette[4];
-let secondary = palette[1] || defaultPalette[4];
-let active = palette[2] || defaultPalette[4];
-let bg = palette[3] || defaultPalette[4];
-let fg = palette[4] || defaultPalette[4];
+	let white = color(pick(0)).toString();
+	let light = color(pick(.25)).toString();
+	let gray = color(pick(.5)).toString();
+	let dark = color(pick(.75)).toString();
+	let black = color(pick(1)).toString();
 
-let font = '"Roboto", sans-serif';
-let fontSize = this.fontSize || 12;
-
-let css = `
-	:host > .prama {
-		background: none;
-		overflow: visible;
-		padding: 0;
-	}
-	.popoff-popup {
-		min-width: 0;
-	}
-	.prama.popoff-sidebar .settings-panel {
-		border-radius: 0;
-		height: 100%;
-	}
-
-	.prama-button {
-		color: ${bg};
-		fill: ${bg};
-	}
-	.prama-button:hover {
-		color: ${active};
-		fill: ${active};
-	}
-
-	.popoff-close {
-		color: ${secondary};
-	}
-	.popoff-close:hover {
-		color: ${active};
-	}
-`;
-
-css = scopeCss(css, '.prama-container-' + this.id).trim();
-
-//set panel css
-this.panel.css = `
+	return `
 	:host {
-		color: ${secondary};
-		background: ${alpha(bg, .91)};
+		color: ${light};
+		background: ${alpha(dark, .91)};
 		font-size: ${px('font-size', fontSize)};
 		font-family: ${font};
-		padding: 1.5em 1.5em;
 	}
 
 	.settings-panel-title {
 		text-transform: uppercase;
-		font-size: 1.2em;
-		line-height: 2em;
-		height: 2em;
-		margin-top: 0em;
-		margin-bottom: .75em;
+		font-size: 1.25em;
+		min-height: ${h}em;
 		letter-spacing: .15ex;
+		padding: ${h/8}em 0 ${h/2}em;
 	}
 
 	/** Select style */
@@ -104,8 +72,8 @@ this.panel.css = `
 		width: 100%;
 		padding-right: 1em;
 		margin-right: -1em;
-		color: ${primary};
-		box-shadow: 0 2px ${fg};
+		color: ${white};
+		box-shadow: 0 2px ${black};
 	}
 	.settings-panel-select::-ms-expand {
 		display:none;
@@ -126,14 +94,22 @@ this.panel.css = `
 	.settings-panel-select-triangle--down {
 		top: 0em;
 		left: .5em;
-		border-top: .3em solid ${primary};
+		border-top: .3em solid ${white};
 		border-bottom: .0 transparent;
 	}
 	.settings-panel-select-triangle--up {
 		display: none;
 	}
 	.settings-panel-select:focus {
-		box-shadow: 0 2px ${active};
+		box-shadow: 0 2px ${gray};
+	}
+
+	/** Values */
+	.settings-panel-value {
+		height: ${h}em;
+	}
+	.settings-panel-value:focus {
+		color: ${white};
 	}
 
 	/** Text */
@@ -141,16 +117,16 @@ this.panel.css = `
 	.settings-panel-textarea {
 		border: none;
 		background: none;
-		color: ${primary};
+		color: ${white};
 		width: 100%;
-		box-shadow: 0 2px ${fg};
+		box-shadow: 0 2px ${black};
 	}
 
 	.settings-panel-text:focus,
 	.settings-panel-textarea:focus {
 		outline: none;
-		color: ${primary};
-		box-shadow: 0 2px ${active};
+		color: ${white};
+		box-shadow: 0 2px ${gray};
 	}
 
 	/** Color */
@@ -165,15 +141,15 @@ this.panel.css = `
 	.settings-panel-color-value {
 		border: none;
 		background: none;
-		color: ${primary};
-		box-shadow: 0 2px ${fg};
+		color: ${white};
+		box-shadow: 0 2px ${black};
 		padding-left: 1.5em;
 		width: 100%;
 	}
 	.settings-panel-color-value:focus {
 		outline: none;
-		color: ${primary};
-		box-shadow: 0 2px ${active};
+		color: ${white};
+		box-shadow: 0 2px ${gray};
 	}
 
 	/** Switch style */
@@ -181,33 +157,27 @@ this.panel.css = `
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		appearance: none;
-		color: ${secondary};
-		display: inline-block;
 	}
 	.settings-panel-switch-input {
 		display: none;
 	}
 	.settings-panel-switch-label {
 		cursor: pointer;
-		vertical-align: top;
 		min-height: 2em;
 		padding: 0 .75em;
 		margin: 0 2px 2px 0;
 		line-height: 2em;
-		color: ${darken(primary, .2)};
-		background: ${darken(secondary, .2)};
+		color: ${light};
 	}
 	.settings-panel-switch-label:hover {
-		color: ${primary};
-		background: ${secondary};
+		color: ${white};
 	}
 	.settings-panel-switch-label:last-child {
 		margin-right: 0;
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
-		color: ${primary};
-		background: ${fg};
-		box-shadow: 2px 0 ${fg}, -2px 0 ${fg};
+		color: ${white};
+		background: ${black};
 	}
 
 	/** Checkbox */
@@ -220,12 +190,11 @@ this.panel.css = `
 	.settings-panel-checkbox-label {
 		position: relative;
 		display: inline-block;
-		vertical-align: middle;
 		width: 1.5em;
 		height: 1.5em;
 		cursor: pointer;
 		border-radius: 2px;
-		background: ${fg};
+		background: ${black};
 	}
 	.settings-panel-checkbox-label:before {
 		position: absolute;
@@ -234,23 +203,23 @@ this.panel.css = `
 		width: .666em;
 		left: .4333em;
 		bottom: .4333em;
-		background: ${darken(primary, .2)};
+		background: ${white};
 		opacity: .02;
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
 		opacity: 1;
-		background: ${darken(primary, .2)};
+		background: ${gray};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
-		background: ${fg};
+		background: ${black};
 	}
 	.settings-panel-checkbox:focus + .settings-panel-checkbox-label,
 	.settings-panel-checkbox + .settings-panel-checkbox-label:hover {
-		background: ${active};
+		background: ${gray};
 	}
 	.settings-panel-checkbox:focus + .settings-panel-checkbox-label:before,
 	.settings-panel-checkbox + .settings-panel-checkbox-label:hover:before {
-		background: ${primary};
+		background: ${white};
 	}
 
 
@@ -264,16 +233,16 @@ this.panel.css = `
 		cursor: pointer;
 		min-height: 2.5em;
 		padding: .75em 1.5em;
-		color: ${darken(primary, .2)};
-		background: ${darken(secondary, .2)};
+		color: ${color(pick(.8)).toString()};
+		background: ${color(pick(.2)).toString()};
 	}
 	.settings-panel-button:hover {
-		color: ${primary};
-		background: ${secondary};
+		color: ${white};
+		background: ${light};
 	}
-	.settings-panel-button:active {
-		color: ${primary};
-		background: ${fg};
+	.settings-panel-button:gray {
+		color: ${white};
+		background: ${black};
 	}
 
 	/** Sliders */
@@ -282,10 +251,10 @@ this.panel.css = `
 		-moz-appearance: none;
 		appearance: none;
 		background: none;
-		color: ${fg};
+		color: ${black};
 	}
 	.settings-panel-range:focus {
-		color: ${active};
+		color: ${gray};
 		outline: none;
 	}
 	.settings-panel-range::-webkit-slider-runnable-track {
@@ -299,14 +268,14 @@ this.panel.css = `
 		border: 1px solid;
 	}
 	.settings-panel-range::-ms-fill-lower {
-		background: ${fg};
+		background: ${black};
 	}
 	.settings-panel-range::-ms-fill-upper {
-		background: ${fg};
+		background: ${black};
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		background: ${secondary};
+		background: ${light};
 		height: 1.5em;
 		width: .5em;
 		border: 0;
@@ -316,10 +285,10 @@ this.panel.css = `
 		margin-top: -.75em;
 	}
 	.settings-panel-range:focus::-webkit-slider-thumb {
-		background: ${primary};
+		background: ${white};
 	}
 	.settings-panel-range::-moz-range-thumb {
-		background: ${secondary};
+		background: ${light};
 		height: 1em;
 		width: 1em;
 		border: 0;
@@ -329,10 +298,10 @@ this.panel.css = `
 		margin-top: -.75em;
 	}
 	.settings-panel-range:focus::-moz-range-thumb {
-		background: ${primary};
+		background: ${white};
 	}
 	.settings-panel-range::-ms-thumb {
-		background: ${secondary};
+		background: ${light};
 	}
 
 
@@ -347,7 +316,7 @@ this.panel.css = `
 		left: 0;
 		bottom: 0;
 		top: 0;
-		background: ${fg};
+		background: ${black};
 		height: 2px;
 		margin-top: auto;
 		margin-bottom: auto;
@@ -360,7 +329,7 @@ this.panel.css = `
 		bottom: 0;
 		margin-top: auto;
 		margin-bottom: auto;
-		background: ${secondary};
+		background: ${light};
 	}
 	.settings-panel-interval-handle:after {
 		content: '';
@@ -386,7 +355,7 @@ this.panel.css = `
 	}
 
 	.settings-panel-interval-dragging .settings-panel-interval-handle {
-		background: ${primary};
+		background: ${white};
 	}
 
 
@@ -395,44 +364,35 @@ this.panel.css = `
 		border: none;
 		height: 0;
 		margin: 1.25em 0;
-		border-bottom: 1px dotted ${lighten(bg, .15)};
+		border-bottom: 1px dotted ${pick(.6).toString()};
 	}
 	::-webkit-input-placeholder {
-		color: ${secondary};
+		color: ${light};
 	}
 	::-moz-placeholder {
-		color: ${secondary};
+		color: ${light};
 	}
 	:-ms-input-placeholder {
-		color: ${secondary};
+		color: ${light};
 	}
 	:-moz-placeholder {
-		color: ${secondary};
+		color: ${light};
 	}
 
 	::-moz-selection {
-		color: ${primary};
-		background: ${active};
+		color: ${white};
+		background: ${gray};
 	}
 	::selection {
-		color: ${primary};
-		background: ${active};
+		color: ${white};
+		background: ${gray};
 	}
 `;
-
-return css;
-}
-
 
 
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
 
-function darken (c, value) {
-	return color(c).darken(value*100).toString();
 }
 
-function lighten (c, value) {
-	return color(c).lighten(value*100).toString();
-}
