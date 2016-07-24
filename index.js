@@ -173,7 +173,7 @@ Panel.prototype.set = function (name, value) {
 			css(field, item.style);
 		}
 		else if (typeof item.style === 'string') {
-			field.style = item.style;
+			field.style.cssText = item.style;
 		}
 	}
 	else if (item.style !== undefined) {

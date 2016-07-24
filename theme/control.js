@@ -100,6 +100,7 @@ function control (opts) {
 		background: ${light};
 		color: inherit;
 		height: ${h}em;
+		border-radius: 0;
 	}
 	.settings-panel-text:focus,
 	.settings-panel-textarea:focus {
@@ -116,6 +117,7 @@ function control (opts) {
 		background: ${light};
 		width: 80%;
 		height: ${h}em;
+		border-radius: 0;
 	}
 	.settings-panel-range:focus {
 		outline: none;
@@ -129,6 +131,10 @@ function control (opts) {
 		cursor: ew-resize;
 		margin-top: 0px;
 	}
+	.settings-panel-range::-moz-range-track {
+		-moz-appearance: none;
+		background: none;
+	}
 	.settings-panel-range::-moz-range-thumb {
 		-moz-appearance: none;
 		background: ${gray};
@@ -137,6 +143,19 @@ function control (opts) {
 		height: ${h}em;
 		width: ${h/2}em;
 		cursor: ew-resize;
+	}
+	.settings-panel-range::-ms-track {
+		background: none;
+		border: none;
+		outline: none;
+		cursor: ew-resize;
+		color: transparent;
+	}
+	.settings-panel-range::-ms-fill-lower {
+		background: none;
+	}
+	.settings-panel-range::-ms-fill-upper {
+		background: none;
 	}
 	.settings-panel-range::-ms-thumb {
 		width: ${h/2}em;
@@ -206,18 +225,21 @@ function control (opts) {
 		line-height: ${h}em;
 		position: absolute;
 		right: 2.5%;
+		height: 0;
 		z-index: 1;
 		pointer-events: none;
 	}
-	.settings-panel-select-triangle--down {
-		top: ${h/2 + .1}em;
-		border-top: ${h/4}em solid ${gray};
-		border-bottom: .0 transparent;
-	}
 	.settings-panel-select-triangle--up {
-		bottom: ${h/2 + .1}em;
+		top: 50%;
+		margin-top: -${h/4 + h/16}em;
 		border-bottom: ${h/4}em solid ${gray};
 		border-top: 0px transparent;
+	}
+	.settings-panel-select-triangle--down {
+		top: 50%;
+		margin-top: ${h/16}em;
+		border-top: ${h/4}em solid ${gray};
+		border-bottom: .0 transparent;
 	}
 
 
@@ -257,6 +279,7 @@ function control (opts) {
 		font-family: inherit;
 		background: ${light};
 		color: inherit;
+		border-radius: 0;
 	}
 	.settings-panel-color-value:focus {
 		outline: none;

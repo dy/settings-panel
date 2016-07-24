@@ -58,12 +58,8 @@ insertCSS(`
 	.settings-panel-preview {
 		margin: 2em auto;
 	}
-	.frame {
-		min-height: 100vh;
-		position: relative;
-		width: calc(100% - 240px);
-	}
 	.sidebar {
+		display: none;
 		position: fixed;
 		top: 0;
 		right: 0;
@@ -71,6 +67,16 @@ insertCSS(`
 		font-size: 12px;
 		width: 240px;
 		box-shadow: -1px 0 3px rgba(0,0,0,.05);
+	}
+	@media (min-width: 640px) {
+		.frame {
+			min-height: 100vh;
+			position: relative;
+			width: calc(100% - 240px);
+		}
+		.sidebar {
+			display: block;
+		}
 	}
 `);
 
@@ -124,10 +130,10 @@ panel.on('input', function (name, value, data) {
 
 
 
-
 //create main form
 var settings = createPanel([
 	{label: 'Theme', type: 'select', options: Object.keys(themes), value: panel.theme.name, change: v => {
+		if (!v) return;
 		panel.update({theme: themes[v]});
 		settings.set({
 			'font-size': panel.fontSize,
