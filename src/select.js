@@ -11,7 +11,9 @@ function Select (opts) {
 
 	input = document.createElement('select')
 	input.id = opts.id
-	input.className = 'settings-panel-select'
+	input.className = 'settings-panel-select';
+
+	if (opts.disabled) input.disabled = true;
 
 	downTriangle = document.createElement('span')
 	downTriangle.className = 'settings-panel-select-triangle settings-panel-select-triangle--down'

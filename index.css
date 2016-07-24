@@ -62,7 +62,7 @@
 
 .settings-panel-orientation-left .settings-panel-label {
 	width: 9em;
-	padding-right: 1em;
+	padding-right: .5em;
 }
 .settings-panel-orientation-right .settings-panel-label {
 	display: block;
@@ -70,7 +70,7 @@
 	float: right;
 	width: 9em;
 	padding-top: .4em;
-	padding-left: 1em;
+	padding-left: .5em;
 }
 .settings-panel-orientation-right .settings-panel-label + .settings-panel-input {
 	display: block;
@@ -102,6 +102,10 @@
 	top: 0;
 }
 
+.settings-panel-orientation-left > .settings-panel-label {
+	width: 9em;
+	display: table-cell;
+}
 
 .settings-panel-title {
 	width: 100%;
@@ -341,4 +345,9 @@
 	height: 0;
 	margin: .75em .25em;
 	border-bottom: 1px dotted;
+}
+
+.settings-panel-field--disabled {
+	opacity: .333;
+	pointer-events: none;
 }

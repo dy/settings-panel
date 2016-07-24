@@ -109,6 +109,7 @@ function Range (opts) {
 		value: scaleValue(opts.value[0]).toFixed(prec),
 		type: 'text',
 		left: true,
+		disabled: opts.disabled,
 		id: opts.id,
 		input: v => {
 			//TODO
@@ -133,6 +134,7 @@ function Range (opts) {
 	// Display the values:
 	var rValue = require('./value')({
 		container: opts.container,
+		disabled: opts.disabled,
 		value: scaleValue(opts.value[1]).toFixed(prec),
 		type: 'text',
 		input: v => {

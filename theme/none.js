@@ -12,7 +12,7 @@ none.palette = [[255, 255, 255], [0, 0, 0]];
 none.fontSize = '13px';
 none.fontFamily = 'sans-serif';
 none.labelWidth = '9em';
-none.inputHeight = '2em';
+none.inputHeight = 2;
 
 function none (opts) {
 	opts = opts || {};
@@ -37,7 +37,8 @@ function none (opts) {
 			font-size: ${px('font-size', fs)};
 		}
 
-		.settings-panel-label {
+		.settings-panel-orientation-left .settings-panel-label,
+		.settings-panel-orientation-right .settings-panel-label {
 			width: ${px('width', labelWidth)};
 		}
 

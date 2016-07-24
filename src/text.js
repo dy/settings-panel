@@ -15,6 +15,7 @@ function Text (opts) {
 	input.className = 'settings-panel-text'
 	if (opts.placeholder) input.placeholder = opts.placeholder;
 	if (opts.value) input.value = opts.value
+	if (opts.disabled) input.disabled = opts.disabled;
 
 	num(input);
 

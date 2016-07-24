@@ -67,15 +67,15 @@ var panel = createPanel([
 	{type: 'checkbox', label: 'Checkbox', value: true},
 	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
 	{type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
-	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}},
-	{type: 'button', label: 'Ok', input: function () { window.alert('hello!') }, style: 'width: 50%', after: () => '<hr/>'},
 	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
 	{type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
 	{type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.1, -1], scale: 'log', steps: 20},
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
-	{type: 'select', label: 'Array select', options: ['State One', 'State Two'], value: 'State One'},
+	{type: 'select', label: 'Array select', disabled: true, options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'},
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
+	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}, before: () => '<hr/>'},
+	{type: 'button', label: 'Ok', input: function () { window.alert('hello!') }, style: 'width: 50%'},
 	// {type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left' }
 ], {
 	title: 'Preview',
@@ -95,37 +95,36 @@ panel.on('input', function (name, value, data) {
 var settings = createPanel([
 	{label: 'Theme', type: 'select', options: Object.keys(themes), value: panel.theme.name, change: v => {
 		panel.update({theme: themes[v]});
+		settings.set({
+			'font-size': panel.fontSize,
+			'font-family': panel.fontFamily,
+			'label-width': panel.labelWidth,
+			'input-height': panel.inputHeight,
+		});
 		// settings.set('Palette', panel.theme.palette);
 	}},
 	{label: 'Label orientation', type: 'switch', options: {top: '↑', left: '←', bottom: '↓', right: '→'}, value: panel.orientation, change: (v) => {
 			panel.update({orientation: v});
 			if (v === 'top' || v === 'bottom') {
 				settings.set('label-width', {
-					hidden: true
-				});
-				settings.set('font-size', {
-					style: null
+					disabled: true
 				});
 			}
 			else {
 				settings.set({
 					'label-width': {
-						hidden: false,
-						style: 'width: 50%;'
-					},
-					'font-size': {
-						style: 'width: 50%; float: left'
+						disabled: false
 					}
 				});
 			}
 		}
 	},
-	{label: 'Font size', id: 'font-size', type: 'text', value: panel.theme.fontSize, change: (v) => {
+	{label: '1em&nbsp;=', title: 'Font size', id: 'font-size', type: 'text', value: panel.theme.fontSize, change: (v) => {
 		panel.update({fontSize: v});
-	}},
-	{label: 'Label width', id: 'label-width', type: 'text', value: panel.theme.labelWidth, change: (v) => {
+	}, orientation: 'left'},
+	{label: '↦', title: 'Label width', id: 'label-width', type: 'text', value: panel.theme.labelWidth, change: (v) => {
 		panel.update({labelWidth: v});
-	}},
+	}, orientation: 'left'},
 	// {label: 'Palette', type: 'custom', options: palettes, save: false, create: function (opts) {
 	// 		return;
 
@@ -195,16 +194,20 @@ var settings = createPanel([
 	// 		else panel.palette = v.split(/\s*,\s*/);
 	// 	}
 	// }
-	{type: 'text', label: 'Field height, em', value: panel.theme.inputHeight, input: (v) => {
+	{type: 'text', label: '↕', title: 'Input height, em', id: 'input-height', value: panel.theme.inputHeight, input: (v) => {
 		panel.update({inputHeight: v});
+	}, orientation: 'left'},
+	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: v => {
+		panel.update({fontFamily: v});
 	}},
 	{type: 'button', label: 'Get the code!', before: '<hr/>', input: () => {
 		alert('code');
 	}}
 ], {
 	// theme: require('./theme/dragon'),
+	id: 'settings',
 	className: 'sidebar',
 	orientation: 'top',
-	labelWidth: '100%',
+	labelWidth: '22%',
 	style: 'background: rgba(252, 252, 252, .666)'
 });

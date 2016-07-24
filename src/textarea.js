@@ -17,6 +17,8 @@ function Textarea (opts) {
 	input.className = 'settings-panel-textarea'
 	if (opts.value) input.value = opts.value;
 
+	if (opts.disabled) input.disabled = opts.disabled;
+
 	autosize(input);
 	setTimeout(() => {
 		autosize.update(input);

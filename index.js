@@ -34,7 +34,7 @@ function Panel (items, opts) {
 	this.container.classList.add('settings-panel-container');
 
 	//create element
-	this.id = uid()
+	if (!this.id) this.id = uid();
 	this.element = document.createElement('form')
 	this.element.className = 'settings-panel settings-panel-' + this.id;
 	if (this.className) this.element.className += ' ' + this.className;
@@ -146,13 +146,16 @@ Panel.prototype.set = function (name, value) {
 
 	if (!field) {
 		field = document.createElement('div');
-		field.className = 'settings-panel-field settings-panel-field--' + item.type;
 		field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
 	}
 
+	field.className = 'settings-panel-field settings-panel-field--' + item.type;
+
 	if (item.orientation) field.className += ' settings-panel-orientation-' + item.orientation;
+
+	if (item.className) field.className += ' ' + item.className;
 
 	if (item.style) {
 		if (isPlainObject(item.style)) {
@@ -180,9 +183,9 @@ Panel.prototype.set = function (name, value) {
 	inputContainer.className = 'settings-panel-input';
 	item.container = inputContainer;
 
-	if (item.help) field.setAttribute('data-help', item.help);
-
 	field.appendChild(inputContainer);
+
+	if (item.disabled) field.className += ' settings-panel-field--disabled';
 
 	let components = this.components;
 	let component = (components[item.type] || components.text)(item)
@@ -193,6 +196,7 @@ Panel.prototype.set = function (name, value) {
 		label.className = 'settings-panel-label';
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
+		label.title = item.title || item.label;
 
 		field.insertBefore(label, inputContainer);
 	}
@@ -277,6 +281,15 @@ Panel.prototype.get = function (name) {
 Panel.prototype.update = function (opts) {
 	extend(this, opts);
 
+	//FIXME: decide whether we have to reset these params
+	if (opts && opts.theme) {
+		if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
+		if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
+		if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
+		if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
+		if (opts.theme.palette) this.palette = opts.theme.palette;
+	}
+
 	//update title, if any
 	if (this.titleEl) this.titleEl.innerHTML = this.title;
 
@@ -294,6 +307,16 @@ Panel.prototype.update = function (opts) {
 	}
 	else if (typeof this.theme === 'string') {
 		cssStr = this.theme;
+	}
+
+	//append extra css
+	if (this.css) {
+		if (this.css instanceof Function) {
+			cssStr += this.css.call(this, this);
+		}
+		else if (typeof this.css === 'string') {
+			cssStr += this.css;
+		}
 	}
 
 	//scope each rule

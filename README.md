@@ -40,10 +40,12 @@ The first argument is a list of fields. Each one may have following properties:
 * `orientation` defines position of a label relative to the input, one of `top`, `left`, `right`, `bottom`. Redefines `options.orientation`.
 * `style` appends additinal style to the field, can be a css object or css string.
 * `hidden` defines whether field should be visually hidden, but present as a value.
+* `disabled` just disables the input, making it inactive.
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
 * `change` invoked each time the field value changed, whether through `input` or API.
 * `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons etc.
+* `title` will display text in tooltip.
 
 For example,
 
@@ -78,9 +80,12 @@ theme: require('settings-panel/theme/none'),
 //theme customization, can redefine theme defaults
 palette: ['black', 'white'],
 labelWidth: '9em',
-fieldHeight: '1.6em',
+inputHeight: '1.6em',
 fontFamily: 'sans-serif',
 fontSize: 13,
+
+//additional css, aside from the theme’s one. Useful for custom styling
+css: '',
 
 //appends additional className to the panel element.
 className: ''

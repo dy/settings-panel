@@ -26,6 +26,7 @@ function Range (opts) {
 		input.className = 'settings-panel-range'
 	}
 
+	if (opts.disabled) input.disabled = true;
 
 	// Create scale functions for converting to/from the desired scale:
 	if (opts.scale === 'log') {
@@ -123,6 +124,7 @@ function Range (opts) {
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),
 		max: scaleValue(opts.max),
+		disabled: opts.disabled,
 		//FIXME: step here might vary
 		step: opts.scale === 'log' ? 0.01 : opts.step,
 		input: (v) => {

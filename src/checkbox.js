@@ -15,6 +15,7 @@ function Checkbox (opts) {
 	input.type = 'checkbox'
 	input.checked = opts.value
 	input.className = opts.className || 'settings-panel-checkbox'
+	if (opts.disabled) input.disabled = true;
 
 	var label = opts.container.appendChild(document.createElement('label'))
 	label.htmlFor = opts.id

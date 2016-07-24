@@ -21,6 +21,8 @@ module.exports = function (opts) {
     })
   }
 
+  if (opts.disabled) value.disabled = true;
+
   value.value = opts.value
 
   if (opts.id) value.id = opts.id;
