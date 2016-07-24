@@ -39,7 +39,7 @@ Textarea.prototype.update = function (opts) {
 	this.element.placeholder = this.placeholder || '';
 	this.element.id = this.id
 
-	this.element.value = this.value;
+	this.element.value = this.value || '';
 
 	this.element.disabled = !!this.disabled;
 

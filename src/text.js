@@ -36,7 +36,7 @@ Text.prototype.update = function (opts) {
 	extend(this, opts);
 	this.element.type = this.type
 	this.element.id = this.id
-	this.element.value = this.value
+	this.element.value = this.value || ''
 	this.element.disabled = !!this.disabled;
 	return this;
 }

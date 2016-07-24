@@ -4,7 +4,7 @@
   "description": "Panel of inputs for parameter setting",
   "main": "index.js",
   "scripts": {
-    "build": "browserify test.js -o demo/index.js",
+    "build": "browserify test.js -g bubleify -o demo/index.js",
     "test:browser": "budo test.js -- -g bubleify"
   },
   "repository": {

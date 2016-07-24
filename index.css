@@ -143,8 +143,8 @@
 	vertical-align: middle;
 }
 .settings-panel-textarea {
-	min-height: 2em;
 	width: 100%;
+	vertical-align: top; /* allowable as we use autoheight */
 	padding-top: .4em;
 }
 
