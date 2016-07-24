@@ -230,6 +230,7 @@
 
 /** Interval style */
 .settings-panel-interval {
+	position: relative;
 	-webkit-appearance: none;
 	display: inline-block;
 	vertical-align: middle;

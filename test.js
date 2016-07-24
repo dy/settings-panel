@@ -103,7 +103,7 @@ var panel = createPanel([
 	{type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
 	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
 	{type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
-	{type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.1, -1], scale: 'log', steps: 20},
+	{type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.3, -1], scale: 'log', steps: 20},
 	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	{type: 'select', label: 'Array select', disabled: true, options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'},
