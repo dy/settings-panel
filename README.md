@@ -2,9 +2,7 @@
 
 Simple settings panel for your app, demo or tests.
 
-[**`LIVE DEMO`**](https://dfcreative.github.io/settings-panel/).
-
-[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
+[**`LIVE DEMO`**](https://dfcreative.github.io/settings-panel/)
 
 ## Usage
 
@@ -27,6 +25,8 @@ var panel = createPanel([
   }
 );
 ```
+
+[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
 
 ## API
 
