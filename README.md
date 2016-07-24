@@ -87,13 +87,15 @@ className: ''
 
 </details>
 
-<details><summary>**`panel.on('input', cb(name, value, data))`**</summary>
+<details><summary>**`panel.on('change', (name, value, state) => {})`**</summary>
 
-Emitted every time any one of the inputs change. The callback argument `data` will contain the state of all inputs keyed by label such as:
+Emitted every time any one of the inputs change. The callback argument `state` will contain the state of all inputs keyed by label such as:
 
 ```javascript
 {'my checkbox': false, 'my range': 75}
 ```
+
+Possible events: `input`, `change`, `init`.
 
 </details>
 
@@ -113,9 +115,9 @@ panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 
 </details>
 
-<details><summary>**`panel.update(opts)`**</summary>
+<details><summary>**`panel.update(opts?)`**</summary>
 
-Rerender panel with new options.
+Rerender panel with new options. Options may include values for the theme, like `palette`, `fontSize`, `fontFamily`, `labelWidth` etc.
 
 </details>
 

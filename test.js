@@ -36,7 +36,6 @@ insertCSS(`
 		font-size: 12px;
 		width: 240px;
 		background: white;
-		padding: 1em 1em;
 		box-shadow: -2px 0 rgba(0,0,0,.02);
 	}
 `);

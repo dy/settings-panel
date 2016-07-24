@@ -23,7 +23,7 @@ module.exports = function (opts) {
 
   value.value = opts.value
 
-  value.id = opts.id;
+  if (opts.id) value.id = opts.id;
   value.className = 'settings-panel-value';
   opts.container.appendChild(value)
 

@@ -26,7 +26,7 @@ function control (opts) {
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
 
 	let pick = lerp(palette);
-	let white = color(pick(0)).toString();
+	let white = color(pick(0.1)).toString();
 	let black = color(pick(1)).toString();
 	let gray = color(pick(.5)).toString();
 	let dark = color(pick(.75)).toString();

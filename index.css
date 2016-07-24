@@ -40,7 +40,7 @@
 .settings-panel-field {
 	position: relative;
 	min-height: 2em;
-	margin-bottom: 1em;
+	padding: .25em;
 	display: table;
 	width: 100%;
 }
@@ -108,10 +108,10 @@
 .settings-panel-title {
 	width: 100%;
 	font-size: 1.6em;
-	min-height: 2em;
 	line-height: 1.25;
 	margin-top: 0;
 	margin-bottom: 0;
+	padding: .25em 0;
 	text-align: center;
 }
 
@@ -231,7 +231,8 @@
 }
 .settings-panel-interval {
 	-webkit-appearance: none;
-	position: absolute;
+	display: inline-block;
+	vertical-align: top;
 	height: 2em;
 	margin: 0px 0;
 	width: 70%;
@@ -305,8 +306,6 @@
 	padding: 0 0 0 0em;
 	display: inline-block;
 	cursor: text;
-	display: inline-block;
-	position: absolute;
 	height: 2em;
 	border: none;
 	border-radius: 0;
@@ -350,6 +349,6 @@
 .settings-panel hr {
 	border: none;
 	height: 0;
-	margin: 0 0 1em;
+	margin: .75em 0;
 	border-bottom: 1px dotted;
 }
