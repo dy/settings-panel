@@ -35,7 +35,7 @@ function Panel (items, opts) {
 
 	//create element
 	if (!this.id) this.id = uid();
-	this.element = document.createElement('form')
+	this.element = document.createElement('div')
 	this.element.className = 'settings-panel settings-panel-' + this.id;
 	if (this.className) this.element.className += ' ' + this.className;
 
@@ -97,6 +97,8 @@ Panel.prototype.set = function (name, value) {
 	if (!item) item = this.items[name] = { id: name, panel: this };
 
 	var initialValue = item.value;
+	var isBefore = item.before;
+	var isAfter = item.after;
 
 	if (isPlainObject(value)) {
 		item = extend(item, value);
@@ -149,6 +151,15 @@ Panel.prototype.set = function (name, value) {
 		field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
+	}
+	else {
+		//clean previous before/after
+		if (isBefore) {
+			this.element.removeChild(field.prevSibling);
+		}
+		if (isAfter) {
+			this.element.removeChild(field.nextSibling);
+		}
 	}
 
 	field.className = 'settings-panel-field settings-panel-field--' + item.type;

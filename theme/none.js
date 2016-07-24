@@ -3,7 +3,6 @@
  */
 
 const extend = require('just-extend');
-const lerp = require('interpolation-arrays');
 const px = require('add-px-to-style');
 
 module.exports = none;
@@ -18,14 +17,10 @@ function none (opts) {
 	opts = opts || {};
 	let fs = opts.fontSize || none.fontSize;
 	let font = opts.fontFamily || none.fontFamily;
-	let palette = opts.palette || none.palette;
+	let palette = none.palette;
 
-	let pick = lerp(palette);
-	let white = `rgb(${pick(0).map(v => v.toFixed(0))})`;
-	let black = `rgb(${pick(1).map(v => v.toFixed(0))})`;
-	let gray = `rgb(${pick(.5).map(v => v.toFixed(0))})`;
-	let dark = `rgb(${pick(.75).map(v => v.toFixed(0))})`;
-	let light = `rgb(${pick(.25).map(v => v.toFixed(0))})`;
+	let white = `rgb(${palette[0].map(v => parseInt(v))})`;
+	let black = `rgb(${palette.slice(-1)[0].map(v => parseInt(v))})`;
 
 	let labelWidth = opts.labelWidth || none.labelWidth;
 
@@ -37,13 +32,16 @@ function none (opts) {
 			font-size: ${px('font-size', fs)};
 		}
 
-		.settings-panel-orientation-left .settings-panel-label,
-		.settings-panel-orientation-right .settings-panel-label {
+		:host.settings-panel-orientation-left .settings-panel-label,
+		:host .settings-panel-orientation-left .settings-panel-label,
+		:host.settings-panel-orientation-right .settings-panel-label,
+		:host .settings-panel-orientation-right .settings-panel-label {
 			width: ${px('width', labelWidth)};
 		}
 
 		:host hr {
-			color: ${light}
+			opacity: .5;
+			color: ${black}
 		}
 	`;
 }

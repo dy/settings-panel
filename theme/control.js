@@ -50,11 +50,10 @@ function control (opts) {
 
 	.settings-panel-title {
 		text-transform: uppercase;
-		font-size: 1.1em;
+		font-size: 1.25em;
 		min-height: ${h}em;
-		letter-spacing: .1ex;
+		letter-spacing: .15ex;
 		padding: ${h/8}em 0 ${h/2}em;
-		font-weight: normal;
 	}
 
 	.settings-panel-field {
@@ -63,8 +62,15 @@ function control (opts) {
 
 	.settings-panel-label {
 		color: ${black};
+	}
+
+	:host.settings-panel-orientation-left .settings-panel-label,
+	:host.settings-panel-orientation-right .settings-panel-label,
+	:host .settings-panel-orientation-left .settings-panel-label,
+	:host .settings-panel-orientation-right .settings-panel-label {
 		width: ${labelWidth};
 	}
+
 	:host.settings-panel-orientation-bottom .settings-panel-label {
 		border-top-width: ${h}em;
 	}

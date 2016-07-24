@@ -132,6 +132,7 @@
 	min-height: 2em;
 	padding: .2em 1em;
 	width: 100%;
+	cursor: pointer;
 }
 
 
@@ -330,6 +331,7 @@
 	vertical-align: middle;
 	width: 1.2em;
 	height: 1.2em;
+	cursor: pointer;
 	margin-right: .333em;
 }
 .settings-panel-switch-label {
@@ -348,6 +350,6 @@
 }
 
 .settings-panel-field--disabled {
-	opacity: .333;
+	opacity: .5;
 	pointer-events: none;
 }
