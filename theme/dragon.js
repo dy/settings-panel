@@ -58,17 +58,17 @@ function dragon (opts) {
 
 	.settings-panel-title {
 		text-transform: none;
-		font-size: 1.1em;
+		font-size: 1.333em;
 		font-weight: bold;
-		min-height: ${h}em;
 		letter-spacing: .05ex;
+		min-height: ${h}em;
 		color: ${white};
-		padding: 0 ${h/8}em ${h/4}em;
+		padding: ${h/2}em ${h/8}em ${h*.75}em;
 	}
 
 	/** Select style */
 	.settings-panel-select {
-		height: 20px;
+		height: ${h}em;
 		background: none;
 		outline: none;
 		border: none;
@@ -129,7 +129,7 @@ function dragon (opts) {
 		-moz-appearance: none;
 		-o-appearance:none;
 		border: none;
-		height: 20px;
+		height: ${h}em;
 		padding: 0;
 		background: none;
 		color: ${white};
@@ -153,8 +153,8 @@ function dragon (opts) {
 
 	/** Color */
 	.settings-panel-color {
-		height: 14px;
-		width: 14px;
+		height: ${h*.7}em;
+		width: ${h*.7}em;
 		top: 0;
 		bottom: 0;
 		margin-top: auto;
@@ -166,10 +166,10 @@ function dragon (opts) {
 		-o-appearance:none;
 		border: none;
 		background: none;
-		height: 20px;
+		height: ${h}em;
 		color: ${white};
 		box-shadow: 0 2px ${dark};
-		padding-left: 20px;
+		padding-left: ${h}em;
 		width: 100%;
 	}
 	.settings-panel-color-value:hover,
@@ -179,11 +179,13 @@ function dragon (opts) {
 		box-shadow: 0 2px ${black};
 	}
 
+
 	/** Switch style */
 	.settings-panel-switch {
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		appearance: none;
+		margin-left: -2px;
 	}
 	.settings-panel-switch-input {
 		display: none;
@@ -195,6 +197,10 @@ function dragon (opts) {
 		margin: 0 2px 2px 0;
 		line-height: ${h}em;
 		color: ${light};
+		text-transform: uppercase;
+		font-size: .85em;
+		letter-spacing: .1ex;
+		border-radius: ${h}em;
 	}
 	.settings-panel-switch-label:hover {
 		color: ${white};
@@ -204,8 +210,12 @@ function dragon (opts) {
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
 		color: ${white};
-		background: ${dark};
+		box-shadow: 0 0 0 2px ${notSoLight};
 	}
+	.settings-panel-switch-input:checked + .settings-panel-switch-label:hover {
+		box-shadow: 0 0 0 2px ${white};
+	}
+
 
 	/** Checkbox */
 	.settings-panel-checkbox {
@@ -216,10 +226,10 @@ function dragon (opts) {
 		display: inline-block;
 		margin-left: -2px;
 		margin-top: 0;
-		width: 40px;
-		height: 20px;
-		line-height: 20px;
-		border-radius: 20px;
+		width: ${h*1.8}em;
+		height: ${h*.9}em;
+		line-height: ${h*.9}em;
+		border-radius: ${h}em;
 		margin-bottom: 0;
 		background: ${dark};
 	}
@@ -229,18 +239,19 @@ function dragon (opts) {
 	.settings-panel-checkbox-label:after {
 		content: '';
 		position: absolute;
-		border-radius: 20px;
-		width: 16px;
-		height: 16px;
-		top: 2px;
-		left: 2px;
+		border-radius: ${h}em;
+		width: ${h*.65}em;
+		height: ${h*.65}em;
+		top: ${h*.125}em;
+		left: ${h*.125}em;
 		background: ${notSoLight};
 		transition: .1s ease-in;
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {
-		left: 22px;
+		left: ${h*1.025}em;
 		background: ${white};
 	}
+
 
 	/** Button */
 	.settings-panel-button {
@@ -249,16 +260,16 @@ function dragon (opts) {
 		appearance: none;
 		border: none;
 		outline: none;
-		padding: 4px;
-		min-height: 20px;
-		line-height: 20px;
+		padding: ${h*.25}em;
+		min-height: ${h}em;
+		line-height: ${h}em;
 		color: ${white};
-		border-radius: 20px;
+		border-radius: ${h}em;
 		background: none;
 		text-transform: uppercase;
 		font-size: .95em;
 		letter-spacing: .1ex;
-		box-shadow: 0 0 0 2px ${notSoLight};
+		box-shadow: inset 0 0 0 2px ${notSoLight};
 	}
 	.settings-panel-button:hover {
 		color: ${white};
@@ -267,6 +278,7 @@ function dragon (opts) {
 	.settings-panel-button:active {
 		color: ${white};
 	}
+
 
 	/** Sliders */
 	.settings-panel-range {
@@ -348,11 +360,13 @@ function dragon (opts) {
 
 	.settings-panel-range::-webkit-slider-thumb {
 		background: ${notSoLight};
-		height: 10px;
-		width: 10px;
-		border-radius: 10px;
-		margin-top: -4px;
+		height: ${h/2}em;
+		width: ${h/2}em;
+		border-radius: ${h/2}em;
+		margin-top: -${h/4}em;
 		border: 0;
+		position: relative;
+		top: 1px;
 		-webkit-appearance: none;
 		appearance: none;
 	}
@@ -363,11 +377,13 @@ function dragon (opts) {
 	}
 	.settings-panel-range::-moz-range-thumb {
 		background: ${notSoLight};
-		height: 10px;
-		width: 10px;
-		border-radius: 10px;
-		margin-top: -4px;
+		height: ${h/2}em;
+		width: ${h/2}em;
+		border-radius: ${h/2}em;
+		margin-top: -${h/4}em;
 		border: 0;
+		position: relative;
+		top: 1px;
 		-webkit-appearance: none;
 		-moz-appearance: none;
 	}
@@ -380,10 +396,12 @@ function dragon (opts) {
 		appearance: none;
 		outline: 0;
 		border: none;
+		position: relative;
+		top: 1px;
 		background: ${notSoLight};
-		width: 10px;
-		height: 10px;
-		border-radius: 10px;
+		width: ${h/2}em;
+		height: ${h/2}em;
+		border-radius: ${h/2}em;
 		cursor: pointer;
 	}
 	.settings-panel-range:focus::-ms-thumb,
@@ -399,7 +417,7 @@ function dragon (opts) {
 	:host.settings-panel-orientation-top .settings-panel-range + .settings-panel-value,
 	.settings-panel-orientation-top .settings-panel-range + .settings-panel-value {
 		position: absolute;
-		top: -20px;
+		top: -${h}em;
 		right: 0%;
 		text-align: right;
 	}
@@ -452,25 +470,25 @@ function dragon (opts) {
 	.settings-panel-interval-handle:after {
 		content: '';
 		position: absolute;
-		right: -5px;
+		right: -${h/4}em;
 		top: 0;
 		bottom: 0;
 		margin: auto;
-		height: 10px;
-		width: 10px;
-		border-radius: 10px;
+		height: ${h/2}em;
+		width: ${h/2}em;
+		border-radius: ${h/2}em;
 		background: inherit;
 	}
 	.settings-panel-interval-handle:before {
 		content: '';
 		position: absolute;
-		left: -5px;
+		left: -${h/4}em;
 		top: 0;
 		bottom: 0;
 		margin: auto;
-		height: 10px;
-		width: 10px;
-		border-radius: 10px;
+		height: ${h/2}em;
+		width: ${h/2}em;
+		border-radius: ${h/2}em;
 		background: inherit;
 	}
 
