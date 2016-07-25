@@ -31,12 +31,11 @@ function none (opts) {
 			color: ${black};
 			font-family: ${font};
 			font-size: ${px('font-size', fs)};
-			padding: ${h*.75}em;
+			padding: ${h*.666}em;
 		}
 
 		.settings-panel-title {
 			min-height: ${h}em;
-			padding: ${h/8}em 0 ${h/2}em;
 		}
 
 		.settings-panel-field {

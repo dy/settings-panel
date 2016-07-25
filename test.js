@@ -116,8 +116,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.dragon,
-	orientation: 'top'
+	theme: themes.dragon
 });
 
 panel.on('input', function (name, value, data) {

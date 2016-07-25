@@ -12,7 +12,6 @@ const none = require('./none');
 
 module.exports = control;
 
-
 control.palette = ['#292929', '#e7e7e7'];
 
 control.fontSize = '12px';
@@ -34,11 +33,19 @@ function control (opts) {
 
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
+
 	let white = color(pick(0)).toString();
 	let light = color(pick(.1)).toString();
 	let gray = color(pick(.55)).toString();
 	let dark = color(pick(.75)).toString();
 	let black = color(pick(1)).toString();
+
+	//NOTE: this is in case of scaling palette to black/white range
+	// let white = color(pick(0.1607843137254902)).toString();
+	// let light = color(pick(0.23529411764705882)).toString();
+	// let gray = color(pick(0.5705882352941177)).toString();
+	// let dark = color(pick(0.7196078431372549)).toString();
+	// let black = color(pick(0.9058823529411765)).toString();
 
 	//none theme defines sizes, the rest (ours) is up to style
 	return none({
@@ -52,12 +59,14 @@ function control (opts) {
 		font-family: ${font};
 		font-size: ${px('font-size',fs)};
 		color: ${gray};
+		padding: ${h/2}em;
 	}
 
 	.settings-panel-title {
 		text-transform: uppercase;
 		font-size: 1.25em;
 		letter-spacing: .15ex;
+		padding-bottom: ${h/4}em;
 	}
 
 	/** Text */
@@ -303,5 +312,6 @@ function control (opts) {
 	:host hr {
 		margin: ${h/4}em ${h/8}em;
 		color: ${light};
+		opacity: 1;
 	}
 `};

@@ -76,7 +76,7 @@ title: 'Settings',
 // specifies label position relative to the input: `top` • `left` • `bottom` • `right`
 orientation: 'left',
 
-// displays collapse button
+// collapse by clicking on title
 collapsible: false,
 
 // use a theme, see `theme` folder.
