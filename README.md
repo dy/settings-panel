@@ -2,7 +2,7 @@
 
 Simple settings panel for your app, demo or tests.
 
-[**`LIVE DEMO`**](https://dfcreative.github.io/settings-panel/)
+[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
 
 ## Usage
 
