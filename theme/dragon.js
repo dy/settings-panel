@@ -63,7 +63,7 @@ function dragon (opts) {
 		letter-spacing: .05ex;
 		min-height: ${h}em;
 		color: ${white};
-		padding: ${h/2}em ${h/8}em ${h*.75}em;
+		padding: ${h/3}em ${h/8}em ${h/2}em;
 	}
 
 	/** Select style */
