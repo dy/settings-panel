@@ -26,7 +26,7 @@ var panel = createPanel([
 );
 ```
 
-[Run in requirebin](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
+[**Run this in requirebin**](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
 
 ## API
 
@@ -97,14 +97,18 @@ className: ''
 ```
 
 </details>
-<details><summary>**`panel.on(event, (name, value, state) => {})`**</summary>
+<details><summary>**`panel.on(event, callback)`**</summary>
 
 Attach callback to `change`, `input` or `init` event.
 
-The callback argument `state` will contain the state of all inputs keyed by label such as:
+The callback will recieve `name`, `data` and `state` arguments:
 
 ```javascript
-{'my checkbox': false, 'my range': 75}
+panel.on('change', (name, value, state) => {
+  // name === 'my checkbox'
+  // value === false
+  // state === {'my checkbox': false, 'my range': 75, ...}
+});
 ```
 
 </details>
