@@ -45,6 +45,23 @@ function Panel (items, opts) {
 		this.titleEl.className = 'settings-panel-title';
 	}
 
+	//create collapse button
+	if (this.collapsible && this.title) {
+		// this.collapseEl = this.element.appendChild(document.createElement('div'));
+		// this.collapseEl.className = 'settings-panel-collapse';
+		this.element.classList.add('settings-panel--collapsible');
+		this.titleEl.addEventListener('click', () => {
+			if (this.collapsed) {
+				this.collapsed = false;
+				this.element.classList.remove('settings-panel--collapsed');
+			}
+			else {
+				this.collapsed = true;
+				this.element.classList.add('settings-panel--collapsed');
+			}
+		});
+	}
+
 	//state is values of items
 	this.state = {};
 
@@ -395,3 +412,7 @@ Panel.prototype.className;
  * Additional visual setup
  */
 Panel.prototype.orientation = 'left';
+
+
+/** Display collapse button */
+Panel.prototype.collapsible = true;

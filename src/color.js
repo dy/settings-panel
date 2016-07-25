@@ -21,7 +21,9 @@ Color.prototype.update = function (opts) {
 	opts = opts || {}
 	opts.format = opts.format || 'rgb'
 	opts.value = opts.value || '#123456';
-	var icon = opts.container.appendChild(document.createElement('span'))
+	var icon = opts.container.appendChild(document.createElement('div'))
+	//FIXME: this needed to make el vertical-aligned by baseline
+	icon.innerHTML = '&nbsp;';
 	icon.className = 'settings-panel-color'
 
 	var valueInput = opts.container.appendChild(document.createElement('input'));

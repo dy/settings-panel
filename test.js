@@ -112,10 +112,12 @@ var panel = createPanel([
 	{type: 'button', label: 'Ok', input: function () { window.alert('hello!') }, style: 'width: 50%'},
 	// {type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left' }
 ], {
+	id: 'preview',
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.control
+	theme: themes.dragon,
+	orientation: 'top'
 });
 
 panel.on('input', function (name, value, data) {

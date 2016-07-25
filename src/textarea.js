@@ -19,8 +19,8 @@ function Textarea (opts) {
 		this.element = input;
 
 		setTimeout(() => {
-			autosize.update(input);
 			this.emit('init', input.value)
+			autosize.update(input);
 		})
 
 		input.oninput = (data) => {
@@ -30,6 +30,7 @@ function Textarea (opts) {
 		autosize(input);
 	}
 
+	this.update(opts);
 }
 
 Textarea.prototype.update = function (opts) {

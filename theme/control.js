@@ -1,7 +1,7 @@
 /**
  * @module prama/theme/control
  *
- * Control-panel replica
+ * Control-panel theme on steroids
  */
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
@@ -58,10 +58,6 @@ function control (opts) {
 		text-transform: uppercase;
 		font-size: 1.25em;
 		letter-spacing: .15ex;
-	}
-
-	.settings-panel-label {
-		color: ${black};
 	}
 
 	/** Text */
@@ -199,11 +195,10 @@ function control (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
-		display: block;
-		margin-top: ${h*.075}em;
+		display: inline-block;
 		width: ${h*.85}em;
 		height: ${h*.85}em;
-		margin-bottom: ${h*.075}em;
+		line-height: ${h*.85}em;
 		background: ${light};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
@@ -214,14 +209,16 @@ function control (opts) {
 
 	/** Color */
 	.settings-panel-color {
+		position: relative;
 		width: calc(20% - ${h/4}em);
 		margin-right: ${h/4}em;
+		display: inline-block;
+		vertical-align: baseline;
 	}
 	.settings-panel-color-value {
 		border: none;
 		padding-left: ${h/4}em;
 		width: 80%;
-		margin-left: 20%;
 		font-family: inherit;
 		background: ${light};
 		color: inherit;
@@ -305,6 +302,6 @@ function control (opts) {
 	}
 	:host hr {
 		margin: ${h/4}em ${h/8}em;
-		color: ${light}
+		color: ${light};
 	}
 `};

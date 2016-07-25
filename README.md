@@ -76,6 +76,9 @@ title: 'Settings',
 // specifies label position relative to the input: `top` • `left` • `bottom` • `right`
 orientation: 'left',
 
+// displays collapse button
+collapsible: false,
+
 // use a theme, see `theme` folder.
 theme: require('settings-panel/theme/none'),
 

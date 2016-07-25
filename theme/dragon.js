@@ -1,13 +1,14 @@
 /**
  * @module prama/theme/dragon
  *
- * Minimalistic theme
+ * Midragonlistic theme based off https://dribbble.com/guidorosso NIMA editor settings
  */
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
 const lerp = require('interpolation-arrays');
+const none = require('./none');
 
 module.exports = dragon;
 
@@ -18,15 +19,14 @@ fonts.add({
 dragon.palette = [
 	'#fff',
 	'#999',
-	'#131522',
-	'#373737',
 	'#222',
+	'#131522'
 ];
 
 dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
-dragon.inputHeight = 1.66666;
+dragon.inputHeight = 2;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -35,33 +35,46 @@ function dragon (opts) {
 	let labelWidth = opts.labelWidth || dragon.labelWidth;
 	let fontSize = opts.fontSize || dragon.fontSize;
 	let font = opts.fontFamily || dragon.fontFamily;
+
 	let palette = (opts.palette || dragon.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
 
 	let white = color(pick(0)).toString();
 	let light = color(pick(.25)).toString();
-	let gray = color(pick(.5)).toString();
+	let notSoLight = color(pick(.333)).toString();
+	let gray = color(pick(.618)).toString();
+	let notSoDark = color(pick(.675)).toString();
 	let dark = color(pick(.75)).toString();
 	let black = color(pick(1)).toString();
 
-	return `
+	return none({
+		fontSize: fontSize,
+		fontFamily: font,
+		inputHeight: h,
+		labelWidth: labelWidth,
+		palette: palette
+	}) + `
 	:host {
 		color: ${light};
-		background: ${alpha(dark, .91)};
+		background: ${alpha(gray, .93)};
 		font-size: ${px('font-size', fontSize)};
 		font-family: ${font};
 	}
 
 	.settings-panel-title {
-		text-transform: uppercase;
-		font-size: 1.25em;
+		text-transform: none;
+		font-size: 1.1em;
+		font-weight: bold;
 		min-height: ${h}em;
-		letter-spacing: .15ex;
-		padding: ${h/8}em 0 ${h/2}em;
+		line-height: ${h}em;
+		letter-spacing: .05ex;
+		color: ${white};
+		padding: 0 ${h/8}em 0;
 	}
 
 	/** Select style */
 	.settings-panel-select {
+		height: 20px;
 		background: none;
 		outline: none;
 		border: none;
@@ -73,7 +86,7 @@ function dragon (opts) {
 		padding-right: 1em;
 		margin-right: -1em;
 		color: ${white};
-		box-shadow: 0 2px ${black};
+		box-shadow: 0 2px ${dark};
 	}
 	.settings-panel-select::-ms-expand {
 		display:none;
@@ -100,14 +113,16 @@ function dragon (opts) {
 	.settings-panel-select-triangle--up {
 		display: none;
 	}
+	.settings-panel-field--select:hover .settings-panel-select,
 	.settings-panel-select:focus {
-		box-shadow: 0 2px ${gray};
+		box-shadow: 0 2px ${black};
 	}
 
 	/** Values */
 	.settings-panel-value {
-		height: ${h}em;
+		color: ${white};
 	}
+	.settings-panel-value:hover,
 	.settings-panel-value:focus {
 		color: ${white};
 	}
@@ -116,23 +131,27 @@ function dragon (opts) {
 	.settings-panel-text,
 	.settings-panel-textarea {
 		border: none;
+		height: 20px;
+		padding: 0;
 		background: none;
 		color: ${white};
 		width: 100%;
-		box-shadow: 0 2px ${black};
+		box-shadow: 0 2px ${dark};
 	}
 
 	.settings-panel-text:focus,
-	.settings-panel-textarea:focus {
+	.settings-panel-textarea:focus,
+	.settings-panel-text:hover,
+	.settings-panel-textarea:hover {
 		outline: none;
 		color: ${white};
-		box-shadow: 0 2px ${gray};
+		box-shadow: 0 2px ${black};
 	}
 
 	/** Color */
 	.settings-panel-color {
-		height: 1em;
-		width: 1em;
+		height: 14px;
+		width: 14px;
 		top: 0;
 		bottom: 0;
 		margin-top: auto;
@@ -141,15 +160,17 @@ function dragon (opts) {
 	.settings-panel-color-value {
 		border: none;
 		background: none;
+		height: 20px;
 		color: ${white};
-		box-shadow: 0 2px ${black};
-		padding-left: 1.5em;
+		box-shadow: 0 2px ${dark};
+		padding-left: 20px;
 		width: 100%;
 	}
+	.settings-panel-color-value:hover,
 	.settings-panel-color-value:focus {
 		outline: none;
 		color: ${white};
-		box-shadow: 0 2px ${gray};
+		box-shadow: 0 2px ${black};
 	}
 
 	/** Switch style */
@@ -163,10 +184,10 @@ function dragon (opts) {
 	}
 	.settings-panel-switch-label {
 		cursor: pointer;
-		min-height: 2em;
-		padding: 0 .75em;
+		min-height: ${h}em;
+		padding: 0 ${h/2}em;
 		margin: 0 2px 2px 0;
-		line-height: 2em;
+		line-height: ${h}em;
 		color: ${light};
 	}
 	.settings-panel-switch-label:hover {
@@ -181,47 +202,39 @@ function dragon (opts) {
 	}
 
 	/** Checkbox */
-	.settings-panel-field--checkbox .settings-panel-label {
-		margin-bottom: .5em;
-	}
 	.settings-panel-checkbox {
 		display: none;
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
 		display: inline-block;
-		width: 1.5em;
-		height: 1.5em;
-		cursor: pointer;
-		border-radius: 2px;
+		margin-left: -2px;
+		margin-top: 0;
+		width: 40px;
+		height: 20px;
+		line-height: 20px;
+		border-radius: 20px;
+		margin-bottom: 0;
+		background: ${dark};
+	}
+	.settings-panel-field--checkbox:hover .settings-panel-checkbox-label {
 		background: ${black};
 	}
-	.settings-panel-checkbox-label:before {
+	.settings-panel-checkbox-label:after {
+		content: '';
 		position: absolute;
-		content: "";
-		height: .666em;
-		width: .666em;
-		left: .4333em;
-		bottom: .4333em;
-		background: ${white};
-		opacity: .02;
+		border-radius: 20px;
+		width: 16px;
+		height: 16px;
+		top: 2px;
+		left: 2px;
+		background: ${notSoLight};
+		transition: .1s;
 	}
-	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-		opacity: 1;
-		background: ${gray};
-	}
-	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
-		background: ${black};
-	}
-	.settings-panel-checkbox:focus + .settings-panel-checkbox-label,
-	.settings-panel-checkbox + .settings-panel-checkbox-label:hover {
-		background: ${gray};
-	}
-	.settings-panel-checkbox:focus + .settings-panel-checkbox-label:before,
-	.settings-panel-checkbox + .settings-panel-checkbox-label:hover:before {
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {
+		left: 22px;
 		background: ${white};
 	}
-
 
 	/** Button */
 	.settings-panel-button {
@@ -230,19 +243,22 @@ function dragon (opts) {
 		appearance: none;
 		border: none;
 		outline: none;
-		cursor: pointer;
-		min-height: 2.5em;
-		padding: .75em 1.5em;
-		color: ${color(pick(.8)).toString()};
-		background: ${color(pick(.2)).toString()};
+		padding: 4px;
+		min-height: 20px;
+		color: ${white};
+		border-radius: 20px;
+		background: none;
+		text-transform: uppercase;
+		font-size: .95em;
+		letter-spacing: .1ex;
+		box-shadow: 0 0 0 2px ${light};
 	}
 	.settings-panel-button:hover {
 		color: ${white};
-		background: ${light};
+		box-shadow: 0 0 0 2px ${white};
 	}
-	.settings-panel-button:gray {
+	.settings-panel-button:active {
 		color: ${white};
-		background: ${black};
 	}
 
 	/** Sliders */
@@ -251,58 +267,85 @@ function dragon (opts) {
 		-moz-appearance: none;
 		appearance: none;
 		background: none;
-		color: ${black};
+		color: ${dark};
 	}
+	.settings-panel-field--range:hover .settings-panel-range,
 	.settings-panel-range:focus {
-		color: ${gray};
+		color: ${black};
 		outline: none;
 	}
 	.settings-panel-range::-webkit-slider-runnable-track {
 		background: none;
-		height: 0px;
-		border: 1px solid;
+		height: 2px;
 	}
 	.settings-panel-range::-moz-range-track {
 		background: none;
-		height: 0px;
-		border: 1px solid;
+		height: 2px;
 	}
+
+	@supports (--css: variables) {
+		.settings-panel-range {
+			--active: ${notSoLight};
+			--bg: ${dark};
+			--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;
+		}
+		.settings-panel-range::-webkit-slider-runnable-track {
+			background: var(--track-background);
+		}
+		.settings-panel-range::-moz-range-track {
+			background: var(--track-background);
+		}
+		.settings-panel-field--range:hover .settings-panel-range,
+		.settings-panel-range:focus {
+			--bg: ${black};
+			--active: ${white};
+		}
+	}
+
 	.settings-panel-range::-ms-fill-lower {
-		background: ${black};
+		background: ${white};
 	}
 	.settings-panel-range::-ms-fill-upper {
 		background: ${black};
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		background: ${light};
-		height: 1.5em;
-		width: .5em;
+		background: ${notSoLight};
+		height: 10px;
+		width: 10px;
+		border-radius: 10px;
+		margin-top: -4px;
 		border: 0;
-		cursor: ew-resize;
 		-webkit-appearance: none;
 		appearance: none;
-		margin-top: -.75em;
 	}
-	.settings-panel-range:focus::-webkit-slider-thumb {
+	.settings-panel-range:focus::-webkit-slider-thumb,
+	.settings-panel-range:hover::-webkit-slider-thumb,
+	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {
 		background: ${white};
 	}
 	.settings-panel-range::-moz-range-thumb {
-		background: ${light};
-		height: 1em;
-		width: 1em;
+		background: ${notSoLight};
+		height: 10px;
+		width: 10px;
+		border-radius: 10px;
+		margin-top: -4px;
 		border: 0;
-		cursor: ew-resize;
 		-webkit-appearance: none;
 		-moz-appearance: none;
-		margin-top: -.75em;
 	}
-	.settings-panel-range:focus::-moz-range-thumb {
+	.settings-panel-range:focus::-moz-range-thumb,
+	.settings-panel-range:hover::-moz-range-thumb,
+	.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {
 		background: ${white};
 	}
 	.settings-panel-range::-ms-thumb {
-		background: ${light};
+		background: ${gray};
+		height: ${h*.75}em;
+		width: ${h/3}em;
+		margin-top: -${h*.375}em;
 	}
+
 
 
 	/** Interval */
@@ -316,7 +359,7 @@ function dragon (opts) {
 		left: 0;
 		bottom: 0;
 		top: 0;
-		background: ${black};
+		background: ${dark};
 		height: 2px;
 		margin-top: auto;
 		margin-bottom: auto;
@@ -331,26 +374,37 @@ function dragon (opts) {
 		margin-bottom: auto;
 		background: ${light};
 	}
+	.settings-panel-field--interval:hover .settings-panel-interval:after {
+		background: ${black};
+	}
+	.settings-panel-field--interval:hover .settings-panel-interval-handle {
+		background: ${white};
+	}
+	.settings-panel-field--interval:hover .settings-panel-value {
+		color: ${white};
+	}
 	.settings-panel-interval-handle:after {
 		content: '';
 		position: absolute;
-		right: 0;
+		right: -5px;
 		top: 0;
 		bottom: 0;
 		margin: auto;
-		width: .5em;
-		height: 1.5em;
+		height: 10px;
+		width: 10px;
+		border-radius: 10px;
 		background: inherit;
 	}
 	.settings-panel-interval-handle:before {
 		content: '';
 		position: absolute;
-		left: 0;
+		left: -5px;
 		top: 0;
 		bottom: 0;
 		margin: auto;
-		width: .5em;
-		height: 1.5em;
+		height: 10px;
+		width: 10px;
+		border-radius: 10px;
 		background: inherit;
 	}
 
@@ -363,20 +417,21 @@ function dragon (opts) {
 	:host hr {
 		border: none;
 		height: 0;
-		margin: 1.25em 0;
-		border-bottom: 1px dotted ${pick(.6).toString()};
+		margin: ${h*.75}em 0;
+		opacity: .5;
+		border-bottom: 1px dotted ${notSoLight};
 	}
 	::-webkit-input-placeholder {
-		color: ${light};
+		color: ${notSoLight};
 	}
 	::-moz-placeholder {
-		color: ${light};
+		color: ${notSoLight};
 	}
 	:-ms-input-placeholder {
-		color: ${light};
+		color: ${notSoLight};
 	}
 	:-moz-placeholder {
-		color: ${light};
+		color: ${notSoLight};
 	}
 
 	::-moz-selection {
@@ -386,6 +441,10 @@ function dragon (opts) {
 	::selection {
 		color: ${white};
 		background: ${gray};
+	}
+	.settings-panel-field--disabled {
+		opacity: .333;
+		pointer-events: none;
 	}
 `;
 
