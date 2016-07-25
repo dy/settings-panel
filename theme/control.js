@@ -204,7 +204,8 @@ function control (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
-		display: inline-block;
+		display: block;
+		margin: ${h*.075}em 0;
 		width: ${h*.85}em;
 		height: ${h*.85}em;
 		line-height: ${h*.85}em;
@@ -259,28 +260,16 @@ function control (opts) {
 
 	/** Switch style */
 	.settings-panel-switch {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		border: none;
-		margin: 0;
-		border-radius: 0;
-		padding: 0;
-		height: auto;
-		background: none;
-		vertical-align: top;
-		border: none;
-		position: relative;
 	}
 	.settings-panel-switch-input {
 		display: none;
 	}
 	.settings-panel-switch-label {
 		position: relative;
+		display: inline-block;
 		padding: 0 ${h/2}em;
 		margin: 0;
 		z-index: 2;
-		float: left;
 		text-align: center;
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
