@@ -132,12 +132,12 @@ Rerender panel with new options. Options may include values for the theme, like 
 ## See also
 
 <dl>
-<dt><a href="https://github.com/dfcreative/prama">prama</a>
-<dd>Wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.
-<a href="https://github.com/freeman-lab/control-panel">control-panel</a>
-<dd>Original forked settings panel.
-<a href="https://github.com/wearekuva/oui">oui</a>
-<dd>Sci-ish panel.
-<a href="https://github.com/dataarts/dat.gui">dat.gui</a>
-<dd>Oldschool settings panel.
+<dt><a href="https://github.com/dfcreative/prama">prama</a></dt>
+<dd>Wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.</dd>
+<dt><a href="https://github.com/freeman-lab/control-panel">control-panel</a>
+<dd>Original forked settings panel.</dd>
+<dt><a href="https://github.com/wearekuva/oui">oui</a></dt>
+<dd>Sci-ish panel.</dd>
+<dt><a href="https://github.com/dataarts/dat.gui">dat.gui</a></dt>
+<dd>Oldschool settings panel.</dd>
 </dl>
