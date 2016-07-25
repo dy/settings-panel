@@ -35,7 +35,7 @@ function dragon (opts) {
 	let pick = lerp(palette);
 
 	let white = color(pick(1)).toString();
-	let light = color(pick(.75)).toString();
+	let light = color(pick(.6)).toString();
 	let notSoLight = color(pick(.5)).toString();
 	let gray = color(pick(.13)).toString();
 	let dark = color(pick(.07)).toString();
