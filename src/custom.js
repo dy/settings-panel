@@ -27,9 +27,9 @@ function Custom (opts) {
 
 Custom.prototype.update = function (opts) {
 	extend(this, opts);
-	var el;
-	if (this.create instanceof Function) {
-		el = this.create(this);
+	var el = this.content;
+	if (this.content instanceof Function) {
+		el = this.content(this);
 		if (!el) return;
 
 		if (typeof el === 'string') {
@@ -39,13 +39,13 @@ Custom.prototype.update = function (opts) {
 			this.container.appendChild(el);
 		}
 	}
-	else if (typeof this.create === 'string') {
+	else if (typeof this.content === 'string') {
 		this.container.innerHTML = el;
 	}
-	else if (this.create instanceof Element && (!this.container.contains(el))) {
+	else if (this.content instanceof Element && (!this.container.contains(el))) {
 		this.container.appendChild(el);
 	}
 	else {
-		throw Error('`create` should be a function returning html element or string');
+		throw Error('`content` should be a function returning html element or string');
 	}
 };

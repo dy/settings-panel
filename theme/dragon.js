@@ -195,11 +195,8 @@ function dragon (opts) {
 		min-height: ${h}em;
 		padding: 0 ${h/2}em;
 		margin: 0 2px 2px 0;
-		line-height: ${h}em;
+		line-height: ${h*.999}em;
 		color: ${light};
-		text-transform: uppercase;
-		font-size: .85em;
-		letter-spacing: .1ex;
 		border-radius: ${h}em;
 	}
 	.settings-panel-switch-label:hover {

@@ -96,7 +96,8 @@ var panel = createPanel([
 	{type: 'range', scale: 'log', label: 'Range log', min: 0.01, max: 100, value: 1},
 	{type: 'range', scale: 'log', label: 'Stepped log', min: 0.01, max: 100, steps: 10, value: 1},
 	{type: 'range', scale: 'log', label: 'Range -log', min: -0.01, max: -100, value: -1},
-	{type: 'range', scale: 'log', label: 'Stepped -log', min: -0.01, max: -100, steps: 10, value: -1, after:'<hr/>'},
+	{type: 'range', scale: 'log', label: 'Stepped -log', min: -0.01, max: -100, steps: 10, value: -1},
+	{type: 'raw', content: '<hr/>'},
 	{type: 'text', label: 'Text', value: 'my setting'},
 	{type: 'checkbox', label: 'Checkbox', value: true},
 	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
@@ -108,7 +109,8 @@ var panel = createPanel([
 	{type: 'select', label: 'Array select', disabled: true, options: ['State One', 'State Two'], value: 'State One'},
 	{type: 'email', label: 'Email', placeholder: 'email'},
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
-	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}, before: () => '<hr/>'},
+	{type: 'raw', content: '<hr/>'},
+	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}},
 	{type: 'button', label: 'Ok', input: function () { window.alert('hello!') }, style: 'width: 50%'},
 	// {type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left' }
 ], {
@@ -139,7 +141,7 @@ var settings = createPanel([
 		settings.set('palette', panel.theme.palette);
 	}},
 
-	{label: 'Palette', type: 'custom', id: 'palette', options: palettes, save: false, value: panel.theme.palette, create: function (opts) {
+	{label: 'Palette', type: 'raw', id: 'palette', options: palettes, save: false, value: panel.theme.palette, content: function (opts) {
 			let palette = opts.value || this.value;
 
 			let list = this.field.querySelector('.palette');
@@ -305,7 +307,8 @@ var settings = createPanel([
 	},
 	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: v => {
 		panel.update({fontFamily: v});
-	}, after: '<hr/>'},
+	}},
+	{type: 'raw', content: '<hr/>'},
 	{label: 'Label orientation', type: 'switch', options: {top: '↑', left: '←', bottom: '↓', right: '→'}, value: panel.orientation, change: (v) => {
 			panel.update({orientation: v});
 			if (v === 'top' || v === 'bottom') {
@@ -334,7 +337,8 @@ var settings = createPanel([
 	{label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↦', title: 'Label width', id: 'label-width', type: 'text', value: panel.theme.labelWidth, change: (v) => {
 		panel.update({labelWidth: v});
 	}, orientation: 'left', style: 'width: 50%'},
-	{type: 'button', label: 'Get the code!', before: '<hr/>', input: () => {
+	{type: 'raw', content: '<hr/>'},
+	{type: 'button', label: 'Get the code!', input: () => {
 		alert('code');
 	}}
 ], {

@@ -107,11 +107,18 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	//format name
+	name = name || '';
 	name = name.replace(/\-/g,'dash-');
 	name = format(name);
 
-	var item = this.items[name];
-	if (!item) item = this.items[name] = { id: name, panel: this };
+	if (name) {
+		var item = this.items[name];
+		if (!item) item = this.items[name] = { id: name, panel: this };
+	}
+	//noname items should not be saved in state
+	else {
+		var item = {id: null, panel: this};
+	}
 
 	var initialValue = item.value;
 	var isBefore = item.before;
@@ -126,10 +133,9 @@ Panel.prototype.set = function (name, value) {
 		item.value = value;
 	}
 
-	if (!item.id) item.id = name;
 	if (item.value === undefined) item.value = item.default;
 
-	this.state[name] = item.value;
+	if (name) this.state[name] = item.value;
 
 	//detect type
 	if (!item.type) {
@@ -158,14 +164,17 @@ Panel.prototype.set = function (name, value) {
 		}
 	}
 
-	var fieldId = 'settings-panel-field-' + item.id;
+	var field, fieldId;
+
+	if (item.id != null) {
+		fieldId = 'settings-panel-field-' + item.id;
+		field = this.element.querySelector('#' + fieldId);
+	}
 
 	//create field container
-	var field = this.element.querySelector('#' + fieldId);
-
 	if (!field) {
 		field = document.createElement('div');
-		field.id = fieldId;
+		if (fieldId != null) field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
 	}
@@ -224,7 +233,8 @@ Panel.prototype.set = function (name, value) {
 
 		if (component.on) {
 			component.on('init', (data) => {
-				item.value = this.state[item.id] = data
+				item.value = data
+				if (item.id) this.state[item.id] = item.value;
 				let state = extend({}, this.state);
 
 				item.init && item.init(data, state)
@@ -234,7 +244,8 @@ Panel.prototype.set = function (name, value) {
 			});
 
 			component.on('input', (data) => {
-				item.value = this.state[item.id] = data
+				item.value = data
+				if (item.id) this.state[item.id] = item.value;
 				let state = extend({}, this.state);
 
 				item.input && item.input(data, state)
@@ -244,7 +255,8 @@ Panel.prototype.set = function (name, value) {
 			});
 
 			component.on('change', (data) => {
-				item.value = this.state[item.id] = data
+				item.value = data
+				if (item.id) this.state[item.id] = item.value;
 				let state = extend({}, this.state);
 
 				item.change && item.change(data, state)
@@ -268,34 +280,33 @@ Panel.prototype.set = function (name, value) {
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
 		label.title = item.title || item.label;
-
 	}
 
 	//handle after and before
-	if (item.before) {
-		let before = item.before;
-		if (before instanceof Function) {
-			before = item.before.call(item, component);
-		}
-		if (before instanceof HTMLElement) {
-			this.element.insertBefore(before, field);
-		}
-		else {
-			field.insertAdjacentHTML('beforebegin', before);
-		}
-	}
-	if (item.after) {
-		let after = item.after;
-		if (after instanceof Function) {
-			after = item.after.call(item, component);
-		}
-		if (after instanceof HTMLElement) {
-			this.element.insertBefore(after, field.nextSibling);
-		}
-		else {
-			field.insertAdjacentHTML('afterend', after);
-		}
-	}
+	// if (item.before) {
+	// 	let before = item.before;
+	// 	if (before instanceof Function) {
+	// 		before = item.before.call(item, component);
+	// 	}
+	// 	if (before instanceof HTMLElement) {
+	// 		this.element.insertBefore(before, field);
+	// 	}
+	// 	else {
+	// 		field.insertAdjacentHTML('beforebegin', before);
+	// 	}
+	// }
+	// if (item.after) {
+	// 	let after = item.after;
+	// 	if (after instanceof Function) {
+	// 		after = item.after.call(item, component);
+	// 	}
+	// 	if (after instanceof HTMLElement) {
+	// 		this.element.insertBefore(after, field.nextSibling);
+	// 	}
+	// 	else {
+	// 		field.insertAdjacentHTML('afterend', after);
+	// 	}
+	// }
 
 	//emit change
 	if (initialValue !== item.value) {
@@ -389,15 +400,24 @@ Panel.prototype.theme = require('./theme/none');
  */
 Panel.prototype.components = {
 	range: require('./src/range'),
+
 	button: require('./src/button'),
 	text: require('./src/text'),
 	textarea: require('./src/textarea'),
+
 	checkbox: require('./src/checkbox'),
 	toggle: require('./src/checkbox'),
+
 	switch: require('./src/switch'),
+
 	color: require('./src/color'),
+
 	interval: require('./src/interval'),
+	multirange: require('./src/interval'),
+
 	custom: require('./src/custom'),
+	raw: require('./src/custom'),
+
 	select: require('./src/select')
 };
 

@@ -6,7 +6,7 @@ Simple settings panel for your app, demo or tests.
 
 ## Usage
 
-[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
+<details><summary>[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)</summary>
 
 ```javascript
 var createPanel = require('settings-panel')
@@ -27,6 +27,7 @@ var panel = createPanel([
 ```
 
 [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
+</details>
 
 ## API
 
@@ -34,7 +35,7 @@ var panel = createPanel([
 
 The first argument is a list of fields. Each one may have following properties:
 
-* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `custom` • `textarea` • `text` or any `<input>` type. If undefined, type will be detected from the value.
+* `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `raw` • `textarea` • `text` or any `<input>` type. If undefined, type will be detected from the value.
 * `id` used as key to identify the field. If undefined, the label will be used instead.
 * `label` label for the input. If label is false, it will be hidden.
 * `value` current value of the field.
@@ -46,7 +47,7 @@ The first argument is a list of fields. Each one may have following properties:
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
 * `change` invoked each time the field value changed, whether through `input` or API.
-* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons etc.
+* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons etc - anything related to the element.
 * `title` will display text in tooltip.
 
 For example,
@@ -62,7 +63,7 @@ Some types have additional properties:
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select` and `switch` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).
 - `text` and `textarea` can specify `placeholder`.
-- `custom` can define `create` method, returning HTML string, element or documentFragment.
+- `raw` can define `content` method, returning HTML string, element or documentFragment.
 
 #### options
 
