@@ -6,7 +6,7 @@ Simple settings panel for your app, demo or tests.
 
 ## Usage
 
-<details><summary>[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)</summary>
+[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
 
 ```javascript
 var createPanel = require('settings-panel')
@@ -26,8 +26,7 @@ var panel = createPanel([
 );
 ```
 
-[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
-</details>
+[Run in requirebin](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
 
 ## API
 
@@ -131,13 +130,7 @@ Rerender panel with new options. Options may include values for the theme, like 
 
 ## See also
 
-<dl>
-<dt><a href="https://github.com/dfcreative/prama">prama</a></dt>
-<dd>Wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.</dd>
-<dt><a href="https://github.com/freeman-lab/control-panel">control-panel</a>
-<dd>Original forked settings panel.</dd>
-<dt><a href="https://github.com/wearekuva/oui">oui</a></dt>
-<dd>Sci-ish panel.</dd>
-<dt><a href="https://github.com/dataarts/dat.gui">dat.gui</a></dt>
-<dd>Oldschool settings panel.</dd>
-</dl>
+> [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.<br/>
+> [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.<br/>
+> [oui](https://github.com/wearekuva/oui) — sci-ish panel.<br/>
+> [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.<br/>
