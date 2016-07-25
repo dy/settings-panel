@@ -287,6 +287,7 @@ var settings = createPanel([
 
 			opts.sortable = new Sortable(list, {
 				draggable: '.palette-color',
+				filter: '.Scp',
 				forceFallback: true,
 				onUpdate: (e) => {
 					this.emit('change', opts.sortable.toArray());
