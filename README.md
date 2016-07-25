@@ -134,7 +134,7 @@ Rerender panel with new options. Options may include values for the theme, like 
 
 ## See also
 
-* [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing themes, popup, button, state management etc.
+* [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.
 * [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
-* [oui](https://github.com/wearekuva/oui)
+* [oui](https://github.com/wearekuva/oui) — sci-ish panel.
 * [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
