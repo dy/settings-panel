@@ -16,7 +16,7 @@ fonts.add({
 	'Roboto': 400
 });
 
-dragon.palette = ['#f7f7f7', '#1b1b1b'];
+dragon.palette = ['#1b1b1b', '#f7f7f7'];
 
 dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
@@ -34,12 +34,12 @@ function dragon (opts) {
 	let palette = (opts.palette || dragon.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
 
-	let white = color(pick(0)).toString();
-	let light = color(pick(.42)).toString();
+	let white = color(pick(1)).toString();
+	let light = color(pick(.75)).toString();
 	let notSoLight = color(pick(.5)).toString();
-	let gray = color(pick(.88)).toString();
-	let dark = color(pick(.94)).toString();
-	let black = color(pick(1)).toString();
+	let gray = color(pick(.13)).toString();
+	let dark = color(pick(.07)).toString();
+	let black = color(pick(0)).toString();
 
 	return none({
 		fontSize: fontSize,
