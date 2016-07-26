@@ -86,7 +86,7 @@ inherits(Panel, Emitter);
  * Set item value/options
  */
 Panel.prototype.set = function (name, value) {
-	//set multiple
+	//handle list of properties
 	if (Array.isArray(name)) {
 		let items = name;
 		items.forEach((item) => {
@@ -96,7 +96,8 @@ Panel.prototype.set = function (name, value) {
 		return this;
 	}
 
-	if (name && arguments.length === 1) {
+	//handle plain object
+	if (isPlainObject(name)) {
 		let items = name;
 		for (let key in items) {
 			let item = items[key];

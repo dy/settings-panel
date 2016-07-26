@@ -21,7 +21,8 @@ var panel = createPanel([
   {type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
 ],
   {
-    title: 'Settings'
+    title: 'Settings',
+    style: 'position: absolute; right: 0; z-index: 1'
   }
 );
 ```
@@ -32,7 +33,7 @@ var panel = createPanel([
 
 <details><summary>**`panel = Panel(fields, options?)`**</summary>
 
-The first argument is a list of fields. Each one may have following properties:
+The first argument is a list of fields or object with id/field pairs. Each field may have following properties:
 
 * `type` one of `range` • `interval` • `checkbox` • `color` • `select` • `switch` • `raw` • `textarea` • `text` or any `<input>` type. If undefined, type will be detected from the value.
 * `id` used as key to identify the field. If undefined, the label will be used instead.
@@ -52,7 +53,7 @@ The first argument is a list of fields. Each one may have following properties:
 For example,
 
 ```javascript
-{type: 'checkbox', name: 'My Checkbox', value: true, input: value => {}}
+{type: 'checkbox', label: 'My Checkbox', value: true, input: value => {}}
 ```
 
 Some types have additional properties:
@@ -131,6 +132,10 @@ panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 Rerender panel with new options. Options may include values for the theme, like `palette`, `fontSize`, `fontFamily`, `labelWidth` etc.
 
 </details>
+
+## Spotted the wild
+
+> [plot-grid](https://dfcreative.github.io/plot-grid)
 
 ## See also
 

@@ -79,6 +79,8 @@ function control (opts) {
 		color: inherit;
 		border-radius: 0;
 	}
+	.settings-panel-text:hover,
+	.settings-panel-textarea:hover,
 	.settings-panel-text:focus,
 	.settings-panel-textarea:focus {
 		outline: none;
@@ -106,6 +108,9 @@ function control (opts) {
 		border: 0;
 		margin-top: 0px;
 	}
+	.settings-panel-range:hover::-webkit-slider-thumb {
+		background: ${dark};
+	}
 	.settings-panel-range::-moz-range-track {
 		-moz-appearance: none;
 		background: none;
@@ -117,6 +122,9 @@ function control (opts) {
 		border-radius: 0px;
 		height: ${h}em;
 		width: ${h/2}em;
+	}
+	.settings-panel-range:hover::-moz-range-thumb {
+		background: ${dark};
 	}
 	.settings-panel-range::-ms-track {
 		background: none;
@@ -137,6 +145,9 @@ function control (opts) {
 		width: ${h/2}em;
 		height: ${h}em;
 	}
+	.settings-panel-range:hover::-ms-thumb {
+		background: ${dark};
+	}
 	.settings-panel-range:focus::-ms-fill-lower {
 		background: none;
 		outline: none;
@@ -156,6 +167,9 @@ function control (opts) {
 		position: relative;
 		width: 60%;
 	}
+	.settings-panel-interval:hover .settings-panel-interval-handle {
+		background: ${dark};
+	}
 
 	/** Values */
 	.settings-panel-value {
@@ -168,6 +182,7 @@ function control (opts) {
 		margin-left: 0;
 		margin-right: ${h/4}em;
 	}
+	.settings-panel-value:hover,
 	.settings-panel-value:focus {
 		color: ${dark};
 	}
@@ -187,6 +202,7 @@ function control (opts) {
 		-o-appearance:none;
 		appearance:none;
 	}
+	.settings-panel-select:hover,
 	.settings-panel-select:focus {
 		color: ${dark};
 	}
@@ -215,6 +231,9 @@ function control (opts) {
 		background: ${gray};
 		box-shadow: inset 0 0 0 ${h*.2}em ${light};
 	}
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:hover {
+		background: ${dark};
+	}
 
 
 	/** Color */
@@ -234,6 +253,7 @@ function control (opts) {
 		color: inherit;
 		border-radius: 0;
 	}
+	.settings-panel-color-value:hover,
 	.settings-panel-color-value:focus {
 		outline: none;
 		color: ${dark};
@@ -274,7 +294,10 @@ function control (opts) {
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
 		background: ${light};
-		color: ${black};
+		color: ${gray};
+	}
+	.settings-panel-switch-input + .settings-panel-switch-label:hover {
+		color: ${dark};
 	}
 
 	/** Decorations */
@@ -295,8 +318,8 @@ function control (opts) {
 		background: ${dark};
 	}
 	::selection {
-		color: ${black};
-		background: ${white};
+		color: ${white};
+		background: ${black};
 	}
 	:host hr {
 		margin: ${h/4}em ${h/8}em;
