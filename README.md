@@ -46,7 +46,7 @@ The first argument is a list of fields. Each one may have following properties:
 * `input` callback, invoked if value changed.
 * `init` invoked once component is set up.
 * `change` invoked each time the field value changed, whether through `input` or API.
-* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons etc - anything related to the element.
+* `before` and `after` define an html to display before or after the element, can be a string, an element or a function returning one of the two. That may come handy in displaying help, info or validation messages, separators, additional buttons, range limits etc - anything related to the element.
 * `title` will display text in tooltip.
 
 For example,

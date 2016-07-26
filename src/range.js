@@ -128,6 +128,7 @@ Range.prototype.update = function (opts) {
 	var value = require('./value')({
 		id: opts.id,
 		container: opts.container,
+		className: 'settings-panel-range-value',
 		value: scaleValue(opts.value).toFixed(prec),
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),

@@ -6,7 +6,6 @@
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
-const scopeCss = require('scope-css');
 const lerp = require('interpolation-arrays');
 const none = require('./none');
 
@@ -46,7 +45,7 @@ function dragon (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: palette
+		palette: [white, black]
 	}) + `
 	:host {
 		color: ${light};

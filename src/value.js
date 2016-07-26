@@ -27,6 +27,7 @@ module.exports = function (opts) {
 
   if (opts.id) value.id = opts.id;
   value.className = 'settings-panel-value';
+  if (opts.className) value.className += ' ' + opts.className;
   opts.container.appendChild(value)
 
   return value

@@ -82,6 +82,7 @@ const themes = {
 	control: require('./theme/control'),
 	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
+	json: require('./theme/json')
 };
 
 var frame = document.createElement('div');

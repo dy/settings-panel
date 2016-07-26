@@ -2,7 +2,6 @@
  * @module  settings-panel/theme/none
  */
 
-const extend = require('just-extend');
 const px = require('add-px-to-style');
 
 module.exports = none;
