@@ -35,7 +35,7 @@ Range.prototype.update = function (opts) {
 	}
 
 	// Create scale functions for converting to/from the desired scale:
-	if (opts.scale === 'log') {
+	if (opts.scale === 'log' || opts.log) {
 		scaleValue = function (x) {
 			return logsign * Math.exp(Math.log(logmin) + (Math.log(logmax) - Math.log(logmin)) * x / 100)
 		}
@@ -49,8 +49,7 @@ Range.prototype.update = function (opts) {
 	if (!Array.isArray(opts.value)) {
 		opts.value = []
 	}
-
-	if (opts.scale === 'log') {
+	if (opts.scale === 'log' || opts.log) {
 		// Get options or set defaults:
 		opts.max = (isNumeric(opts.max)) ? opts.max : 100
 		opts.min = (isNumeric(opts.min)) ? opts.min : 0.1

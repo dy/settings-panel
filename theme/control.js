@@ -34,10 +34,10 @@ function control (opts) {
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
 
-	let white = color(pick(0)).toString();
+	let white = color(pick(.0)).toString();
 	let light = color(pick(.1)).toString();
-	let gray = color(pick(.55)).toString();
-	let dark = color(pick(.75)).toString();
+	let gray = color(pick(.75)).toString();
+	let dark = color(pick(.95)).toString();
 	let black = color(pick(1)).toString();
 
 	//NOTE: this is in case of scaling palette to black/white range
@@ -63,10 +63,9 @@ function control (opts) {
 	}
 
 	.settings-panel-title {
-		text-transform: uppercase;
 		font-size: 1.25em;
 		letter-spacing: .15ex;
-		padding-bottom: ${h/4}em;
+		padding-bottom: ${h/2}em;
 	}
 
 	/** Text */
@@ -326,4 +325,16 @@ function control (opts) {
 		color: ${light};
 		opacity: 1;
 	}
+	:host a {
+		border-bottom: 1px solid ${alpha(gray, .15)};
+	}
+	:host a:hover {
+		color: ${dark};
+		border-bottom: 1px solid ${gray};
+	}
 `};
+
+
+function alpha (c, value) {
+	return color(c).setAlpha(value).toString();
+}

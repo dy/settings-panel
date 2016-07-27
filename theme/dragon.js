@@ -529,9 +529,9 @@ function dragon (opts) {
 `;
 
 
+}
+
+
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
-
-}
-

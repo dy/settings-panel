@@ -138,6 +138,11 @@ Panel.prototype.set = function (name, value) {
 
 	if (name) this.state[name] = item.value;
 
+	//define label via name
+	if (item.label === undefined && item.id) {
+		item.label = item.id;
+	}
+
 	//detect type
 	if (!item.type) {
 		if (item.value && Array.isArray(item.value)) {
@@ -383,7 +388,7 @@ Panel.prototype.update = function (opts) {
 			css(this.element, this.style);
 		}
 		else if (typeof this.style === 'string') {
-			this.element.style = this.style;
+			this.element.style.cssText = this.style;
 		}
 	}
 	else if (this.style !== undefined) {
@@ -436,4 +441,4 @@ Panel.prototype.orientation = 'left';
 
 
 /** Display collapse button */
-Panel.prototype.collapsible = true;
+Panel.prototype.collapsible = false;

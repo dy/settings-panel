@@ -46,6 +46,7 @@ Custom.prototype.update = function (opts) {
 		this.container.appendChild(el);
 	}
 	else {
-		throw Error('`content` should be a function returning html element or string');
+		//empty content is allowable, in case if user wants to show only label for example
+		// throw Error('`content` should be a function returning html element or string');
 	}
 };
