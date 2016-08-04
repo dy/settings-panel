@@ -77,11 +77,13 @@ function none (opts) {
 		.settings-panel-button,
 		.settings-panel-input,
 		.settings-panel-switch,
+		.settings-panel-checkbox-group,
 		.settings-panel-switch-label {
 			min-height: ${h}em;
 		}
 		.settings-panel-input,
 		.settings-panel-switch,
+		.settings-panel-checkbox-group,
 		.settings-panel-switch-label {
 			line-height: ${h}em;
 		}
