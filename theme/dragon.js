@@ -219,6 +219,8 @@ function dragon (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
+		margin-top: ${h/8}em;
+		margin-bottom: ${h/8}em;
 	}
 	.settings-panel-checkbox-label:empty {
 		margin-left: -${h/4}em;

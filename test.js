@@ -83,7 +83,7 @@ const themes = {
 	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
 	json: require('./theme/json'),
-	lgg: require('./theme/lgg'),
+	flat: require('./theme/flat'),
 	typer: require('./theme/typer')
 };
 
@@ -127,7 +127,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.lgg
+	theme: themes.flat
 });
 
 panel.on('input', function (name, value, data) {
