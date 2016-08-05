@@ -103,7 +103,12 @@ var panel = createPanel([
 	{type: 'raw', content: '<hr/>'},
 	{type: 'text', label: 'Text', value: 'my setting'},
 	{type: 'checkbox', label: 'Checkbox', value: true},
-	{type: 'checkbox', label: 'Checkbox group', value: ['b', 'c'], options: ['a', 'b', 'c']},
+	{type: 'checkbox', label: 'Checkbox group', value: ['b', 'c'], options: {
+		a: 'Option A',
+		b: 'Option B',
+		c: 'Option C'
+	}
+	},
 	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
 	{type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
 	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
@@ -122,7 +127,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.control
+	theme: themes.lgg
 });
 
 panel.on('input', function (name, value, data) {

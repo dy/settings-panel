@@ -25,7 +25,7 @@ function Checkbox (opts) {
 			this.element = input = this.group.appendChild(document.createElement('input'));
 			input.className = 'settings-panel-checkbox';
 			this.labelEl = label = this.group.appendChild(document.createElement('label'));
-			this.labelEl.innerHTML = '&nbsp;';
+			this.labelEl.innerHTML = '';
 			label.className = 'settings-panel-checkbox-label';
 			input.onchange = function (data) {
 				self.emit('input', data.target.checked)

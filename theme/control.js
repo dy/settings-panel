@@ -217,20 +217,23 @@ function control (opts) {
 	.settings-panel-checkbox {
 		display: none;
 	}
-	.settings-panel-checkbox-label {
+	.settings-panel-checkbox-label:before {
+		content: 'x';
+		color: transparent;
 		position: relative;
-		display: block;
-		margin: ${h*.075}em 0;
+		display: inline-block;
+		vertical-align: baseline;
 		width: ${h*.85}em;
 		height: ${h*.85}em;
 		line-height: ${h*.85}em;
 		background: ${light};
+		margin-right: ${h*.25}em;
 	}
-	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
 		background: ${gray};
 		box-shadow: inset 0 0 0 ${h*.2}em ${light};
 	}
-	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:hover {
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:hover:before {
 		background: ${dark};
 	}
 

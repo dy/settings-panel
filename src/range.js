@@ -106,7 +106,9 @@ Range.prototype.update = function (opts) {
 	input.max = opts.max
 	input.step = opts.step
 	input.value = opts.value
-	input.style.setProperty('--value', 100 * (opts.value - opts.min) / (opts.max - opts.min) + '%');
+	let v = 100 * (opts.value - opts.min) / (opts.max - opts.min);
+	input.setAttribute('data-value', v.toFixed(0))
+	input.style.setProperty('--value', v + '%');
 
 	//preser container data for display
 	opts.container.setAttribute('data-min', opts.min);
@@ -150,7 +152,9 @@ Range.prototype.update = function (opts) {
 	input.oninput = (data) => {
 		var scaledValue = scaleValue(parseFloat(data.target.value));
 		value.value = scaledValue.toFixed(prec);
-		input.style.setProperty('--value', 100 * (data.target.value - opts.min) / (opts.max - opts.min) + '%');
+		let v = 100 * (data.target.value - opts.min) / (opts.max - opts.min);
+		input.setAttribute('data-value', v.toFixed(0));
+		input.style.setProperty('--value', v + '%');
 		this.emit('input', scaledValue);
 	}
 

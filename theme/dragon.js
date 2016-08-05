@@ -219,8 +219,16 @@ function dragon (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
+	}
+	.settings-panel-checkbox-label:empty {
+		margin-left: -${h/4}em;
+	}
+	.settings-panel-checkbox-label:after {
+		content: 'x';
+		color: transparent;
+		position: relative;
 		display: inline-block;
-		margin-left: -2px;
+		margin-left: ${h/4}em;
 		margin-top: 0;
 		width: ${h*1.8}em;
 		height: ${h*.9}em;
@@ -229,22 +237,23 @@ function dragon (opts) {
 		margin-bottom: 0;
 		background: ${dark};
 	}
-	.settings-panel-field--checkbox:hover .settings-panel-checkbox-label {
+	.settings-panel-field--checkbox:hover .settings-panel-checkbox-label:after {
 		background: ${black};
 	}
-	.settings-panel-checkbox-label:after {
+	.settings-panel-checkbox-label:before {
 		content: '';
 		position: absolute;
 		border-radius: ${h}em;
 		width: ${h*.65}em;
 		height: ${h*.65}em;
 		top: ${h*.125}em;
-		left: ${h*.125}em;
+		right: ${h*1.025}em;
 		background: ${notSoLight};
 		transition: .1s ease-in;
+		z-index: 1;
 	}
-	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {
-		left: ${h*1.025}em;
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
+		right: ${h*.125}em;
 		background: ${white};
 	}
 

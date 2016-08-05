@@ -13,7 +13,8 @@ const none = require('./none');
 module.exports = lgg;
 
 //uses reflective scheme
-lgg.palette = ['#272727', '#fff', '#f95759'];
+lgg.palette = ['#272727', '#fff'];
+lgg.active = '#f95759';
 
 lgg.fontSize = '14px';
 lgg.fontFamily = '"Roboto", sans-serif';
@@ -36,9 +37,9 @@ function lgg (opts) {
 	let pick = lerp(palette);
 
 	//NOTE: this is in case of scaling palette to black/white range
-	let white = tone(.5);
+	let white = tone(1);
 	let black = tone(0);
-	let active = tone(1);
+	let active = lgg.active;
 
 	function tone (amt) {
 		return color(pick(amt)).toString();
@@ -59,11 +60,17 @@ function lgg (opts) {
 	}
 
 	.settings-panel-title {
-
+		line-height: 1.5;
+		font-family: ${font};
+		font-weight: 500;
+		text-align: left;
+		font-size: 1.5em;
+		margin: ${h/6}em ${h/12}em ${h/6}em;
+		padding: 0;
 	}
 
 	.settings-panel-label {
-		color: ${tone(.25)};
+		color: ${tone(.55)};
 		font-weight: 500;
 	}
 
@@ -77,20 +84,22 @@ function lgg (opts) {
 		appearance: none;
 		outline: none;
 		border: 0;
+		width: auto;
 		border-radius: 0;
-		background: ${tone(.5)};
-		color: ${tone(1)};
-		box-shadow: 0 1px ${tone(.45)};
+		font-weight: 500;
+		background: ${white};
+		color: ${active};
+		box-shadow: 0 1px ${tone(.85)};
 	}
 	.settings-panel-text:hover,
 	.settings-panel-color-value:hover,
 	.settings-panel-textarea:hover {
-		color: ${tone(1)};
+		color: ${active};
 	}
 	.settings-panel-text:focus,
 	.settings-panel-color-value:focus,
 	.settings-panel-textarea:focus {
-		box-shadow: 0 1px ${tone(1)};
+		box-shadow: 0 1px ${active};
 
 	}
 
@@ -103,6 +112,8 @@ function lgg (opts) {
 		background: none;
 		color: ${tone(.25)};
 		border: 0;
+		width: calc(80% - ${h/2}em);
+		margin-right: ${h/2}em;
 	}
 	.settings-panel-field--range:hover .settings-panel-range,
 	.settings-panel-range:focus {
@@ -111,11 +122,11 @@ function lgg (opts) {
 	.settings-panel-range::-webkit-slider-runnable-track {
 		background: none;
 		height: 2px;
-		background: ${tone(.65)};
+		background: ${active};
 	}
 	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,
 	.settings-panel-range:focus::-webkit-slider-runnable-track {
-		/* background: ${tone(.65)}; */
+		/* background: ${active}; */
 	}
 	.settings-panel-range::-moz-range-track {
 		background: none;
@@ -134,7 +145,7 @@ function lgg (opts) {
 	}
 	.settings-panel-field--range:hover .settings-panel-range::-moz-range-progress,
 	.settings-panel-range:focus::-moz-range-progress {
-		background: ${tone(1)};
+		background: ${active};
 	}
 	.settings-panel-range::-ms-track {
 		height: 2px;
@@ -155,8 +166,8 @@ function lgg (opts) {
 
 	@supports (--css: variables) {
 		.settings-panel-range {
-			--active: ${tone(1)};
-			--bg: ${tone(.65)};
+			--active: ${active};
+			--bg: ${alpha(active, .25)};
 			--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;
 		}
 		.settings-panel-range::-webkit-slider-runnable-track {
@@ -167,13 +178,13 @@ function lgg (opts) {
 		}
 		.settings-panel-field--range:hover .settings-panel-range,
 		.settings-panel-range:focus {
-			--bg: ${tone(.65)};
-			--active: ${tone(1)};
+			--bg: ${alpha(active, .25)};
+			--active: ${active};
 		}
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		background: ${tone(1)};
+		background: ${active};
 		height: ${h/2}em;
 		width: ${h/2}em;
 		border-radius: ${h/2}em;
@@ -183,11 +194,18 @@ function lgg (opts) {
 		top: 1px;
 		-webkit-appearance: none;
 		appearance: none;
+		transition: .05s ease-in transform;
+		transform: scale(1, 1);
+		transform-origin: center center;
 	}
 	.settings-panel-range:focus::-webkit-slider-thumb,
-	.settings-panel-range:hover::-webkit-slider-thumb,
-	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {
-		background: ${tone(1)};
+	.settings-panel-range::-webkit-slider-thumb:hover {
+		box-shadow: 0 0 0 0;
+		transform: scale(1.2, 1.2);
+	}
+	.settings-panel-range[data-value="0"]::-webkit-slider-thumb {
+		background: ${white};
+		box-shadow: inset 0 0 0 1.5px ${active};
 	}
 	.settings-panel-range::-moz-range-thumb {
 		background: ${tone(.35)};
@@ -221,19 +239,7 @@ function lgg (opts) {
 	.settings-panel-range:focus::-ms-thumb,
 	.settings-panel-range:hover::-ms-thumb,
 	.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {
-		background: ${tone(1)};
-	}
-
-	:host.settings-panel-orientation-top .settings-panel-range,
-	.settings-panel-orientation-top .settings-panel-range {
-		width: 100%;
-	}
-	:host.settings-panel-orientation-top .settings-panel-range + .settings-panel-value,
-	.settings-panel-orientation-top .settings-panel-range + .settings-panel-value {
-		position: absolute;
-		top: -${h}em;
-		right: 0%;
-		text-align: right;
+		background: ${active};
 	}
 
 
@@ -248,7 +254,7 @@ function lgg (opts) {
 		left: 0;
 		bottom: 0;
 		top: 0;
-		background: ${tone(.25)};
+		background: ${alpha(active, .25)};
 		height: 2px;
 		margin-top: auto;
 		margin-bottom: auto;
@@ -261,18 +267,19 @@ function lgg (opts) {
 		bottom: 0;
 		margin-top: auto;
 		margin-bottom: auto;
-		background: ${tone(.15)};
+		background: ${active};
 	}
 	.settings-panel-field--interval:hover .settings-panel-interval:after {
-		background: ${black};
+		background: ${alpha(active, .25)};
 	}
 	.settings-panel-field--interval:hover .settings-panel-interval-handle {
-		background: ${white};
+		background: ${active};
 	}
 	.settings-panel-field--interval:hover .settings-panel-value {
-		color: ${white};
+		color: ${black};
 	}
-	.settings-panel-interval-handle:after {
+	.settings-panel-interval-handle:after,
+	.settings-panel-interval-handle:before {
 		content: '';
 		position: absolute;
 		right: -${h/4}em;
@@ -283,26 +290,25 @@ function lgg (opts) {
 		width: ${h/2}em;
 		border-radius: ${h/2}em;
 		background: inherit;
+		transform: scale(1, 1);
+		transform-origin: center center;
+		transition: .05s ease-in transform;
 	}
 	.settings-panel-interval-handle:before {
-		content: '';
-		position: absolute;
 		left: -${h/4}em;
-		top: 0;
-		bottom: 0;
-		margin: auto;
-		height: ${h/2}em;
-		width: ${h/2}em;
-		border-radius: ${h/2}em;
-		background: inherit;
+		right: auto;
+	}
+	.settings-panel-interval-dragging .settings-panel-interval-handle:after,
+	.settings-panel-interval-dragging .settings-panel-interval-handle:before,
+	.settings-panel-interval:hover .settings-panel-interval-handle:after,
+	.settings-panel-interval:hover .settings-panel-interval-handle:before {
+		transform: scale(1.2, 1.2);
 	}
 
-	.settings-panel-interval-dragging .settings-panel-interval-handle {
-		background: ${white};
-	}
 
 	/** Values */
 	.settings-panel-value {
+		color: ${tone(.15)};
 	}
 	.settings-panel-value:first-child {
 		margin-left: 0;
@@ -323,11 +329,13 @@ function lgg (opts) {
 		-moz-appearance: none;
 		-o-appearance:none;
 		appearance:none;
-		padding-right: 1em;
+		font-weight: 500;
+		padding-right: 2em;
 		margin-right: -1em;
-		color: ${tone(1)};
-		background: ${tone(.5)};
-		box-shadow: 0 1px ${tone(.45)};
+		color: ${active};
+		background: ${white};
+		box-shadow: 0 1px ${tone(.85)};
+		width: auto;
 	}
 	.settings-panel-select:hover,
 	.settings-panel-select:focus {
@@ -351,7 +359,7 @@ function lgg (opts) {
 	.settings-panel-select-triangle--down {
 		top: 0em;
 		left: .5em;
-		border-top: .3em solid ${tone(1)};
+		border-top: .3em solid ${active};
 		border-bottom: .0 transparent;
 	}
 	.settings-panel-select-triangle--up {
@@ -367,26 +375,57 @@ function lgg (opts) {
 		display: none;
 	}
 	.settings-panel-checkbox-label {
-		display: block;
-		width: ${h/2}em;
-		height: ${h/2}em;
-		border-radius: 1px;
+		display: inline-block;
+		color: ${tone(.15)};
 		position: relative;
-		display: block;
-		color: ${tone(.25)};
-		box-shadow: 0 0 0 2px;
-		line-height: ${h/2}em;
+		margin-right: ${h}em;
+		/* margin-bottom: ${h/2}em; */
 	}
-	.settings-panel-checkbox-label:hover {
-		color: ${tone(.15)}
+	.settings-panel-checkbox-label:before {
+		content: '✔';
+		color: transparent;
+		display: inline-block;
+		width: ${h*.5}em;
+		height: ${h*.5}em;
+		border-radius: .5px;
+		position: relative;
+		margin-right: ${h/3}em;
+		box-shadow: 0 0 0 2px ${tone(.25)};
+		line-height: ${h/2}em;
+		text-align: center;
+	}
+	.settings-panel-checkbox-label:hover:before {
+		box-shadow: 0 0 0 2px ${tone(.15)};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
-		box-shadow: 0 0 0 2px ${tone(1)};
-		background: ${tone(1)};
-		color: ${tone(.5)};
+		color: ${active};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-		content: '✔';
+		box-shadow: 0 0 0 2px ${active};
+		background: ${active};
+		color: ${white};
+	}
+	.settings-panel-checkbox-label:after {
+		content: '';
+		z-index: 1;
+		position: absolute;
+		width: ${h*1.5}em;
+		height: ${h*1.5}em;
+		background: ${tone(.25)};
+		border-radius: ${h}em;
+		top: -${h*.45}em;
+		left: -${h*.5}em;
+		opacity: 0;
+		transform-origin: center center;
+		transform: scale(.5, .5);
+		transition: .1s ease-out;
+	}
+	.settings-panel-checkbox-label:active:after {
+		transform: scale(1, 1);
+		opacity: .08;
+	}
+	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {
+		background: ${active};
 	}
 
 
@@ -394,20 +433,13 @@ function lgg (opts) {
 	.settings-panel-color {
 		height: ${h*.5}em;
 		width: ${h*.5}em;
-		top: 0;
-		bottom: 0;
-		margin-top: auto;
-		margin-bottom: auto;
-		position: relative;
 		display: inline-block;
 		vertical-align: baseline;
 	}
 	.settings-panel-color-value {
 		border: none;
-		width: 80%;
 		font-family: inherit;
 		border-radius: 0;
-		margin-left: ${-h/2}em;
 		padding-left: ${h*.75}em;
 	}
 	.settings-panel-color-value:hover,
@@ -420,13 +452,24 @@ function lgg (opts) {
 	.settings-panel-button {
 		text-align: center;
 		border: none;
+		text-transform: uppercase;
+		color: ${tone(.25)};
+		font-weight: 500;
+		background: none;
+		width: auto;
+		padding: ${h/3}em ${h/3}em;
+		min-width: ${h*3}em;
+		margin-top: -${h/4}em;
+		margin-bottom: -${h/4}em;
 	}
 	.settings-panel-button:focus {
 		outline: none;
 	}
 	.settings-panel-button:hover {
+		background: ${alpha(tone(.25), .08)};
 	}
 	.settings-panel-button:active {
+		background: ${alpha(tone(.25), .333)};
 	}
 
 
@@ -440,34 +483,75 @@ function lgg (opts) {
 		position: relative;
 		display: inline-block;
 		margin: 0;
+		margin-right: ${h*.75}em;
 		z-index: 2;
 		text-align: center;
-		text-transform: uppercase;
-		padding: 0 ${h/4}em;
+		padding: 0 0;
+		color: ${tone(.5)};
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
-		color: ${tone(1)};
+		color: ${active};
 	}
 	.settings-panel-switch-input + .settings-panel-switch-label:hover {
+	}
+	.settings-panel-switch-label:hover {
+		color: ${tone(.15)};
+	}
+	.settings-panel-switch-label:active {
+		color: ${tone(.15)};
+	}
+	.settings-panel-switch-label:after {
+		content: '';
+		z-index: 1;
+		position: absolute;
+		width: ${h*2}em;
+		height: ${h*2}em;
+		min-width: 100%;
+		min-height: 100%;
+		background: ${tone(.25)};
+		border-radius: ${h}em;
+		top: 50%;
+		left: 50%;
+		margin-left: -${h}em;
+		margin-top: -${h}em;
+		opacity: 0;
+		transform-origin: center center;
+		transform: scale(.5, .5);
+		transition: .1s ease-out;
+	}
+	.settings-panel-switch-label:active:after {
+		transform: scale(1, 1);
+		opacity: .08;
+	}
+	.settings-panel-checkbox:checked + .settings-panel-switch-label:after {
+		background: ${active};
 	}
 
 	/** Decorations */
 	::-webkit-input-placeholder {
+		color: ${tone(.65)};
 	}
 	::-moz-placeholder {
+		color: ${tone(.65)};
 	}
 	:-ms-input-placeholder {
+		color: ${tone(.65)};
 	}
 	:-moz-placeholder {
+		color: ${tone(.65)};
 	}
 	::-moz-selection {
+		background: ${active};
+		color: ${white};
 	}
 	::selection {
+		background: ${active};
+		color: ${white};
 	}
 	:host hr {
 		opacity: 1;
-		border-bottom: 1px solid ${tone(0)};
-		margin: ${h/2}em 0;
+		border-bottom: 1px solid ${tone(.85)};
+		margin: ${h/2}em -${h*.75}em;
 	}
 	:host a {
 	}

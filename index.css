@@ -178,6 +178,10 @@
 .settings-panel-checkbox-label {
 	display: inline-block;
 	vertical-align: baseline;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	line-height: 1.2;
 	margin-right: 1em;
 }
@@ -200,12 +204,13 @@
 }
 .Scp {
 	-webkit-user-select: none;
-		 -moz-user-select: none;
-			-ms-user-select: none;
-					user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	position: absolute;
 	z-index: 10;
 	cursor: pointer;
+	bottom: -120px;
 }
 .Scp-saturation {
 	position: relative;
