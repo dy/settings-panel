@@ -21,7 +21,8 @@ flat.labelWidth = '33.3%';
 flat.inputHeight = 2;
 
 fonts.add({
-	'Roboto': [400, 500]
+	'Roboto': 500,
+	'Material Icons': 400
 });
 
 
@@ -387,10 +388,13 @@ function flat (opts) {
 		/* margin-bottom: ${h/2}em; */
 	}
 	.settings-panel-checkbox-label:before {
-		content: '✓';
+		/*content: '✓';*/
+		font-family: "Material Icons";
+		content: '';
 		font-weight: bolder;
 		color: ${alpha(white, 0)};
-		display: inline-block;
+		display: block;
+		float: left;
 		width: ${h*.5}em;
 		height: ${h*.5}em;
 		border-radius: .5px;
@@ -399,6 +403,7 @@ function flat (opts) {
 		margin-left: 2px;
 		box-shadow: 0 0 0 2px ${tone(.6)};
 		line-height: ${h/2}em;
+		margin-top: 1px;
 		text-align: center;
 	}
 	.settings-panel-checkbox-label:hover:before {
