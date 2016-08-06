@@ -56,6 +56,8 @@ function flat (opts) {
 		color: ${black};
 		font-family: ${font};
 		font-weight: 500;
+		-webkit-text-size-adjust: 100%;
+		-webkit-font-smoothing: antialiased;
 	}
 
 	.settings-panel-title {
@@ -112,8 +114,11 @@ function flat (opts) {
 		background: none;
 		color: ${tone(.55)};
 		border: 0;
-		width: calc(80% - ${h/2}em);
-		margin-right: ${h/2}em;
+		width: calc(80% - ${h/4}em);
+		margin-right: ${h/4}em;
+	}
+	.settings-panel-range + .settings-panel-value {
+		width: 20%;
 	}
 	.settings-panel-field--range:hover .settings-panel-range,
 	.settings-panel-range:focus {
@@ -275,6 +280,7 @@ function flat (opts) {
 	}
 	.settings-panel-field--interval:hover .settings-panel-value {
 		color: ${black};
+		font-weight: 500;
 	}
 	.settings-panel-interval-handle:after,
 	.settings-panel-interval-handle:before {
@@ -306,7 +312,8 @@ function flat (opts) {
 
 	/** Values */
 	.settings-panel-value {
-		color: ${tone(.5)};
+		color: ${tone(.6)};
+		font-weight: 500;
 	}
 	.settings-panel-value:first-child {
 		margin-left: 0;
@@ -374,7 +381,7 @@ function flat (opts) {
 	}
 	.settings-panel-checkbox-label {
 		display: inline-block;
-		color: ${tone(.5)};
+		color: ${tone(.55)};
 		position: relative;
 		margin-right: ${h}em;
 		/* margin-bottom: ${h/2}em; */
@@ -389,7 +396,8 @@ function flat (opts) {
 		border-radius: .5px;
 		position: relative;
 		margin-right: ${h/3}em;
-		box-shadow: 0 0 0 2px ${tone(.55)};
+		margin-left: 2px;
+		box-shadow: 0 0 0 2px ${tone(.6)};
 		line-height: ${h/2}em;
 		text-align: center;
 	}
@@ -415,6 +423,7 @@ function flat (opts) {
 		top: -${h*.45}em;
 		left: -${h*.5}em;
 		opacity: 0;
+		margin-left: 2px;
 		transform-origin: center center;
 		transform: scale(.5, .5);
 		transition: .1s ease-out;
@@ -486,7 +495,7 @@ function flat (opts) {
 		z-index: 2;
 		text-align: center;
 		padding: 0 0;
-		color: ${tone(.5 *.5+.5)};
+		color: ${tone(.55)};
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
 		color: ${active};

@@ -141,7 +141,9 @@ Range.prototype.update = function (opts) {
 		input: (v) => {
 			input.value = scaleValueInverse(v)
 			// value.value = v
-			this.emit('input', v)
+			this.emit('input', v);
+			input.setAttribute('data-value', v.toFixed(0))
+			input.style.setProperty('--value', v + '%');
 		}
 	})
 

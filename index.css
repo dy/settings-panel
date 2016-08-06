@@ -202,7 +202,7 @@
 	height: 2em;
 	padding: 0 0 0 2.5em;
 }
-.Scp {
+.settings-panel .Scp {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -212,19 +212,19 @@
 	cursor: pointer;
 	bottom: -120px;
 }
-.Scp-saturation {
+.settings-panel .Scp-saturation {
 	position: relative;
 	width: calc(100% - 25px);
 	height: 100%;
 	background: linear-gradient(to right, #fff 0%, #f00 100%);
 	float: left;
 }
-.Scp-brightness {
+.settings-panel .Scp-brightness {
 	width: 100%;
 	height: 100%;
 	background: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);
 }
-.Scp-sbSelector {
+.settings-panel .Scp-sbSelector {
 	border: 1px solid;
 	position: absolute;
 	width: 14px;
@@ -236,14 +236,14 @@
 	box-sizing: border-box;
 	z-index: 10;
 }
-.Scp-hue {
+.settings-panel .Scp-hue {
 	width: 20px;
 	height: 100%;
 	position: relative;
 	float: left;
 	background: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);
 }
-.Scp-hSelector {
+.settings-panel .Scp-hSelector {
 	position: absolute;
 	background: #fff;
 	border-bottom: 1px solid #000;

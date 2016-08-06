@@ -78,7 +78,6 @@ insertCSS(`
 const themes = {
 	none: require('./theme/none'),
 	// lucy: require('./theme/lucy'),
-	// typer: require('./theme/typer'),
 	control: require('./theme/control'),
 	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
@@ -127,7 +126,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.flat
+	theme: themes.typer
 });
 
 panel.on('input', function (name, value, data) {
@@ -273,7 +272,8 @@ var settings = createPanel([
 				//create picker for each color
 				let picker = new Picker({
 					el: item,
-					color: color
+					color: color,
+					height: 162
 				});
 				picker.$el.style.display = 'none';
 				item.onmouseout = (e) => {
