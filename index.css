@@ -150,6 +150,7 @@
 }
 .settings-panel-textarea {
 	width: 100%;
+	display: block;
 	vertical-align: top; /* allowable as we use autoheight */
 	min-height: 2em;
 }

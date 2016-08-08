@@ -83,6 +83,7 @@ function none (opts) {
 		}
 		.settings-panel-input,
 		.settings-panel-switch,
+		.settings-panel-select,
 		.settings-panel-checkbox-group,
 		.settings-panel-switch-label {
 			line-height: ${h}em;

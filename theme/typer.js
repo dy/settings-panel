@@ -582,7 +582,7 @@ function typer (opts) {
 		float: left;
 		width: 2em;
 		margin-right: -2em;
-		margin-top: -.15em;
+		margin-top: -${h*.12}em;
 		opacity: 0;
 		z-index: 1;
 		position: relative;
@@ -593,7 +593,7 @@ function typer (opts) {
 		content: '';
 		display: block;
 		float: left;
-		margin-top: 0;
+		margin-top: -${h*.05}em;
 		width: ${h*.666}em;
 		height: ${h*.666}em;
 		border-radius: 3px;

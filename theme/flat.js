@@ -13,6 +13,7 @@ const none = require('./none');
 module.exports = flat;
 
 //uses reflective scheme
+flat.palette = ['black', '#fff'];
 flat.palette = ['#f95759', '#272727', '#fff'];
 
 flat.fontSize = '14px';
@@ -74,7 +75,7 @@ function flat (opts) {
 	}
 
 	.settings-panel-label {
-		color: ${tone(.55 *.5+.5)};
+		color: ${tone(.75)};
 		font-weight: 500;
 	}
 
@@ -93,7 +94,7 @@ function flat (opts) {
 		font-weight: 500;
 		background: ${white};
 		color: ${active};
-		box-shadow: 0 1px ${tone(.85 *.5+.5)};
+		box-shadow: 0 1px ${tone(.925)};
 	}
 	.settings-panel-text:hover,
 	.settings-panel-color-value:hover,
@@ -114,13 +115,14 @@ function flat (opts) {
 		-moz-appearance: none;
 		appearance: none;
 		background: none;
-		color: ${tone(.55)};
+		color: ${tone(.5)};
 		border: 0;
-		width: calc(80% - ${h/4}em);
+		width: 85%;
 		margin-right: ${h/4}em;
 	}
 	.settings-panel-range + .settings-panel-value {
-		width: 20%;
+		width: calc(15% - ${h/4}em);
+		padding-left: 0;
 	}
 	.settings-panel-field--range:hover .settings-panel-range,
 	.settings-panel-range:focus {
@@ -314,7 +316,7 @@ function flat (opts) {
 
 	/** Values */
 	.settings-panel-value {
-		color: ${tone(.6)};
+		color: ${tone(.5)};
 		font-weight: 500;
 	}
 	.settings-panel-value:first-child {
@@ -342,7 +344,7 @@ function flat (opts) {
 		color: ${active};
 		background: ${white};
 		line-height: ${h}em;
-		box-shadow: 0 1px ${tone(.85 *.5+.5)};
+		box-shadow: 0 1px ${tone(.925)};
 		width: auto;
 	}
 	.settings-panel-select:hover,
@@ -384,7 +386,7 @@ function flat (opts) {
 	}
 	.settings-panel-checkbox-label {
 		display: inline-block;
-		color: ${tone(.55)};
+		color: ${tone(.5)};
 		position: relative;
 		margin-right: ${h}em;
 		/* margin-bottom: ${h/2}em; */
@@ -468,7 +470,7 @@ function flat (opts) {
 		text-align: center;
 		border: none;
 		text-transform: uppercase;
-		color: ${tone(.55)};
+		color: ${tone(.5)};
 		font-weight: 500;
 		background: none;
 		width: auto;
@@ -481,10 +483,10 @@ function flat (opts) {
 		outline: none;
 	}
 	.settings-panel-button:hover {
-		background: ${alpha(tone(.55), .08)};
+		background: ${alpha(tone(.5), .08)};
 	}
 	.settings-panel-button:active {
-		background: ${alpha(tone(.55), .333)};
+		background: ${alpha(tone(.5), .333)};
 	}
 
 
@@ -502,7 +504,7 @@ function flat (opts) {
 		z-index: 2;
 		text-align: center;
 		padding: 0 0;
-		color: ${tone(.55)};
+		color: ${tone(.5)};
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
 		color: ${active};
@@ -510,10 +512,10 @@ function flat (opts) {
 	.settings-panel-switch-input + .settings-panel-switch-label:hover {
 	}
 	.settings-panel-switch-label:hover {
-		color: ${tone(.15 *.5+.5)};
+		color: ${tone(.5)};
 	}
 	.settings-panel-switch-label:active {
-		color: ${tone(.15 *.5+.5)};
+		color: ${tone(.5)};
 	}
 	.settings-panel-switch-label:after {
 		content: '';
@@ -544,16 +546,16 @@ function flat (opts) {
 
 	/** Decorations */
 	::-webkit-input-placeholder {
-		color: ${tone(.65 *.5+.5)};
+		color: ${alpha(active, .5)};
 	}
 	::-moz-placeholder {
-		color: ${tone(.65 *.5+.5)};
+		color: ${alpha(active, .5)};
 	}
 	:-ms-input-placeholder {
-		color: ${tone(.65 *.5+.5)};
+		color: ${alpha(active, .5)};
 	}
 	:-moz-placeholder {
-		color: ${tone(.65 *.5+.5)};
+		color: ${alpha(active, .5)};
 	}
 	::-moz-selection {
 		background: ${active};
@@ -565,7 +567,7 @@ function flat (opts) {
 	}
 	:host hr {
 		opacity: 1;
-		border-bottom: 1px solid ${tone(.85 *.5+.5)};
+		border-bottom: 1px solid ${tone(.925)};
 		margin: ${h/2}em -${h*.75}em;
 	}
 	:host a {

@@ -228,6 +228,7 @@ function control (opts) {
 		line-height: ${h*.85}em;
 		background: ${light};
 		margin-right: ${h*.25}em;
+		margin-bottom: ${h*.15}em;
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
 		background: ${gray};
@@ -235,6 +236,9 @@ function control (opts) {
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:hover:before {
 		background: ${dark};
+	}
+	.settings-panel-checkbox-label:last-child:before {
+		margin-bottom: ${h*.1}em;
 	}
 
 
