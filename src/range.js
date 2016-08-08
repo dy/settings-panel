@@ -101,15 +101,6 @@ Range.prototype.update = function (opts) {
 	var initialStep = Math.round((opts.value - opts.min) / opts.step)
 	opts.value = opts.min + opts.step * initialStep
 
-	// Set value on the input itself:
-	input.min = opts.min
-	input.max = opts.max
-	input.step = opts.step
-	input.value = opts.value
-	let v = 100 * (opts.value - opts.min) / (opts.max - opts.min);
-	input.setAttribute('data-value', v.toFixed(0))
-	input.style.setProperty('--value', v + '%');
-
 	//preser container data for display
 	opts.container.setAttribute('data-min', opts.min);
 	opts.container.setAttribute('data-max', opts.max);
@@ -142,10 +133,21 @@ Range.prototype.update = function (opts) {
 			input.value = scaleValueInverse(v)
 			// value.value = v
 			this.emit('input', v);
-			input.setAttribute('data-value', v.toFixed(0))
-			input.style.setProperty('--value', v + '%');
+			input.setAttribute('value', v.toFixed(0))
+			opts.container.style.setProperty('--value', v + '%');
+			opts.container.style.setProperty('--coef', v/100);
 		}
-	})
+	});
+
+	// Set value on the input itself:
+	input.min = opts.min
+	input.max = opts.max
+	input.step = opts.step
+	input.value = opts.value
+	let v = 100 * (opts.value - opts.min) / (opts.max - opts.min);
+	input.setAttribute('value', v.toFixed(0))
+	opts.container.style.setProperty('--value', v + '%');
+	opts.container.style.setProperty('--coef', v/100);
 
 	setTimeout(() => {
 		this.emit('init', parseFloat(input.value))
@@ -155,8 +157,9 @@ Range.prototype.update = function (opts) {
 		var scaledValue = scaleValue(parseFloat(data.target.value));
 		value.value = scaledValue.toFixed(prec);
 		let v = 100 * (data.target.value - opts.min) / (opts.max - opts.min);
-		input.setAttribute('data-value', v.toFixed(0));
-		input.style.setProperty('--value', v + '%');
+		input.setAttribute('value', v.toFixed(0));
+		opts.container.style.setProperty('--value', v + '%');
+		opts.container.style.setProperty('--coef', v/100);
 		this.emit('input', scaledValue);
 	}
 

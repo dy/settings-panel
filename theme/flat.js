@@ -196,7 +196,7 @@ function flat (opts) {
 		box-shadow: 0 0 0 0;
 		transform: scale(1.2, 1.2);
 	}
-	.settings-panel-range[data-value="0"]::-webkit-slider-thumb {
+	.settings-panel-range[value="0"]::-webkit-slider-thumb {
 		background: ${white};
 		box-shadow: inset 0 0 0 1.5px ${active};
 	}
@@ -220,7 +220,7 @@ function flat (opts) {
 		box-shadow: 0 0 0 0;
 		transform: scale(1.2, 1.2);
 	}
-	.settings-panel-range[data-value="0"]::-moz-range-thumb {
+	.settings-panel-range[value="0"]::-moz-range-thumb {
 		background: ${white};
 		box-shadow: inset 0 0 0 1.5px ${active};
 	}
@@ -242,7 +242,7 @@ function flat (opts) {
 		box-shadow: 0 0 0 0;
 		transform: scale(1.2, 1.2);
 	}
-	.settings-panel-range[data-value="0"]::-ms-thumb {
+	.settings-panel-range[value="0"]::-ms-thumb {
 		background: ${white};
 		box-shadow: inset 0 0 0 1.5px ${active};
 	}
@@ -340,6 +340,7 @@ function flat (opts) {
 		margin-right: -1em;
 		color: ${active};
 		background: ${white};
+		line-height: ${h}em;
 		box-shadow: 0 1px ${tone(.85 *.5+.5)};
 		width: auto;
 	}

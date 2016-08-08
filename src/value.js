@@ -28,7 +28,11 @@ module.exports = function (opts) {
   if (opts.id) value.id = opts.id;
   value.className = 'settings-panel-value';
   if (opts.className) value.className += ' ' + opts.className;
-  opts.container.appendChild(value)
+  opts.container.appendChild(value);
+
+  //add tip holder after value
+  let tip = opts.container.appendChild(document.createElement('div'));
+  tip.className = 'settings-panel-value-tip';
 
   return value
 }

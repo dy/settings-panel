@@ -1,3 +1,14 @@
+# Q: what are good theme principles?
+* It should look good in bw and inverse bw
+	→ don’t do bg gray, gray is property of palette, not the step. bg should allow for accents, but be on the edge, like .8, .9 etc.
+	? how do we do lighting? b/w or edge palette colors?
+* It should be able to reach maximum contrast in bw mode
+	→
+* Bg, active color should be easily changeable
+	→ therefore bg and active are the opposites
+* It should respond to interactions: hover, focus, active etc., by highlighting active element.
+* It should be able to change scale gracefully, i. e. keeping select size, thumbnails, etc consistent.
+
 # Q: what is the minimal and easiest way to cover all the use-cases?
 * 1. Redefine properties on per-component basis, like label-position, field-style, item-style etc.
 * 2. type=group or type=row

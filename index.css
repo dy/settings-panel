@@ -9,7 +9,7 @@
 	box-sizing: border-box;
 	font-family: sans-serif;
 	font-size: 1rem;
-	width: 36em;
+	width: 32em;
 	max-width: 100%;
 	padding: 1em;
 }
@@ -340,6 +340,9 @@
 .settings-panel-value:focus {
 	outline: 0;
 	box-shadow: 0;
+}
+.settings-panel-value-tip {
+	display: none;
 }
 
 .settings-panel-switch {

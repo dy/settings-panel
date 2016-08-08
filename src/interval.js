@@ -117,6 +117,7 @@ Range.prototype.update = function (opts) {
 		left: true,
 		disabled: opts.disabled,
 		id: opts.id,
+		className: 'settings-panel-interval-value settings-panel-interval-value--left',
 		input: v => {
 			//TODO
 		}
@@ -143,6 +144,7 @@ Range.prototype.update = function (opts) {
 		disabled: opts.disabled,
 		value: scaleValue(opts.value[1]).toFixed(prec),
 		type: 'text',
+		className: 'settings-panel-interval-value settings-panel-interval-value--right',
 		input: v => {
 			//TODO
 		}
@@ -154,7 +156,11 @@ Range.prototype.update = function (opts) {
 		css(handle, {
 			left:  left + '%',
 			width: (100 - left - right) + '%'
-		})
+		});
+		opts.container.style.setProperty('--low', left + '%');
+		opts.container.style.setProperty('--high', 100 - right + '%');
+		lValue.style.setProperty('--value', left + '%');
+		rValue.style.setProperty('--value', 100 - right + '%');
 	}
 
 	// Initialize CSS:

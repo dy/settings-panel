@@ -121,14 +121,14 @@ function none (opts) {
 			pointer-events: none;
 		}
 		.settings-panel-select-triangle--up {
-			top: 50%;
-			margin-top: -${h/4 + h/16}em;
+			top: ${h/2}em;
+			margin-top: -${h/4 + h/24}em;
 			border-bottom: ${h/4}em solid;
 			border-top: 0px transparent;
 		}
 		.settings-panel-select-triangle--down {
-			top: 50%;
-			margin-top: ${h/16}em;
+			top: ${h/2}em;
+			margin-top: ${h/24}em;
 			border-top: ${h/4}em solid;
 			border-bottom: .0 transparent;
 		}
