@@ -67,7 +67,8 @@ function flat (opts) {
 		font-weight: 500;
 		text-align: left;
 		font-size: 1.5em;
-		margin: ${h/6}em ${h/12}em ${h/6}em;
+		margin: ${h*1/8}em ${h/12}em ${h*3/8}em;
+		min-height: ${h/1.5}em;
 		padding: 0;
 		color: ${tone(.5)};
 	}

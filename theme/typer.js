@@ -124,9 +124,11 @@ function typer (opts) {
 
 		.settings-panel-title {
 			font-size: 1.5em;
+			margin: ${h*1/8}em ${h/12}em ${h*3/8}em;
+			min-height: ${h/1.5}em;
 			text-align: left;
 			font-weight: 400;
-			padding-bottom: ${h/2}em;
+			padding: 0;
 		}
 
 		.settings-panel-field:hover .settings-panel-label {
