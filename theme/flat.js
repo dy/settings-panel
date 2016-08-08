@@ -69,7 +69,7 @@ function flat (opts) {
 	}
 
 	.settings-panel-label {
-		color: ${tone(.75)};
+		color: ${tone(.7)};
 		font-weight: 500;
 	}
 
@@ -88,7 +88,7 @@ function flat (opts) {
 		font-weight: 500;
 		background: ${white};
 		color: ${active};
-		box-shadow: 0 1px ${tone(.925)};
+		box-shadow: 0 1px ${alpha(tone(.7), .25)};
 	}
 	.settings-panel-text:hover,
 	.settings-panel-color-value:hover,
@@ -338,7 +338,7 @@ function flat (opts) {
 		color: ${active};
 		background: ${white};
 		line-height: ${h}em;
-		box-shadow: 0 1px ${tone(.925)};
+		box-shadow: 0 1px ${alpha(tone(.7), .25)};
 		width: auto;
 	}
 	.settings-panel-select:hover,
@@ -399,7 +399,7 @@ function flat (opts) {
 		position: relative;
 		margin-right: ${h/3}em;
 		margin-left: 2px;
-		box-shadow: 0 0 0 2px ${tone(.6)};
+		box-shadow: 0 0 0 2px ${alpha(tone(.5), .9)};
 		line-height: ${h/2}em;
 		margin-top: 1px;
 		text-align: center;
@@ -561,7 +561,7 @@ function flat (opts) {
 	}
 	:host hr {
 		opacity: 1;
-		border-bottom: 1px solid ${tone(.925)};
+		border-bottom: 1px solid ${alpha(tone(.7), .25)};
 		margin: ${h/2}em -${h*.75}em;
 	}
 	:host a {
