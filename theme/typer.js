@@ -19,6 +19,7 @@ module.exports = typer;
 // typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
 typer.palette = ['#111', '#eee'];
 // typer.palette = ['black', 'white'];
+// typer.palette = ['#f95759', '#272727', '#fff'];
 
 typer.fontSize = 12;
 typer.fontFamily = '"Montserrat", sans-serif';
@@ -130,7 +131,7 @@ function typer (opts) {
 
 		.settings-panel-title {
 			font-weight: 400;
-			${text(active, bg)};
+			${text(.25, bg)};
 		}
 
 		.settings-panel-label {
@@ -256,7 +257,7 @@ function typer (opts) {
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		${pop(active + .05, -.05)};
+		${pop(active, -.05)};
 		height: ${h*.8}em;
 		width: ${h*.8}em;
 		border-radius: ${h*.8}em;
