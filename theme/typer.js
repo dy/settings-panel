@@ -27,7 +27,7 @@ typer.inputHeight = 2;
 
 //color balance
 typer.bg = .95;
-typer.active = .05;
+typer.active = .08;
 
 fonts.add({
 	'Montserrat': [400, 600]
@@ -129,6 +129,11 @@ function typer (opts) {
 			text-align: left;
 			font-weight: 400;
 			padding: 0;
+			${text(active, bg)};
+		}
+
+		.settings-panel-label {
+			${text(.5, bg)};
 		}
 
 		.settings-panel-field:hover .settings-panel-label {
@@ -250,7 +255,7 @@ function typer (opts) {
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		${pop(active, -.05)};
+		${pop(active + .05, -.05)};
 		height: ${h*.8}em;
 		width: ${h*.8}em;
 		border-radius: ${h*.8}em;
@@ -471,9 +476,9 @@ function typer (opts) {
 		${pop(bg * .9, .07)};
 		color: ${tone(.25)};
 	}
+	.settings-panel-select:hover,
 	.settings-panel-select:active,
-	.settings-panel-select:focus,
-	.settings-panel-select:hover {
+	.settings-panel-select:focus {
 		${pop(bg * .9 + (inversed ? -.07 : .07), .07)};
 	}
 	.settings-panel-select::-ms-expand {
@@ -518,7 +523,7 @@ function typer (opts) {
 		width: 100%;
 		border-radius: 3px;
 		padding-left: .4em;
-		${push(bg * .9)};
+		${push(bg*.93)};
 		color: ${tone(.25)};
 		text-shadow: none;
 	}
@@ -530,7 +535,7 @@ function typer (opts) {
 	.settings-panel-textarea:hover,
 	.settings-panel-text:focus,
 	.settings-panel-textarea:focus {
-		background: ${tone(bg*.95 + ( inversed ? -.07 : .07 ))};
+		${push(bg * .93 - .04)};
 		color: ${tone(active)};
 		outline: none;
 	}
@@ -551,14 +556,14 @@ function typer (opts) {
 		font-family: inherit;
 		border-top-right-radius: 3px;
 		border-bottom-right-radius: 3px;
-		${push(bg * .9)};
+		${push(bg*.93)};
 		color: ${tone(.25)};
 		text-shadow: none;
 	}
 	.settings-panel-color-value:hover,
 	.settings-panel-color-value:focus {
 		outline: none;
-		background: ${tone(bg*.95 + ( inversed ? -.07 : .07 ))};
+		${push(bg * .93 - .04)};
 		color: ${tone(active)};
 	}
 
@@ -577,7 +582,7 @@ function typer (opts) {
 		font-family: "Material Icons";
 		content: '';
 		font-weight: bolder;
-		font-size: 1.5em;
+		font-size: ${h*.75}em;
 		display: block;
 		float: left;
 		width: 2em;

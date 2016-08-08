@@ -93,7 +93,7 @@ document.body.appendChild(frame);
 
 var panel = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
-	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
+	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 80, help: 'Default slider'},
 	// {type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
 	// {type: 'range', scale: 'log', label: 'Range log', min: 0.01, max: 100, value: 1},
 	// {type: 'range', scale: 'log', label: 'Stepped log', min: 0.01, max: 100, steps: 10, value: 1},
@@ -126,7 +126,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.flat
+	theme: themes.typer
 });
 
 panel.on('input', function (name, value, data) {
