@@ -20,10 +20,11 @@ module.exports = typer;
 typer.palette = ['#111', '#eee'];
 // typer.palette = ['black', 'white'];
 
-typer.fontSize = '12px';
+typer.fontSize = 12;
 typer.fontFamily = '"Montserrat", sans-serif';
 typer.labelWidth = '9em';
 typer.inputHeight = 2;
+typer.padding = 1/5;
 
 //color balance
 typer.bg = .95;
@@ -42,7 +43,14 @@ function typer (opts) {
 	let labelWidth = opts.labelWidth || typer.labelWidth;
 	let fontSize = opts.fontSize || typer.fontSize;
 	let font = opts.fontFamily || typer.fontFamily;
+	let radius = opts.radius || typer.radius;
+	let padding = opts.padding || typer.padding;
 
+	//background/active tones
+	let bg = opts.bg || typer.bg;
+	let active = opts.active || typer.active;
+
+	//palette
 	let palette = (opts.palette || typer.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
 
@@ -54,11 +62,6 @@ function typer (opts) {
 	let light = color.mix('white', nPalette[nPalette.length - 1], 25).toString();
 	let shadow = color.mix('black', nPalette[0], 25).toString();
 
-	//background/active tones
-	let bg = typer.bg;
-	let active = typer.active;
-
-	let radius = typer.radius;
 
 	//helpers
 	function tone (amt) {
@@ -116,22 +119,17 @@ function typer (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: [tone(active), tone(bg)]
+		palette: [tone(active), tone(bg)],
+		padding: padding
 	}) + `
 		:host {
 			${text(.25, bg)};
 			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 4px 14px -3px ${shadow};
 			border-radius: ${radius*2}px;
-			padding: ${h/2}em;
 		}
 
 		.settings-panel-title {
-			font-size: 1.5em;
-			margin: ${h*1/8}em ${h/12}em ${h*3/8}em;
-			min-height: ${h/1.5}em;
-			text-align: left;
 			font-weight: 400;
-			padding: 0;
 			${text(active, bg)};
 		}
 

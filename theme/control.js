@@ -18,6 +18,7 @@ control.fontSize = '12px';
 control.fontFamily = '"Space Mono", monospace';
 control.labelWidth = '33.3%';
 control.inputHeight = 1.66666;
+control.padding = 1/8;
 
 fonts.add({
 	'Space Mono': true
@@ -29,7 +30,8 @@ function control (opts) {
 	let fs = opts.fontSize || control.fontSize;
 	let font = opts.fontFamily || control.fontFamily;
 	let h = opts.inputHeight || control.inputHeight;
-	let labelWidth = opts.labelWidth || none.labelWidth;
+	let labelWidth = opts.labelWidth || control.labelWidth;
+	let padding = opts.padding || control.padding;
 
 	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
@@ -53,6 +55,7 @@ function control (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
+		padding: padding
 	}) + `
 	:host {
 		background: ${white};
@@ -66,6 +69,7 @@ function control (opts) {
 		font-size: 1.25em;
 		letter-spacing: .15ex;
 		padding-bottom: ${h/2}em;
+		text-align: center;
 	}
 
 	/** Text */

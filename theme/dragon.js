@@ -21,6 +21,7 @@ dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
 dragon.inputHeight = 2;
+dragon.padding = 1/4;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -29,6 +30,7 @@ function dragon (opts) {
 	let labelWidth = opts.labelWidth || dragon.labelWidth;
 	let fontSize = opts.fontSize || dragon.fontSize;
 	let font = opts.fontFamily || dragon.fontFamily;
+	let padding = opts.padding || dragon.padding;
 
 	let palette = (opts.palette || dragon.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
@@ -45,7 +47,8 @@ function dragon (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: [white, black]
+		palette: [white, black],
+		padding: padding
 	}) + `
 	:host {
 		color: ${light};
@@ -57,12 +60,9 @@ function dragon (opts) {
 
 	.settings-panel-title {
 		text-transform: none;
-		font-size: 1.333em;
 		font-weight: bold;
 		letter-spacing: .05ex;
-		min-height: ${h}em;
 		color: ${white};
-		padding: ${h/3}em ${h/8}em ${h/2}em;
 	}
 
 	/** Select style */

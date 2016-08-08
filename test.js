@@ -93,14 +93,14 @@ document.body.appendChild(frame);
 
 var panel = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
-	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 80, help: 'Default slider'},
+	{type: 'range', label: 'Range', min: 0, max: 100, value: 80, help: 'Default slider'},
 	// {type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
 	// {type: 'range', scale: 'log', label: 'Range log', min: 0.01, max: 100, value: 1},
 	// {type: 'range', scale: 'log', label: 'Stepped log', min: 0.01, max: 100, steps: 10, value: 1},
 	// {type: 'range', scale: 'log', label: 'Range -log', min: -0.01, max: -100, value: -1},
 	// {type: 'range', scale: 'log', label: 'Stepped -log', min: -0.01, max: -100, steps: 10, value: -1},
 	// {type: 'raw', content: '<hr/>'},
-	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 7], steps: 20},
+	{type: 'interval', label: 'Interval', min: 0, max: 10, value: [3, 7], steps: 20},
 	// {type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
 	// {type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.3, -1], scale: 'log', steps: 20},
 	// {type: 'checkbox', label: 'Checkbox', value: true},
@@ -111,7 +111,7 @@ var panel = createPanel([
 	}
 	},
 	{type: 'text', label: 'Text', value: 'my setting'},
-	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
+	{type: 'color', label: 'Color', format: 'rgb', value: 'rgb(100,200,100)'},
 	// {type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
 	{type: 'select', label: 'Select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
 	// {type: 'email', label: 'Email', placeholder: 'email'},
@@ -144,7 +144,8 @@ var settings = createPanel([
 			'font-size': panel.fontSize,
 			'font-family': panel.fontFamily,
 			'label-width': panel.labelWidth,
-			'input-height': panel.inputHeight
+			'input-height': panel.inputHeight,
+			'padding': themes[v].padding
 		});
 		settings.set('palette', panel.theme.palette);
 	}},
@@ -348,6 +349,9 @@ var settings = createPanel([
 	{label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↦', title: 'Label width', id: 'label-width', type: 'text', value: panel.theme.labelWidth, change: (v) => {
 		panel.update({labelWidth: v});
 	}, orientation: 'left', style: 'width: 50%'},
+	{label: 'padding', id: 'padding', type: 'range', min: 0, max: 1, value: 1/5, change: v => {
+		panel.update({padding: v})
+	}},
 	{type: 'raw', content: '<hr/>'},
 	{type: 'button', label: 'Get the code!', input: () => {
 		alert('code');

@@ -7,10 +7,11 @@ const px = require('add-px-to-style');
 module.exports = none;
 
 none.palette = ['white', 'black'];
-none.fontSize = '13px';
+none.fontSize = 13;
 none.fontFamily = 'sans-serif';
 none.labelWidth = '9em';
 none.inputHeight = 2;
+none.padding = 1/5;
 
 function none (opts) {
 	opts = opts || {};
@@ -18,10 +19,12 @@ function none (opts) {
 	let font = opts.fontFamily || none.fontFamily;
 	let h = opts.inputHeight || none.inputHeight;
 	let labelWidth = opts.labelWidth || none.labelWidth;
-
+	let padding = opts.padding || none.padding;
 	let palette = opts.palette || none.palette;
 	let white = palette[0];
 	let black = palette[palette.length - 1];
+
+	if (/[-0-9.]*/.test(fs)) fs = parseFloat(fs);
 
 	//just size part
 	return `
@@ -30,15 +33,21 @@ function none (opts) {
 			color: ${black};
 			font-family: ${font};
 			font-size: ${px('font-size', fs)};
-			padding: ${h*.666}em;
+			padding: ${h*2.5*padding}em;
 		}
 
 		.settings-panel-title {
 			min-height: ${h}em;
+			line-height: 1.5;
+			text-align: left;
+			font-size: ${px('font-size',fs*1.5)};
+			margin: ${h*padding}em ${h * padding / 1.5 }em ${h*padding}em;
+			min-height: ${h/1.5}em;
+			padding: 0;
 		}
 
 		.settings-panel-field {
-			padding: ${h/8}em;
+			padding: ${h * padding}em;
 		}
 
 		:host.settings-panel-orientation-left .settings-panel-label,
@@ -136,6 +145,7 @@ function none (opts) {
 
 		:host hr {
 			opacity: .5;
+
 			color: ${black}
 		}
 	`;

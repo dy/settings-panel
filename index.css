@@ -174,7 +174,7 @@
 	width: 1.2em;
 	height: 1.2em;
 	line-height: 1.2em;
-	margin: 0 .25em 0 0;
+	margin: -.15em .25em 0 0;
 }
 .settings-panel-checkbox-label {
 	display: inline-block;
@@ -376,7 +376,7 @@
 .settings-panel hr {
 	border: none;
 	height: 0;
-	margin: .75em .25em;
+	margin: .5em 0;
 	border-bottom: 1px dotted;
 }
 
