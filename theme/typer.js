@@ -18,11 +18,16 @@ module.exports = typer;
 // typer.palette = ['#4B4E59', '#BCC1C7' ,'#F1F1F3'];
 // typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
 typer.palette = ['#111', '#eee'];
+// typer.palette = ['black', 'white'];
 
 typer.fontSize = '12px';
 typer.fontFamily = '"Montserrat", sans-serif';
 typer.labelWidth = '9em';
 typer.inputHeight = 2;
+
+//color balance
+typer.bg = .95;
+typer.active = .05;
 
 fonts.add({
 	'Montserrat': [400, 600]
@@ -40,22 +45,17 @@ function typer (opts) {
 	let palette = (opts.palette || typer.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
 
-	let white = tone(1);
-	let gray = tone(.5);
-	let dark = tone(.25);
-	let black = tone(0);
-
 	//obtain palette sorted by brightnes
 	let nPalette = palette.slice().sort((a, b) => color(a).getLuminance() - color(b).getLuminance());
 	let npick = lerp(nPalette);
 
 	//the color of light/shadow to mix
-	let light = color.mix('white', nPalette[nPalette.length - 1], 75).toString();
-	let shadow = color.mix('black', nPalette[0], 75).toString();
+	let light = color.mix('white', nPalette[nPalette.length - 1], 25).toString();
+	let shadow = color.mix('black', nPalette[0], 25).toString();
 
 	//background/active tones
-	let bg = 1;
-	let active = 0;
+	let bg = typer.bg;
+	let active = typer.active;
 
 	//helpers
 	function tone (amt) {
@@ -82,17 +82,19 @@ function typer (opts) {
 		return color(c).setAlpha(value).toString();
 	}
 
+	let inversed = color(palette[0]).getLuminance() > color(palette[palette.length - 1]).getLuminance();
+
 
 	let pop = (v = .9, d = .05, t = tone) => `
 		${text(active, v)}
 		background-color: ${t(v)};
 		background-image: linear-gradient(to bottom, ${lighten(v, d, t)}, ${darken(v, d, t)});
-		box-shadow: inset 1px 0px ${alpha(light, .04)}, inset 0px 1px ${alpha(light, .15)}, inset 0px -1px 1px ${alpha(light, .07)}, 0 1px 1px ${alpha(shadow, .5)};
+		box-shadow: inset 1px 0px ${alpha(light, .04)}, inset 0px 1px ${alpha(light, .15)}, inset 0px -1px 1px ${alpha(light, .07)}, 0 1px 1px ${alpha(shadow, .35)};
 	`;
 	let push = (v = .1, d = .05, t = tone) => `
 		background: ${t(v)};
 		/*background-image: linear-gradient(to bottom, ${darken(v, d, t)}, ${lighten(v, d, t)});*/
-		box-shadow: inset 0 1px 2px ${alpha(shadow, .15)}, 0 1px ${alpha(light, .15)};
+		box-shadow: inset 0 1px 2px ${alpha(shadow, .15)}, 0 1px ${alpha(light, .17)};
 		color: ${t(1 - active)};
 		text-shadow: none;
 	`;
@@ -111,11 +113,11 @@ function typer (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: [light, black]
+		palette: [tone(active), tone(bg)]
 	}) + `
 		:host {
-			box-shadow: 0 2px 6px -1px ${shadow};
-			${text(.2, bg)};
+			${text(.25, bg)};
+			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 4px 14px -3px ${shadow};
 			border-radius: 5px;
 			padding: ${h/2}em;
 		}
@@ -125,6 +127,10 @@ function typer (opts) {
 			text-align: left;
 			font-weight: 400;
 			padding-bottom: ${h/2}em;
+		}
+
+		.settings-panel-field:hover .settings-panel-label {
+			color: ${tone(active)};
 		}
 
 
@@ -159,14 +165,13 @@ function typer (opts) {
 	}
 	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,
 	.settings-panel-range:focus::-webkit-slider-runnable-track {
-		/**background: ${black};*/
 	}
 
 	@supports (--css: variables) {
 		.settings-panel-range {
 			width: 100%;
 			--active: ${tone(active)};
-			--bg: ${tone(bg*.95)};
+			--bg: ${tone(bg*.9)};
 			--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;
 		}
 		.settings-panel-range::-webkit-slider-runnable-track {
@@ -175,13 +180,12 @@ function typer (opts) {
 		.settings-panel-range::-moz-range-track {
 			background: var(--track-background);
 		}
-		.settings-panel-field--range:hover .settings-panel-range,
-		.settings-panel-range:focus {
-			--bg: ${tone(bg*.95)};
-			--active: ${tone(active)};
-		}
 		.settings-panel-field--range .settings-panel-input {
 			margin-right: ${h}em;
+		}
+		.settings-panel-field--range:hover .settings-panel-range,
+		.settings-panel-range:focus {
+			--bg: ${tone(bg*.9 -.07)};
 		}
 		.settings-panel-range-value {
 			display: none;
@@ -226,7 +230,7 @@ function typer (opts) {
 	}
 
 	.settings-panel-range::-webkit-slider-thumb {
-		${pop(bg * .95 - .07, -.07, ntone)};
+		${pop(active, -.05)};
 		height: ${h*.8}em;
 		width: ${h*.8}em;
 		border-radius: ${h*.8}em;
@@ -263,8 +267,12 @@ function typer (opts) {
 		border-radius: .5em;
 		margin-top: auto;
 		margin-bottom: auto;
-		${push(bg*.95, .05)}
-		background: ${tone(bg*.95)};
+		${push(bg*.9, .05)}
+		background: ${tone(bg*.9)};
+	}
+	.settings-panel-field--interval:hover .settings-panel-interval:after,
+	.settings-panel-interval-dragging .settings-panel-interval:after {
+		background: ${tone(bg*.9 -.07)};
 	}
 	.settings-panel-interval-handle {
 		position: absolute;
@@ -284,10 +292,10 @@ function typer (opts) {
 		top: 0;
 		bottom: 0;
 		margin: auto;
-		${pop(bg * .95 - .07, -.07, ntone)};
 		height: ${h*.8}em;
 		width: ${h*.8}em;
 		border-radius: ${h*.8}em;
+		${pop(active, -.05)};
 	}
 	.settings-panel-interval-handle:before {
 		left: -${h*.4}em;
@@ -298,10 +306,7 @@ function typer (opts) {
 	.settings-panel-field--interval:hover .settings-panel-interval-handle:before,
 	.settings-panel-interval-dragging .settings-panel-interval-handle:after,
 	.settings-panel-interval-dragging .settings-panel-interval-handle:before {
-		${pop(bg - .07, -.07, ntone)};
-	}
-
-	.settings-panel-interval-value {
+		${pop(active, -.05)};
 	}
 
 	@supports (--css: variables) {
@@ -370,7 +375,8 @@ function typer (opts) {
 			margin: 0;
 			z-index: 2;
 			text-align: center;
-			${pop(bg * .95 - .07, .07)};
+			${pop(bg * .9, .07)};
+			color: ${tone(.25)};
 		}
 		.settings-panel-switch-input:checked + .settings-panel-switch-label {
 			${push(active, .05)};
@@ -386,30 +392,59 @@ function typer (opts) {
 		}
 
 		.settings-panel-switch-label:hover {
-			${pop(bg - .07, .07)};
+			${pop(bg * .9 + (inversed ? -.07 : .07), .07)};
 		}
 		.settings-panel-switch-label:active {
-			${pop(bg, .07)};
+			${pop(bg * .9 + (inversed ? .07 : -.07), .07)};
 		}
 
-		/** Button */
-		.settings-panel-button {
-			text-align: center;
-			border: none;
-			border-radius: 3px;
-			${pop(bg * .95 - .07, .07)};
-			color: ${tone(active)};
-		}
-		.settings-panel-button:focus {
-			outline: none;
-		}
-		.settings-panel-button:hover {
-			${pop(bg - .07, .07)};
-			color: ${tone(active)};
-		}
-		.settings-panel-button:active {
-			${push(active, .05)};
-		}
+
+	/** Select */
+	.settings-panel-select {
+		border-radius: 3px;
+		padding-left: ${h/4}em;
+		outline: none;
+		border: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		-o-appearance:none;
+		appearance:none;
+		${pop(bg * .9, .07)};
+		color: ${tone(.25)};
+	}
+	.settings-panel-select:active,
+	.settings-panel-select:focus,
+	.settings-panel-select:hover {
+		${pop(bg * .9 + (inversed ? -.07 : .07), .07)};
+	}
+	.settings-panel-select::-ms-expand {
+		display: none;
+	}
+	.settings-panel-select-triangle {
+		color: inherit;
+		display: block;
+		transform: scale(.8);
+	}
+
+
+	/** Button */
+	.settings-panel-button {
+		text-align: center;
+		border: none;
+		border-radius: 3px;
+		${pop(bg * .9, .07)};
+		color: ${tone(.25)};
+	}
+	.settings-panel-button:focus {
+		outline: none;
+	}
+	.settings-panel-button:hover {
+		${pop(bg * .9 + (inversed ? -.07 : .07), .07)};
+		color: ${tone(active)};
+	}
+	.settings-panel-button:active {
+		${push(active, .05)};
+	}
 
 
 	/** Text */
@@ -424,7 +459,7 @@ function typer (opts) {
 		width: 100%;
 		border-radius: 3px;
 		padding-left: .4em;
-		${push(.95)};
+		${push(bg * .9)};
 		color: ${tone(.25)};
 		text-shadow: none;
 	}
@@ -432,41 +467,40 @@ function typer (opts) {
 		padding-top: .35em;
 	}
 
-	.settings-panel-text:focus,
-	.settings-panel-textarea:focus,
 	.settings-panel-text:hover,
-	.settings-panel-textarea:hover {
-		outline: none;
-	}
+	.settings-panel-textarea:hover,
 	.settings-panel-text:focus,
 	.settings-panel-textarea:focus {
-		box-shadow: 0 0 2px 1px ${black};
+		background: ${tone(bg*.95 + ( inversed ? -.07 : .07 ))};
+		color: ${tone(active)};
+		outline: none;
 	}
-
 
 	/** Color */
 	.settings-panel-color {
 		position: relative;
-		width: calc(20% - ${h/4}em);
-		margin-right: ${h/4}em;
+		width: ${h}em;
+		border-top-left-radius: 3px;
+		border-bottom-left-radius: 3px;
 		display: inline-block;
 		vertical-align: baseline;
 	}
 	.settings-panel-color-value {
 		border: none;
 		padding-left: ${h/4}em;
-		width: 80%;
+		width: calc(100% - ${h}em);
 		font-family: inherit;
-		border-radius: 3px;
-		${push(.9, .1)};
+		border-top-right-radius: 3px;
+		border-bottom-right-radius: 3px;
+		${push(bg * .9)};
 		color: ${tone(.25)};
 		text-shadow: none;
 	}
 	.settings-panel-color-value:hover,
 	.settings-panel-color-value:focus {
 		outline: none;
-		color: ${dark};
-		background: ${white};
+		background: ${tone(bg*.95 + ( inversed ? -.07 : .07 ))};
+		color: ${tone(active)};
 	}
 
 
@@ -476,7 +510,7 @@ function typer (opts) {
 	}
 	.settings-panel-checkbox-label {
 		display: inline-block;
-		color: ${tone(.9)};
+		${text(.25, bg)};
 		position: relative;
 		margin-right: ${h}em;
 	}
@@ -493,8 +527,8 @@ function typer (opts) {
 		opacity: 0;
 		z-index: 1;
 		position: relative;
-		color: ${white};
-		text-shadow: 0 1px 2px ${dark};
+		color: ${tone(1)};
+		text-shadow: 0 1px 2px ${alpha(shadow, .5)};
 	}
 	.settings-panel-checkbox-label:after {
 		content: '';
@@ -509,10 +543,13 @@ function typer (opts) {
 		line-height: ${h/2}em;
 		text-align: center;
 		z-index: 0;
-		${push(.35)};
+		${push(bg * .9)};
+	}
+	.settings-panel-checkbox-label:hover {
+		color: ${tone(active)};
 	}
 	.settings-panel-checkbox-label:hover:after {
-
+		${push(bg * .9 -.07, .07)};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
 	}
@@ -520,64 +557,37 @@ function typer (opts) {
 		opacity: 1;
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {
-		${push(.2)};
-	}
-
-
-	/** Select */
-	.settings-panel-select {
-		${pop(.9)};
-		border-radius: 3px;
-		color: ${tone(.1)};
-		padding-left: ${h/4}em;
-		outline: none;
-		border: none;
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		-o-appearance:none;
-		appearance:none;
-	}
-	.settings-panel-select:hover,
-	.settings-panel-select:focus {
-		color: ${dark};
-	}
-	.settings-panel-select::-ms-expand {
-		display: none;
-	}
-	.settings-panel-select-triangle {
-		color: ${dark};
-		display: block;
-		transform: scale(.8);
+		${push(active, .1)};
 	}
 
 
 	/** Decorations */
 	::-webkit-input-placeholder {
-		color: ${tone(.5)};
+		color: ${alpha(tone(.25), .5)};
 	}
 	::-moz-placeholder {
-		color: ${tone(.5)};
+		color: ${alpha(tone(.25), .5)};
 	}
 	:-ms-input-placeholder {
-		color: ${tone(.5)};
+		color: ${alpha(tone(.25), .5)};
 	}
 	:-moz-placeholder {
-		color: ${tone(.5)};
+		color: ${alpha(tone(.25), .5)};
 	}
 	::-moz-selection {
-		background: ${black};
-		color: ${white};
+		background: ${tone(active)};
+		color: ${tone(bg)};
 	}
 	::selection {
-		background: ${black};
-		color: ${white};
+		background: ${tone(active)};
+		color: ${tone(bg)};
 	}
 	:host hr {
 		border: none;
 		height: 3px;
 		border-radius: 3px;
 		margin: ${h*.333}em 0;
-		${push(bg * .95, .05)};
+		${push(bg, .05)};
 	}
 	`;
 };
