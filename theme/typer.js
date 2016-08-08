@@ -28,6 +28,7 @@ typer.inputHeight = 2;
 //color balance
 typer.bg = .95;
 typer.active = .08;
+typer.radius = 2;
 
 fonts.add({
 	'Montserrat': [400, 600]
@@ -56,6 +57,8 @@ function typer (opts) {
 	//background/active tones
 	let bg = typer.bg;
 	let active = typer.active;
+
+	let radius = typer.radius;
 
 	//helpers
 	function tone (amt) {
@@ -118,7 +121,7 @@ function typer (opts) {
 		:host {
 			${text(.25, bg)};
 			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 4px 14px -3px ${shadow};
-			border-radius: 5px;
+			border-radius: ${radius*2}px;
 			padding: ${h/2}em;
 		}
 
@@ -221,7 +224,7 @@ function typer (opts) {
 			color: ${tone(bg)};
 			background: ${tone(active)};
 			box-shadow: 0 1px 5px -1px ${alpha(shadow, .5)};
-			border-radius: 3px;
+			border-radius: ${radius}px;
 			z-index: 3;
 			margin-left: ${-h*.65}em;
 			width: ${h*2}em;
@@ -385,7 +388,7 @@ function typer (opts) {
 			color: ${tone(bg)};
 			background: ${tone(active)};
 			box-shadow: 0 1px 5px -1px ${alpha(shadow, .5)};
-			border-radius: 3px;
+			border-radius: ${radius}px;
 			z-index: 3;
 			margin-left: ${-h}em;
 			width: ${h*2}em;
@@ -447,12 +450,12 @@ function typer (opts) {
 		}
 
 		.settings-panel-switch-input:first-child + .settings-panel-switch-label {
-			border-top-left-radius: 3px;
-			border-bottom-left-radius: 3px;
+			border-top-left-radius: 2px;
+			border-bottom-left-radius: 2px;
 		}
 		.settings-panel-switch-label:last-child {
-			border-top-right-radius: 3px;
-			border-bottom-right-radius: 3px;
+			border-top-right-radius: 2px;
+			border-bottom-right-radius: 2px;
 		}
 
 		.settings-panel-switch-label:hover {
@@ -465,7 +468,7 @@ function typer (opts) {
 
 	/** Select */
 	.settings-panel-select {
-		border-radius: 3px;
+		border-radius: ${radius}px;
 		padding-left: ${h/4}em;
 		outline: none;
 		border: none;
@@ -495,7 +498,7 @@ function typer (opts) {
 	.settings-panel-button {
 		text-align: center;
 		border: none;
-		border-radius: 3px;
+		border-radius: ${radius}px;
 		${pop(bg * .9, .07)};
 		color: ${tone(.25)};
 	}
@@ -521,7 +524,7 @@ function typer (opts) {
 		height: ${h}em;
 		padding: 0;
 		width: 100%;
-		border-radius: 3px;
+		border-radius: ${radius}px;
 		padding-left: .4em;
 		${push(bg*.93)};
 		color: ${tone(.25)};
@@ -548,12 +551,18 @@ function typer (opts) {
 		border-bottom-left-radius: 3px;
 		display: inline-block;
 		vertical-align: baseline;
+		box-shadow: 0 1px ${alpha(light, .2)};
 	}
 	.settings-panel-color-value {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		-o-appearance:none;
 		border: none;
 		padding-left: ${h/4}em;
 		width: calc(100% - ${h}em);
 		font-family: inherit;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
 		border-top-right-radius: 3px;
 		border-bottom-right-radius: 3px;
 		${push(bg*.93)};
@@ -601,7 +610,7 @@ function typer (opts) {
 		margin-top: -${h*.05}em;
 		width: ${h*.666}em;
 		height: ${h*.666}em;
-		border-radius: 3px;
+		border-radius: ${radius}px;
 		position: relative;
 		margin-right: ${h/3}em;
 		line-height: ${h/2}em;
@@ -649,8 +658,8 @@ function typer (opts) {
 	:host hr {
 		border: none;
 		height: 3px;
-		border-radius: 3px;
-		margin: ${h*.333}em 0;
+		border-radius: ${radius}px;
+		margin: ${h/3}em 0;
 		${push(bg, .05)};
 	}
 	`;
