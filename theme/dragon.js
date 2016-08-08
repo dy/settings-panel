@@ -12,16 +12,17 @@ const none = require('./none');
 module.exports = dragon;
 
 fonts.add({
-	'Roboto': 400
+	'Roboto': [400, 600]
 });
 
+dragon.palette = ['black', 'white'];
 dragon.palette = ['#1b1b1b', '#f7f7f7'];
 
 dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
 dragon.inputHeight = 2;
-dragon.padding = 1/4;
+dragon.padding = 1/8;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -36,8 +37,8 @@ function dragon (opts) {
 	let pick = lerp(palette);
 
 	let white = color(pick(1)).toString();
-	let light = color(pick(.6)).toString();
-	let notSoLight = color(pick(.5)).toString();
+	let light = color(pick(.65)).toString();
+	let notSoLight = color(pick(.45)).toString();
 	let gray = color(pick(.13)).toString();
 	let dark = color(pick(.07)).toString();
 	let black = color(pick(0)).toString();
@@ -55,14 +56,18 @@ function dragon (opts) {
 		background: ${alpha(gray, .93)};
 		font-size: ${px('font-size', fontSize)};
 		font-family: ${font};
+		font-weight: 400;
 		padding: ${h*.75}em;
 	}
 
 	.settings-panel-title {
 		text-transform: none;
-		font-weight: bold;
+		font-weight: 600;
 		letter-spacing: .05ex;
 		color: ${white};
+	}
+
+	.settings-panel-label {
 	}
 
 	/** Select style */
@@ -195,7 +200,7 @@ function dragon (opts) {
 		padding: 0 ${h/2}em;
 		margin: 0 2px 2px 0;
 		line-height: ${h*.999}em;
-		color: ${light};
+		color: ${notSoLight};
 		border-radius: ${h}em;
 	}
 	.settings-panel-switch-label:hover {
@@ -219,8 +224,10 @@ function dragon (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
-		margin-top: ${h/8}em;
-		margin-bottom: ${h/8}em;
+		margin-top: ${h/4}em;
+		width: 100%;
+		color: ${notSoLight};
+		margin-bottom: ${h/4}em;
 	}
 	.settings-panel-checkbox-label:empty {
 		margin-left: -${h/4}em;
@@ -228,34 +235,36 @@ function dragon (opts) {
 	.settings-panel-checkbox-label:after {
 		content: 'x';
 		color: transparent;
-		position: relative;
-		display: inline-block;
+		position: absolute;
+		top: -${h*.125}em;
+		right: 0;
 		margin-left: ${h/4}em;
 		margin-top: 0;
 		width: ${h*1.8}em;
-		height: ${h*.9}em;
+		height: ${h*.85}em;
 		line-height: ${h*.9}em;
 		border-radius: ${h}em;
 		margin-bottom: 0;
 		background: ${dark};
 	}
-	.settings-panel-field--checkbox:hover .settings-panel-checkbox-label:after {
+	.settings-panel-checkbox:hover + .settings-panel-checkbox-label:after,
+	.settings-panel-checkbox-label:hover:after {
 		background: ${black};
 	}
 	.settings-panel-checkbox-label:before {
 		content: '';
 		position: absolute;
 		border-radius: ${h}em;
-		width: ${h*.65}em;
-		height: ${h*.65}em;
-		top: ${h*.125}em;
-		right: ${h*1.025}em;
+		width: ${h*.6}em;
+		height: ${h*.6}em;
+		top: 0;
+		right: ${h*1.05}em;
 		background: ${notSoLight};
 		transition: .1s ease-in;
 		z-index: 1;
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {
-		right: ${h*.125}em;
+		transform: translateX(${h*.9}em);
 		background: ${white};
 	}
 
@@ -267,7 +276,7 @@ function dragon (opts) {
 		appearance: none;
 		border: none;
 		outline: none;
-		padding: ${h*.25}em;
+		padding: ${h*.125}em;
 		min-height: ${h}em;
 		line-height: ${h}em;
 		color: ${white};
@@ -508,7 +517,7 @@ function dragon (opts) {
 	:host hr {
 		border: none;
 		height: 0;
-		margin: ${h*.75}em 0;
+		margin: ${h*.5}em 0;
 		opacity: .333;
 		border-bottom: 1px dotted ${notSoLight};
 	}

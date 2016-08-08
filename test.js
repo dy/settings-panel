@@ -103,7 +103,7 @@ var panel = createPanel([
 	{type: 'interval', label: 'Interval', min: 0, max: 10, value: [3, 7], steps: 20},
 	// {type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
 	// {type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.3, -1], scale: 'log', steps: 20},
-	// {type: 'checkbox', label: 'Checkbox', value: true},
+	{type: 'checkbox', label: 'Checkbox', value: true},
 	{type: 'checkbox', label: 'Checkbox group', value: ['b', 'c'], options: {
 		a: 'Option A',
 		b: 'Option B',
@@ -126,7 +126,7 @@ var panel = createPanel([
 	title: 'Preview',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.flat
+	theme: themes.dragon
 });
 
 panel.on('input', function (name, value, data) {

@@ -41,9 +41,9 @@ function none (opts) {
 			line-height: 1.5;
 			text-align: left;
 			font-size: ${px('font-size',fs*1.5)};
-			margin: ${h*padding}em ${h * padding / 1.5 }em ${h*padding}em;
+			padding: ${h*padding}em ${h * padding / 1.5 }em ${h*padding}em;
 			min-height: ${h/1.5}em;
-			padding: 0;
+			margin: 0;
 		}
 
 		.settings-panel-field {

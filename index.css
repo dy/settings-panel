@@ -108,7 +108,6 @@
 }
 
 .settings-panel-title {
-	width: 100%;
 	font-size: 1.6em;
 	line-height: 1.25;
 	margin-top: 0;
@@ -298,19 +297,6 @@
 
 
 
-/** Range style */
-.settings-panel-range {
-	width: 85%;
-	padding: 0;
-	margin: 0px 0;
-	height: 2em;
-	vertical-align: top;
-}
-.settings-panel-range + .settings-panel-value {
-	padding-left: .5em;
-}
-
-
 /** Select style */
 .settings-panel-select {
 	display: inline-block;
@@ -344,6 +330,19 @@
 }
 .settings-panel-value-tip {
 	display: none;
+}
+
+/** Range style */
+.settings-panel-range {
+	width: 85%;
+	padding: 0;
+	margin: 0px 0;
+	height: 2em;
+	vertical-align: top;
+}
+.settings-panel-range + .settings-panel-value {
+	padding-left: .5em;
+	width: 15%;
 }
 
 .settings-panel-switch {

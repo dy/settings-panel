@@ -20,6 +20,7 @@ flat.fontSize = '14px';
 flat.fontFamily = '"Roboto", sans-serif';
 flat.labelWidth = '33.3%';
 flat.inputHeight = 2;
+flat.padding = 1/5;
 
 fonts.add({
 	'Roboto': 500,
@@ -32,7 +33,8 @@ function flat (opts) {
 	let fs = opts.fontSize || flat.fontSize;
 	let font = opts.fontFamily || flat.fontFamily;
 	let h = opts.inputHeight || flat.inputHeight;
-	let labelWidth = opts.labelWidth || none.labelWidth;
+	let labelWidth = opts.labelWidth || flat.labelWidth;
+	let padding = opts.padding || flat.padding;
 
 	let palette = (opts.palette || flat.palette).map(v => color(v).toRgb());
 	let pick = lerp(palette);
@@ -52,6 +54,7 @@ function flat (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
+		padding: padding
 	}) + `
 	:host {
 		background: ${white};
@@ -562,7 +565,9 @@ function flat (opts) {
 	:host hr {
 		opacity: 1;
 		border-bottom: 1px solid ${alpha(tone(.7), .25)};
-		margin: ${h/2}em -${h*.75}em;
+		margin-left: -${h*.75}em;
+		margin-right: -${h*.75}em;
+		margin-top: ${h*.75}em;
 	}
 	:host a {
 	}

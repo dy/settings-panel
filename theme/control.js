@@ -68,7 +68,6 @@ function control (opts) {
 	.settings-panel-title {
 		font-size: 1.25em;
 		letter-spacing: .15ex;
-		padding-bottom: ${h/2}em;
 		text-align: center;
 	}
 
