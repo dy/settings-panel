@@ -163,8 +163,26 @@ function typer (opts) {
 		border-radius: .5em;
 		${push(active, .05)}
 	}
-	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,
-	.settings-panel-range:focus::-webkit-slider-runnable-track {
+	.settings-panel-range::-moz-range-track {
+		height: .5em;
+		border-radius: .5em;
+		${push(active, .05)}
+	}
+	.settings-panel-range::-ms-track {
+		${push(active, .05)}
+		outline: none;
+		color: transparent;
+		border: none;
+		height: .5em;
+		border-radius: .5em;
+	}
+	.settings-panel-range::-ms-fill-lower {
+		border-radius: .5em;
+		${push(active, .05)}
+	}
+	.settings-panel-range::-ms-fill-upper {
+		border-radius: .5em;
+		${push(bg*.9, .05)}
 	}
 
 	@supports (--css: variables) {
@@ -245,10 +263,47 @@ function typer (opts) {
 	.settings-panel-range:focus::-webkit-slider-thumb,
 	.settings-panel-range:hover::-webkit-slider-thumb,
 	.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {
-		${pop(bg - .07, -.07, ntone)};
 	}
 	.settings-panel-range::-webkit-slider-thumb:active {
-		${pop(bg, -.07, ntone)};
+	}
+
+	.settings-panel-range::-moz-range-thumb {
+		${pop(active, -.05)};
+		height: ${h*.8}em;
+		width: ${h*.8}em;
+		border-radius: ${h*.8}em;
+		margin-top: -${h*.4}em;
+		border: 0;
+		position: relative;
+		top: .25em;
+		-moz-appearance: none;
+		appearance: none;
+		z-index: 3;
+	}
+	.settings-panel-range:focus::-moz-range-thumb,
+	.settings-panel-range::-moz-range-thumb:hover,
+	.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {
+	}
+	.settings-panel-range::-moz-range-thumb:active {
+	}
+
+	.settings-panel-range::-ms-thumb {
+		${pop(active, -.05)};
+		height: ${h*.8}em;
+		width: ${h*.8}em;
+		border-radius: ${h*.8}em;
+		border: 0;
+		position: relative;
+		top: .25em;
+		-ms-appearance: none;
+		appearance: none;
+		z-index: 3;
+	}
+	.settings-panel-range:focus::-ms-thumb,
+	.settings-panel-range:hover::-ms-thumb,
+	.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {
+	}
+	.settings-panel-range::-ms-thumb:active {
 	}
 
 
@@ -351,13 +406,15 @@ function typer (opts) {
 		.settings-panel-input:before {
 			border-top: ${h*.3}em solid ${alpha(shadow, .25)};
 		}
-		.settings-panel-field--interval:hover .settings-panel-value-tip,
-		.settings-panel-interval-dragging .settings-panel-value-tip {
-			display: block;
-		}
 		.settings-panel-field--interval:hover .settings-panel-interval-value,
 		.settings-panel-interval-dragging .settings-panel-interval-value {
 			display: block;
+		}
+		@media (min-width: 640px) {
+			.settings-panel-field--interval:hover .settings-panel-value-tip,
+			.settings-panel-interval-dragging .settings-panel-value-tip {
+				display: block;
+			}
 		}
 	}
 
