@@ -2271,7 +2271,7 @@ var scopeCss = require('scope-css');
 module.exports = Panel
 
 
-insertCss(".settings-panel {\r\n\tposition: relative;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 36em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tpadding: .25em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: baseline;\r\n\tpadding-top: 0;\r\n\tmax-width: 100%;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: baseline;\r\n\tposition: relative;\r\n}\r\n\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-top: .4em;\r\n\tpadding-left: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding: 0;\r\n\tline-height: 1.5;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n\r\n.settings-panel-orientation-left > .settings-panel-label {\r\n\twidth: 9em;\r\n\tdisplay: table-cell;\r\n}\r\n\r\n.settings-panel-title {\r\n\twidth: 100%;\r\n\tfont-size: 1.6em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\tpadding: .25em .25em;\r\n\ttext-align: center;\r\n}\r\n.settings-panel--collapsible .settings-panel-title {\r\n\tcursor: pointer;\r\n}\r\n.settings-panel--collapsed > *:not(.settings-panel-title) {\r\n\tdisplay: none!important;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-field--button {\r\n\tdisplay: inline-block;\r\n}\r\n.settings-panel-field--button .settings-panel-input {\r\n\tdisplay: block;\r\n\ttext-align: center;\r\n}\r\n.settings-panel-button {\r\n\tvertical-align: baseline;\r\n\tline-height: 1;\r\n\tmin-height: 2em;\r\n\tpadding: .2em 1em;\r\n\twidth: 100%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: baseline;\r\n}\r\n.settings-panel-textarea {\r\n\twidth: 100%;\r\n\tvertical-align: top; /* allowable as we use autoheight */\r\n\tmin-height: 2em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-field--checkbox .settings-panel-input {\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tline-height: 1.2em;\r\n\tmargin: 0;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmargin: auto;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.Scp {\r\n\t-webkit-user-select: none;\r\n\t\t -moz-user-select: none;\r\n\t\t\t-ms-user-select: none;\r\n\t\t\t\t\tuser-select: none;\r\n\tmargin-top: 2em;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n}\r\n.Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-interval {\r\n\tposition: relative;\r\n\t-webkit-appearance: none;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tvertical-align: baseline;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tcursor: text;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: baseline;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tcursor: pointer;\r\n\tmargin-right: .333em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n.settings-panel hr {\r\n\tborder: none;\r\n\theight: 0;\r\n\tmargin: .75em .25em;\r\n\tborder-bottom: 1px dotted;\r\n}\r\n\r\n.settings-panel-field--disabled {\r\n\topacity: .5;\r\n\tpointer-events: none;\r\n}");
+insertCss(".settings-panel {\r\n\tposition: relative;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 32em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tpadding: .25em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: baseline;\r\n\tpadding-top: 0;\r\n\tmax-width: 100%;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: baseline;\r\n\tposition: relative;\r\n}\r\n\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-top: .4em;\r\n\tpadding-left: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding: 0;\r\n\tline-height: 1.5;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n\r\n.settings-panel-orientation-left > .settings-panel-label {\r\n\twidth: 9em;\r\n\tdisplay: table-cell;\r\n}\r\n\r\n.settings-panel-title {\r\n\tfont-size: 1.6em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\tpadding: .25em .25em;\r\n\ttext-align: center;\r\n}\r\n.settings-panel--collapsible .settings-panel-title {\r\n\tcursor: pointer;\r\n}\r\n.settings-panel--collapsed > *:not(.settings-panel-title) {\r\n\tdisplay: none!important;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-field--button {\r\n\tdisplay: inline-block;\r\n}\r\n.settings-panel-field--button .settings-panel-input {\r\n\tdisplay: block;\r\n\ttext-align: center;\r\n}\r\n.settings-panel-button {\r\n\tvertical-align: baseline;\r\n\tline-height: 1;\r\n\tmin-height: 2em;\r\n\tpadding: .2em 1em;\r\n\twidth: 100%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: baseline;\r\n}\r\n.settings-panel-textarea {\r\n\twidth: 100%;\r\n\tdisplay: block;\r\n\tvertical-align: top; /* allowable as we use autoheight */\r\n\tmin-height: 2em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-field--checkbox .settings-panel-input {\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-checkbox-group {\r\n\tborder: none;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tline-height: 1.2em;\r\n\tmargin: -.15em .25em 0 0;\r\n}\r\n.settings-panel-checkbox-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmargin: auto;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.settings-panel .Scp {\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n\tbottom: -120px;\r\n}\r\n.settings-panel .Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.settings-panel .Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.settings-panel .Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.settings-panel .Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.settings-panel .Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-interval {\r\n\tposition: relative;\r\n\t-webkit-appearance: none;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tvertical-align: baseline;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tcursor: text;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n.settings-panel-value-tip {\r\n\tdisplay: none;\r\n}\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n\twidth: 15%;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: baseline;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tcursor: pointer;\r\n\tmargin-right: .25em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n.settings-panel hr {\r\n\tborder: none;\r\n\theight: 0;\r\n\tmargin: .5em 0;\r\n\tborder-bottom: 1px dotted;\r\n}\r\n\r\n.settings-panel-field--disabled {\r\n\topacity: .5;\r\n\tpointer-events: none;\r\n}");
 
 
 /**
@@ -2344,7 +2344,7 @@ inherits(Panel, Emitter);
 Panel.prototype.set = function (name, value) {
 	var this$1 = this;
 
-	//set multiple
+	//handle list of properties
 	if (Array.isArray(name)) {
 		var items = name;
 		items.forEach(function (item) {
@@ -2354,7 +2354,8 @@ Panel.prototype.set = function (name, value) {
 		return this;
 	}
 
-	if (name && arguments.length === 1) {
+	//handle plain object
+	if (isPlainObject(name)) {
 		var items$1 = name;
 		for (var key in items$1) {
 			var item$1 = items$1[key];
@@ -2365,11 +2366,18 @@ Panel.prototype.set = function (name, value) {
 	}
 
 	//format name
+	name = name || '';
 	name = name.replace(/\-/g,'dash-');
 	name = format(name);
 
-	var item = this.items[name];
-	if (!item) item = this.items[name] = { id: name, panel: this };
+	if (name) {
+		var item = this.items[name];
+		if (!item) item = this.items[name] = { id: name, panel: this };
+	}
+	//noname items should not be saved in state
+	else {
+		var item = {id: null, panel: this};
+	}
 
 	var initialValue = item.value;
 	var isBefore = item.before;
@@ -2384,10 +2392,14 @@ Panel.prototype.set = function (name, value) {
 		item.value = value;
 	}
 
-	if (!item.id) item.id = name;
 	if (item.value === undefined) item.value = item.default;
 
-	this.state[name] = item.value;
+	if (name) this.state[name] = item.value;
+
+	//define label via name
+	if (item.label === undefined && item.id) {
+		item.label = item.id;
+	}
 
 	//detect type
 	if (!item.type) {
@@ -2416,14 +2428,17 @@ Panel.prototype.set = function (name, value) {
 		}
 	}
 
-	var fieldId = 'settings-panel-field-' + item.id;
+	var field, fieldId;
+
+	if (item.id != null) {
+		fieldId = 'settings-panel-field-' + item.id;
+		field = this.element.querySelector('#' + fieldId);
+	}
 
 	//create field container
-	var field = this.element.querySelector('#' + fieldId);
-
 	if (!field) {
 		field = document.createElement('div');
-		field.id = fieldId;
+		if (fieldId != null) field.id = fieldId;
 		this.element.appendChild(field);
 		item.field = field;
 	}
@@ -2482,7 +2497,8 @@ Panel.prototype.set = function (name, value) {
 
 		if (component.on) {
 			component.on('init', function (data) {
-				item.value = this$1.state[item.id] = data
+				item.value = data
+				if (item.id) this$1.state[item.id] = item.value;
 				var state = extend({}, this$1.state);
 
 				item.init && item.init(data, state)
@@ -2492,7 +2508,8 @@ Panel.prototype.set = function (name, value) {
 			});
 
 			component.on('input', function (data) {
-				item.value = this$1.state[item.id] = data
+				item.value = data
+				if (item.id) this$1.state[item.id] = item.value;
 				var state = extend({}, this$1.state);
 
 				item.input && item.input(data, state)
@@ -2502,7 +2519,8 @@ Panel.prototype.set = function (name, value) {
 			});
 
 			component.on('change', function (data) {
-				item.value = this$1.state[item.id] = data
+				item.value = data
+				if (item.id) this$1.state[item.id] = item.value;
 				var state = extend({}, this$1.state);
 
 				item.change && item.change(data, state)
@@ -2526,34 +2544,33 @@ Panel.prototype.set = function (name, value) {
 		label.htmlFor = item.id;
 		label.innerHTML = item.label;
 		label.title = item.title || item.label;
-
 	}
 
 	//handle after and before
-	if (item.before) {
-		var before = item.before;
-		if (before instanceof Function) {
-			before = item.before.call(item, component);
-		}
-		if (before instanceof HTMLElement) {
-			this.element.insertBefore(before, field);
-		}
-		else {
-			field.insertAdjacentHTML('beforebegin', before);
-		}
-	}
-	if (item.after) {
-		var after = item.after;
-		if (after instanceof Function) {
-			after = item.after.call(item, component);
-		}
-		if (after instanceof HTMLElement) {
-			this.element.insertBefore(after, field.nextSibling);
-		}
-		else {
-			field.insertAdjacentHTML('afterend', after);
-		}
-	}
+	// if (item.before) {
+	// 	let before = item.before;
+	// 	if (before instanceof Function) {
+	// 		before = item.before.call(item, component);
+	// 	}
+	// 	if (before instanceof HTMLElement) {
+	// 		this.element.insertBefore(before, field);
+	// 	}
+	// 	else {
+	// 		field.insertAdjacentHTML('beforebegin', before);
+	// 	}
+	// }
+	// if (item.after) {
+	// 	let after = item.after;
+	// 	if (after instanceof Function) {
+	// 		after = item.after.call(item, component);
+	// 	}
+	// 	if (after instanceof HTMLElement) {
+	// 		this.element.insertBefore(after, field.nextSibling);
+	// 	}
+	// 	else {
+	// 		field.insertAdjacentHTML('afterend', after);
+	// 	}
+	// }
 
 	//emit change
 	if (initialValue !== item.value) {
@@ -2629,7 +2646,7 @@ Panel.prototype.update = function (opts) {
 			css(this.element, this.style);
 		}
 		else if (typeof this.style === 'string') {
-			this.element.style = this.style;
+			this.element.style.cssText = this.style;
 		}
 	}
 	else if (this.style !== undefined) {
@@ -2647,15 +2664,24 @@ Panel.prototype.theme = require('./theme/none');
  */
 Panel.prototype.components = {
 	range: require('./src/range'),
+
 	button: require('./src/button'),
 	text: require('./src/text'),
 	textarea: require('./src/textarea'),
+
 	checkbox: require('./src/checkbox'),
 	toggle: require('./src/checkbox'),
+
 	switch: require('./src/switch'),
+
 	color: require('./src/color'),
+
 	interval: require('./src/interval'),
+	multirange: require('./src/interval'),
+
 	custom: require('./src/custom'),
+	raw: require('./src/custom'),
+
 	select: require('./src/select')
 };
 
@@ -2673,8 +2699,8 @@ Panel.prototype.orientation = 'left';
 
 
 /** Display collapse button */
-Panel.prototype.collapsible = true;
-},{"./src/button":69,"./src/checkbox":70,"./src/color":71,"./src/custom":72,"./src/interval":73,"./src/range":74,"./src/select":75,"./src/switch":76,"./src/text":77,"./src/textarea":78,"./theme/none":83,"add-px-to-style":7,"dom-css":17,"events":3,"get-uid":21,"inherits":23,"insert-styles":25,"is-plain-obj":34,"just-extend":35,"param-case":53,"scope-css":56}],7:[function(require,module,exports){
+Panel.prototype.collapsible = false;
+},{"./src/button":69,"./src/checkbox":70,"./src/color":71,"./src/custom":72,"./src/interval":73,"./src/range":74,"./src/select":75,"./src/switch":76,"./src/text":77,"./src/textarea":78,"./theme/none":85,"add-px-to-style":7,"dom-css":17,"events":3,"get-uid":21,"inherits":23,"insert-styles":25,"is-plain-obj":34,"just-extend":35,"param-case":53,"scope-css":56}],7:[function(require,module,exports){
 /* The following list is defined in React's core */
 var IS_UNITLESS = {
   animationIterationCount: true,
@@ -9524,37 +9550,101 @@ module.exports = Checkbox
 inherits(Checkbox, EventEmitter)
 
 function Checkbox (opts) {
-	if (!(this instanceof Checkbox)) return new Checkbox(opts)
-	opts = opts || {}
-	var self = this
+	var this$1 = this;
 
-	var input = opts.container.querySelector('.settings-panel-checkbox');
-	var label = opts.container.querySelector('.settings-panel-checkbox-label');
-	if (!input) {
-		this.element = input = opts.container.appendChild(document.createElement('input'));
-		input.className = 'settings-panel-checkbox';
-		this.labelEl = label = opts.container.appendChild(document.createElement('label'));
-		this.labelEl.innerHTML = '&nbsp;';
-		label.className = 'settings-panel-checkbox-label';
-		input.onchange = function (data) {
-			self.emit('input', data.target.checked)
+	if (!(this instanceof Checkbox)) return new Checkbox(opts)
+
+	var self = this;
+
+	if (!this.group) {
+		this.group = document.createElement('fieldset');
+		this.group.className = 'settings-panel-checkbox-group';
+		opts.container.appendChild(this.group);
+	}
+
+	//single checkbox
+	if (!opts.options) {
+		var input = this.group.querySelector('.settings-panel-checkbox');
+		var label = this.group.querySelector('.settings-panel-checkbox-label');
+		if (!input) {
+			this.element = input = this.group.appendChild(document.createElement('input'));
+			input.className = 'settings-panel-checkbox';
+			this.labelEl = label = this.group.appendChild(document.createElement('label'));
+			this.labelEl.innerHTML = '&nbsp;';
+			label.className = 'settings-panel-checkbox-label';
+			input.onchange = function (data) {
+				self.emit('input', data.target.checked)
+			}
+			setTimeout(function () {
+				self.emit('init', input.checked)
+			})
 		}
+	}
+	//multiple checkboxes
+	else {
+		var html = '';
+
+		if (Array.isArray(opts.options)) {
+			for (i = 0; i < opts.options.length; i++) {
+				var option = opts.options[i]
+				html += createOption(option, option);
+			}
+		} else {
+			for (var key in opts.options) {
+				html += createOption(opts.options[key], key);
+			}
+		}
+
+		this.group.innerHTML = html;
+
+		this.group.addEventListener('change', function () {
+			var v = [];
+			[].slice.call(this$1.group.querySelectorAll('.settings-panel-checkbox')).forEach(function (el) {
+				if (el.checked) v.push(el.getAttribute('data-value'));
+			});
+
+			this$1.emit('input', v);
+		});
 		setTimeout(function () {
-			self.emit('init', input.checked)
-		})
+			this$1.emit('init')
+		});
+	}
+
+	function createOption (label, value) {
+		var htmlFor = "settings-panel-" + (format(opts.panel.id)) + "-" + (format(opts.id)) + "-input-" + (format(value));
+
+		var html = "<input type=\"checkbox\" class=\"settings-panel-checkbox\" " + (value === opts.value ? 'checked' : '') + " id=\"" + htmlFor + "\" name=\"" + (format(opts.id)) + "\" data-value=\"" + value + "\" title=\"" + value + "\"/><label for=\"" + htmlFor + "\" class=\"settings-panel-checkbox-label\" title=\"" + value + "\">" + label + "</label>";
+		return html;
 	}
 
 	this.update(opts);
 }
 
 Checkbox.prototype.update = function (opts) {
+	var this$1 = this;
+
 	extend(this, opts);
 
-	this.labelEl.htmlFor = this.id
-	this.element.id = this.id
-	this.element.type = 'checkbox';
-	this.element.checked = !!this.value;
-	this.element.disabled = !!this.disabled;
+	if (!this.options) {
+		this.labelEl.htmlFor = this.id
+		this.element.id = this.id
+		this.element.type = 'checkbox';
+		this.element.checked = !!this.value;
+	}
+	else {
+		if (!Array.isArray(this.value)) this.value = [this.value];
+		var els = [].slice.call(this.group.querySelectorAll('.settings-panel-checkbox'));
+		els.forEach(function (el) {
+			if (this$1.value.indexOf(el.getAttribute('data-value')) >= 0) {
+				el.checked = true;
+			}
+			else {
+				el.checked = false;
+			}
+		});
+	}
+
+	this.group.disabled = !!this.disabled;
 
 	return this;
 }
@@ -9691,9 +9781,9 @@ function Custom (opts) {
 
 Custom.prototype.update = function (opts) {
 	extend(this, opts);
-	var el;
-	if (this.create instanceof Function) {
-		el = this.create(this);
+	var el = this.content;
+	if (this.content instanceof Function) {
+		el = this.content(this);
 		if (!el) return;
 
 		if (typeof el === 'string') {
@@ -9703,14 +9793,15 @@ Custom.prototype.update = function (opts) {
 			this.container.appendChild(el);
 		}
 	}
-	else if (typeof this.create === 'string') {
+	else if (typeof this.content === 'string') {
 		this.container.innerHTML = el;
 	}
-	else if (this.create instanceof Element && (!this.container.contains(el))) {
+	else if (this.content instanceof Element && (!this.container.contains(el))) {
 		this.container.appendChild(el);
 	}
 	else {
-		throw Error('`create` should be a function returning html element or string');
+		//empty content is allowable, in case if user wants to show only label for example
+		// throw Error('`content` should be a function returning html element or string');
 	}
 };
 },{"events":3,"inherits":23,"just-extend":35}],73:[function(require,module,exports){
@@ -9753,7 +9844,7 @@ Range.prototype.update = function (opts) {
 	}
 
 	// Create scale functions for converting to/from the desired scale:
-	if (opts.scale === 'log') {
+	if (opts.scale === 'log' || opts.log) {
 		scaleValue = function (x) {
 			return logsign * Math.exp(Math.log(logmin) + (Math.log(logmax) - Math.log(logmin)) * x / 100)
 		}
@@ -9767,8 +9858,7 @@ Range.prototype.update = function (opts) {
 	if (!Array.isArray(opts.value)) {
 		opts.value = []
 	}
-
-	if (opts.scale === 'log') {
+	if (opts.scale === 'log' || opts.log) {
 		// Get options or set defaults:
 		opts.max = (isNumeric(opts.max)) ? opts.max : 100
 		opts.min = (isNumeric(opts.min)) ? opts.min : 0.1
@@ -9836,6 +9926,7 @@ Range.prototype.update = function (opts) {
 		left: true,
 		disabled: opts.disabled,
 		id: opts.id,
+		className: 'settings-panel-interval-value settings-panel-interval-value--left',
 		input: function (v) {
 			//TODO
 		}
@@ -9862,6 +9953,7 @@ Range.prototype.update = function (opts) {
 		disabled: opts.disabled,
 		value: scaleValue(opts.value[1]).toFixed(prec),
 		type: 'text',
+		className: 'settings-panel-interval-value settings-panel-interval-value--right',
 		input: function (v) {
 			//TODO
 		}
@@ -9873,7 +9965,11 @@ Range.prototype.update = function (opts) {
 		css(handle, {
 			left:  left + '%',
 			width: (100 - left - right) + '%'
-		})
+		});
+		opts.container.style.setProperty('--low', left + '%');
+		opts.container.style.setProperty('--high', 100 - right + '%');
+		lValue.style.setProperty('--value', left + '%');
+		rValue.style.setProperty('--value', 100 - right + '%');
 	}
 
 	// Initialize CSS:
@@ -10082,13 +10178,6 @@ Range.prototype.update = function (opts) {
 	var initialStep = Math.round((opts.value - opts.min) / opts.step)
 	opts.value = opts.min + opts.step * initialStep
 
-	// Set value on the input itself:
-	input.min = opts.min
-	input.max = opts.max
-	input.step = opts.step
-	input.value = opts.value
-	input.style.setProperty('--value', 100 * (opts.value - opts.min) / (opts.max - opts.min) + '%');
-
 	//preser container data for display
 	opts.container.setAttribute('data-min', opts.min);
 	opts.container.setAttribute('data-max', opts.max);
@@ -10109,6 +10198,7 @@ Range.prototype.update = function (opts) {
 	var value = require('./value')({
 		id: opts.id,
 		container: opts.container,
+		className: 'settings-panel-range-value',
 		value: scaleValue(opts.value).toFixed(prec),
 		type: opts.scale === 'log' ? 'text' : 'number',
 		min: scaleValue(opts.min),
@@ -10119,9 +10209,22 @@ Range.prototype.update = function (opts) {
 		input: function (v) {
 			input.value = scaleValueInverse(v)
 			// value.value = v
-			this$1.emit('input', v)
+			this$1.emit('input', v);
+			input.setAttribute('value', v.toFixed(0))
+			opts.container.style.setProperty('--value', v + '%');
+			opts.container.style.setProperty('--coef', v/100);
 		}
-	})
+	});
+
+	// Set value on the input itself:
+	input.min = opts.min
+	input.max = opts.max
+	input.step = opts.step
+	input.value = opts.value
+	var v = 100 * (opts.value - opts.min) / (opts.max - opts.min);
+	input.setAttribute('value', v.toFixed(0))
+	opts.container.style.setProperty('--value', v + '%');
+	opts.container.style.setProperty('--coef', v/100);
 
 	setTimeout(function () {
 		this$1.emit('init', parseFloat(input.value))
@@ -10130,7 +10233,10 @@ Range.prototype.update = function (opts) {
 	input.oninput = function (data) {
 		var scaledValue = scaleValue(parseFloat(data.target.value));
 		value.value = scaledValue.toFixed(prec);
-		input.style.setProperty('--value', 100 * (data.target.value - opts.min) / (opts.max - opts.min) + '%');
+		var v = 100 * (data.target.value - opts.min) / (opts.max - opts.min);
+		input.setAttribute('value', v.toFixed(0));
+		opts.container.style.setProperty('--value', v + '%');
+		opts.container.style.setProperty('--coef', v/100);
 		this$1.emit('input', scaledValue);
 	}
 
@@ -10260,7 +10366,7 @@ function Switch (opts) {
 	function createOption (label, value) {
 		var htmlFor = "settings-panel-" + (format(opts.panel.id)) + "-" + (format(opts.id)) + "-input-" + (format(value));
 
-		var html = "<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"" + htmlFor + "\" name=\"" + (opts.label) + "\" data-value=\"" + value + "\" title=\"" + value + "\"/><label for=\"" + htmlFor + "\" class=\"settings-panel-switch-label\" title=\"" + value + "\">" + label + "</label>";
+		var html = "<input type=\"radio\" class=\"settings-panel-switch-input\" " + (value === opts.value ? 'checked' : '') + " id=\"" + htmlFor + "\" name=\"" + (format(opts.id)) + "\" data-value=\"" + value + "\" title=\"" + value + "\"/><label for=\"" + htmlFor + "\" class=\"settings-panel-switch-label\" title=\"" + value + "\">" + label + "</label>";
 		return html;
 	}
 }
@@ -10394,7 +10500,12 @@ module.exports = function (opts) {
 
   if (opts.id) value.id = opts.id;
   value.className = 'settings-panel-value';
-  opts.container.appendChild(value)
+  if (opts.className) value.className += ' ' + opts.className;
+  opts.container.appendChild(value);
+
+  //add tip holder after value
+  var tip = opts.container.appendChild(document.createElement('div'));
+  tip.className = 'settings-panel-value-tip';
 
   return value
 }
@@ -10440,16 +10551,18 @@ meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit
 document.head.appendChild(meta)
 
 
-insertCSS("\n\tbody {\n\t\tmargin: 0;\n\t\tposition: relative;\n\t\tmin-height: 100vh;\n\t\tbackground: url('./images/land.jpg');\n\t\tbackground-position: center top;\n\t\tbackground-size: cover;\n\t\tbackground-attachment: fixed;\n\t}\n\t.settings-panel-preview {\n\t\tmargin: 2em auto;\n\t}\n\t.sidebar {\n\t\tdisplay: none;\n\t\tposition: fixed;\n\t\ttop: 0;\n\t\tright: 0;\n\t\tbottom: 0;\n\t\tfont-size: 12px;\n\t\twidth: 240px;\n\t\tbox-shadow: -1px 0 3px rgba(0,0,0,.05);\n\t}\n\t@media (min-width: 640px) {\n\t\t.frame {\n\t\t\tmin-height: 100vh;\n\t\t\tposition: relative;\n\t\t\twidth: calc(100% - 240px);\n\t\t}\n\t\t.sidebar {\n\t\t\tdisplay: block;\n\t\t}\n\t}\n");
+insertCSS("\n\tbody {\n\t\tmargin: 0;\n\t\tposition: relative;\n\t\tmin-height: 100vh;\n\t\t// background: url('./images/land.jpg');\n\t\tbackground-position: center top;\n\t\tbackground-size: cover;\n\t\tbackground-attachment: fixed;\n\t}\n\t.settings-panel-preview {\n\t\tmargin: 2em auto;\n\t}\n\t.sidebar {\n\t\tdisplay: none;\n\t\tposition: fixed;\n\t\ttop: 0;\n\t\tright: 0;\n\t\tbottom: 0;\n\t\tfont-size: 12px;\n\t\twidth: 240px;\n\t\tbox-shadow: -1px 0 3px rgba(0,0,0,.05);\n\t}\n\t@media (min-width: 640px) {\n\t\t.frame {\n\t\t\tmin-height: 100vh;\n\t\t\tposition: relative;\n\t\t\twidth: calc(100% - 240px);\n\t\t}\n\t\t.sidebar {\n\t\t\tdisplay: block;\n\t\t}\n\t}\n");
 
 
 var themes = {
 	none: require('./theme/none'),
 	// lucy: require('./theme/lucy'),
-	// typer: require('./theme/typer'),
 	control: require('./theme/control'),
 	dragon: require('./theme/dragon'),
 	// merka: require('./theme/merka'),
+	json: require('./theme/json'),
+	flat: require('./theme/flat'),
+	typer: require('./theme/typer')
 };
 
 var frame = document.createElement('div');
@@ -10459,32 +10572,40 @@ document.body.appendChild(frame);
 
 var panel = createPanel([
 	{type: 'switch', label: 'Switch', options: ['One', 'Two', 'Three'], value: 'One'},
-	{type: 'range', label: 'Range slider', min: 0, max: 100, value: 20, help: 'Default slider'},
-	{type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
-	{type: 'range', scale: 'log', label: 'Range log', min: 0.01, max: 100, value: 1},
-	{type: 'range', scale: 'log', label: 'Stepped log', min: 0.01, max: 100, steps: 10, value: 1},
-	{type: 'range', scale: 'log', label: 'Range -log', min: -0.01, max: -100, value: -1},
-	{type: 'range', scale: 'log', label: 'Stepped -log', min: -0.01, max: -100, steps: 10, value: -1, after:'<hr/>'},
+	{type: 'range', label: 'Range', min: 0, max: 100, value: 80, help: 'Default slider'},
+	// {type: 'range', label: 'Range stepped', min: 0, max: 1, step: 0.2, value: 0.6},
+	// {type: 'range', scale: 'log', label: 'Range log', min: 0.01, max: 100, value: 1},
+	// {type: 'range', scale: 'log', label: 'Stepped log', min: 0.01, max: 100, steps: 10, value: 1},
+	// {type: 'range', scale: 'log', label: 'Range -log', min: -0.01, max: -100, value: -1},
+	// {type: 'range', scale: 'log', label: 'Stepped -log', min: -0.01, max: -100, steps: 10, value: -1},
+	// {type: 'raw', content: '<hr/>'},
+	{type: 'interval', label: 'Interval', min: 0, max: 10, value: [3, 7], steps: 20},
+	// {type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
+	// {type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.3, -1], scale: 'log', steps: 20},
+	// {type: 'checkbox', label: 'Checkbox', value: true},
+	{type: 'checkbox', label: 'Checkbox group', value: ['b', 'c'], options: {
+		a: 'Option A',
+		b: 'Option B',
+		c: 'Option C'
+	}
+	},
 	{type: 'text', label: 'Text', value: 'my setting'},
-	{type: 'checkbox', label: 'Checkbox', value: true},
-	{type: 'color', label: 'Color rgb', format: 'rgb', value: 'rgb(100,200,100)'},
-	{type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
-	{type: 'interval', label: 'An interval', min: 0, max: 10, value: [3, 4], steps: 20},
-	{type: 'interval', label: 'Log interval', min: 0.1, max: 10, value: [0.1, 1], scale: 'log', steps: 20},
-	{type: 'interval', label: 'Neg log interval', min: -0.1, max: -10, value: [-0.3, -1], scale: 'log', steps: 20},
-	{type: 'select', label: 'Key/value select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
-	{type: 'select', label: 'Array select', disabled: true, options: ['State One', 'State Two'], value: 'State One'},
-	{type: 'email', label: 'Email', placeholder: 'email'},
+	{type: 'color', label: 'Color', format: 'rgb', value: 'rgb(100,200,100)'},
+	// {type: 'color', label: 'Color hex', format: 'hex', value: '#30b2ba'},
+	{type: 'select', label: 'Select', options: {state1: 'State One', state2: 'State Two'}, value: 'state1'},
+	// {type: 'email', label: 'Email', placeholder: 'email'},
+	// {type: 'text', label: 'Disabled', disabled: true, value: 'disabled value'},
 	{type: 'textarea', label: 'Long text', placeholder: 'long text...'},
-	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}, before: function () { return '<hr/>'; }},
+	{type: 'raw', content: '<hr/>'},
+	{type: 'button', label: 'Cancel', input: function () { window.alert('hello!') }, style: {width: '50%'}},
 	{type: 'button', label: 'Ok', input: function () { window.alert('hello!') }, style: 'width: 50%'},
 	// {type: 'switch', label: 'Orientation', options: 'top|left|bottom|right'.split('|'), value: 'left' }
 ], {
 	id: 'preview',
-	title: 'Preview',
+	title: 'Example panel',
 	className: 'settings-panel-preview',
 	container: frame,
-	theme: themes.dragon
+	theme: themes.typer
 });
 
 panel.on('input', function (name, value, data) {
@@ -10502,12 +10623,13 @@ var settings = createPanel([
 			'font-size': panel.fontSize,
 			'font-family': panel.fontFamily,
 			'label-width': panel.labelWidth,
-			'input-height': panel.inputHeight
+			'input-height': panel.inputHeight,
+			'padding': themes[v].padding
 		});
 		settings.set('palette', panel.theme.palette);
 	}},
 
-	{label: 'Palette', type: 'custom', id: 'palette', options: palettes, save: false, value: panel.theme.palette, create: function (opts) {
+	{label: 'Palette', type: 'raw', id: 'palette', options: palettes, save: false, value: panel.theme.palette, content: function (opts) {
 			var this$1 = this;
 
 			var palette = opts.value || this.value;
@@ -10539,6 +10661,7 @@ var settings = createPanel([
 					width: '2em',
 					float: 'left',
 					clear: 'left',
+					position: 'relative',
 					marginTop: '.5em',
 					lineHeight: '2em',
 					textAlign: 'center'
@@ -10632,7 +10755,8 @@ var settings = createPanel([
 				//create picker for each color
 				var picker = new Picker({
 					el: item,
-					color: color
+					color: color,
+					height: 162
 				});
 				picker.$el.style.display = 'none';
 				item.onmouseout = function (e) {
@@ -10655,6 +10779,7 @@ var settings = createPanel([
 
 			opts.sortable = new Sortable(list, {
 				draggable: '.palette-color',
+				filter: '.Scp',
 				forceFallback: true,
 				onUpdate: function (e) {
 					this$1.emit('change', opts.sortable.toArray());
@@ -10675,7 +10800,8 @@ var settings = createPanel([
 	},
 	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: function (v) {
 		panel.update({fontFamily: v});
-	}, after: '<hr/>'},
+	}},
+	{type: 'raw', content: '<hr/>'},
 	{label: 'Label orientation', type: 'switch', options: {top: '↑', left: '←', bottom: '↓', right: '→'}, value: panel.orientation, change: function (v) {
 			panel.update({orientation: v});
 			if (v === 'top' || v === 'bottom') {
@@ -10698,13 +10824,17 @@ var settings = createPanel([
 	{type: 'text', label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↨', title: 'Input height, em', id: 'input-height', value: panel.theme.inputHeight, input: function (v) {
 		panel.update({inputHeight: v});
 	}, orientation: 'left', style: 'width: 50%'},
-	{type: 'text', label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↔', title: 'Full panel width', id: 'width', value: '36em', input: function (v) {
+	{type: 'text', label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↔', title: 'Full panel width', id: 'width', value: '32em', input: function (v) {
 		panel.update({style: ("width: " + v + ";")})
 	}, orientation: 'left', style: 'width: 50%; float: left'},
 	{label: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↦', title: 'Label width', id: 'label-width', type: 'text', value: panel.theme.labelWidth, change: function (v) {
 		panel.update({labelWidth: v});
 	}, orientation: 'left', style: 'width: 50%'},
-	{type: 'button', label: 'Get the code!', before: '<hr/>', input: function () {
+	{label: 'padding', id: 'padding', type: 'range', min: 0, max: 1, value: 1/5, change: function (v) {
+		panel.update({padding: v})
+	}},
+	{type: 'raw', content: '<hr/>'},
+	{type: 'button', label: 'Get the code!', input: function () {
 		alert('code');
 	}}
 ], {
@@ -10715,7 +10845,7 @@ var settings = createPanel([
 	labelWidth: '22%',
 	style: 'background: rgba(253,253,253,.82);'
 });
-},{"./":6,"./theme/control":81,"./theme/dragon":82,"./theme/none":83,"colormap":15,"colormap/colorScales":14,"dom-css":17,"insert-styles":25,"nice-color-palettes/500":52,"simple-color-picker":61,"sortablejs":63,"tinycolor2":64}],81:[function(require,module,exports){
+},{"./":6,"./theme/control":81,"./theme/dragon":82,"./theme/flat":83,"./theme/json":84,"./theme/none":85,"./theme/typer":86,"colormap":15,"colormap/colorScales":14,"dom-css":17,"insert-styles":25,"nice-color-palettes/500":52,"simple-color-picker":61,"sortablejs":63,"tinycolor2":64}],81:[function(require,module,exports){
 /**
  * @module prama/theme/control
  *
@@ -10730,15 +10860,17 @@ var none = require('./none');
 
 module.exports = control;
 
-control.palette = ['#292929', '#e7e7e7'];
+// control.palette = ['#292929', '#e7e7e7'];
+control.palette = ['#e7e7e7', '#292929'];
 
 control.fontSize = '12px';
 control.fontFamily = '"Space Mono", monospace';
 control.labelWidth = '33.3%';
 control.inputHeight = 1.66666;
+control.padding = 1/8;
 
 fonts.add({
-	'Space Mono': true
+	'Space Mono': 400
 });
 
 
@@ -10747,15 +10879,16 @@ function control (opts) {
 	var fs = opts.fontSize || control.fontSize;
 	var font = opts.fontFamily || control.fontFamily;
 	var h = opts.inputHeight || control.inputHeight;
-	var labelWidth = opts.labelWidth || none.labelWidth;
+	var labelWidth = opts.labelWidth || control.labelWidth;
+	var padding = opts.padding || control.padding;
 
 	var palette = (opts.palette || control.palette).map(function (v) { return color(v).toRgb(); });
 	var pick = lerp(palette);
 
-	var white = color(pick(0)).toString();
+	var white = color(pick(.0)).toString();
 	var light = color(pick(.1)).toString();
-	var gray = color(pick(.55)).toString();
-	var dark = color(pick(.75)).toString();
+	var gray = color(pick(.75)).toString();
+	var dark = color(pick(.95)).toString();
 	var black = color(pick(1)).toString();
 
 	//NOTE: this is in case of scaling palette to black/white range
@@ -10771,8 +10904,14 @@ function control (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-	}) + "\n\t:host {\n\t\tbackground: " + white + ";\n\t\tfont-family: " + font + ";\n\t\tfont-size: " + (px('font-size',fs)) + ";\n\t\tcolor: " + gray + ";\n\t\tpadding: " + (h/2) + "em;\n\t}\n\n\t.settings-panel-title {\n\t\ttext-transform: uppercase;\n\t\tfont-size: 1.25em;\n\t\tletter-spacing: .15ex;\n\t\tpadding-bottom: " + (h/4) + "em;\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\tpadding-left: " + (h/4) + "em;\n\t\tborder: none;\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Range */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: " + light + ";\n\t\twidth: 80%;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\t-webkit-appearance: none;\n\t\theight: " + h + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tbackground: " + gray + ";\n\t\tborder: 0;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\t-moz-appearance: none;\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\t-moz-appearance: none;\n\t\tbackground: " + gray + ";\n\t\tborder: none;\n\t\tborder-radius: 0px;\n\t\theight: " + h + "em;\n\t\twidth: " + (h/2) + "em;\n\t}\n\t.settings-panel-range::-ms-track {\n\t\tbackground: none;\n\t\tborder: none;\n\t\toutline: none;\n\t\tcolor: transparent;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tborder-radius: 0px;\n\t\tborder: 0;\n\t\tbackground: " + gray + ";\n\t\twidth: " + (h/2) + "em;\n\t\theight: " + h + "em;\n\t}\n\t.settings-panel-range:focus::-ms-fill-lower {\n\t\tbackground: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range:focus::-ms-fill-upper {\n\t\tbackground: none;\n\t\toutline: none;\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval-handle {\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-interval {\n\t\tbackground: " + light + ";\n\t\tposition: relative;\n\t\twidth: 60%;\n\t}\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tbackground: " + light + ";\n\t\tmargin-left: " + (h/4) + "em;\n\t\twidth: calc(20% - " + (h/4) + "em);\n\t\tpadding-left: " + (h/4) + "em;\n\t}\n\t.settings-panel-value:first-child {\n\t\tmargin-left: 0;\n\t\tmargin-right: " + (h/4) + "em;\n\t}\n\t.settings-panel-value:focus {\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tpadding-left: " + (h/4) + "em;\n\t\tborder-radius: 0;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t}\n\t.settings-panel-select:focus {\n\t\tcolor: " + dark + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tdisplay: block;\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\twidth: " + (h*.85) + "em;\n\t\theight: " + (h*.85) + "em;\n\t\tline-height: " + (h*.85) + "em;\n\t\tbackground: " + light + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tbackground: " + gray + ";\n\t\tbox-shadow: inset 0 0 0 " + (h*.2) + "em " + light + ";\n\t}\n\n\n\t/** Color */\n\t.settings-panel-color {\n\t\tposition: relative;\n\t\twidth: calc(20% - " + (h/4) + "em);\n\t\tmargin-right: " + (h/4) + "em;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tpadding-left: " + (h/4) + "em;\n\t\twidth: 80%;\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\tcolor: " + black + ";\n\t\tbackground: " + light + ";\n\t\ttext-align: center;\n\t\tborder: none;\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-button:active {\n\t\tbackground: " + dark + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tborder: none;\n\t\tmargin: 0;\n\t\tborder-radius: 0;\n\t\tpadding: 0;\n\t\theight: auto;\n\t\tbackground: none;\n\t\tvertical-align: top;\n\t\tborder: none;\n\t\tposition: relative;\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tposition: relative;\n\t\tpadding: 0 " + (h/2) + "em;\n\t\tmargin: 0;\n\t\tz-index: 2;\n\t\tfloat: left;\n\t\ttext-align: center;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tbackground: " + light + ";\n\t\tcolor: " + black + ";\n\t}\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t::-moz-selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::selection {\n\t\tcolor: " + black + ";\n\t\tbackground: " + white + ";\n\t}\n\t:host hr {\n\t\tmargin: " + (h/4) + "em " + (h/8) + "em;\n\t\tcolor: " + light + ";\n\t\topacity: 1;\n\t}\n"};
-},{"./none":83,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],82:[function(require,module,exports){
+		padding: padding
+	}) + "\n\t:host {\n\t\tbackground: " + white + ";\n\t\tfont-family: " + font + ";\n\t\tfont-size: " + (px('font-size',fs)) + ";\n\t\tcolor: " + gray + ";\n\t\tpadding: " + (h/2) + "em;\n\t}\n\n\t.settings-panel-title {\n\t\tfont-size: 1em;\n\t\ttext-align: center;\n\t\tfont-weight: 400;\n\t\ttext-transform: uppercase;\n\t\tcolor: " + black + ";\n\t\tpadding-bottom: " + (h/3) + "em;\n\t}\n\n\t.settings-panel-label {\n\t\tcolor: " + black + ";\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\tpadding-left: " + (h/4) + "em;\n\t\tborder: none;\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Range */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: " + light + ";\n\t\twidth: 80%;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\t-webkit-appearance: none;\n\t\theight: " + h + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tbackground: " + gray + ";\n\t\tborder: 0;\n\t\tmargin-top: 0px;\n\t}\n\t.settings-panel-range:hover::-webkit-slider-thumb {\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\t-moz-appearance: none;\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\t-moz-appearance: none;\n\t\tbackground: " + gray + ";\n\t\tborder: none;\n\t\tborder-radius: 0px;\n\t\theight: " + h + "em;\n\t\twidth: " + (h/2) + "em;\n\t}\n\t.settings-panel-range:hover::-moz-range-thumb {\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-range::-ms-track {\n\t\tbackground: none;\n\t\tborder: none;\n\t\toutline: none;\n\t\tcolor: transparent;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: none;\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tborder-radius: 0px;\n\t\tborder: 0;\n\t\tbackground: " + gray + ";\n\t\twidth: " + (h/2) + "em;\n\t\theight: " + h + "em;\n\t}\n\t.settings-panel-range:hover::-ms-thumb {\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-range:focus::-ms-fill-lower {\n\t\tbackground: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range:focus::-ms-fill-upper {\n\t\tbackground: none;\n\t\toutline: none;\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval-handle {\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-interval {\n\t\tbackground: " + light + ";\n\t\tposition: relative;\n\t\twidth: 60%;\n\t}\n\t.settings-panel-interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + dark + ";\n\t}\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tbackground: " + light + ";\n\t\tmargin-left: " + (h/4) + "em;\n\t\twidth: calc(20% - " + (h/4) + "em);\n\t\tpadding-left: " + (h/4) + "em;\n\t}\n\t.settings-panel-value:first-child {\n\t\tmargin-left: 0;\n\t\tmargin-right: " + (h/4) + "em;\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tpadding-left: " + (h/4) + "em;\n\t\tborder-radius: 0;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:focus {\n\t\tcolor: " + dark + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tdisplay: block;\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tcontent: 'x';\n\t\tcolor: transparent;\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t\twidth: " + (h*.85) + "em;\n\t\theight: " + (h*.85) + "em;\n\t\tline-height: " + (h*.85) + "em;\n\t\tbackground: " + light + ";\n\t\tmargin-right: " + (h*.25) + "em;\n\t\tmargin-bottom: " + (h*.15) + "em;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tbackground: " + gray + ";\n\t\tbox-shadow: inset 0 0 0 " + (h*.2) + "em " + light + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:hover:before {\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-checkbox-label:last-child:before {\n\t\tmargin-bottom: " + (h*.1) + "em;\n\t}\n\n\n\t/** Color */\n\t.settings-panel-color {\n\t\tposition: relative;\n\t\twidth: calc(20% - " + (h/4) + "em);\n\t\tmargin-right: " + (h/4) + "em;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tpadding-left: " + (h/4) + "em;\n\t\twidth: 80%;\n\t\tfont-family: inherit;\n\t\tbackground: " + light + ";\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\tcolor: " + dark + ";\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\tcolor: " + black + ";\n\t\tbackground: " + light + ";\n\t\ttext-align: center;\n\t\tborder: none;\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-button:active {\n\t\tbackground: " + dark + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tpadding: 0 " + (h/2) + "em;\n\t\tmargin: 0;\n\t\tz-index: 2;\n\t\ttext-align: center;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tbackground: " + light + ";\n\t\tcolor: " + gray + ";\n\t}\n\t.settings-panel-switch-input + .settings-panel-switch-label:hover {\n\t\tcolor: " + dark + ";\n\t}\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + gray + ";\n\t}\n\t::-moz-selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + dark + ";\n\t}\n\t::selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + black + ";\n\t}\n\t:host hr {\n\t\tmargin: " + (h/4) + "em " + (h/8) + "em;\n\t\tcolor: " + light + ";\n\t\topacity: 1;\n\t}\n\t:host a {\n\t\tborder-bottom: 1px solid " + (alpha(gray, .15)) + ";\n\t}\n\t:host a:hover {\n\t\tcolor: " + dark + ";\n\t\tborder-bottom: 1px solid " + gray + ";\n\t}\n"};
+
+
+function alpha (c, value) {
+	return color(c).setAlpha(value).toString();
+}
+},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],82:[function(require,module,exports){
 /**
  * @module prama/theme/dragon
  *
@@ -10781,7 +10920,6 @@ function control (opts) {
 var px = require('add-px-to-style');
 var fonts = require('google-fonts');
 var color = require('tinycolor2');
-var scopeCss = require('scope-css');
 var lerp = require('interpolation-arrays');
 var none = require('./none');
 
@@ -10791,12 +10929,14 @@ fonts.add({
 	'Roboto': 400
 });
 
+dragon.palette = ['black', 'white'];
 dragon.palette = ['#1b1b1b', '#f7f7f7'];
 
 dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
 dragon.inputHeight = 2;
+dragon.padding = 1/6;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -10805,13 +10945,14 @@ function dragon (opts) {
 	var labelWidth = opts.labelWidth || dragon.labelWidth;
 	var fontSize = opts.fontSize || dragon.fontSize;
 	var font = opts.fontFamily || dragon.fontFamily;
+	var padding = opts.padding || dragon.padding;
 
 	var palette = (opts.palette || dragon.palette).map(function (v) { return color(v).toRgb(); });
 	var pick = lerp(palette);
 
 	var white = color(pick(1)).toString();
-	var light = color(pick(.6)).toString();
-	var notSoLight = color(pick(.5)).toString();
+	var light = color(pick(.65)).toString();
+	var notSoLight = color(pick(.45)).toString();
 	var gray = color(pick(.13)).toString();
 	var dark = color(pick(.07)).toString();
 	var black = color(pick(0)).toString();
@@ -10821,30 +10962,137 @@ function dragon (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: palette
-	}) + "\n\t:host {\n\t\tcolor: " + light + ";\n\t\tbackground: " + (alpha(gray, .93)) + ";\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: " + font + ";\n\t\tpadding: " + (h*.75) + "em;\n\t}\n\n\t.settings-panel-title {\n\t\ttext-transform: none;\n\t\tfont-size: 1.333em;\n\t\tfont-weight: bold;\n\t\tletter-spacing: .05ex;\n\t\tmin-height: " + h + "em;\n\t\tcolor: " + white + ";\n\t\tpadding: " + (h/3) + "em " + (h/8) + "em " + (h/2) + "em;\n\t}\n\n\t/** Select style */\n\t.settings-panel-select {\n\t\theight: " + h + "em;\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: 100%;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + white + ";\n\t\tborder-radius: 0;\n\t\tbox-shadow: 0 2px " + dark + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + white + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--select:hover .settings-panel-select,\n\t.settings-panel-select:focus {\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t\tcolor: " + white + ";\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\theight: " + h + "em;\n\t\tpadding: 0;\n\t\tbackground: none;\n\t\tcolor: " + white + ";\n\t\twidth: 100%;\n\t\tborder-radius: 0;\n\t\tbox-shadow: 0 2px " + dark + ";\n\t}\n\t.settings-panel-textarea {\n\t\tpadding-top: .35em;\n\t\tpadding-left: 0;\n\t}\n\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus,\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover {\n\t\toutline: none;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: " + (h*.7) + "em;\n\t\twidth: " + (h*.7) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tbackground: none;\n\t\theight: " + h + "em;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + dark + ";\n\t\tpadding-left: " + h + "em;\n\t\twidth: 100%;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tmargin-left: -2px;\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t\tmin-height: " + h + "em;\n\t\tpadding: 0 " + (h/2) + "em;\n\t\tmargin: 0 2px 2px 0;\n\t\tline-height: " + h + "em;\n\t\tcolor: " + light + ";\n\t\ttext-transform: uppercase;\n\t\tfont-size: .85em;\n\t\tletter-spacing: .1ex;\n\t\tborder-radius: " + h + "em;\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 0 0 2px " + notSoLight + ";\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label:hover {\n\t\tbox-shadow: 0 0 0 2px " + white + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tmargin-left: -2px;\n\t\tmargin-top: 0;\n\t\twidth: " + (h*1.8) + "em;\n\t\theight: " + (h*.9) + "em;\n\t\tline-height: " + (h*.9) + "em;\n\t\tborder-radius: " + h + "em;\n\t\tmargin-bottom: 0;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-field--checkbox:hover .settings-panel-checkbox-label {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tborder-radius: " + h + "em;\n\t\twidth: " + (h*.65) + "em;\n\t\theight: " + (h*.65) + "em;\n\t\ttop: " + (h*.125) + "em;\n\t\tleft: " + (h*.125) + "em;\n\t\tbackground: " + notSoLight + ";\n\t\ttransition: .1s ease-in;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\tleft: " + (h*1.025) + "em;\n\t\tbackground: " + white + ";\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tborder: none;\n\t\toutline: none;\n\t\tpadding: " + (h*.25) + "em;\n\t\tmin-height: " + h + "em;\n\t\tline-height: " + h + "em;\n\t\tcolor: " + white + ";\n\t\tborder-radius: " + h + "em;\n\t\tbackground: none;\n\t\ttext-transform: uppercase;\n\t\tfont-size: .95em;\n\t\tletter-spacing: .1ex;\n\t\tbox-shadow: inset 0 0 0 2px " + notSoLight + ";\n\t}\n\t.settings-panel-button:hover {\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 0 0 2px " + white + ";\n\t}\n\t.settings-panel-button:active {\n\t\tcolor: " + white + ";\n\t}\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + dark + ";\n\t\tborder: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\tcolor: " + black + ";\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\t/**background: " + black + ";*/\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-track,\n\t.settings-panel-range:focus::-moz-range-track {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-range::-moz-range-progress {\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-progress,\n\t.settings-panel-range:focus::-moz-range-progress {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-ms-track {\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-fill-lower,\n\t.settings-panel-range:focus::-ms-fill-lower {\n\t\tbackground: " + white + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\t--active: " + notSoLight + ";\n\t\t\t--bg: " + dark + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + black + ";\n\t\t\t--active: " + white + ";\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + notSoLight + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range:hover::-webkit-slider-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + notSoLight + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range:hover::-moz-range-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tappearance: none;\n\t\toutline: 0;\n\t\tborder: none;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\tbackground: " + notSoLight + ";\n\t\twidth: " + (h/2) + "em;\n\t\theight: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tcursor: pointer;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range:hover::-ms-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {\n\t\tbackground: " + white + ";\n\t}\n\n\t:host.settings-panel-orientation-top .settings-panel-range,\n\t.settings-panel-orientation-top .settings-panel-range {\n\t\twidth: 100%;\n\t}\n\t:host.settings-panel-orientation-top .settings-panel-range + .settings-panel-value,\n\t.settings-panel-orientation-top .settings-panel-range + .settings-panel-value {\n\t\tposition: absolute;\n\t\ttop: -" + h + "em;\n\t\tright: 0%;\n\t\ttext-align: right;\n\t}\n\n\t.settings-panel-field--color + .settings-panel-field--range,\n\t.settings-panel-field--color + .settings-panel-field--interval,\n\t.settings-panel-field--textarea + .settings-panel-field--range,\n\t.settings-panel-field--textarea + .settings-panel-field--interval,\n\t.settings-panel-field--text + .settings-panel-field--interval,\n\t.settings-panel-field--text + .settings-panel-field--range {\n\t\tmargin-top: " + (h/2.5) + "em;\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + dark + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-value {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + white + ";\n\t}\n\n\n\t/** Decorations */\n\t:host hr {\n\t\tborder: none;\n\t\theight: 0;\n\t\tmargin: " + (h*.75) + "em 0;\n\t\topacity: .333;\n\t\tborder-bottom: 1px dotted " + notSoLight + ";\n\t}\n\t::-webkit-input-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\n\t::-moz-selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + gray + ";\n\t}\n\t::selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-field--disabled {\n\t\topacity: .333;\n\t\tpointer-events: none;\n\t}\n";
+		palette: [white, black],
+		padding: padding
+	}) + "\n\t:host {\n\t\tcolor: " + light + ";\n\t\tbackground: " + (alpha(gray, .93)) + ";\n\t\tfont-size: " + (px('font-size', fontSize)) + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 400;\n\t\tpadding: " + (h*.75) + "em;\n\t}\n\n\t.settings-panel-title {\n\t\ttext-transform: none;\n\t\tfont-weight: 400;\n\t\tletter-spacing: .05ex;\n\t\tcolor: " + white + ";\n\t\tpadding: " + (h * 2 * padding / 1.333) + "em " + (h * padding / 1.333) + "em " + (h * 4 * padding / 1.333) + "em;\n\t}\n\n\t.settings-panel-label {\n\t}\n\n\t/** Select style */\n\t.settings-panel-select {\n\t\theight: " + h + "em;\n\t\tbackground: none;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\twidth: 100%;\n\t\tpadding-right: 1em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + white + ";\n\t\tborder-radius: 0;\n\t\tbox-shadow: 0 2px " + dark + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay:none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + white + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--select:hover .settings-panel-select,\n\t.settings-panel-select:focus {\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t\tcolor: " + white + ";\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\theight: " + h + "em;\n\t\tpadding: 0;\n\t\tbackground: none;\n\t\tcolor: " + white + ";\n\t\twidth: 100%;\n\t\tborder-radius: 0;\n\t\tbox-shadow: 0 2px " + dark + ";\n\t}\n\t.settings-panel-textarea {\n\t\tpadding-top: .35em;\n\t\tpadding-left: 0;\n\t}\n\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus,\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover {\n\t\toutline: none;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: " + (h*.7) + "em;\n\t\twidth: " + (h*.7) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tbackground: none;\n\t\theight: " + h + "em;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + dark + ";\n\t\tpadding-left: " + h + "em;\n\t\twidth: 100%;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 2px " + black + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tmargin-left: -1px;\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tcursor: pointer;\n\t\tmin-height: " + h + "em;\n\t\tpadding: 0 " + (h/2) + "em;\n\t\tmargin: 0 2px 2px 0;\n\t\tline-height: " + (h*.999) + "em;\n\t\tcolor: " + notSoLight + ";\n\t\tborder-radius: " + h + "em;\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-switch-label:last-child {\n\t\tmargin-right: 0;\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 0 0 2px " + notSoLight + ";\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label:hover {\n\t\tbox-shadow: 0 0 0 2px " + white + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tposition: relative;\n\t\tmargin-top: " + (h/4) + "em;\n\t\twidth: 100%;\n\t\tcolor: " + notSoLight + ";\n\t\tmargin-bottom: " + (h/4) + "em;\n\t}\n\t.settings-panel-checkbox-label:empty {\n\t\tmargin-left: -" + (h/4) + "em;\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: 'x';\n\t\tcolor: transparent;\n\t\tposition: absolute;\n\t\ttop: -" + (h*.125) + "em;\n\t\tright: 0;\n\t\tmargin-left: " + (h/4) + "em;\n\t\tmargin-top: 0;\n\t\twidth: " + (h*1.8) + "em;\n\t\theight: " + (h*.85) + "em;\n\t\tline-height: " + (h*.9) + "em;\n\t\tborder-radius: " + h + "em;\n\t\tmargin-bottom: 0;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-checkbox:hover + .settings-panel-checkbox-label:after,\n\t.settings-panel-checkbox-label:hover:after {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tborder-radius: " + h + "em;\n\t\twidth: " + (h*.6) + "em;\n\t\theight: " + (h*.6) + "em;\n\t\ttop: 0;\n\t\tright: " + (h*1.05) + "em;\n\t\tbackground: " + notSoLight + ";\n\t\ttransition: .1s ease-in;\n\t\tz-index: 1;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\ttransform: translateX(" + (h*.9) + "em);\n\t\tbackground: " + white + ";\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tborder: none;\n\t\toutline: none;\n\t\tpadding: " + (h*.125) + "em;\n\t\tmin-height: " + h + "em;\n\t\tline-height: " + h + "em;\n\t\tcolor: " + white + ";\n\t\tborder-radius: " + h + "em;\n\t\tbackground: none;\n\t\ttext-transform: uppercase;\n\t\tfont-size: .95em;\n\t\tletter-spacing: .1ex;\n\t\tbox-shadow: inset 0 0 0 2px " + notSoLight + ";\n\t}\n\t.settings-panel-button:hover {\n\t\tcolor: " + white + ";\n\t\tbox-shadow: 0 0 0 2px " + white + ";\n\t}\n\t.settings-panel-button:active {\n\t\tcolor: " + white + ";\n\t}\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + dark + ";\n\t\tborder: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\tcolor: " + black + ";\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\t/**background: " + black + ";*/\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t\tbackground: " + dark + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-track,\n\t.settings-panel-range:focus::-moz-range-track {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-range::-moz-range-progress {\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-progress,\n\t.settings-panel-range:focus::-moz-range-progress {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-ms-track {\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-fill-lower,\n\t.settings-panel-range:focus::-ms-fill-lower {\n\t\tbackground: " + white + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\t--active: " + notSoLight + ";\n\t\t\t--bg: " + dark + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + black + ";\n\t\t\t--active: " + white + ";\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + notSoLight + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range:hover::-webkit-slider-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + notSoLight + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range:hover::-moz-range-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tappearance: none;\n\t\toutline: 0;\n\t\tborder: none;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\tbackground: " + notSoLight + ";\n\t\twidth: " + (h/2) + "em;\n\t\theight: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tcursor: pointer;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range:hover::-ms-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {\n\t\tbackground: " + white + ";\n\t}\n\n\t.settings-panel-range-value {\n\t\ttext-align: right;\n\t\tpadding: 0;\n\t}\n\n\t:host.settings-panel-orientation-top .settings-panel-range,\n\t.settings-panel-orientation-top .settings-panel-range {\n\t\twidth: 100%;\n\t}\n\t:host.settings-panel-orientation-top .settings-panel-range + .settings-panel-value,\n\t.settings-panel-orientation-top .settings-panel-range + .settings-panel-value {\n\t\tposition: absolute;\n\t\ttop: -" + (h*.8) + "em;\n\t\tright: 0%;\n\t\ttext-align: right;\n\t}\n\n\t.settings-panel-field--color + .settings-panel-field--range,\n\t.settings-panel-field--color + .settings-panel-field--interval,\n\t.settings-panel-field--textarea + .settings-panel-field--range,\n\t.settings-panel-field--textarea + .settings-panel-field--interval,\n\t.settings-panel-field--text + .settings-panel-field--interval,\n\t.settings-panel-field--text + .settings-panel-field--range {\n\t\tmargin-top: " + (h/2.5) + "em;\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + dark + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + notSoLight + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after {\n\t\tbackground: " + black + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + white + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-value {\n\t\tcolor: " + white + ";\n\t}\n\t.settings-panel-interval-value--right {\n\t\ttext-align: right;\n\t}\n\t.settings-panel-interval-handle:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tleft: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t}\n\n\t.settings-panel-interval-dragging .settings-panel-interval-handle {\n\t\tbackground: " + white + ";\n\t}\n\n\n\t/** Decorations */\n\t:host hr {\n\t\tborder: none;\n\t\theight: 0;\n\t\tmargin: " + (h*.5) + "em 0;\n\t\topacity: .333;\n\t\tborder-bottom: 1px dotted " + notSoLight + ";\n\t}\n\t::-webkit-input-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + notSoLight + ";\n\t}\n\n\t::-moz-selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + gray + ";\n\t}\n\t::selection {\n\t\tcolor: " + white + ";\n\t\tbackground: " + gray + ";\n\t}\n\t.settings-panel-field--disabled {\n\t\topacity: .333;\n\t\tpointer-events: none;\n\t}\n";
+
+
+}
 
 
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
+},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"tinycolor2":64}],83:[function(require,module,exports){
+/**
+ * @module prama/theme/flat
+ *
+ * Control-panel theme on steroids
+ */
+var px = require('add-px-to-style');
+var fonts = require('google-fonts');
+var color = require('tinycolor2');
+var scopeCss = require('scope-css');
+var lerp = require('interpolation-arrays');
+var none = require('./none');
 
+module.exports = flat;
+
+//uses reflective scheme
+flat.palette = ['black', '#fff'];
+flat.palette = ['#f95759', '#272727', '#fff'];
+
+flat.fontSize = '14px';
+flat.fontFamily = '"Roboto", sans-serif';
+flat.labelWidth = '33.3%';
+flat.inputHeight = 2;
+flat.padding = 1/5;
+
+fonts.add({
+	'Roboto': 500,
+	'Material Icons': 400
+});
+
+
+function flat (opts) {
+	opts = opts || {};
+	var fs = opts.fontSize || flat.fontSize;
+	var font = opts.fontFamily || flat.fontFamily;
+	var h = opts.inputHeight || flat.inputHeight;
+	var labelWidth = opts.labelWidth || flat.labelWidth;
+	var padding = opts.padding || flat.padding;
+
+	var palette = (opts.palette || flat.palette).map(function (v) { return color(v).toRgb(); });
+	var pick = lerp(palette);
+
+	//NOTE: this is in case of scaling palette to black/white range
+	var white = tone(1);
+	var black = tone(.5);
+	var active = tone(0);
+
+	function tone (amt) {
+		return color(pick(amt)).toString();
+	}
+
+	//none theme defines sizes, the rest (ours) is up to style
+	return none({
+		fontSize: fs,
+		fontFamily: font,
+		inputHeight: h,
+		labelWidth: labelWidth,
+		padding: padding
+	}) + "\n\t:host {\n\t\tbackground: " + white + ";\n\t\tcolor: " + black + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t\t-webkit-text-size-adjust: 100%;\n\t\t-webkit-font-smoothing: antialiased;\n\t\tbox-shadow: 0 0 0 1px " + (alpha(tone(.7), .25)) + ";\n\t}\n\n\t.settings-panel-title {\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t}\n\n\t.settings-panel-label {\n\t\tcolor: " + (tone(.7)) + ";\n\t\tfont-weight: 500;\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea,\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance: none;\n\t\tappearance: none;\n\t\toutline: none;\n\t\tborder: 0;\n\t\twidth: auto;\n\t\tborder-radius: 0;\n\t\tfont-weight: 500;\n\t\tbackground: " + white + ";\n\t\tcolor: " + active + ";\n\t\tbox-shadow: 0 1px " + (alpha(tone(.7), .25)) + ";\n\t}\n\t.settings-panel-text:hover,\n\t.settings-panel-color-value:hover,\n\t.settings-panel-textarea:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-color-value:focus,\n\t.settings-panel-textarea:focus {\n\t\tbox-shadow: 0 1px " + active + ";\n\n\t}\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tborder: 0;\n\t\twidth: 85%;\n\t\tmargin-right: " + (h/4) + "em;\n\t}\n\t.settings-panel-range + .settings-panel-value {\n\t\twidth: calc(15% - " + (h/4) + "em);\n\t\tpadding-left: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\t/* background: " + active + "; */\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-track,\n\t.settings-panel-range:focus::-moz-range-track {\n\t\t/* background: " + active + "; */\n\t}\n\n\t.settings-panel-range::-ms-track {\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\t--active: " + active + ";\n\t\t\t--bg: " + (alpha(active, .25)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (alpha(active, .25)) + ";\n\t\t\t--active: " + active + ";\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range::-webkit-slider-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-webkit-slider-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-moz-range-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range::-ms-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-ms-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after {\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-value {\n\t\tcolor: " + black + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t\ttransition: .05s ease-in transform;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h/4) + "em;\n\t\tright: auto;\n\t}\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:before {\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-value:first-child {\n\t\tmargin-left: 0;\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tfont-family: inherit;\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\tfont-weight: 500;\n\t\tpadding-right: 2em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + active + ";\n\t\tbackground: " + white + ";\n\t\tline-height: " + h + "em;\n\t\tbox-shadow: 0 1px " + (alpha(tone(.7), .25)) + ";\n\t\twidth: auto;\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:focus {\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + active + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--select:hover .settings-panel-select,\n\t.settings-panel-select:focus {\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t\t/* margin-bottom: " + (h/2) + "em; */\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\t/*content: '✓';*/\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tcolor: " + (alpha(white, 0)) + ";\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: " + (h*.5) + "em;\n\t\theight: " + (h*.5) + "em;\n\t\tborder-radius: .5px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tmargin-left: 2px;\n\t\tbox-shadow: 0 0 0 2px " + (alpha(tone(.5), .9)) + ";\n\t\tline-height: " + (h/2) + "em;\n\t\tmargin-top: 1px;\n\t\ttext-align: center;\n\t}\n\t.settings-panel-checkbox-label:hover:before {\n\t\tbox-shadow: 0 0 0 2px " + (tone(.5)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tbox-shadow: 0 0 0 2px " + active + ";\n\t\tbackground: " + active + ";\n\t\tcolor: " + (tone(1)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*1.5) + "em;\n\t\theight: " + (h*1.5) + "em;\n\t\tbackground: " + (tone(.55)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: -" + (h*.45) + "em;\n\t\tleft: -" + (h*.5) + "em;\n\t\topacity: 0;\n\t\tmargin-left: 2px;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-checkbox-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: " + (h*.5) + "em;\n\t\twidth: " + (h*.5) + "em;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tfont-family: inherit;\n\t\tborder-radius: 0;\n\t\tpadding-left: " + (h*.75) + "em;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\ttext-transform: uppercase;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-weight: 500;\n\t\tbackground: none;\n\t\twidth: auto;\n\t\tpadding: " + (h/3) + "em " + (h/3) + "em;\n\t\tmin-width: " + (h*3) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tmargin-bottom: -" + (h/4) + "em;\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\tbackground: " + (alpha(tone(.5), .08)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\tbackground: " + (alpha(tone(.5), .333)) + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tmargin: 0;\n\t\tmargin-right: " + (h*.75) + "em;\n\t\tz-index: 2;\n\t\ttext-align: center;\n\t\tpadding: 0 0;\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-input + .settings-panel-switch-label:hover {\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-label:active {\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*2) + "em;\n\t\theight: " + (h*2) + "em;\n\t\tmin-width: 100%;\n\t\tmin-height: 100%;\n\t\tbackground: " + (tone(.55)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: 50%;\n\t\tleft: 50%;\n\t\tmargin-left: -" + h + "em;\n\t\tmargin-top: -" + h + "em;\n\t\topacity: 0;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-switch-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-switch-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t::selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t:host hr {\n\t\topacity: 1;\n\t\tborder-bottom: 1px solid " + (alpha(tone(.7), .25)) + ";\n\t\tmargin-left: -" + (h*.666) + "em;\n\t\tmargin-right: -" + (h*.666) + "em;\n\t\tmargin-top: " + (h*.75) + "em;\n\t}\n\t:host a {\n\t}\n\t:host a:hover {\n\t}\n"};
+
+
+function alpha (c, value) {
+	return color(c).setAlpha(value).toString();
 }
-},{"./none":83,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],83:[function(require,module,exports){
+},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],84:[function(require,module,exports){
+/**
+ * @module prama/theme/json
+ *
+ * Json representation theme
+ */
+
+var px = require('add-px-to-style');
+var none = require('./none');
+
+module.exports = json;
+
+json.palette = ['white', 'rgb(200,0,0)', 'rgb(40,40,40)'];
+
+json.fontSize = '12px';
+json.fontFamily = 'monospace';
+json.labelWidth = 'auto';
+json.inputHeight = 1.5;
+
+function json (opts) {
+	opts = opts || {};
+
+	var h = opts.inputHeight || json.inputHeight;
+	var labelWidth = opts.labelWidth || json.labelWidth;
+	var fontSize = opts.fontSize || json.fontSize;
+	var font = opts.fontFamily || json.fontFamily;
+
+	var palette = opts.palette || json.palette;
+
+	var white = palette[0];
+	var black = palette[palette.length - 1];
+	var red = palette[palette.length - 2];
+
+	return none({
+		fontSize: fontSize,
+		fontFamily: font,
+		inputHeight: h,
+		labelWidth: labelWidth,
+		palette: [white, black]
+	}) + "\n\t:host {\n\t\t-webkit-user-select: initial;\n\t\t-moz-user-select: initial;\n\t\t-ms-user-select: initial;\n\t\tuser-select: initial;\n\t}\n\n\t.settings-panel-title {\n\t\tmargin: 0;\n\t\tfont-size: 1.4em;\n\t}\n\n\t.settings-panel-field {\n\t\tdisplay: inline-block;\n\t}\n\n\t.settings-panel-label {\n\t\tdisplay: inline-block;\n\t\twidth: " + labelWidth + ";\n\t\tcolor: " + red + ";\n\t}\n\t.settings-panel-label:before {\n\t\tcontent: '\"';\n\t\topacity: .3;\n\t\tcolor: " + black + ";\n\t}\n\t.settings-panel-label:after {\n\t\tcontent: '\":';\n\t\topacity: .3;\n\t\tcolor: " + black + ";\n\t}\n\t.settings-panel-input {\n\t\tdisplay: inline-block;\n\t\tmin-height: 0;\n\t}\n\t/*\n\t.settings-panel-input:after {\n\t\tcontent: ',';\n\t\tcolor: " + black + ";\n\t\topacity: .3;\n\t}\n\t*/\n\n\t.settings-panel-range {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-range + .settings-panel-value {\n\t\twidth: auto;\n\t}\n\t.settings-panel-value {\n\t\tpadding: 0;\n\t}\n\n\n\t.settings-panel-text,\n\t.settings-panel-color-value,\n\t.settings-panel-select,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-text:focus,\n\t.settings-panel-color-value:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t}\n\n\n\t.settings-panel-interval {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--interval {\n\t\twhite-space: nowrap;\n\t}\n\t.settings-panel-field--interval .settings-panel-input:before {\n\t\tcontent: '[';\n\t\topacity: .3;\n\t}\n\t.settings-panel-field--interval .settings-panel-input:after {\n\t\tcontent: ']';\n\t\topacity: .3;\n\t}\n\n\t/** Decorations */\n\t:host hr {\n\t\tmargin: 0;\n\t\tborder: none;\n\t\theight: 0;\n\t}\n\t.settings-panel-field--disabled {\n\t\topacity: .333;\n\t\tpointer-events: none;\n\t}\n\t";
+};
+},{"./none":85,"add-px-to-style":7}],85:[function(require,module,exports){
 /**
  * @module  settings-panel/theme/none
  */
 
-var extend = require('just-extend');
 var px = require('add-px-to-style');
 
 module.exports = none;
 
 none.palette = ['white', 'black'];
-none.fontSize = '13px';
+none.fontSize = 13;
 none.fontFamily = 'sans-serif';
 none.labelWidth = '9em';
 none.inputHeight = 2;
+none.padding = 1/5;
 
 function none (opts) {
 	opts = opts || {};
@@ -10852,12 +11100,138 @@ function none (opts) {
 	var font = opts.fontFamily || none.fontFamily;
 	var h = opts.inputHeight || none.inputHeight;
 	var labelWidth = opts.labelWidth || none.labelWidth;
-
+	var padding = opts.padding || none.padding;
 	var palette = opts.palette || none.palette;
 	var white = palette[0];
 	var black = palette[palette.length - 1];
 
+	if (/[-0-9.]*/.test(fs)) fs = parseFloat(fs);
+
 	//just size part
-	return ("\n\t\t:host {\n\t\t\tbackground: " + white + ";\n\t\t\tcolor: " + black + ";\n\t\t\tfont-family: " + font + ";\n\t\t\tfont-size: " + (px('font-size', fs)) + ";\n\t\t\tpadding: " + (h*.666) + "em;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tmin-height: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-field {\n\t\t\tpadding: " + (h/8) + "em;\n\t\t}\n\n\t\t:host.settings-panel-orientation-left .settings-panel-label,\n\t\t:host .settings-panel-orientation-left .settings-panel-label,\n\t\t:host.settings-panel-orientation-right .settings-panel-label,\n\t\t:host .settings-panel-orientation-right .settings-panel-label {\n\t\t\twidth: " + (px('width', labelWidth)) + ";\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label {\n\t\t\tborder-top-width: " + h + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\n\t\t\ttop: " + (h/8) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-left .settings-panel-label {\n\t\t\tpadding-right: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label {\n\t\t\tpadding-left: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\n\t\t\twidth: calc(100% - " + labelWidth + ");\n\t\t}\n\n\t\t.settings-panel-text,\n\t\t.settings-panel-textarea,\n\t\t.settings-panel-range,\n\t\t.settings-panel-interval,\n\t\t.settings-panel-select,\n\t\t.settings-panel-color,\n\t\t.settings-panel-color-value,\n\t\t.settings-panel-value {\n\t\t\theight: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-button,\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch-label {\n\t\t\tmin-height: " + h + "em;\n\t\t}\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch-label {\n\t\t\tline-height: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-switch-label,\n\t\t.settings-panel-checkbox,\n\t\t.settings-panel-checkbox-label,\n\t\t.settings-panel-button {\n\t\t\tcursor: pointer;\n\t\t}\n\n\t\t.settings-panel-range::-webkit-slider-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-moz-range-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-track {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\n\t\t/* Default triangle styles are from control theme, just set display: block */\n\t\t.settings-panel-select-triangle {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\tborder-right: .3em solid transparent;\n\t\t\tborder-left: .3em solid transparent;\n\t\t\tline-height: " + h + "em;\n\t\t\tright: 2.5%;\n\t\t\theight: 0;\n\t\t\tz-index: 1;\n\t\t\tpointer-events: none;\n\t\t}\n\t\t.settings-panel-select-triangle--up {\n\t\t\ttop: 50%;\n\t\t\tmargin-top: -" + (h/4 + h/16) + "em;\n\t\t\tborder-bottom: " + (h/4) + "em solid;\n\t\t\tborder-top: 0px transparent;\n\t\t}\n\t\t.settings-panel-select-triangle--down {\n\t\t\ttop: 50%;\n\t\t\tmargin-top: " + (h/16) + "em;\n\t\t\tborder-top: " + (h/4) + "em solid;\n\t\t\tborder-bottom: .0 transparent;\n\t\t}\n\n\t\t:host hr {\n\t\t\topacity: .5;\n\t\t\tcolor: " + black + "\n\t\t}\n\t");
+	return ("\n\t\t:host {\n\t\t\tbackground: " + white + ";\n\t\t\tcolor: " + black + ";\n\t\t\tfont-family: " + font + ";\n\t\t\tfont-size: " + (px('font-size', fs)) + ";\n\t\t\tpadding: " + (h*2.5*padding) + "em;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tmin-height: " + h + "em;\n\t\t\tline-height: 1.5;\n\t\t\ttext-align: left;\n\t\t\tfont-size: " + (px('font-size',fs*1.333)) + ";\n\t\t\tpadding: " + (h * 2 * padding / 1.333) + "em " + (h * padding / 1.333) + "em;\n\t\t\tmin-height: " + (h/1.333) + "em;\n\t\t\tmargin: 0;\n\t\t}\n\n\t\t.settings-panel-field {\n\t\t\tpadding: " + (h * padding) + "em;\n\t\t}\n\n\t\t:host.settings-panel-orientation-left .settings-panel-label,\n\t\t:host .settings-panel-orientation-left .settings-panel-label,\n\t\t:host.settings-panel-orientation-right .settings-panel-label,\n\t\t:host .settings-panel-orientation-right .settings-panel-label {\n\t\t\twidth: " + (px('width', labelWidth)) + ";\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label {\n\t\t\tborder-top-width: " + h + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\n\t\t\ttop: " + (h/8) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-left .settings-panel-label {\n\t\t\tpadding-right: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label {\n\t\t\tpadding-left: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\n\t\t\twidth: calc(100% - " + labelWidth + ");\n\t\t}\n\n\t\t.settings-panel-text,\n\t\t.settings-panel-textarea,\n\t\t.settings-panel-range,\n\t\t.settings-panel-interval,\n\t\t.settings-panel-select,\n\t\t.settings-panel-color,\n\t\t.settings-panel-color-value,\n\t\t.settings-panel-value {\n\t\t\theight: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-button,\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch,\n\t\t.settings-panel-checkbox-group,\n\t\t.settings-panel-switch-label {\n\t\t\tmin-height: " + h + "em;\n\t\t}\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch,\n\t\t.settings-panel-select,\n\t\t.settings-panel-checkbox-group,\n\t\t.settings-panel-switch-label {\n\t\t\tline-height: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-switch-label,\n\t\t.settings-panel-checkbox,\n\t\t.settings-panel-checkbox-label,\n\t\t.settings-panel-button {\n\t\t\tcursor: pointer;\n\t\t}\n\n\t\t.settings-panel-range::-webkit-slider-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-moz-range-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-track {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\n\t\t/* Default triangle styles are from control theme, just set display: block */\n\t\t.settings-panel-select-triangle {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\tborder-right: .3em solid transparent;\n\t\t\tborder-left: .3em solid transparent;\n\t\t\tline-height: " + h + "em;\n\t\t\tright: 2.5%;\n\t\t\theight: 0;\n\t\t\tz-index: 1;\n\t\t\tpointer-events: none;\n\t\t}\n\t\t.settings-panel-select-triangle--up {\n\t\t\ttop: " + (h/2) + "em;\n\t\t\tmargin-top: -" + (h/4 + h/24) + "em;\n\t\t\tborder-bottom: " + (h/4) + "em solid;\n\t\t\tborder-top: 0px transparent;\n\t\t}\n\t\t.settings-panel-select-triangle--down {\n\t\t\ttop: " + (h/2) + "em;\n\t\t\tmargin-top: " + (h/24) + "em;\n\t\t\tborder-top: " + (h/4) + "em solid;\n\t\t\tborder-bottom: .0 transparent;\n\t\t}\n\n\t\t:host hr {\n\t\t\topacity: .5;\n\n\t\t\tcolor: " + black + "\n\t\t}\n\t");
 }
-},{"add-px-to-style":7,"just-extend":35}]},{},[80]);
+},{"add-px-to-style":7}],86:[function(require,module,exports){
+/**
+ * @module  settings-panel/theme/typer
+ *
+ * White theme
+ */
+
+
+var px = require('add-px-to-style');
+var fonts = require('google-fonts');
+var color = require('tinycolor2');
+var scopeCss = require('scope-css');
+var lerp = require('interpolation-arrays');
+var none = require('./none');
+
+
+module.exports = typer;
+
+// typer.palette = ['#4B4E59', '#BCC1C7' ,'#F1F1F3'];
+// typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
+typer.palette = ['#111', '#eee'];
+// typer.palette = ['black', 'white'];
+// typer.palette = ['#f95759', '#272727', '#fff'];
+
+typer.fontSize = 12;
+typer.fontFamily = '"Montserrat", sans-serif';
+typer.labelWidth = '9em';
+typer.inputHeight = 2;
+typer.padding = 1/5;
+
+//color balance
+typer.bg = .95;
+typer.active = .08;
+typer.radius = 2;
+
+fonts.add({
+	'Montserrat': [400, 600]
+});
+
+
+function typer (opts) {
+	opts = opts || {};
+
+	var h = opts.inputHeight || typer.inputHeight;
+	var labelWidth = opts.labelWidth || typer.labelWidth;
+	var fontSize = opts.fontSize || typer.fontSize;
+	var font = opts.fontFamily || typer.fontFamily;
+	var radius = opts.radius || typer.radius;
+	var padding = opts.padding || typer.padding;
+
+	//background/active tones
+	var bg = opts.bg || typer.bg;
+	var active = opts.active || typer.active;
+
+	//palette
+	var palette = (opts.palette || typer.palette).map(function (v) { return color(v).toRgb(); });
+	var pick = lerp(palette);
+
+	//obtain palette sorted by brightnes
+	var nPalette = palette.slice().sort(function (a, b) { return color(a).getLuminance() - color(b).getLuminance(); });
+	var npick = lerp(nPalette);
+
+	//the color of light/shadow to mix
+	var light = color.mix('white', nPalette[nPalette.length - 1], 25).toString();
+	var shadow = color.mix('black', nPalette[0], 25).toString();
+
+
+	//helpers
+	function tone (amt) {
+		if (typeof amt === 'number') {
+			amt = Math.max(Math.min(amt, 1), 0);
+			return color(pick(amt)).toString();
+		}
+		return amt;
+	}
+	function ntone (amt) {
+		if (typeof amt === 'number') {
+			amt = Math.max(Math.min(amt, 1), 0);
+			return color(npick(amt)).toString();
+		}
+		return amt;
+	}
+	function lighten (v, amt, t) {
+		if ( t === void 0 ) t = tone;
+
+		return color(t(v)).lighten(amt*100);
+	}
+	function darken (v, amt, t) {
+		if ( t === void 0 ) t = tone;
+
+		return color(t(v)).darken(amt*100);
+	}
+	function alpha (c, value) {
+		return color(c).setAlpha(value).toString();
+	}
+
+	var inversed = color(palette[0]).getLuminance() > color(palette[palette.length - 1]).getLuminance();
+
+
+	var pop = function (v, d, t) {
+		if ( v === void 0 ) v = .9;
+		if ( d === void 0 ) d = .05;
+		if ( t === void 0 ) t = tone;
+
+		return ("\n\t\t" + (text(active, v)) + "\n\t\tbackground-color: " + (t(v)) + ";\n\t\tbackground-image: linear-gradient(to bottom, " + (lighten(v, d, t)) + ", " + (darken(v, d, t)) + ");\n\t\tbox-shadow: inset 1px 0px " + (alpha(light, .04)) + ", inset 0px 1px " + (alpha(light, .15)) + ", inset 0px -1px 1px " + (alpha(light, .07)) + ", 0 1px 1px " + (alpha(shadow, .35)) + ";\n\t");
+	};
+	var push = function (v, d, t) {
+		if ( v === void 0 ) v = .1;
+		if ( d === void 0 ) d = .05;
+		if ( t === void 0 ) t = tone;
+
+		return ("\n\t\tbackground: " + (t(v)) + ";\n\t\t/*background-image: linear-gradient(to bottom, " + (darken(v, d, t)) + ", " + (lighten(v, d, t)) + ");*/\n\t\tbox-shadow: inset 0 1px 2px " + (alpha(shadow, .15)) + ", 0 1px " + (alpha(light, .17)) + ";\n\t\tcolor: " + (t(1 - active)) + ";\n\t\ttext-shadow: none;\n\t");
+	};
+	var text = function (v, bg) { return color(tone(v)).getLuminance() > color(tone(bg)).getLuminance() ? ("\n\t\tcolor: " + (tone(v)) + ";\n\t\tbackground: " + (tone(bg)) + ";\n\t\ttext-shadow: 0 -1px " + (color.mix(tone(bg), shadow, 50)) + ";\n\t") : ("\n\t\tcolor: " + (tone(v)) + ";\n\t\tbackground: " + (tone(bg)) + ";\n\t\ttext-shadow: 0 1px " + (color.mix(tone(bg), light, 50)) + ";\n\t"); };
+
+	return none({
+		fontSize: fontSize,
+		fontFamily: font,
+		inputHeight: h,
+		labelWidth: labelWidth,
+		palette: [tone(active), tone(bg)],
+		padding: padding
+	}) + "\n\t\t:host {\n\t\t\t" + (text(.25, bg)) + ";\n\t\t\tbox-shadow: inset 0 1px " + (alpha(light, .15)) + ", 0 2px 14px -2px " + (alpha(shadow, .75)) + ";\n\t\t\tborder-radius: " + (radius*2) + "px;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tfont-weight: 400;\n\t\t\t" + (text(.25, bg)) + ";\n\t\t}\n\n\t\t.settings-panel-label {\n\t\t\t" + (text(.5, bg)) + ";\n\t\t}\n\n\t\t.settings-panel-field:hover .settings-panel-label {\n\t\t\tcolor: " + (tone(active)) + ";\n\t\t}\n\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t}\n\t.settings-panel-value:first-child {\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-ms-track {\n\t\t" + (push(active, .05)) + "\n\t\toutline: none;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tborder-radius: .5em;\n\t\t" + (push(bg*.9, .05)) + "\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\twidth: 100%;\n\t\t\t--active: " + (tone(active)) + ";\n\t\t\t--bg: " + (tone(bg*.9)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-input {\n\t\t\tmargin-right: " + h + "em;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (tone(bg*.9 -.07)) + ";\n\t\t}\n\t\t.settings-panel-range-value {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tcolor: " + (tone(bg)) + ";\n\t\t\tbackground: " + (tone(active)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h*.65) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t\tmargin-left: " + (h*.1) + "em;\n\t\t\tdisplay: none;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(active)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value-tip,\n\t\t.settings-panel-range:focus ~ .settings-panel-value-tip {\n\t\t\tdisplay: block;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value,\n\t\t.settings-panel-range:focus ~ .settings-panel-value {\n\t\t\tdisplay: block;\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range:hover::-webkit-slider-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {\n\t}\n\t.settings-panel-range::-webkit-slider-thumb:active {\n\t}\n\n\t.settings-panel-range::-moz-range-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover,\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {\n\t}\n\t.settings-panel-range::-moz-range-thumb:active {\n\t}\n\n\t.settings-panel-range::-ms-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-ms-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range:hover::-ms-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {\n\t}\n\t.settings-panel-range::-ms-thumb:active {\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\t" + (push(bg*.9, .05)) + "\n\t\tbackground: " + (tone(bg*.9)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after,\n\t.settings-panel-interval-dragging .settings-panel-interval:after {\n\t\tbackground: " + (tone(bg*.9 -.07)) + ";\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + (tone(active)) + ";\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h*.4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\t" + (pop(active, -.05)) + ";\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h*.4) + "em;\n\t\tright: auto;\n\t}\n\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:before,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before {\n\t\t" + (pop(active, -.05)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-interval {\n\t\t\twidth: 100%;\n\t\t}\n\n\t\t.settings-panel-interval-value {\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tdisplay: none;\n\t\t\tcolor: " + (tone(bg)) + ";\n\t\t\tbackground: " + (tone(active)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: var(--value);\n\t\t}\n\n\t\t.settings-panel-field--interval .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\tdisplay: none;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: var(--low);\n\t\t\tmargin-left: " + (-h*.3) + "em;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(active)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-interval-value--right + .settings-panel-value-tip {\n\t\t\tleft: var(--high);\n\t\t}\n\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--interval:hover .settings-panel-interval-value,\n\t\t.settings-panel-interval-dragging .settings-panel-interval-value {\n\t\t\tdisplay: block;\n\t\t}\n\t\t@media (min-width: 640px) {\n\t\t\t.settings-panel-field--interval:hover .settings-panel-value-tip,\n\t\t\t.settings-panel-interval-dragging .settings-panel-value-tip {\n\t\t\t\tdisplay: block;\n\t\t\t}\n\t\t}\n\t}\n\n\n\t\t/** Switch style */\n\t\t.settings-panel-switch {\n\t\t}\n\t\t.settings-panel-switch-input {\n\t\t\tdisplay: none;\n\t\t}\n\t\t.settings-panel-switch-label {\n\t\t\tposition: relative;\n\t\t\tdisplay: inline-block;\n\t\t\tpadding: 0 " + (h/2) + "em;\n\t\t\tmargin: 0;\n\t\t\tz-index: 2;\n\t\t\ttext-align: center;\n\t\t\t" + (pop(bg * .9, .07)) + ";\n\t\t\tcolor: " + (tone(.25)) + ";\n\t\t}\n\t\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\t\t" + (push(active, .05)) + ";\n\t\t}\n\n\t\t.settings-panel-switch-input:first-child + .settings-panel-switch-label {\n\t\t\tborder-top-left-radius: 2px;\n\t\t\tborder-bottom-left-radius: 2px;\n\t\t}\n\t\t.settings-panel-switch-label:last-child {\n\t\t\tborder-top-right-radius: 2px;\n\t\t\tborder-bottom-right-radius: 2px;\n\t\t}\n\n\t\t.settings-panel-switch-label:hover {\n\t\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t\t}\n\t\t.settings-panel-switch-label:active {\n\t\t\t" + (pop(bg * .9 + (inversed ? .07 : -.07), .07)) + ";\n\t\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: " + (h/4) + "em;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\t" + (pop(bg * .9, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:active,\n\t.settings-panel-select:focus {\n\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcolor: inherit;\n\t\tdisplay: block;\n\t\ttransform: scale(.8);\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\tborder-radius: " + radius + "px;\n\t\t" + (pop(bg * .9, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\t" + (push(active, .05)) + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\theight: " + h + "em;\n\t\tpadding: 0;\n\t\twidth: 100%;\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: .4em;\n\t\t" + (push(bg*.93)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-textarea {\n\t\tpadding-top: .35em;\n\t}\n\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\t" + (push(bg * .93 - .04)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t\toutline: none;\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\tposition: relative;\n\t\twidth: " + h + "em;\n\t\tborder-top-left-radius: 3px;\n\t\tborder-bottom-left-radius: 3px;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t\tbox-shadow: 0 1px " + (alpha(light, .2)) + ";\n\t}\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tpadding-left: " + (h/4) + "em;\n\t\twidth: calc(100% - " + h + "em);\n\t\tfont-family: inherit;\n\t\tborder-top-left-radius: 0;\n\t\tborder-bottom-left-radius: 0;\n\t\tborder-top-right-radius: 3px;\n\t\tborder-bottom-right-radius: 3px;\n\t\t" + (push(bg*.93)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\t" + (push(bg * .93 - .04)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\t" + (text(.25, bg)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tfont-size: " + (h*.75) + "em;\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: 2em;\n\t\tmargin-right: -2em;\n\t\tmargin-top: -" + (h*.1) + "em;\n\t\topacity: 0;\n\t\tz-index: 1;\n\t\tposition: relative;\n\t\tcolor: " + (tone(1)) + ";\n\t\ttext-shadow: 0 1px 2px " + (alpha(shadow, .5)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\tmargin-top: -" + (h*.05) + "em;\n\t\twidth: " + (h*.666) + "em;\n\t\theight: " + (h*.666) + "em;\n\t\tborder-radius: " + radius + "px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tline-height: " + (h/2) + "em;\n\t\ttext-align: center;\n\t\tz-index: 0;\n\t\t" + (push(bg * .9)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover {\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover:after {\n\t\t" + (push(bg * .9 -.07, .07)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\topacity: 1;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\t" + (push(active, .1)) + ";\n\t}\n\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + (tone(active)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t::selection {\n\t\tbackground: " + (tone(active)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t:host hr {\n\t\tborder: none;\n\t\theight: 3px;\n\t\tborder-radius: " + radius + "px;\n\t\tmargin: " + (h/3) + "em 0;\n\t\t" + (push(bg, .05)) + ";\n\t}\n\t";
+};
+},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}]},{},[80]);
