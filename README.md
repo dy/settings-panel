@@ -33,7 +33,7 @@ var panel = createPanel([
 
 ## API
 
-**`const Panel = require('settings-panel')`**
+`const Panel = require('settings-panel')`
 <details><summary>**`let panel = new Panel(fields, options?)`**</summary>
 
 The first argument is a list of fields or object with id/field pairs. Each field may have following properties:
