@@ -4,6 +4,8 @@ Simple settings panel for your app, demo or tests.
 
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
 
+In the preview there is a _typer_ theme, for other themes or customizations see [demo](http://dfcreative.github.io/settings-panel/).
+
 ## Usage
 
 [![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
@@ -81,6 +83,7 @@ orientation: 'left',
 collapsible: false,
 
 // use a theme, see `theme` folder.
+// available themes: typer, flat, control, dragon
 theme: require('settings-panel/theme/none'),
 
 //theme customization, can redefine theme defaults
@@ -129,17 +132,16 @@ panel.set({ 'my range': { min: -100, value: 200}, 'my color': '#fff' });
 </details>
 <details><summary>**`panel.update(options?)`**</summary>
 
-Rerender panel with new options. Options may include values for the theme, like `palette`, `fontSize`, `fontFamily`, `labelWidth` etc.
+Rerender panel with new options. Options may include values for the theme, like `palette`, `fontSize`, `fontFamily`, `labelWidth`, `padding` etc, see specific theme file for possible options.
 
 </details>
 
-## Spotted the wild
+## Spotted in the wild
 
 > [plot-grid](https://dfcreative.github.io/plot-grid)
 
 ## See also
 
-> [prama](https://github.com/dfcreative/prama) — wrapper for settings-panel, providing, popup, button, collapsing, state management etc. Easier for app integration.<br/>
 > [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.<br/>
 > [oui](https://github.com/wearekuva/oui) — sci-ish panel.<br/>
 > [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.<br/>
