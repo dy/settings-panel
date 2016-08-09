@@ -101,7 +101,7 @@ function typer (opts) {
 	let push = (v = .1, d = .05, t = tone) => `
 		background: ${t(v)};
 		/*background-image: linear-gradient(to bottom, ${darken(v, d, t)}, ${lighten(v, d, t)});*/
-		box-shadow: inset 0 1px 2px ${alpha(shadow, .15)}, 0 1px ${alpha(light, .17)};
+		box-shadow: inset 0 1px 2px ${alpha(shadow, .15)}, 0 1px ${alpha(light, .2)};
 		color: ${t(1 - active)};
 		text-shadow: none;
 	`;
@@ -125,7 +125,7 @@ function typer (opts) {
 	}) + `
 		:host {
 			${text(.25, bg)};
-			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 2px 14px -2px ${alpha(shadow, .75)};
+			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 1.5px 11px -2px ${alpha(shadow, .666)};
 			border-radius: ${radius*2}px;
 		}
 
@@ -659,7 +659,7 @@ function typer (opts) {
 		height: 3px;
 		border-radius: ${radius}px;
 		margin: ${h/3}em 0;
-		${push(bg, .05)};
+		${push(bg * .98, .05)};
 	}
 	`;
 };

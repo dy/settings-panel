@@ -44,7 +44,7 @@ insertCSS(`
 		margin: 0;
 		position: relative;
 		min-height: 100vh;
-		// background: url('./images/land.jpg');
+		background: url('./images/land.jpg');
 		background-position: center top;
 		background-size: cover;
 		background-attachment: fixed;
