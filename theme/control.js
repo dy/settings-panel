@@ -12,7 +12,8 @@ const none = require('./none');
 
 module.exports = control;
 
-control.palette = ['#292929', '#e7e7e7'];
+// control.palette = ['#292929', '#e7e7e7'];
+control.palette = ['#e7e7e7', '#292929'];
 
 control.fontSize = '12px';
 control.fontFamily = '"Space Mono", monospace';
@@ -21,7 +22,7 @@ control.inputHeight = 1.66666;
 control.padding = 1/8;
 
 fonts.add({
-	'Space Mono': true
+	'Space Mono': 400
 });
 
 
@@ -66,9 +67,16 @@ function control (opts) {
 	}
 
 	.settings-panel-title {
-		font-size: 1.25em;
-		letter-spacing: .15ex;
+		font-size: 1em;
 		text-align: center;
+		font-weight: 400;
+		text-transform: uppercase;
+		color: ${black};
+		padding-bottom: ${h/3}em;
+	}
+
+	.settings-panel-label {
+		color: ${black};
 	}
 
 	/** Text */

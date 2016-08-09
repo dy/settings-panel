@@ -40,9 +40,9 @@ function none (opts) {
 			min-height: ${h}em;
 			line-height: 1.5;
 			text-align: left;
-			font-size: ${px('font-size',fs*1.5)};
-			padding: ${h*padding}em ${h * padding / 1.5 }em ${h*padding}em;
-			min-height: ${h/1.5}em;
+			font-size: ${px('font-size',fs*1.333)};
+			padding: ${h * 2 * padding / 1.333}em ${h * padding / 1.333 }em;
+			min-height: ${h/1.333}em;
 			margin: 0;
 		}
 

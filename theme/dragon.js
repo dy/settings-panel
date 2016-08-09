@@ -12,7 +12,7 @@ const none = require('./none');
 module.exports = dragon;
 
 fonts.add({
-	'Roboto': [400, 600]
+	'Roboto': 400
 });
 
 dragon.palette = ['black', 'white'];
@@ -22,7 +22,7 @@ dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
 dragon.inputHeight = 2;
-dragon.padding = 1/8;
+dragon.padding = 1/6;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -62,9 +62,10 @@ function dragon (opts) {
 
 	.settings-panel-title {
 		text-transform: none;
-		font-weight: 600;
+		font-weight: 400;
 		letter-spacing: .05ex;
 		color: ${white};
+		padding: ${h * 2 * padding / 1.333}em ${h * padding / 1.333 }em ${h * 4 * padding / 1.333}em;
 	}
 
 	.settings-panel-label {
@@ -189,7 +190,7 @@ function dragon (opts) {
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		appearance: none;
-		margin-left: -2px;
+		margin-left: -1px;
 	}
 	.settings-panel-switch-input {
 		display: none;
@@ -426,6 +427,11 @@ function dragon (opts) {
 		background: ${white};
 	}
 
+	.settings-panel-range-value {
+		text-align: right;
+		padding: 0;
+	}
+
 	:host.settings-panel-orientation-top .settings-panel-range,
 	.settings-panel-orientation-top .settings-panel-range {
 		width: 100%;
@@ -433,7 +439,7 @@ function dragon (opts) {
 	:host.settings-panel-orientation-top .settings-panel-range + .settings-panel-value,
 	.settings-panel-orientation-top .settings-panel-range + .settings-panel-value {
 		position: absolute;
-		top: -${h}em;
+		top: -${h*.8}em;
 		right: 0%;
 		text-align: right;
 	}
@@ -482,6 +488,9 @@ function dragon (opts) {
 	}
 	.settings-panel-field--interval:hover .settings-panel-value {
 		color: ${white};
+	}
+	.settings-panel-interval-value--right {
+		text-align: right;
 	}
 	.settings-panel-interval-handle:after {
 		content: '';

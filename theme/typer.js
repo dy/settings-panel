@@ -125,7 +125,7 @@ function typer (opts) {
 	}) + `
 		:host {
 			${text(.25, bg)};
-			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 4px 14px -3px ${shadow};
+			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 2px 14px -2px ${alpha(shadow, .75)};
 			border-radius: ${radius*2}px;
 		}
 
@@ -595,7 +595,7 @@ function typer (opts) {
 		float: left;
 		width: 2em;
 		margin-right: -2em;
-		margin-top: -${h*.12}em;
+		margin-top: -${h*.1}em;
 		opacity: 0;
 		z-index: 1;
 		position: relative;

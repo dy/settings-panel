@@ -63,6 +63,7 @@ function flat (opts) {
 		font-weight: 500;
 		-webkit-text-size-adjust: 100%;
 		-webkit-font-smoothing: antialiased;
+		box-shadow: 0 0 0 1px ${alpha(tone(.7), .25)};
 	}
 
 	.settings-panel-title {
@@ -565,8 +566,8 @@ function flat (opts) {
 	:host hr {
 		opacity: 1;
 		border-bottom: 1px solid ${alpha(tone(.7), .25)};
-		margin-left: -${h*.75}em;
-		margin-right: -${h*.75}em;
+		margin-left: -${h*.666}em;
+		margin-right: -${h*.666}em;
 		margin-top: ${h*.75}em;
 	}
 	:host a {
