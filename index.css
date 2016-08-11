@@ -185,6 +185,9 @@
 	line-height: 1.2;
 	margin-right: 1em;
 }
+.settings-panel-checkbox-group .settings-panel-checkbox-label:last-child {
+	margin-right: 0;
+}
 
 
 /** Color picker style */
