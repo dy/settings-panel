@@ -18,12 +18,17 @@
     "checkbox",
     "component",
     "color-picker",
+    "xypad",
     "dom",
     "css",
     "settings-panel",
     "control-panel",
     "options",
-    "form"
+    "form",
+    "dat.gui",
+    "oui",
+    "ouioui",
+    "datgui"
   ],
   "author": "ΔY <df.creative@gmail.com>",
   "contributors": [

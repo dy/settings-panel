@@ -63,7 +63,14 @@ function flat (opts) {
 		font-weight: 500;
 		-webkit-text-size-adjust: 100%;
 		-webkit-font-smoothing: antialiased;
-		box-shadow: 0 0 0 1px ${alpha(tone(.7), .25)};
+	}
+	:host a {
+		text-decoration: none;
+		border-bottom: 1px solid ${alpha(tone(.7), .25)};
+	}
+	:host a:hover {
+		text-decoration: none;
+		border-bottom: 1px solid ${alpha(tone(.7), 1)};
 	}
 
 	.settings-panel-title {
@@ -73,7 +80,7 @@ function flat (opts) {
 	}
 
 	.settings-panel-label {
-		color: ${tone(.7)};
+		color: ${alpha(tone(.5), .7)};
 		font-weight: 500;
 	}
 
@@ -90,7 +97,7 @@ function flat (opts) {
 		width: auto;
 		border-radius: 0;
 		font-weight: 500;
-		background: ${white};
+		background: none;
 		color: ${active};
 		box-shadow: 0 1px ${alpha(tone(.7), .25)};
 	}
@@ -340,7 +347,7 @@ function flat (opts) {
 		padding-right: 2em;
 		margin-right: -1em;
 		color: ${active};
-		background: ${white};
+		background: none;
 		line-height: ${h}em;
 		box-shadow: 0 1px ${alpha(tone(.7), .25)};
 		width: auto;
