@@ -61,7 +61,7 @@ For example,
 
 Some types have additional properties:
 
-- `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `value` must be the same and only `steps` is permitted (since the step size is not constant on a log scale).
+- `range` can specify a `min`, `max`, and `step` (or integer `steps`). Scale can be either `'linear'` (default) or `'log'`. If a log scale, the sign of `min`, `max`, and `value` must be the same and only `steps` is permitted (since the step size is not constant on a log scale). It also takes `precision` optional parameter for the displayed value.
 - `interval` obeys the same semantics as `range` inputs, except the input and ouput is a two-element array corresponding to the low/high bounds, e.g. `value: [1, 7.5]`.
 - `color` can specify a `format` as either `rgb` • `hex` • `array`
 - `select`, `switch` and `checkbox` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object containing key/value pairs (in which case the key/value pair maps to value value/label pairs).

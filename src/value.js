@@ -2,7 +2,7 @@ const num = require('input-number');
 
 module.exports = function (opts) {
   opts = opts || {}
-  var value = document.createElement('input')
+  var value = document.createElement('input');
 
   num(value, opts);
 

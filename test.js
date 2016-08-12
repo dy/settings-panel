@@ -317,6 +317,9 @@ var settings = createPanel([
 			panel.update({palette: palette});
 		}
 	},
+	{label: 'Active color', type:'color', id: 'active', value: panel.theme.active || panel.theme.palette[0], change: v => {
+		panel.update({active: v});
+	}},
 	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: v => {
 		panel.update({fontFamily: v});
 	}},

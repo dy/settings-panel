@@ -58,6 +58,7 @@
 	display: table-cell;
 	vertical-align: baseline;
 	position: relative;
+	white-space: nowrap;
 }
 
 .settings-panel-orientation-left .settings-panel-label {
@@ -166,6 +167,7 @@
 	appearance: none;
 	margin: 0;
 	padding: 0;
+	white-space: normal;
 }
 .settings-panel-checkbox {
 	display: inline-block;
@@ -314,6 +316,7 @@
 	-moz-appearance: none;
 	-o-appearance: none;
 	appearance: none;
+	min-width: 3em;
 	padding: 0 0 0 0em;
 	display: inline-block;
 	vertical-align: baseline;

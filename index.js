@@ -160,6 +160,8 @@ Panel.prototype.set = function (name, value) {
 			item.type = 'color'
 		} else if (typeof item.value === 'boolean') {
 			item.type = 'checkbox'
+		} else if (item.content != null) {
+			item.type = 'raw'
 		} else {
 			if (item.value && (item.value.length > 140 || /\n/.test(item.value))) {
 				item.type = 'textarea'

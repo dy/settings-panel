@@ -14,7 +14,8 @@ module.exports = flat;
 
 //uses reflective scheme
 flat.palette = ['black', '#fff'];
-flat.palette = ['#f95759', '#272727', '#fff'];
+flat.palette = ['#272727', '#fff'];
+flat.active = '#f95759';
 
 flat.fontSize = '14px';
 flat.fontFamily = '"Roboto", sans-serif';
@@ -41,8 +42,8 @@ function flat (opts) {
 
 	//NOTE: this is in case of scaling palette to black/white range
 	let white = tone(1);
-	let black = tone(.5);
-	let active = tone(0);
+	let black = tone(0);
+	let active = opts.active || flat.active || black;
 
 	function tone (amt) {
 		return color(pick(amt)).toString();
@@ -66,21 +67,21 @@ function flat (opts) {
 	}
 	:host a {
 		text-decoration: none;
-		border-bottom: 1px solid ${alpha(tone(.7), .25)};
+		border-bottom: 1px solid ${alpha(tone(.4), .25)};
 	}
 	:host a:hover {
 		text-decoration: none;
-		border-bottom: 1px solid ${alpha(tone(.7), 1)};
+		border-bottom: 1px solid ${alpha(tone(.4), 1)};
 	}
 
 	.settings-panel-title {
-		color: ${tone(.5)};
+		color: ${tone(0)};
 		font-family: ${font};
 		font-weight: 500;
 	}
 
 	.settings-panel-label {
-		color: ${alpha(tone(.5), .7)};
+		color: ${alpha(tone(0), .7)};
 		font-weight: 500;
 	}
 
@@ -99,7 +100,7 @@ function flat (opts) {
 		font-weight: 500;
 		background: none;
 		color: ${active};
-		box-shadow: 0 1px ${alpha(tone(.7), .25)};
+		box-shadow: 0 1px ${alpha(tone(.4), .25)};
 	}
 	.settings-panel-text:hover,
 	.settings-panel-color-value:hover,
@@ -120,7 +121,7 @@ function flat (opts) {
 		-moz-appearance: none;
 		appearance: none;
 		background: none;
-		color: ${tone(.5)};
+		color: ${tone(0)};
 		border: 0;
 		width: 85%;
 		margin-right: ${h/4}em;
@@ -321,7 +322,7 @@ function flat (opts) {
 
 	/** Values */
 	.settings-panel-value {
-		color: ${tone(.5)};
+		color: ${tone(0)};
 		font-weight: 500;
 	}
 	.settings-panel-value:first-child {
@@ -349,7 +350,7 @@ function flat (opts) {
 		color: ${active};
 		background: none;
 		line-height: ${h}em;
-		box-shadow: 0 1px ${alpha(tone(.7), .25)};
+		box-shadow: 0 1px ${alpha(tone(.4), .25)};
 		width: auto;
 	}
 	.settings-panel-select:hover,
@@ -391,7 +392,7 @@ function flat (opts) {
 	}
 	.settings-panel-checkbox-label {
 		display: inline-block;
-		color: ${tone(.5)};
+		color: ${tone(0)};
 		position: relative;
 		margin-right: ${h}em;
 		/* margin-bottom: ${h/2}em; */
@@ -410,13 +411,13 @@ function flat (opts) {
 		position: relative;
 		margin-right: ${h/3}em;
 		margin-left: 2px;
-		box-shadow: 0 0 0 2px ${alpha(tone(.5), .9)};
+		box-shadow: 0 0 0 2px ${alpha(tone(0), .9)};
 		line-height: ${h/2}em;
 		margin-top: 1px;
 		text-align: center;
 	}
 	.settings-panel-checkbox-label:hover:before {
-		box-shadow: 0 0 0 2px ${tone(.5)};
+		box-shadow: 0 0 0 2px ${tone(0)};
 	}
 	.settings-panel-checkbox:checked + .settings-panel-checkbox-label {
 		color: ${active};
@@ -432,7 +433,7 @@ function flat (opts) {
 		position: absolute;
 		width: ${h*1.5}em;
 		height: ${h*1.5}em;
-		background: ${tone(.55)};
+		background: ${tone(.1)};
 		border-radius: ${h}em;
 		top: -${h*.45}em;
 		left: -${h*.5}em;
@@ -475,7 +476,7 @@ function flat (opts) {
 		text-align: center;
 		border: none;
 		text-transform: uppercase;
-		color: ${tone(.5)};
+		color: ${tone(0)};
 		font-weight: 500;
 		background: none;
 		width: auto;
@@ -488,10 +489,10 @@ function flat (opts) {
 		outline: none;
 	}
 	.settings-panel-button:hover {
-		background: ${alpha(tone(.5), .08)};
+		background: ${alpha(tone(0), .08)};
 	}
 	.settings-panel-button:active {
-		background: ${alpha(tone(.5), .333)};
+		background: ${alpha(tone(0), .333)};
 	}
 
 
@@ -509,7 +510,7 @@ function flat (opts) {
 		z-index: 2;
 		text-align: center;
 		padding: 0 0;
-		color: ${tone(.5)};
+		color: ${tone(0)};
 	}
 	.settings-panel-switch-input:checked + .settings-panel-switch-label {
 		color: ${active};
@@ -517,10 +518,10 @@ function flat (opts) {
 	.settings-panel-switch-input + .settings-panel-switch-label:hover {
 	}
 	.settings-panel-switch-label:hover {
-		color: ${tone(.5)};
+		color: ${tone(0)};
 	}
 	.settings-panel-switch-label:active {
-		color: ${tone(.5)};
+		color: ${tone(0)};
 	}
 	.settings-panel-switch-label:after {
 		content: '';
@@ -530,7 +531,7 @@ function flat (opts) {
 		height: ${h*2}em;
 		min-width: 100%;
 		min-height: 100%;
-		background: ${tone(.55)};
+		background: ${tone(.1)};
 		border-radius: ${h}em;
 		top: 50%;
 		left: 50%;
@@ -572,7 +573,7 @@ function flat (opts) {
 	}
 	:host hr {
 		opacity: 1;
-		border-bottom: 1px solid ${alpha(tone(.7), .25)};
+		border-bottom: 1px solid ${alpha(tone(.4), .25)};
 		margin-left: -${h*.666}em;
 		margin-right: -${h*.666}em;
 		margin-top: ${h*.75}em;

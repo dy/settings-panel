@@ -1,3 +1,12 @@
+# Q: should we separate active color?
++ Makes sense for flat
++ Makes sense for typer
++ Unseful for control
+* Bearable for dragon
+* Possible to autodetect active color from palette, if undefined.
++ Expands palette to full range
++ Enables need in component enabler
+
 # Q: what are good theme principles?
 * It should look good in bw and inverse bw
 	→ don’t do bg gray, gray is property of palette, not the step. bg should allow for accents, but be on the edge, like .8, .9 etc.

@@ -35,6 +35,8 @@ Range.prototype.update = function (opts) {
 
 	if (opts.disabled) input.disabled = true;
 
+	if (opts.log) opts.scale = 'log';
+
 	// Create scale functions for converting to/from the desired scale:
 	if (opts.scale === 'log') {
 		scaleValue = function (x) {
@@ -107,14 +109,14 @@ Range.prototype.update = function (opts) {
 
 	if (opts.scale === 'log') {
 		//FIXME: not every log is of precision 3
-		var prec = 3;
+		var prec = opts.precision != null ? opts.precision : 3;
 	}
 	else {
 		if (opts.step) {
-			var prec = precision(opts.step);
+			var prec = opts.precision != null ? opts.precision : precision(opts.step);
 		}
 		else if (opts.steps) {
-			var prec = precision( (opts.max - opts.min) / opts.steps );
+			var prec = opts.precision != null ? opts.precision : precision( (opts.max - opts.min) / opts.steps );
 		}
 	}
 
@@ -130,7 +132,9 @@ Range.prototype.update = function (opts) {
 		//FIXME: step here might vary
 		step: opts.scale === 'log' ? 0.01 : opts.step,
 		input: (v) => {
-			input.value = scaleValueInverse(v)
+			v = scaleValueInverse(v)
+			input.value = v;
+			value.title = input.value;
 			// value.value = v
 			this.emit('input', v);
 			input.setAttribute('value', v.toFixed(0))
@@ -150,7 +154,7 @@ Range.prototype.update = function (opts) {
 	opts.container.style.setProperty('--coef', v/100);
 
 	setTimeout(() => {
-		this.emit('init', parseFloat(input.value))
+		this.emit('init', parseFloat(value.value))
 	});
 
 	input.oninput = (data) => {
@@ -160,6 +164,7 @@ Range.prototype.update = function (opts) {
 		input.setAttribute('value', v.toFixed(0));
 		opts.container.style.setProperty('--value', v + '%');
 		opts.container.style.setProperty('--coef', v/100);
+		value.title = scaledValue;
 		this.emit('input', scaledValue);
 	}
 
