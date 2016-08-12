@@ -6,6 +6,10 @@
 * Possible to autodetect active color from palette, if undefined.
 + Expands palette to full range
 + Enables need in component enabler
+* funny thing is that many schemes have active color in between edges, it is contrast to all of edge values.
+	* Also edge values seem good working for labels/title as it increase readability due to contrast, but active color highlights, it does not make things contrast.
+	* Also too often we don’t need brightness relationship between label/title/bg, because as far bg can be transparent, we can manage to do bw scale via opacity.
+	✔~ Therefore initial idea of picking active color from the middle may be good. As far as we avoid `active` option and put things back to single palette.
 
 # Q: what are good theme principles?
 * It should look good in bw and inverse bw

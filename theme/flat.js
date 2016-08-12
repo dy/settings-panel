@@ -14,8 +14,8 @@ module.exports = flat;
 
 //uses reflective scheme
 flat.palette = ['black', '#fff'];
-flat.palette = ['#272727', '#fff'];
-flat.active = '#f95759';
+flat.palette = ['#272727', '#f95759', '#fff'];
+// flat.active = '#f95759';
 
 flat.fontSize = '14px';
 flat.fontFamily = '"Roboto", sans-serif';
@@ -43,7 +43,7 @@ function flat (opts) {
 	//NOTE: this is in case of scaling palette to black/white range
 	let white = tone(1);
 	let black = tone(0);
-	let active = opts.active || flat.active || black;
+	let active = opts.active || tone(.5);
 
 	function tone (amt) {
 		return color(pick(amt)).toString();
@@ -67,21 +67,21 @@ function flat (opts) {
 	}
 	:host a {
 		text-decoration: none;
-		border-bottom: 1px solid ${alpha(tone(.4), .25)};
+		border-bottom: 1px solid ${alpha(tone(.0), .2)};
 	}
 	:host a:hover {
 		text-decoration: none;
-		border-bottom: 1px solid ${alpha(tone(.4), 1)};
+		border-bottom: 1px solid ${alpha(tone(.0), 1)};
 	}
 
 	.settings-panel-title {
-		color: ${tone(0)};
+		color: ${tone(.0)};
 		font-family: ${font};
 		font-weight: 500;
 	}
 
 	.settings-panel-label {
-		color: ${alpha(tone(0), .7)};
+		color: ${alpha(tone(.0), .666)};
 		font-weight: 500;
 	}
 
@@ -100,7 +100,7 @@ function flat (opts) {
 		font-weight: 500;
 		background: none;
 		color: ${active};
-		box-shadow: 0 1px ${alpha(tone(.4), .25)};
+		box-shadow: 0 1px ${alpha(tone(.0), .2)};
 	}
 	.settings-panel-text:hover,
 	.settings-panel-color-value:hover,
@@ -163,13 +163,13 @@ function flat (opts) {
 		background: ${active};
 	}
 	.settings-panel-range::-ms-fill-upper {
-		background: ${alpha(active, .25)};
+		background: ${alpha(active, .2)};
 	}
 
 	@supports (--css: variables) {
 		.settings-panel-range {
 			--active: ${active};
-			--bg: ${alpha(active, .25)};
+			--bg: ${alpha(active, .2)};
 			--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;
 		}
 		.settings-panel-range::-webkit-slider-runnable-track {
@@ -180,7 +180,7 @@ function flat (opts) {
 		}
 		.settings-panel-field--range:hover .settings-panel-range,
 		.settings-panel-range:focus {
-			--bg: ${alpha(active, .25)};
+			--bg: ${alpha(active, .2)};
 			--active: ${active};
 		}
 	}
@@ -267,7 +267,7 @@ function flat (opts) {
 		left: 0;
 		bottom: 0;
 		top: 0;
-		background: ${alpha(active, .25)};
+		background: ${alpha(active, .2)};
 		height: 2px;
 		margin-top: auto;
 		margin-bottom: auto;
@@ -283,7 +283,7 @@ function flat (opts) {
 		background: ${active};
 	}
 	.settings-panel-field--interval:hover .settings-panel-interval:after {
-		background: ${alpha(active, .25)};
+		background: ${alpha(active, .2)};
 	}
 	.settings-panel-field--interval:hover .settings-panel-interval-handle {
 		background: ${active};
@@ -350,7 +350,7 @@ function flat (opts) {
 		color: ${active};
 		background: none;
 		line-height: ${h}em;
-		box-shadow: 0 1px ${alpha(tone(.4), .25)};
+		box-shadow: 0 1px ${alpha(tone(.0), .2)};
 		width: auto;
 	}
 	.settings-panel-select:hover,
@@ -573,7 +573,7 @@ function flat (opts) {
 	}
 	:host hr {
 		opacity: 1;
-		border-bottom: 1px solid ${alpha(tone(.4), .25)};
+		border-bottom: 1px solid ${alpha(tone(.0), .2)};
 		margin-left: -${h*.666}em;
 		margin-right: -${h*.666}em;
 		margin-top: ${h*.75}em;

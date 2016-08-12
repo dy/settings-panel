@@ -18,8 +18,8 @@ module.exports = typer;
 // typer.palette = ['#4B4E59', '#BCC1C7' ,'#F1F1F3'];
 // typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
 // typer.palette = ['#111', '#eee'];
-// typer.palette = ['black', 'white'];
-typer.palette = ['#fff', '#21282E'];
+typer.palette = ['black', 'white'];
+// typer.palette = ['#fff', '#24D4C0' ,'#21282E'];
 typer.active = '#24D4C0';
 
 typer.fontSize = 12;

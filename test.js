@@ -3,9 +3,9 @@ const insertCSS = require('insert-styles');
 const css = require('dom-css');
 const Picker = require('simple-color-picker');
 const Sortable = require('sortablejs');
+const color = require('tinycolor2');
 const colormap = require('colormap');
 const colorScales = require('colormap/colorScales');
-const color = require('tinycolor2');
 let palettes = require('nice-color-palettes/500');
 
 let colormaps = {};
@@ -317,9 +317,9 @@ var settings = createPanel([
 			panel.update({palette: palette});
 		}
 	},
-	{label: 'Active color', type:'color', id: 'active', value: panel.theme.active || panel.theme.palette[0], change: v => {
-		panel.update({active: v});
-	}},
+	// {label: 'Active color', type:'color', id: 'active', value: panel.theme.active || panel.theme.palette[0], change: v => {
+	// 	panel.update({active: v});
+	// }},
 	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: v => {
 		panel.update({fontFamily: v});
 	}},

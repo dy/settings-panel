@@ -341,13 +341,13 @@ Panel.prototype.update = function (opts) {
 	extend(this, opts);
 
 	//FIXME: decide whether we have to reset these params
-	if (opts && opts.theme) {
-		if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
-		if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
-		if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
-		if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
-		if (opts.theme.palette) this.palette = opts.theme.palette;
-	}
+	// if (opts && opts.theme) {
+	// 	if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
+	// 	if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
+	// 	if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
+	// 	if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
+	// 	if (opts.theme.palette) this.palette = opts.theme.palette;
+	// }
 
 	//update title, if any
 	if (this.titleEl) this.titleEl.innerHTML = this.title;
