@@ -130,16 +130,16 @@ Range.prototype.update = function (opts) {
 		max: scaleValue(opts.max),
 		disabled: opts.disabled,
 		//FIXME: step here might vary
-		step: opts.scale === 'log' ? 0.01 : opts.step,
+		step: opts.step,
 		input: (v) => {
-			v = scaleValueInverse(v)
-			input.value = v;
+			let scaledValue = scaleValueInverse(v)
+			input.value = scaledValue;
 			value.title = input.value;
 			// value.value = v
 			this.emit('input', v);
-			input.setAttribute('value', v.toFixed(0))
-			opts.container.style.setProperty('--value', v + '%');
-			opts.container.style.setProperty('--coef', v/100);
+			input.setAttribute('value', scaledValue.toFixed(0))
+			opts.container.style.setProperty('--value', scaledValue + '%');
+			opts.container.style.setProperty('--coef', scaledValue/100);
 		}
 	});
 
