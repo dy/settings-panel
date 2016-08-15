@@ -18,7 +18,7 @@ module.exports = typer;
 // typer.palette = ['#4B4E59', '#BCC1C7' ,'#F1F1F3'];
 // typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
 // typer.palette = ['#111', '#eee'];
-typer.palette = ['black', 'white'];
+typer.palette = ['white', 'black'];
 // typer.palette = ['#fff', '#24D4C0' ,'#21282E'];
 typer.active = '#24D4C0';
 
@@ -134,7 +134,7 @@ function typer (opts) {
 
 		.settings-panel-title {
 			font-weight: 400;
-			${text(0, bg)};
+			${text(fg, bg)};
 			background: none;
 		}
 
@@ -532,7 +532,7 @@ function typer (opts) {
 		border-radius: ${radius}px;
 		padding-left: .4em;
 		${push(bg*.95)};
-		color: ${tone(0)};
+		color: ${tone(fg)};
 		text-shadow: none;
 	}
 	.settings-panel-textarea {
@@ -571,7 +571,7 @@ function typer (opts) {
 		border-top-right-radius: 3px;
 		border-bottom-right-radius: 3px;
 		${push(bg*.95)};
-		color: ${tone(0)};
+		color: ${tone(fg)};
 		text-shadow: none;
 	}
 	.settings-panel-color-value:hover,
