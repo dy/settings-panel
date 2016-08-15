@@ -2271,7 +2271,7 @@ var scopeCss = require('scope-css');
 module.exports = Panel
 
 
-insertCss(".settings-panel {\r\n\tposition: relative;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 32em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tpadding: .25em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: baseline;\r\n\tpadding-top: 0;\r\n\tmax-width: 100%;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: baseline;\r\n\tposition: relative;\r\n}\r\n\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-top: .4em;\r\n\tpadding-left: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding: 0;\r\n\tline-height: 1.5;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n\r\n.settings-panel-orientation-left > .settings-panel-label {\r\n\twidth: 9em;\r\n\tdisplay: table-cell;\r\n}\r\n\r\n.settings-panel-title {\r\n\tfont-size: 1.6em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\tpadding: .25em .25em;\r\n\ttext-align: center;\r\n}\r\n.settings-panel--collapsible .settings-panel-title {\r\n\tcursor: pointer;\r\n}\r\n.settings-panel--collapsed > *:not(.settings-panel-title) {\r\n\tdisplay: none!important;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-field--button {\r\n\tdisplay: inline-block;\r\n}\r\n.settings-panel-field--button .settings-panel-input {\r\n\tdisplay: block;\r\n\ttext-align: center;\r\n}\r\n.settings-panel-button {\r\n\tvertical-align: baseline;\r\n\tline-height: 1;\r\n\tmin-height: 2em;\r\n\tpadding: .2em 1em;\r\n\twidth: 100%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: baseline;\r\n}\r\n.settings-panel-textarea {\r\n\twidth: 100%;\r\n\tdisplay: block;\r\n\tvertical-align: top; /* allowable as we use autoheight */\r\n\tmin-height: 2em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-field--checkbox .settings-panel-input {\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-checkbox-group {\r\n\tborder: none;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tline-height: 1.2em;\r\n\tmargin: -.15em .25em 0 0;\r\n}\r\n.settings-panel-checkbox-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmargin: auto;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.settings-panel .Scp {\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n\tbottom: -120px;\r\n}\r\n.settings-panel .Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.settings-panel .Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.settings-panel .Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.settings-panel .Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.settings-panel .Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-interval {\r\n\tposition: relative;\r\n\t-webkit-appearance: none;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tvertical-align: baseline;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tcursor: text;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n.settings-panel-value-tip {\r\n\tdisplay: none;\r\n}\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n\twidth: 15%;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: baseline;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tcursor: pointer;\r\n\tmargin-right: .25em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n.settings-panel hr {\r\n\tborder: none;\r\n\theight: 0;\r\n\tmargin: .5em 0;\r\n\tborder-bottom: 1px dotted;\r\n}\r\n\r\n.settings-panel-field--disabled {\r\n\topacity: .5;\r\n\tpointer-events: none;\r\n}");
+insertCss(".settings-panel {\r\n\tposition: relative;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tcursor: default;\r\n\ttext-align: left;\r\n\tbox-sizing: border-box;\r\n\tfont-family: sans-serif;\r\n\tfont-size: 1rem;\r\n\twidth: 32em;\r\n\tmax-width: 100%;\r\n\tpadding: 1em;\r\n}\r\n\r\n.settings-panel [hidden] {\r\n\tdisplay: none!important;\r\n}\r\n\r\n.settings-panel * {\r\n\tbox-sizing: border-box;\r\n}\r\n\r\n.settings-panel input,\r\n.settings-panel button,\r\n.settings-panel textarea,\r\n.settings-panel select {\r\n\tfont-family: inherit;\r\n\tfont-size: inherit;\r\n}\r\n\r\n\r\n.settings-panel a {\r\n\tcolor: inherit;\r\n\ttext-decoration: none;\r\n}\r\n\r\n/** Basic layout */\r\n.settings-panel-field {\r\n\tposition: relative;\r\n\tpadding: .25em;\r\n\tdisplay: table;\r\n\twidth: 100%;\r\n}\r\n.settings-panel-field:last-child {\r\n\tmargin-bottom: 0;\r\n}\r\n.settings-panel-label {\r\n\tleft: 0;\r\n\tdisplay: table-cell;\r\n\tline-height: 1.2;\r\n\tvertical-align: baseline;\r\n\tpadding-top: 0;\r\n\tmax-width: 100%;\r\n}\r\n.settings-panel-input {\r\n\tdisplay: table-cell;\r\n\tvertical-align: baseline;\r\n\tposition: relative;\r\n\twhite-space: nowrap;\r\n}\r\n\r\n.settings-panel-orientation-left .settings-panel-label {\r\n\twidth: 9em;\r\n\tpadding-right: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label {\r\n\tdisplay: block;\r\n\tmargin-right: 0;\r\n\tfloat: right;\r\n\twidth: 9em;\r\n\tpadding-top: .4em;\r\n\tpadding-left: .5em;\r\n}\r\n.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: calc(100% - 9em);\r\n}\r\n.settings-panel-orientation-top .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding-top: 0;\r\n\tline-height: 1.5;\r\n}\r\n.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tpadding: 0;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label {\r\n\tdisplay: block;\r\n\twidth: 100%;\r\n\tmargin-right: 0;\r\n\tpadding: 0;\r\n\tline-height: 1.5;\r\n\tborder-top: 2.5em solid transparent;\r\n}\r\n.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\r\n\twidth: 100%;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n}\r\n\r\n.settings-panel-orientation-left > .settings-panel-label {\r\n\twidth: 9em;\r\n\tdisplay: table-cell;\r\n}\r\n\r\n.settings-panel-title {\r\n\tfont-size: 1.6em;\r\n\tline-height: 1.25;\r\n\tmargin-top: 0;\r\n\tmargin-bottom: 0;\r\n\tpadding: .25em .25em;\r\n\ttext-align: center;\r\n}\r\n.settings-panel--collapsible .settings-panel-title {\r\n\tcursor: pointer;\r\n}\r\n.settings-panel--collapsed > *:not(.settings-panel-title) {\r\n\tdisplay: none!important;\r\n}\r\n\r\n\r\n/** Button */\r\n.settings-panel-field--button {\r\n\tdisplay: inline-block;\r\n}\r\n.settings-panel-field--button .settings-panel-input {\r\n\tdisplay: block;\r\n\ttext-align: center;\r\n}\r\n.settings-panel-button {\r\n\tvertical-align: baseline;\r\n\tline-height: 1;\r\n\tmin-height: 2em;\r\n\tpadding: .2em 1em;\r\n\twidth: 100%;\r\n\tcursor: pointer;\r\n}\r\n\r\n\r\n/** Default text and alike style */\r\n.settings-panel-text {\r\n\theight: 2em;\r\n\twidth: 100%;\r\n\tvertical-align: baseline;\r\n}\r\n.settings-panel-textarea {\r\n\twidth: 100%;\r\n\tdisplay: block;\r\n\tvertical-align: top; /* allowable as we use autoheight */\r\n\tmin-height: 2em;\r\n}\r\n\r\n/** Checkbox style */\r\n.settings-panel-field--checkbox .settings-panel-input {\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-checkbox-group {\r\n\tborder: none;\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\twhite-space: normal;\r\n}\r\n.settings-panel-checkbox {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tline-height: 1.2em;\r\n\tmargin: -.15em .25em 0 0;\r\n}\r\n.settings-panel-checkbox-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n.settings-panel-checkbox-group .settings-panel-checkbox-label:last-child {\r\n\tmargin-right: 0;\r\n}\r\n\r\n\r\n/** Color picker style */\r\n.settings-panel-color {\r\n\tposition: relative;\r\n\twidth: 2em;\r\n\theight: 2em;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmargin: auto;\r\n}\r\n.settings-panel-color-value {\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tpadding: 0 0 0 2.5em;\r\n}\r\n.settings-panel .Scp {\r\n\t-webkit-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n\tposition: absolute;\r\n\tz-index: 10;\r\n\tcursor: pointer;\r\n\tbottom: -120px;\r\n}\r\n.settings-panel .Scp-saturation {\r\n\tposition: relative;\r\n\twidth: calc(100% - 25px);\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to right, #fff 0%, #f00 100%);\r\n\tfloat: left;\r\n}\r\n.settings-panel .Scp-brightness {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tbackground: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);\r\n}\r\n.settings-panel .Scp-sbSelector {\r\n\tborder: 1px solid;\r\n\tposition: absolute;\r\n\twidth: 14px;\r\n\theight: 14px;\r\n\tbackground: #fff;\r\n\tborder-radius: 10px;\r\n\ttop: -7px;\r\n\tleft: -7px;\r\n\tbox-sizing: border-box;\r\n\tz-index: 10;\r\n}\r\n.settings-panel .Scp-hue {\r\n\twidth: 20px;\r\n\theight: 100%;\r\n\tposition: relative;\r\n\tfloat: left;\r\n\tbackground: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);\r\n}\r\n.settings-panel .Scp-hSelector {\r\n\tposition: absolute;\r\n\tbackground: #fff;\r\n\tborder-bottom: 1px solid #000;\r\n\tright: -3px;\r\n\twidth: 10px;\r\n\theight: 2px;\r\n}\r\n\r\n\r\n\r\n/** Interval style */\r\n.settings-panel-interval {\r\n\tposition: relative;\r\n\t-webkit-appearance: none;\r\n\tdisplay: inline-block;\r\n\tvertical-align: top;\r\n\theight: 2em;\r\n\tmargin: 0px 0;\r\n\twidth: 70%;\r\n\tbackground: #ddd;\r\n\tcursor: ew-resize;\r\n\t-webkit-touch-callout: none;\r\n\t-webkit-user-select: none;\r\n\t-khtml-user-select: none;\r\n\t-moz-user-select: none;\r\n\t-ms-user-select: none;\r\n\tuser-select: none;\r\n}\r\n.settings-panel-interval-handle {\r\n\tbackground: #7a4;\r\n\tposition: absolute;\r\n\ttop: 0;\r\n\tbottom: 0;\r\n\tmin-width: 1px;\r\n}\r\n.settings-panel.settings-panel-interval-dragging * {\r\n\t-webkit-touch-callout: none !important;\r\n\t-webkit-user-select: none !important;\r\n\t-khtml-user-select: none !important;\r\n\t-moz-user-select: none !important;\r\n\t-ms-user-select: none !important;\r\n\tuser-select: none !important;\r\n\r\n\tcursor: ew-resize !important;\r\n}\r\n\r\n.settings-panel-interval + .settings-panel-value {\r\n\tright: 0;\r\n\tpadding-left: .5em;\r\n}\r\n\r\n\r\n\r\n/** Select style */\r\n.settings-panel-select {\r\n\tdisplay: inline-block;\r\n\twidth: 100%;\r\n\theight: 2em;\r\n\tvertical-align: baseline;\r\n}\r\n\r\n/** Value style */\r\n.settings-panel-value {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\t-o-appearance: none;\r\n\tappearance: none;\r\n\tmin-width: 3em;\r\n\tpadding: 0 0 0 0em;\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tcursor: text;\r\n\theight: 2em;\r\n\tborder: none;\r\n\tborder-radius: 0;\r\n\toutline: none;\r\n\tfont-family: inherit;\r\n\tbackground: none;\r\n\tcolor: inherit;\r\n\twidth: 15%;\r\n}\r\n.settings-panel-value:focus {\r\n\toutline: 0;\r\n\tbox-shadow: 0;\r\n}\r\n.settings-panel-value-tip {\r\n\tdisplay: none;\r\n}\r\n\r\n/** Range style */\r\n.settings-panel-range {\r\n\twidth: 85%;\r\n\tpadding: 0;\r\n\tmargin: 0px 0;\r\n\theight: 2em;\r\n\tvertical-align: top;\r\n}\r\n.settings-panel-range + .settings-panel-value {\r\n\tpadding-left: .5em;\r\n\twidth: 15%;\r\n}\r\n\r\n.settings-panel-switch {\r\n\t-webkit-appearance: none;\r\n\t-moz-appearance: none;\r\n\tappearance: none;\r\n\tborder: none;\r\n\tdisplay: block;\r\n\tvertical-align: baseline;\r\n\tpadding: 0;\r\n\tmargin: 0;\r\n\tline-height: 2em;\r\n}\r\n.settings-panel-switch-input {\r\n\tmargin: 0;\r\n\tvertical-align: middle;\r\n\twidth: 1.2em;\r\n\theight: 1.2em;\r\n\tcursor: pointer;\r\n\tmargin-right: .25em;\r\n}\r\n.settings-panel-switch-label {\r\n\tdisplay: inline-block;\r\n\tvertical-align: baseline;\r\n\tline-height: 1.2;\r\n\tmargin-right: 1em;\r\n}\r\n\r\n\r\n.settings-panel hr {\r\n\tborder: none;\r\n\theight: 0;\r\n\tmargin: .5em 0;\r\n\tborder-bottom: 1px dotted;\r\n}\r\n\r\n.settings-panel-field--disabled {\r\n\topacity: .5;\r\n\tpointer-events: none;\r\n}");
 
 
 /**
@@ -2418,6 +2418,8 @@ Panel.prototype.set = function (name, value) {
 			item.type = 'color'
 		} else if (typeof item.value === 'boolean') {
 			item.type = 'checkbox'
+		} else if (item.content != null) {
+			item.type = 'raw'
 		} else {
 			if (item.value && (item.value.length > 140 || /\n/.test(item.value))) {
 				item.type = 'textarea'
@@ -2597,13 +2599,13 @@ Panel.prototype.update = function (opts) {
 	extend(this, opts);
 
 	//FIXME: decide whether we have to reset these params
-	if (opts && opts.theme) {
-		if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
-		if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
-		if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
-		if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
-		if (opts.theme.palette) this.palette = opts.theme.palette;
-	}
+	// if (opts && opts.theme) {
+	// 	if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
+	// 	if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
+	// 	if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
+	// 	if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
+	// 	if (opts.theme.palette) this.palette = opts.theme.palette;
+	// }
 
 	//update title, if any
 	if (this.titleEl) this.titleEl.innerHTML = this.title;
@@ -2700,7 +2702,7 @@ Panel.prototype.orientation = 'left';
 
 /** Display collapse button */
 Panel.prototype.collapsible = false;
-},{"./src/button":69,"./src/checkbox":70,"./src/color":71,"./src/custom":72,"./src/interval":73,"./src/range":74,"./src/select":75,"./src/switch":76,"./src/text":77,"./src/textarea":78,"./theme/none":85,"add-px-to-style":7,"dom-css":17,"events":3,"get-uid":21,"inherits":23,"insert-styles":25,"is-plain-obj":34,"just-extend":35,"param-case":53,"scope-css":56}],7:[function(require,module,exports){
+},{"./src/button":72,"./src/checkbox":73,"./src/color":74,"./src/custom":75,"./src/interval":76,"./src/range":77,"./src/select":78,"./src/switch":79,"./src/text":80,"./src/textarea":81,"./theme/none":88,"add-px-to-style":7,"dom-css":23,"events":3,"get-uid":27,"inherits":29,"insert-styles":31,"is-plain-obj":35,"just-extend":36,"param-case":56,"scope-css":59}],7:[function(require,module,exports){
 /* The following list is defined in React's core */
 var IS_UNITLESS = {
   animationIterationCount: true,
@@ -3459,6 +3461,509 @@ if (typeof module === 'object' && module.exports) {
 
 }).call(this,require("buffer").Buffer)
 },{"buffer":2}],14:[function(require,module,exports){
+/**
+ * @module  color-interpolate
+ * Pick color from palette by index
+ */
+
+var parse = require('color-parse');
+var hsl = require('color-space/hsl');
+var lerp = require('lerp');
+var clamp = require('mumath/clamp');
+
+module.exports = interpolate;
+
+function interpolate (palette) {
+	palette = palette.map(function (c) {
+		c = parse(c);
+		if (c.space != 'rgb') {
+			if (c.space != 'hsl') throw ((c.space) + " space is not supported.");
+			c.values = hsl.rgb(c.values);
+		}
+		c.values.push(c.alpha);
+		return c.values;
+	});
+
+	return function (t, mix) {
+		if ( mix === void 0 ) mix = lerp;
+
+		t = clamp(t, 0, 1);
+
+		var idx = ( palette.length - 1 ) * t,
+			lIdx = Math.floor( idx ),
+			rIdx = Math.ceil( idx );
+
+		t = idx - lIdx;
+
+		var lColor = palette[lIdx], rColor = palette[rIdx];
+
+		var result = lColor.map(function (v, i) {
+			v = mix(v, rColor[i], t);
+			if (i < 3) v = Math.round(v);
+			return v;
+		});
+
+		if (result[3] === 1) {
+			return ("rgb(" + (result.slice(0,3)) + ")");
+		}
+		return ("rgba(" + result + ")");
+	};
+}
+},{"color-parse":17,"color-space/hsl":18,"lerp":38,"mumath/clamp":15}],15:[function(require,module,exports){
+/**
+ * Clamp value.
+ * Detects proper clamp min/max.
+ *
+ * @param {number} a Current value to cut off
+ * @param {number} min One side limit
+ * @param {number} max Other side limit
+ *
+ * @return {number} Clamped value
+ */
+
+module.exports = function(a, min, max){
+	return max > min ? Math.max(Math.min(a,max),min) : Math.max(Math.min(a,min),max);
+};
+},{}],16:[function(require,module,exports){
+module.exports = {
+	"aliceblue": [240, 248, 255],
+	"antiquewhite": [250, 235, 215],
+	"aqua": [0, 255, 255],
+	"aquamarine": [127, 255, 212],
+	"azure": [240, 255, 255],
+	"beige": [245, 245, 220],
+	"bisque": [255, 228, 196],
+	"black": [0, 0, 0],
+	"blanchedalmond": [255, 235, 205],
+	"blue": [0, 0, 255],
+	"blueviolet": [138, 43, 226],
+	"brown": [165, 42, 42],
+	"burlywood": [222, 184, 135],
+	"cadetblue": [95, 158, 160],
+	"chartreuse": [127, 255, 0],
+	"chocolate": [210, 105, 30],
+	"coral": [255, 127, 80],
+	"cornflowerblue": [100, 149, 237],
+	"cornsilk": [255, 248, 220],
+	"crimson": [220, 20, 60],
+	"cyan": [0, 255, 255],
+	"darkblue": [0, 0, 139],
+	"darkcyan": [0, 139, 139],
+	"darkgoldenrod": [184, 134, 11],
+	"darkgray": [169, 169, 169],
+	"darkgreen": [0, 100, 0],
+	"darkgrey": [169, 169, 169],
+	"darkkhaki": [189, 183, 107],
+	"darkmagenta": [139, 0, 139],
+	"darkolivegreen": [85, 107, 47],
+	"darkorange": [255, 140, 0],
+	"darkorchid": [153, 50, 204],
+	"darkred": [139, 0, 0],
+	"darksalmon": [233, 150, 122],
+	"darkseagreen": [143, 188, 143],
+	"darkslateblue": [72, 61, 139],
+	"darkslategray": [47, 79, 79],
+	"darkslategrey": [47, 79, 79],
+	"darkturquoise": [0, 206, 209],
+	"darkviolet": [148, 0, 211],
+	"deeppink": [255, 20, 147],
+	"deepskyblue": [0, 191, 255],
+	"dimgray": [105, 105, 105],
+	"dimgrey": [105, 105, 105],
+	"dodgerblue": [30, 144, 255],
+	"firebrick": [178, 34, 34],
+	"floralwhite": [255, 250, 240],
+	"forestgreen": [34, 139, 34],
+	"fuchsia": [255, 0, 255],
+	"gainsboro": [220, 220, 220],
+	"ghostwhite": [248, 248, 255],
+	"gold": [255, 215, 0],
+	"goldenrod": [218, 165, 32],
+	"gray": [128, 128, 128],
+	"green": [0, 128, 0],
+	"greenyellow": [173, 255, 47],
+	"grey": [128, 128, 128],
+	"honeydew": [240, 255, 240],
+	"hotpink": [255, 105, 180],
+	"indianred": [205, 92, 92],
+	"indigo": [75, 0, 130],
+	"ivory": [255, 255, 240],
+	"khaki": [240, 230, 140],
+	"lavender": [230, 230, 250],
+	"lavenderblush": [255, 240, 245],
+	"lawngreen": [124, 252, 0],
+	"lemonchiffon": [255, 250, 205],
+	"lightblue": [173, 216, 230],
+	"lightcoral": [240, 128, 128],
+	"lightcyan": [224, 255, 255],
+	"lightgoldenrodyellow": [250, 250, 210],
+	"lightgray": [211, 211, 211],
+	"lightgreen": [144, 238, 144],
+	"lightgrey": [211, 211, 211],
+	"lightpink": [255, 182, 193],
+	"lightsalmon": [255, 160, 122],
+	"lightseagreen": [32, 178, 170],
+	"lightskyblue": [135, 206, 250],
+	"lightslategray": [119, 136, 153],
+	"lightslategrey": [119, 136, 153],
+	"lightsteelblue": [176, 196, 222],
+	"lightyellow": [255, 255, 224],
+	"lime": [0, 255, 0],
+	"limegreen": [50, 205, 50],
+	"linen": [250, 240, 230],
+	"magenta": [255, 0, 255],
+	"maroon": [128, 0, 0],
+	"mediumaquamarine": [102, 205, 170],
+	"mediumblue": [0, 0, 205],
+	"mediumorchid": [186, 85, 211],
+	"mediumpurple": [147, 112, 219],
+	"mediumseagreen": [60, 179, 113],
+	"mediumslateblue": [123, 104, 238],
+	"mediumspringgreen": [0, 250, 154],
+	"mediumturquoise": [72, 209, 204],
+	"mediumvioletred": [199, 21, 133],
+	"midnightblue": [25, 25, 112],
+	"mintcream": [245, 255, 250],
+	"mistyrose": [255, 228, 225],
+	"moccasin": [255, 228, 181],
+	"navajowhite": [255, 222, 173],
+	"navy": [0, 0, 128],
+	"oldlace": [253, 245, 230],
+	"olive": [128, 128, 0],
+	"olivedrab": [107, 142, 35],
+	"orange": [255, 165, 0],
+	"orangered": [255, 69, 0],
+	"orchid": [218, 112, 214],
+	"palegoldenrod": [238, 232, 170],
+	"palegreen": [152, 251, 152],
+	"paleturquoise": [175, 238, 238],
+	"palevioletred": [219, 112, 147],
+	"papayawhip": [255, 239, 213],
+	"peachpuff": [255, 218, 185],
+	"peru": [205, 133, 63],
+	"pink": [255, 192, 203],
+	"plum": [221, 160, 221],
+	"powderblue": [176, 224, 230],
+	"purple": [128, 0, 128],
+	"rebeccapurple": [102, 51, 153],
+	"red": [255, 0, 0],
+	"rosybrown": [188, 143, 143],
+	"royalblue": [65, 105, 225],
+	"saddlebrown": [139, 69, 19],
+	"salmon": [250, 128, 114],
+	"sandybrown": [244, 164, 96],
+	"seagreen": [46, 139, 87],
+	"seashell": [255, 245, 238],
+	"sienna": [160, 82, 45],
+	"silver": [192, 192, 192],
+	"skyblue": [135, 206, 235],
+	"slateblue": [106, 90, 205],
+	"slategray": [112, 128, 144],
+	"slategrey": [112, 128, 144],
+	"snow": [255, 250, 250],
+	"springgreen": [0, 255, 127],
+	"steelblue": [70, 130, 180],
+	"tan": [210, 180, 140],
+	"teal": [0, 128, 128],
+	"thistle": [216, 191, 216],
+	"tomato": [255, 99, 71],
+	"turquoise": [64, 224, 208],
+	"violet": [238, 130, 238],
+	"wheat": [245, 222, 179],
+	"white": [255, 255, 255],
+	"whitesmoke": [245, 245, 245],
+	"yellow": [255, 255, 0],
+	"yellowgreen": [154, 205, 50]
+};
+},{}],17:[function(require,module,exports){
+/**
+ * @module color-parse
+ */
+
+module.exports = parse;
+
+
+var names = require('color-name');
+var pad = require('left-pad');
+var isObject = require('is-plain-obj');
+
+
+/**
+ * Base hues
+ * http://dev.w3.org/csswg/css-color/#typedef-named-hue
+ */
+//FIXME: use external hue detector
+var baseHues = {
+	red: 0,
+	orange: 60,
+	yellow: 120,
+	green: 180,
+	blue: 240,
+	purple: 300
+};
+
+var channels = {
+	r: 0,
+	red: 0,
+	g: 1,
+	green: 1,
+	b: 2,
+	blue: 2
+};
+
+
+/**
+ * Parse color from the string passed
+ *
+ * @return {Object} A space indicator `space`, an array `values` and `alpha`
+ */
+function parse (cstr) {
+	var m, parts = [0,0,0], alpha = 1, space = 'rgb';
+
+	//keyword
+	if (names[cstr]) {
+		parts = names[cstr].slice();
+	}
+
+	//reserved words
+	else if (cstr === 'transparent') alpha = 0;
+
+	//number (weird) case
+	else if (typeof cstr === 'number') {
+		parts = [cstr >>> 16, (cstr & 0x00ff00) >>> 8, cstr & 0x0000ff];
+	}
+
+	//object case - detects css cases of rgb and hsl
+	else if (isObject(cstr)) {
+		if (cstr.r != null) {
+			parts = [cstr.r, cstr.g, cstr.b];
+		}
+		else if (cstr.red != null) {
+			parts = [cstr.red, cstr.green, cstr.blue];
+		}
+		else if (cstr.h != null) {
+			parts = [cstr.h, cstr.s, cstr.l];
+			space = 'hsl';
+		}
+		else if (cstr.hue != null) {
+			parts = [cstr.hue, cstr.saturation, cstr.lightness];
+			space = 'hsl';
+		}
+
+		if (cstr.a != null) alpha = cstr.a;
+		else if (cstr.alpha != null) alpha = cstr.alpha;
+		else if (cstr.opacity != null) alpha = cstr.opacity / 100;
+	}
+
+	//array passed
+	else if (Array.isArray(cstr) || ArrayBuffer.isView(cstr)) {
+		parts = [cstr[0], cstr[1], cstr[2]];
+		alpha = cstr.length === 4 ? cstr[3] : 1;
+	}
+
+	//hex
+	else if (/^#[A-Fa-f0-9]+$/.test(cstr)) {
+		var base = cstr.replace(/^#/,'');
+		var size = base.length;
+		var isShort = size <= 4;
+
+		parts = base.split(isShort ? /(.)/ : /(..)/);
+		parts = parts.filter(Boolean)
+			.map(function (x) {
+				if (isShort) {
+					return parseInt(x + x, 16);
+				}
+				else {
+					return parseInt(x, 16);
+				}
+			});
+
+		if (parts.length === 4) {
+			alpha = parts[3] / 255;
+			parts = parts.slice(0,3);
+		}
+		if (!parts[0]) parts[0] = 0;
+		if (!parts[1]) parts[1] = 0;
+		if (!parts[2]) parts[2] = 0;
+	}
+
+	//color space
+	else if (m = /^((?:rgb|hs[lvb]|hwb|cmyk?|xy[zy]|gray|lab|lchu?v?|[ly]uv|lms)a?)\s*\(([^\)]*)\)/.exec(cstr)) {
+		var name = m[1];
+		var base = name.replace(/a$/, '');
+		space = base;
+		var size = base === 'cmyk' ? 4 : base === 'gray' ? 1 : 3;
+		parts = m[2].trim()
+			.split(/\s*,\s*/)
+			.map(function (x, i) {
+				//<percentage>
+				if (/%$/.test(x)) {
+					//alpha
+					if (i === size)	return parseFloat(x) / 100;
+					//rgb
+					if (base === 'rgb') return parseFloat(x) * 255 / 100;
+					return parseFloat(x);
+				}
+				//hue
+				else if (base[i] === 'h') {
+					//<deg>
+					if (/deg$/.test(x)) {
+						return parseFloat(x);
+					}
+					//<base-hue>
+					else if (baseHues[x] !== undefined) {
+						return baseHues[x];
+					}
+				}
+				return parseFloat(x);
+			});
+
+		if (name === base) parts.push(1);
+		alpha = parts[size] === undefined ? 1 : parts[size];
+		parts = parts.slice(0, size);
+	}
+
+	//named channels case
+	else if (cstr.length > 10 && /[0-9](?:\s|\/)/.test(cstr)) {
+		parts = cstr.match(/([0-9]+)/g).map(function (value) {
+			return parseFloat(value);
+		});
+
+		space = cstr.match(/([a-z])/ig).join('').toLowerCase();
+	}
+
+	else {
+		throw Error('Unable to parse ' + cstr);
+	}
+
+	return {
+		space: space,
+		values: parts,
+		alpha: alpha
+	};
+}
+},{"color-name":16,"is-plain-obj":35,"left-pad":37}],18:[function(require,module,exports){
+/**
+ * @module color-space/hsl
+ */
+
+var rgb = require('./rgb');
+
+module.exports = {
+	name: 'hsl',
+	min: [0,0,0],
+	max: [360,100,100],
+	channel: ['hue', 'saturation', 'lightness'],
+	alias: ['HSL'],
+
+	rgb: function(hsl) {
+		var h = hsl[0] / 360,
+				s = hsl[1] / 100,
+				l = hsl[2] / 100,
+				t1, t2, t3, rgb, val;
+
+		if (s === 0) {
+			val = l * 255;
+			return [val, val, val];
+		}
+
+		if (l < 0.5) {
+			t2 = l * (1 + s);
+		}
+		else {
+			t2 = l + s - l * s;
+		}
+		t1 = 2 * l - t2;
+
+		rgb = [0, 0, 0];
+		for (var i = 0; i < 3; i++) {
+			t3 = h + 1 / 3 * - (i - 1);
+			if (t3 < 0) {
+				t3++;
+			}
+			else if (t3 > 1) {
+				t3--;
+			}
+
+			if (6 * t3 < 1) {
+				val = t1 + (t2 - t1) * 6 * t3;
+			}
+			else if (2 * t3 < 1) {
+				val = t2;
+			}
+			else if (3 * t3 < 2) {
+				val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+			}
+			else {
+				val = t1;
+			}
+
+			rgb[i] = val * 255;
+		}
+
+		return rgb;
+	}
+};
+
+
+//extend rgb
+rgb.hsl = function(rgb) {
+	var r = rgb[0]/255,
+			g = rgb[1]/255,
+			b = rgb[2]/255,
+			min = Math.min(r, g, b),
+			max = Math.max(r, g, b),
+			delta = max - min,
+			h, s, l;
+
+	if (max === min) {
+		h = 0;
+	}
+	else if (r === max) {
+		h = (g - b) / delta;
+	}
+	else if (g === max) {
+		h = 2 + (b - r) / delta;
+	}
+	else if (b === max) {
+		h = 4 + (r - g)/ delta;
+	}
+
+	h = Math.min(h * 60, 360);
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	l = (min + max) / 2;
+
+	if (max === min) {
+		s = 0;
+	}
+	else if (l <= 0.5) {
+		s = delta / (max + min);
+	}
+	else {
+		s = delta / (2 - max - min);
+	}
+
+	return [h, s * 100, l * 100];
+};
+},{"./rgb":19}],19:[function(require,module,exports){
+/**
+ * RGB space.
+ *
+ * @module  color-space/rgb
+ */
+
+module.exports = {
+	name: 'rgb',
+	min: [0,0,0],
+	max: [255,255,255],
+	channel: ['red', 'green', 'blue'],
+	alias: ['RGB']
+};
+},{}],20:[function(require,module,exports){
 module.exports={
 	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
 
@@ -3551,7 +4056,7 @@ module.exports={
 	"cubehelix": [{"index":0,"rgb":[0,0,0]},{"index":0.07,"rgb":[22,5,59]},{"index":0.13,"rgb":[60,4,105]},{"index":0.2,"rgb":[109,1,135]},{"index":0.27,"rgb":[161,0,147]},{"index":0.33,"rgb":[210,2,142]},{"index":0.4,"rgb":[251,11,123]},{"index":0.47,"rgb":[255,29,97]},{"index":0.53,"rgb":[255,54,69]},{"index":0.6,"rgb":[255,85,46]},{"index":0.67,"rgb":[255,120,34]},{"index":0.73,"rgb":[255,157,37]},{"index":0.8,"rgb":[241,191,57]},{"index":0.87,"rgb":[224,220,93]},{"index":0.93,"rgb":[218,241,142]},{"index":1,"rgb":[227,253,198]}]
 };
 
-},{}],15:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /*
  * Ben Postlethwaite
  * January 2013
@@ -3688,7 +4193,7 @@ function rgbaStr (rgba) {
     return 'rgba(' + rgba.join(',') + ')';
 }
 
-},{"./colorScales":14,"arraytools":8,"clone":13}],16:[function(require,module,exports){
+},{"./colorScales":20,"arraytools":8,"clone":13}],22:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -3854,7 +4359,7 @@ Emitter.prototype.listeners = function(event){
 Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
-},{}],17:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var prefix = require('prefix-style')
 var toCamelCase = require('to-camel-case')
 var cache = { 'float': 'cssFloat' }
@@ -3913,7 +4418,7 @@ module.exports.get = function (element, properties) {
   }
 }
 
-},{"add-px-to-style":7,"prefix-style":54,"to-camel-case":65}],18:[function(require,module,exports){
+},{"add-px-to-style":7,"prefix-style":57,"to-camel-case":68}],24:[function(require,module,exports){
 'use strict';
 
 var trim = require('trim');
@@ -4001,7 +4506,7 @@ function numToString(value) {
   return value;
 }
 
-},{"./lib/properties":20,"prefix":55,"trim":68}],19:[function(require,module,exports){
+},{"./lib/properties":26,"prefix":58,"trim":71}],25:[function(require,module,exports){
 'use strict';
 
 exports = module.exports = compose;
@@ -4020,7 +4525,7 @@ function compose() {
   };
 }
 
-},{}],20:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 var trim = require('trim');
@@ -4143,14 +4648,14 @@ function defaultUnit(unit) {
   };
 }
 
-},{"./compose":19,"trim":68}],21:[function(require,module,exports){
+},{"./compose":25,"trim":71}],27:[function(require,module,exports){
 /** generate unique id for selector */
 var counter = Date.now() % 1e9;
 
 module.exports = function getUid(){
 	return (Math.random() * 1e9 >>> 0) + (counter++);
 };
-},{}],22:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = asString
 module.exports.add = append
 
@@ -4190,7 +4695,7 @@ function makeArray(arr) {
   return Array.isArray(arr) ? arr : [arr]
 }
 
-},{}],23:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -4215,7 +4720,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],24:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * @module  input-number
  */
@@ -4304,7 +4809,7 @@ function numerify (input, opts) {
 
 	return input;
 }
-},{"caret-position2":11,"mumath/clamp":48,"mumath/round":50}],25:[function(require,module,exports){
+},{"caret-position2":11,"mumath/clamp":51,"mumath/round":53}],31:[function(require,module,exports){
 (function (global){
 'use strict'
 
@@ -4340,100 +4845,7 @@ function createStyle (id) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],26:[function(require,module,exports){
-var builder = require( 'interpolation-values' );
-
-module.exports = function( values, interpolationFunc ) {
-
-	interpolationFunc =  builder( values[ 0 ], interpolationFunc );
-
-	return function( t ) {
-
-		var idxT = ( values.length - 1 ) * t,
-			sIdx = Math.floor( idxT ),
-			eIdx = Math.ceil( idxT ),
-			t = idxT - sIdx;
-
-		return interpolationFunc( values[ sIdx ], values[ eIdx ], t );
-	};
-};
-},{"interpolation-values":27}],27:[function(require,module,exports){
-var interpolation = require( 'interpolation' );
-
-module.exports = function( exVal, interpolationFunction ) {
-
-	interpolationFunction = interpolationFunction || interpolation.lerp;
-
-	if( typeof exVal == 'number' ) {
-
-		return interpolationFunction;
-	} else if( Array.isArray( exVal ) ) {
-
-		return require( './lib/array' )( interpolationFunction );
-	} else if( typeof exVal == 'object' ) {
-
-		return require( './lib/object' )( exVal, interpolationFunction );
-	} else {
-
-		throw 'Value of type ' + ( typeof exVal ) + ' cannot be interpolated';
-	}
-}
-},{"./lib/array":28,"./lib/object":29,"interpolation":30}],28:[function(require,module,exports){
-module.exports = function( interpolate ) {
-
-	return function( val1, val2, t ) {
-
-		var rVal = [];
-
-		for( var i = 0, len = val1.length; i < len; i++ ) {
-
-			rVal[ i ] = interpolate( val1[ i ], val2[ i ], t );
-		}
-
-		return rVal;
-	};
-};
-},{}],29:[function(require,module,exports){
-module.exports = function( exVal, interpolate ) {
-
-	var keys = [];
-
-	for( var i in exVal ) {
-
-		if( typeof exVal[ i ] == 'number' ) {
-
-			keys.push( i );
-		}
-	}
-
-	return function( val1, val2, t ) {
-
-		var key, rVal = Object.create( exVal );
-
-		for( var i = 0, len = keys.length; i < len; i++ ) {
-
-			key = keys[ i ];
-
-			rVal[ key ] = interpolate( val1[ key ], val2[ key ], t );
-		}
-
-		return rVal;
-	};
-};
-},{}],30:[function(require,module,exports){
-/** Utility function for linear interpolation. */
-module.exports.lerp = function(v0, v1, t) {
-    return v0*(1-t)+v1*t;
-};
-
-/** Utility function for Hermite interpolation. */
-module.exports.smoothstep = function(v0, v1, t) {
-    // Scale, bias and saturate x to 0..1 range
-    t = Math.max(0.0, Math.min(1.0, (t - v0)/(v1 - v0) ));
-    // Evaluate polynomial
-    return t*t*(3 - 2*t);
-};
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = isMobile;
 
 function isMobile (ua) {
@@ -4446,7 +4858,7 @@ function isMobile (ua) {
   return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(ua) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(ua.substr(0,4));
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * is-number <https://github.com/jonschlinkert/is-number>
  *
@@ -4462,7 +4874,7 @@ module.exports = function isNumber(n) {
     || n === 0;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 (function(root) {
   'use strict';
 
@@ -4488,7 +4900,7 @@ module.exports = function isNumber(n) {
 
 })(this);
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 var toString = Object.prototype.toString;
 
@@ -4497,7 +4909,7 @@ module.exports = function (x) {
 	return toString.call(x) === '[object Object]' && (prototype = Object.getPrototypeOf(x), prototype === null || prototype === Object.getPrototypeOf({}));
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports = extend;
 
 /*
@@ -4547,7 +4959,61 @@ function extend(obj1, obj2 /*, [objn]*/) {
   return result;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
+'use strict';
+module.exports = leftPad;
+
+var cache = [
+  '',
+  ' ',
+  '  ',
+  '   ',
+  '    ',
+  '     ',
+  '      ',
+  '       ',
+  '        ',
+  '         '
+];
+
+function leftPad (str, len, ch) {
+  // convert `str` to `string`
+  str = str + '';
+  // `len` is the `pad`'s length now
+  len = len - str.length;
+  // doesn't need to pad
+  if (len <= 0) return str;
+  // `ch` defaults to `' '`
+  if (!ch && ch !== 0) ch = ' ';
+  // convert `ch` to `string`
+  ch = ch + '';
+  // cache common use cases
+  if (ch === ' ' && len < 10) return cache[len] + str;
+  // `pad` starts with an empty string
+  var pad = '';
+  // loop
+  while (true) {
+    // add `ch` to `pad` if `len` is odd
+    if (len & 1) pad += ch;
+    // devide `len` by 2, ditch the fraction
+    len >>= 1;
+    // "double" the `ch` so this operation count grows logarithmically on `len`
+    // each time `ch` is "doubled", the `len` would need to be "doubled" too
+    // similar to finding a value in binary search tree, hence O(log(n))
+    if (len) ch += ch;
+    // `len` is 0, exit the loop
+    else break;
+  }
+  // pad `str`!
+  return pad + str;
+}
+
+},{}],38:[function(require,module,exports){
+function lerp(v0, v1, t) {
+    return v0*(1-t)+v1*t
+}
+module.exports = lerp
+},{}],39:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4680,7 +5146,7 @@ function isLength(value) {
 
 module.exports = baseFlatten;
 
-},{"lodash.isarguments":42,"lodash.isarray":43}],37:[function(require,module,exports){
+},{"lodash.isarguments":45,"lodash.isarray":46}],40:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -4717,7 +5183,7 @@ function baseFunctions(object, props) {
 
 module.exports = baseFunctions;
 
-},{"lodash.isfunction":44}],38:[function(require,module,exports){
+},{"lodash.isfunction":47}],41:[function(require,module,exports){
 /**
  * lodash 3.2.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -5400,7 +5866,7 @@ function toNumber(value) {
 
 module.exports = createWrapper;
 
-},{"lodash._root":39}],39:[function(require,module,exports){
+},{"lodash._root":42}],42:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -5463,7 +5929,7 @@ function checkGlobal(value) {
 module.exports = root;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /**
  * lodash 3.1.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -5523,7 +5989,7 @@ var bindAll = restParam(function(object, methodNames) {
 
 module.exports = bindAll;
 
-},{"lodash._baseflatten":36,"lodash._createwrapper":38,"lodash.functions":41,"lodash.restparam":46}],41:[function(require,module,exports){
+},{"lodash._baseflatten":39,"lodash._createwrapper":41,"lodash.functions":44,"lodash.restparam":49}],44:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -5556,7 +6022,7 @@ function functions(object) {
 
 module.exports = functions;
 
-},{"lodash._basefunctions":37,"lodash.keysin":45}],42:[function(require,module,exports){
+},{"lodash._basefunctions":40,"lodash.keysin":48}],45:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -5801,7 +6267,7 @@ function isObjectLike(value) {
 
 module.exports = isArguments;
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -5983,7 +6449,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -6060,7 +6526,7 @@ function isObject(value) {
 
 module.exports = isFunction;
 
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /**
  * lodash 3.0.8 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6194,7 +6660,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"lodash.isarguments":42,"lodash.isarray":43}],46:[function(require,module,exports){
+},{"lodash.isarguments":45,"lodash.isarray":46}],49:[function(require,module,exports){
 /**
  * lodash 3.6.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -6263,7 +6729,7 @@ function restParam(func, start) {
 
 module.exports = restParam;
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /**
  * Special language-specific overrides.
  *
@@ -6319,7 +6785,7 @@ module.exports = function (str, locale) {
   return str.toLowerCase()
 }
 
-},{}],48:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /**
  * Clamp value.
  * Detects proper clamp min/max.
@@ -6334,7 +6800,7 @@ module.exports = function (str, locale) {
 module.exports = require('./wrap')(function(a, min, max){
 	return max > min ? Math.max(Math.min(a,max),min) : Math.max(Math.min(a,min),max);
 });
-},{"./wrap":51}],49:[function(require,module,exports){
+},{"./wrap":54}],52:[function(require,module,exports){
 /**
  * @module  mumath/precision
  *
@@ -6354,7 +6820,7 @@ module.exports = require('./wrap')(function(n){
 
 	return !d ? 0 : s.length - d;
 });
-},{"./wrap":51}],50:[function(require,module,exports){
+},{"./wrap":54}],53:[function(require,module,exports){
 /**
  * Precision round
  *
@@ -6377,7 +6843,7 @@ module.exports = require('./wrap')(function(value, step) {
 	value = Math.round(value / step) * step;
 	return parseFloat(value.toFixed(precision(step)));
 });
-},{"./precision":49,"./wrap":51}],51:[function(require,module,exports){
+},{"./precision":52,"./wrap":54}],54:[function(require,module,exports){
 /**
  * Get fn wrapped with array/object attrs recognition
  *
@@ -6419,9 +6885,9 @@ module.exports = function(fn){
 		}
 	};
 };
-},{}],52:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports=[["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#7e5686","#a5aad9","#e8f9a2","#f8a13f","#ba3c3d"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"],["#aaff00","#ffaa00","#ff00aa","#aa00ff","#00aaff"],["#ffe181","#eee9e5","#fad3b2","#ffba7f","#ff9c97"],["#7e5686","#a5aad9","#e8f9a2","#f8a13f","#ba3c3d"],["#379f7a","#78ae62","#bbb749","#e0fbac","#1f1c0d"]]
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var sentenceCase = require('sentence-case')
 
 /**
@@ -6435,7 +6901,7 @@ module.exports = function (string, locale) {
   return sentenceCase(string, locale, '-')
 }
 
-},{"sentence-case":57}],54:[function(require,module,exports){
+},{"sentence-case":60}],57:[function(require,module,exports){
 var div = null
 var prefixes = [ 'Webkit', 'Moz', 'O', 'ms' ]
 
@@ -6467,14 +6933,14 @@ module.exports = function prefixStyle (prop) {
   return false
 }
 
-},{}],55:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 function identity(x) { return x; }
 
 module.exports = identity;
 module.exports.dash = identity;
 module.exports.dash = identity;
 
-},{}],56:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports = scope;
 scope.replace = replace;
 
@@ -6506,7 +6972,7 @@ function replace (css, replacer) {
 
 	return css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, replacer);
 }
-},{}],57:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var lowerCase = require('lower-case')
 
 var NON_WORD_REGEXP = require('./vendor/non-word-regexp')
@@ -6548,16 +7014,16 @@ module.exports = function (str, locale, replacement) {
   return lowerCase(str, locale)
 }
 
-},{"./vendor/camel-case-regexp":58,"./vendor/non-word-regexp":59,"./vendor/trailing-digit-regexp":60,"lower-case":47}],58:[function(require,module,exports){
+},{"./vendor/camel-case-regexp":61,"./vendor/non-word-regexp":62,"./vendor/trailing-digit-regexp":63,"lower-case":50}],61:[function(require,module,exports){
 module.exports = /([\u0061-\u007A\u00B5\u00DF-\u00F6\u00F8-\u00FF\u0101\u0103\u0105\u0107\u0109\u010B\u010D\u010F\u0111\u0113\u0115\u0117\u0119\u011B\u011D\u011F\u0121\u0123\u0125\u0127\u0129\u012B\u012D\u012F\u0131\u0133\u0135\u0137\u0138\u013A\u013C\u013E\u0140\u0142\u0144\u0146\u0148\u0149\u014B\u014D\u014F\u0151\u0153\u0155\u0157\u0159\u015B\u015D\u015F\u0161\u0163\u0165\u0167\u0169\u016B\u016D\u016F\u0171\u0173\u0175\u0177\u017A\u017C\u017E-\u0180\u0183\u0185\u0188\u018C\u018D\u0192\u0195\u0199-\u019B\u019E\u01A1\u01A3\u01A5\u01A8\u01AA\u01AB\u01AD\u01B0\u01B4\u01B6\u01B9\u01BA\u01BD-\u01BF\u01C6\u01C9\u01CC\u01CE\u01D0\u01D2\u01D4\u01D6\u01D8\u01DA\u01DC\u01DD\u01DF\u01E1\u01E3\u01E5\u01E7\u01E9\u01EB\u01ED\u01EF\u01F0\u01F3\u01F5\u01F9\u01FB\u01FD\u01FF\u0201\u0203\u0205\u0207\u0209\u020B\u020D\u020F\u0211\u0213\u0215\u0217\u0219\u021B\u021D\u021F\u0221\u0223\u0225\u0227\u0229\u022B\u022D\u022F\u0231\u0233-\u0239\u023C\u023F\u0240\u0242\u0247\u0249\u024B\u024D\u024F-\u0293\u0295-\u02AF\u0371\u0373\u0377\u037B-\u037D\u0390\u03AC-\u03CE\u03D0\u03D1\u03D5-\u03D7\u03D9\u03DB\u03DD\u03DF\u03E1\u03E3\u03E5\u03E7\u03E9\u03EB\u03ED\u03EF-\u03F3\u03F5\u03F8\u03FB\u03FC\u0430-\u045F\u0461\u0463\u0465\u0467\u0469\u046B\u046D\u046F\u0471\u0473\u0475\u0477\u0479\u047B\u047D\u047F\u0481\u048B\u048D\u048F\u0491\u0493\u0495\u0497\u0499\u049B\u049D\u049F\u04A1\u04A3\u04A5\u04A7\u04A9\u04AB\u04AD\u04AF\u04B1\u04B3\u04B5\u04B7\u04B9\u04BB\u04BD\u04BF\u04C2\u04C4\u04C6\u04C8\u04CA\u04CC\u04CE\u04CF\u04D1\u04D3\u04D5\u04D7\u04D9\u04DB\u04DD\u04DF\u04E1\u04E3\u04E5\u04E7\u04E9\u04EB\u04ED\u04EF\u04F1\u04F3\u04F5\u04F7\u04F9\u04FB\u04FD\u04FF\u0501\u0503\u0505\u0507\u0509\u050B\u050D\u050F\u0511\u0513\u0515\u0517\u0519\u051B\u051D\u051F\u0521\u0523\u0525\u0527\u0561-\u0587\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E01\u1E03\u1E05\u1E07\u1E09\u1E0B\u1E0D\u1E0F\u1E11\u1E13\u1E15\u1E17\u1E19\u1E1B\u1E1D\u1E1F\u1E21\u1E23\u1E25\u1E27\u1E29\u1E2B\u1E2D\u1E2F\u1E31\u1E33\u1E35\u1E37\u1E39\u1E3B\u1E3D\u1E3F\u1E41\u1E43\u1E45\u1E47\u1E49\u1E4B\u1E4D\u1E4F\u1E51\u1E53\u1E55\u1E57\u1E59\u1E5B\u1E5D\u1E5F\u1E61\u1E63\u1E65\u1E67\u1E69\u1E6B\u1E6D\u1E6F\u1E71\u1E73\u1E75\u1E77\u1E79\u1E7B\u1E7D\u1E7F\u1E81\u1E83\u1E85\u1E87\u1E89\u1E8B\u1E8D\u1E8F\u1E91\u1E93\u1E95-\u1E9D\u1E9F\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7\u1EB9\u1EBB\u1EBD\u1EBF\u1EC1\u1EC3\u1EC5\u1EC7\u1EC9\u1ECB\u1ECD\u1ECF\u1ED1\u1ED3\u1ED5\u1ED7\u1ED9\u1EDB\u1EDD\u1EDF\u1EE1\u1EE3\u1EE5\u1EE7\u1EE9\u1EEB\u1EED\u1EEF\u1EF1\u1EF3\u1EF5\u1EF7\u1EF9\u1EFB\u1EFD\u1EFF-\u1F07\u1F10-\u1F15\u1F20-\u1F27\u1F30-\u1F37\u1F40-\u1F45\u1F50-\u1F57\u1F60-\u1F67\u1F70-\u1F7D\u1F80-\u1F87\u1F90-\u1F97\u1FA0-\u1FA7\u1FB0-\u1FB4\u1FB6\u1FB7\u1FBE\u1FC2-\u1FC4\u1FC6\u1FC7\u1FD0-\u1FD3\u1FD6\u1FD7\u1FE0-\u1FE7\u1FF2-\u1FF4\u1FF6\u1FF7\u210A\u210E\u210F\u2113\u212F\u2134\u2139\u213C\u213D\u2146-\u2149\u214E\u2184\u2C30-\u2C5E\u2C61\u2C65\u2C66\u2C68\u2C6A\u2C6C\u2C71\u2C73\u2C74\u2C76-\u2C7B\u2C81\u2C83\u2C85\u2C87\u2C89\u2C8B\u2C8D\u2C8F\u2C91\u2C93\u2C95\u2C97\u2C99\u2C9B\u2C9D\u2C9F\u2CA1\u2CA3\u2CA5\u2CA7\u2CA9\u2CAB\u2CAD\u2CAF\u2CB1\u2CB3\u2CB5\u2CB7\u2CB9\u2CBB\u2CBD\u2CBF\u2CC1\u2CC3\u2CC5\u2CC7\u2CC9\u2CCB\u2CCD\u2CCF\u2CD1\u2CD3\u2CD5\u2CD7\u2CD9\u2CDB\u2CDD\u2CDF\u2CE1\u2CE3\u2CE4\u2CEC\u2CEE\u2CF3\u2D00-\u2D25\u2D27\u2D2D\uA641\uA643\uA645\uA647\uA649\uA64B\uA64D\uA64F\uA651\uA653\uA655\uA657\uA659\uA65B\uA65D\uA65F\uA661\uA663\uA665\uA667\uA669\uA66B\uA66D\uA681\uA683\uA685\uA687\uA689\uA68B\uA68D\uA68F\uA691\uA693\uA695\uA697\uA723\uA725\uA727\uA729\uA72B\uA72D\uA72F-\uA731\uA733\uA735\uA737\uA739\uA73B\uA73D\uA73F\uA741\uA743\uA745\uA747\uA749\uA74B\uA74D\uA74F\uA751\uA753\uA755\uA757\uA759\uA75B\uA75D\uA75F\uA761\uA763\uA765\uA767\uA769\uA76B\uA76D\uA76F\uA771-\uA778\uA77A\uA77C\uA77F\uA781\uA783\uA785\uA787\uA78C\uA78E\uA791\uA793\uA7A1\uA7A3\uA7A5\uA7A7\uA7A9\uA7FA\uFB00-\uFB06\uFB13-\uFB17\uFF41-\uFF5A])([\u0041-\u005A\u00C0-\u00D6\u00D8-\u00DE\u0100\u0102\u0104\u0106\u0108\u010A\u010C\u010E\u0110\u0112\u0114\u0116\u0118\u011A\u011C\u011E\u0120\u0122\u0124\u0126\u0128\u012A\u012C\u012E\u0130\u0132\u0134\u0136\u0139\u013B\u013D\u013F\u0141\u0143\u0145\u0147\u014A\u014C\u014E\u0150\u0152\u0154\u0156\u0158\u015A\u015C\u015E\u0160\u0162\u0164\u0166\u0168\u016A\u016C\u016E\u0170\u0172\u0174\u0176\u0178\u0179\u017B\u017D\u0181\u0182\u0184\u0186\u0187\u0189-\u018B\u018E-\u0191\u0193\u0194\u0196-\u0198\u019C\u019D\u019F\u01A0\u01A2\u01A4\u01A6\u01A7\u01A9\u01AC\u01AE\u01AF\u01B1-\u01B3\u01B5\u01B7\u01B8\u01BC\u01C4\u01C7\u01CA\u01CD\u01CF\u01D1\u01D3\u01D5\u01D7\u01D9\u01DB\u01DE\u01E0\u01E2\u01E4\u01E6\u01E8\u01EA\u01EC\u01EE\u01F1\u01F4\u01F6-\u01F8\u01FA\u01FC\u01FE\u0200\u0202\u0204\u0206\u0208\u020A\u020C\u020E\u0210\u0212\u0214\u0216\u0218\u021A\u021C\u021E\u0220\u0222\u0224\u0226\u0228\u022A\u022C\u022E\u0230\u0232\u023A\u023B\u023D\u023E\u0241\u0243-\u0246\u0248\u024A\u024C\u024E\u0370\u0372\u0376\u0386\u0388-\u038A\u038C\u038E\u038F\u0391-\u03A1\u03A3-\u03AB\u03CF\u03D2-\u03D4\u03D8\u03DA\u03DC\u03DE\u03E0\u03E2\u03E4\u03E6\u03E8\u03EA\u03EC\u03EE\u03F4\u03F7\u03F9\u03FA\u03FD-\u042F\u0460\u0462\u0464\u0466\u0468\u046A\u046C\u046E\u0470\u0472\u0474\u0476\u0478\u047A\u047C\u047E\u0480\u048A\u048C\u048E\u0490\u0492\u0494\u0496\u0498\u049A\u049C\u049E\u04A0\u04A2\u04A4\u04A6\u04A8\u04AA\u04AC\u04AE\u04B0\u04B2\u04B4\u04B6\u04B8\u04BA\u04BC\u04BE\u04C0\u04C1\u04C3\u04C5\u04C7\u04C9\u04CB\u04CD\u04D0\u04D2\u04D4\u04D6\u04D8\u04DA\u04DC\u04DE\u04E0\u04E2\u04E4\u04E6\u04E8\u04EA\u04EC\u04EE\u04F0\u04F2\u04F4\u04F6\u04F8\u04FA\u04FC\u04FE\u0500\u0502\u0504\u0506\u0508\u050A\u050C\u050E\u0510\u0512\u0514\u0516\u0518\u051A\u051C\u051E\u0520\u0522\u0524\u0526\u0531-\u0556\u10A0-\u10C5\u10C7\u10CD\u1E00\u1E02\u1E04\u1E06\u1E08\u1E0A\u1E0C\u1E0E\u1E10\u1E12\u1E14\u1E16\u1E18\u1E1A\u1E1C\u1E1E\u1E20\u1E22\u1E24\u1E26\u1E28\u1E2A\u1E2C\u1E2E\u1E30\u1E32\u1E34\u1E36\u1E38\u1E3A\u1E3C\u1E3E\u1E40\u1E42\u1E44\u1E46\u1E48\u1E4A\u1E4C\u1E4E\u1E50\u1E52\u1E54\u1E56\u1E58\u1E5A\u1E5C\u1E5E\u1E60\u1E62\u1E64\u1E66\u1E68\u1E6A\u1E6C\u1E6E\u1E70\u1E72\u1E74\u1E76\u1E78\u1E7A\u1E7C\u1E7E\u1E80\u1E82\u1E84\u1E86\u1E88\u1E8A\u1E8C\u1E8E\u1E90\u1E92\u1E94\u1E9E\u1EA0\u1EA2\u1EA4\u1EA6\u1EA8\u1EAA\u1EAC\u1EAE\u1EB0\u1EB2\u1EB4\u1EB6\u1EB8\u1EBA\u1EBC\u1EBE\u1EC0\u1EC2\u1EC4\u1EC6\u1EC8\u1ECA\u1ECC\u1ECE\u1ED0\u1ED2\u1ED4\u1ED6\u1ED8\u1EDA\u1EDC\u1EDE\u1EE0\u1EE2\u1EE4\u1EE6\u1EE8\u1EEA\u1EEC\u1EEE\u1EF0\u1EF2\u1EF4\u1EF6\u1EF8\u1EFA\u1EFC\u1EFE\u1F08-\u1F0F\u1F18-\u1F1D\u1F28-\u1F2F\u1F38-\u1F3F\u1F48-\u1F4D\u1F59\u1F5B\u1F5D\u1F5F\u1F68-\u1F6F\u1FB8-\u1FBB\u1FC8-\u1FCB\u1FD8-\u1FDB\u1FE8-\u1FEC\u1FF8-\u1FFB\u2102\u2107\u210B-\u210D\u2110-\u2112\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u2130-\u2133\u213E\u213F\u2145\u2183\u2C00-\u2C2E\u2C60\u2C62-\u2C64\u2C67\u2C69\u2C6B\u2C6D-\u2C70\u2C72\u2C75\u2C7E-\u2C80\u2C82\u2C84\u2C86\u2C88\u2C8A\u2C8C\u2C8E\u2C90\u2C92\u2C94\u2C96\u2C98\u2C9A\u2C9C\u2C9E\u2CA0\u2CA2\u2CA4\u2CA6\u2CA8\u2CAA\u2CAC\u2CAE\u2CB0\u2CB2\u2CB4\u2CB6\u2CB8\u2CBA\u2CBC\u2CBE\u2CC0\u2CC2\u2CC4\u2CC6\u2CC8\u2CCA\u2CCC\u2CCE\u2CD0\u2CD2\u2CD4\u2CD6\u2CD8\u2CDA\u2CDC\u2CDE\u2CE0\u2CE2\u2CEB\u2CED\u2CF2\uA640\uA642\uA644\uA646\uA648\uA64A\uA64C\uA64E\uA650\uA652\uA654\uA656\uA658\uA65A\uA65C\uA65E\uA660\uA662\uA664\uA666\uA668\uA66A\uA66C\uA680\uA682\uA684\uA686\uA688\uA68A\uA68C\uA68E\uA690\uA692\uA694\uA696\uA722\uA724\uA726\uA728\uA72A\uA72C\uA72E\uA732\uA734\uA736\uA738\uA73A\uA73C\uA73E\uA740\uA742\uA744\uA746\uA748\uA74A\uA74C\uA74E\uA750\uA752\uA754\uA756\uA758\uA75A\uA75C\uA75E\uA760\uA762\uA764\uA766\uA768\uA76A\uA76C\uA76E\uA779\uA77B\uA77D\uA77E\uA780\uA782\uA784\uA786\uA78B\uA78D\uA790\uA792\uA7A0\uA7A2\uA7A4\uA7A6\uA7A8\uA7AA\uFF21-\uFF3A\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])/g
 
-},{}],59:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports = /[^\u0041-\u005A\u0061-\u007A\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0\u08A2-\u08AC\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097F\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191C\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA697\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA80-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19]+/g
 
-},{}],60:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports = /([\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])([^\u0030-\u0039\u00B2\u00B3\u00B9\u00BC-\u00BE\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u09F4-\u09F9\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0B72-\u0B77\u0BE6-\u0BF2\u0C66-\u0C6F\u0C78-\u0C7E\u0CE6-\u0CEF\u0D66-\u0D75\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F33\u1040-\u1049\u1090-\u1099\u1369-\u137C\u16EE-\u16F0\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1946-\u194F\u19D0-\u19DA\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\u2070\u2074-\u2079\u2080-\u2089\u2150-\u2182\u2185-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2CFD\u3007\u3021-\u3029\u3038-\u303A\u3192-\u3195\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\uA620-\uA629\uA6E6-\uA6EF\uA830-\uA835\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19])/g
 
-},{}],61:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 var bindAll = require('lodash.bindall');
@@ -6920,13 +7386,13 @@ SimpleColorPicker.prototype._onHueMouseUp = function() {
 
 module.exports = SimpleColorPicker;
 
-},{"./src/utils/maths/clamp":62,"component-emitter":16,"dom-transform":18,"is-number":32,"lodash.bindall":40,"tinycolor2":64}],62:[function(require,module,exports){
+},{"./src/utils/maths/clamp":65,"component-emitter":22,"dom-transform":24,"is-number":33,"lodash.bindall":43,"tinycolor2":67}],65:[function(require,module,exports){
 'use strict';
 
 module.exports = function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 };
-},{}],63:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 /**!
  * Sortable
  * @author	RubaXa   <trash@rubaxa.org>
@@ -8181,7 +8647,7 @@ module.exports = function clamp(value, min, max) {
 	return Sortable;
 });
 
-},{}],64:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 // TinyColor v1.4.1
 // https://github.com/bgrins/TinyColor
 // Brian Grinstead, MIT License
@@ -9378,7 +9844,7 @@ else {
 
 })(Math);
 
-},{}],65:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 
 var space = require('to-space-case')
 
@@ -9401,7 +9867,7 @@ function toCamelCase(string) {
   })
 }
 
-},{"to-space-case":67}],66:[function(require,module,exports){
+},{"to-space-case":70}],69:[function(require,module,exports){
 
 /**
  * Export.
@@ -9470,7 +9936,7 @@ function uncamelize(string) {
   })
 }
 
-},{}],67:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 
 var clean = require('to-no-case')
 
@@ -9493,7 +9959,7 @@ function toSpaceCase(string) {
   }).trim()
 }
 
-},{"to-no-case":66}],68:[function(require,module,exports){
+},{"to-no-case":69}],71:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -9509,7 +9975,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],69:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 
@@ -9540,7 +10006,7 @@ Button.prototype.update = function (opts) {
 };
 
 Button.prototype.label = false;
-},{"events":3,"inherits":23}],70:[function(require,module,exports){
+},{"events":3,"inherits":29}],73:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var format = require('param-case')
@@ -9648,7 +10114,7 @@ Checkbox.prototype.update = function (opts) {
 
 	return this;
 }
-},{"events":3,"inherits":23,"just-extend":35,"param-case":53}],71:[function(require,module,exports){
+},{"events":3,"inherits":29,"just-extend":36,"param-case":56}],74:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var ColorPicker = require('simple-color-picker')
 var inherits = require('inherits')
@@ -9751,7 +10217,7 @@ Color.prototype.update = function (opts) {
 
 	return this;
 }
-},{"dom-css":17,"events":3,"inherits":23,"input-number":24,"param-case":53,"simple-color-picker":61,"tinycolor2":64}],72:[function(require,module,exports){
+},{"dom-css":23,"events":3,"inherits":29,"input-number":30,"param-case":56,"simple-color-picker":64,"tinycolor2":67}],75:[function(require,module,exports){
 /**
  * @module  settings-panel/src/custom
  *
@@ -9804,7 +10270,7 @@ Custom.prototype.update = function (opts) {
 		// throw Error('`content` should be a function returning html element or string');
 	}
 };
-},{"events":3,"inherits":23,"just-extend":35}],73:[function(require,module,exports){
+},{"events":3,"inherits":29,"just-extend":36}],76:[function(require,module,exports){
 var isNumeric = require('is-numeric')
 var css = require('dom-css')
 var isMobile = require('is-mobile')()
@@ -10072,7 +10538,7 @@ Range.prototype.update = function (opts) {
 
 	return this;
 }
-},{"./value":79,"dom-css":17,"events":3,"inherits":23,"is-mobile":31,"is-numeric":33,"mumath/clamp":48,"mumath/precision":49,"param-case":53}],74:[function(require,module,exports){
+},{"./value":82,"dom-css":23,"events":3,"inherits":29,"is-mobile":32,"is-numeric":34,"mumath/clamp":51,"mumath/precision":52,"param-case":56}],77:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var isNumeric = require('is-numeric')
@@ -10111,6 +10577,8 @@ Range.prototype.update = function (opts) {
 	}
 
 	if (opts.disabled) input.disabled = true;
+
+	if (opts.log) opts.scale = 'log';
 
 	// Create scale functions for converting to/from the desired scale:
 	if (opts.scale === 'log') {
@@ -10184,14 +10652,14 @@ Range.prototype.update = function (opts) {
 
 	if (opts.scale === 'log') {
 		//FIXME: not every log is of precision 3
-		var prec = 3;
+		var prec = opts.precision != null ? opts.precision : 3;
 	}
 	else {
 		if (opts.step) {
-			var prec = precision(opts.step);
+			var prec = opts.precision != null ? opts.precision : precision(opts.step);
 		}
 		else if (opts.steps) {
-			var prec = precision( (opts.max - opts.min) / opts.steps );
+			var prec = opts.precision != null ? opts.precision : precision( (opts.max - opts.min) / opts.steps );
 		}
 	}
 
@@ -10205,14 +10673,16 @@ Range.prototype.update = function (opts) {
 		max: scaleValue(opts.max),
 		disabled: opts.disabled,
 		//FIXME: step here might vary
-		step: opts.scale === 'log' ? 0.01 : opts.step,
+		step: opts.step,
 		input: function (v) {
-			input.value = scaleValueInverse(v)
+			var scaledValue = scaleValueInverse(v)
+			input.value = scaledValue;
+			value.title = input.value;
 			// value.value = v
 			this$1.emit('input', v);
-			input.setAttribute('value', v.toFixed(0))
-			opts.container.style.setProperty('--value', v + '%');
-			opts.container.style.setProperty('--coef', v/100);
+			input.setAttribute('value', scaledValue.toFixed(0))
+			opts.container.style.setProperty('--value', scaledValue + '%');
+			opts.container.style.setProperty('--coef', scaledValue/100);
 		}
 	});
 
@@ -10227,7 +10697,7 @@ Range.prototype.update = function (opts) {
 	opts.container.style.setProperty('--coef', v/100);
 
 	setTimeout(function () {
-		this$1.emit('init', parseFloat(input.value))
+		this$1.emit('init', parseFloat(value.value))
 	});
 
 	input.oninput = function (data) {
@@ -10237,12 +10707,13 @@ Range.prototype.update = function (opts) {
 		input.setAttribute('value', v.toFixed(0));
 		opts.container.style.setProperty('--value', v + '%');
 		opts.container.style.setProperty('--coef', v/100);
+		value.title = scaledValue;
 		this$1.emit('input', scaledValue);
 	}
 
 	return this;
 }
-},{"./value":79,"dom-css":17,"events":3,"inherits":23,"is-numeric":33,"mumath/precision":49,"param-case":53}],75:[function(require,module,exports){
+},{"./value":82,"dom-css":23,"events":3,"inherits":29,"is-numeric":34,"mumath/precision":52,"param-case":56}],78:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var format = require('param-case')
@@ -10313,7 +10784,7 @@ Select.prototype.update = function (opts) {
 
 	return this;
 }
-},{"events":3,"inherits":23,"param-case":53}],76:[function(require,module,exports){
+},{"events":3,"inherits":29,"param-case":56}],79:[function(require,module,exports){
 var inherits = require('inherits');
 var Emitter = require('events').EventEmitter;
 var format = require('param-case');
@@ -10374,7 +10845,7 @@ function Switch (opts) {
 Switch.prototype.update = function (opts) {
 	return this;
 }
-},{"events":3,"inherits":23,"just-extend":35,"param-case":53}],77:[function(require,module,exports){
+},{"events":3,"inherits":29,"just-extend":36,"param-case":56}],80:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
@@ -10419,7 +10890,7 @@ Text.prototype.update = function (opts) {
 	this.element.disabled = !!this.disabled;
 	return this;
 }
-},{"dom-css":17,"events":3,"inherits":23,"input-number":24,"just-extend":35}],78:[function(require,module,exports){
+},{"dom-css":23,"events":3,"inherits":29,"input-number":30,"just-extend":36}],81:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var css = require('dom-css')
@@ -10470,12 +10941,12 @@ Textarea.prototype.update = function (opts) {
 
 	return this;
 }
-},{"autosize":9,"dom-css":17,"events":3,"inherits":23,"just-extend":35}],79:[function(require,module,exports){
+},{"autosize":9,"dom-css":23,"events":3,"inherits":29,"just-extend":36}],82:[function(require,module,exports){
 var num = require('input-number');
 
 module.exports = function (opts) {
   opts = opts || {}
-  var value = document.createElement('input')
+  var value = document.createElement('input');
 
   num(value, opts);
 
@@ -10509,15 +10980,15 @@ module.exports = function (opts) {
 
   return value
 }
-},{"input-number":24}],80:[function(require,module,exports){
+},{"input-number":30}],83:[function(require,module,exports){
 var createPanel = require('./')
 var insertCSS = require('insert-styles');
 var css = require('dom-css');
 var Picker = require('simple-color-picker');
 var Sortable = require('sortablejs');
+var color = require('tinycolor2');
 var colormap = require('colormap');
 var colorScales = require('colormap/colorScales');
-var color = require('tinycolor2');
 var palettes = require('nice-color-palettes/500');
 
 var colormaps = {};
@@ -10798,6 +11269,9 @@ var settings = createPanel([
 			panel.update({palette: palette});
 		}
 	},
+	// {label: 'Active color', type:'color', id: 'active', value: panel.theme.active || panel.theme.palette[0], change: v => {
+	// 	panel.update({active: v});
+	// }},
 	{label: 'Font family', id: 'font-family', type: 'text', value: panel.theme.fontFamily, change: function (v) {
 		panel.update({fontFamily: v});
 	}},
@@ -10845,7 +11319,7 @@ var settings = createPanel([
 	labelWidth: '22%',
 	style: 'background: rgba(253,253,253,.82);'
 });
-},{"./":6,"./theme/control":81,"./theme/dragon":82,"./theme/flat":83,"./theme/json":84,"./theme/none":85,"./theme/typer":86,"colormap":15,"colormap/colorScales":14,"dom-css":17,"insert-styles":25,"nice-color-palettes/500":52,"simple-color-picker":61,"sortablejs":63,"tinycolor2":64}],81:[function(require,module,exports){
+},{"./":6,"./theme/control":84,"./theme/dragon":85,"./theme/flat":86,"./theme/json":87,"./theme/none":88,"./theme/typer":89,"colormap":21,"colormap/colorScales":20,"dom-css":23,"insert-styles":31,"nice-color-palettes/500":55,"simple-color-picker":64,"sortablejs":66,"tinycolor2":67}],84:[function(require,module,exports){
 /**
  * @module prama/theme/control
  *
@@ -10855,7 +11329,7 @@ var px = require('add-px-to-style');
 var fonts = require('google-fonts');
 var color = require('tinycolor2');
 var scopeCss = require('scope-css');
-var lerp = require('interpolation-arrays');
+var interpolate = require('color-interpolate');
 var none = require('./none');
 
 module.exports = control;
@@ -10882,8 +11356,8 @@ function control (opts) {
 	var labelWidth = opts.labelWidth || control.labelWidth;
 	var padding = opts.padding || control.padding;
 
-	var palette = (opts.palette || control.palette).map(function (v) { return color(v).toRgb(); });
-	var pick = lerp(palette);
+	var palette = opts.palette || control.palette;
+	var pick = interpolate(palette);
 
 	var white = color(pick(.0)).toString();
 	var light = color(pick(.1)).toString();
@@ -10911,7 +11385,7 @@ function control (opts) {
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
-},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],82:[function(require,module,exports){
+},{"./none":88,"add-px-to-style":7,"color-interpolate":14,"google-fonts":28,"scope-css":59,"tinycolor2":67}],85:[function(require,module,exports){
 /**
  * @module prama/theme/dragon
  *
@@ -10920,7 +11394,7 @@ function alpha (c, value) {
 var px = require('add-px-to-style');
 var fonts = require('google-fonts');
 var color = require('tinycolor2');
-var lerp = require('interpolation-arrays');
+var interpolate = require('color-interpolate');
 var none = require('./none');
 
 module.exports = dragon;
@@ -10947,8 +11421,8 @@ function dragon (opts) {
 	var font = opts.fontFamily || dragon.fontFamily;
 	var padding = opts.padding || dragon.padding;
 
-	var palette = (opts.palette || dragon.palette).map(function (v) { return color(v).toRgb(); });
-	var pick = lerp(palette);
+	var palette = opts.palette || dragon.palette;
+	var pick = interpolate(palette);
 
 	var white = color(pick(1)).toString();
 	var light = color(pick(.65)).toString();
@@ -10973,7 +11447,7 @@ function dragon (opts) {
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
-},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"tinycolor2":64}],83:[function(require,module,exports){
+},{"./none":88,"add-px-to-style":7,"color-interpolate":14,"google-fonts":28,"tinycolor2":67}],86:[function(require,module,exports){
 /**
  * @module prama/theme/flat
  *
@@ -10983,14 +11457,15 @@ var px = require('add-px-to-style');
 var fonts = require('google-fonts');
 var color = require('tinycolor2');
 var scopeCss = require('scope-css');
-var lerp = require('interpolation-arrays');
 var none = require('./none');
+var interpolate = require('color-interpolate');
 
 module.exports = flat;
 
 //uses reflective scheme
 flat.palette = ['black', '#fff'];
-flat.palette = ['#f95759', '#272727', '#fff'];
+flat.palette = ['#272727', '#f95759', '#fff'];
+// flat.active = '#f95759';
 
 flat.fontSize = '14px';
 flat.fontFamily = '"Roboto", sans-serif';
@@ -11012,13 +11487,13 @@ function flat (opts) {
 	var labelWidth = opts.labelWidth || flat.labelWidth;
 	var padding = opts.padding || flat.padding;
 
-	var palette = (opts.palette || flat.palette).map(function (v) { return color(v).toRgb(); });
-	var pick = lerp(palette);
+	var palette = opts.palette || flat.palette;
+	var pick = interpolate(palette);
 
 	//NOTE: this is in case of scaling palette to black/white range
 	var white = tone(1);
-	var black = tone(.5);
-	var active = tone(0);
+	var black = tone(0);
+	var active = opts.active || tone(.5);
 
 	function tone (amt) {
 		return color(pick(amt)).toString();
@@ -11031,13 +11506,13 @@ function flat (opts) {
 		inputHeight: h,
 		labelWidth: labelWidth,
 		padding: padding
-	}) + "\n\t:host {\n\t\tbackground: " + white + ";\n\t\tcolor: " + black + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t\t-webkit-text-size-adjust: 100%;\n\t\t-webkit-font-smoothing: antialiased;\n\t\tbox-shadow: 0 0 0 1px " + (alpha(tone(.7), .25)) + ";\n\t}\n\n\t.settings-panel-title {\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t}\n\n\t.settings-panel-label {\n\t\tcolor: " + (tone(.7)) + ";\n\t\tfont-weight: 500;\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea,\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance: none;\n\t\tappearance: none;\n\t\toutline: none;\n\t\tborder: 0;\n\t\twidth: auto;\n\t\tborder-radius: 0;\n\t\tfont-weight: 500;\n\t\tbackground: " + white + ";\n\t\tcolor: " + active + ";\n\t\tbox-shadow: 0 1px " + (alpha(tone(.7), .25)) + ";\n\t}\n\t.settings-panel-text:hover,\n\t.settings-panel-color-value:hover,\n\t.settings-panel-textarea:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-color-value:focus,\n\t.settings-panel-textarea:focus {\n\t\tbox-shadow: 0 1px " + active + ";\n\n\t}\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tborder: 0;\n\t\twidth: 85%;\n\t\tmargin-right: " + (h/4) + "em;\n\t}\n\t.settings-panel-range + .settings-panel-value {\n\t\twidth: calc(15% - " + (h/4) + "em);\n\t\tpadding-left: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\t/* background: " + active + "; */\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-track,\n\t.settings-panel-range:focus::-moz-range-track {\n\t\t/* background: " + active + "; */\n\t}\n\n\t.settings-panel-range::-ms-track {\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\t--active: " + active + ";\n\t\t\t--bg: " + (alpha(active, .25)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (alpha(active, .25)) + ";\n\t\t\t--active: " + active + ";\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range::-webkit-slider-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-webkit-slider-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-moz-range-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range::-ms-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-ms-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after {\n\t\tbackground: " + (alpha(active, .25)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-value {\n\t\tcolor: " + black + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t\ttransition: .05s ease-in transform;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h/4) + "em;\n\t\tright: auto;\n\t}\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:before {\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-value:first-child {\n\t\tmargin-left: 0;\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tfont-family: inherit;\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\tfont-weight: 500;\n\t\tpadding-right: 2em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + active + ";\n\t\tbackground: " + white + ";\n\t\tline-height: " + h + "em;\n\t\tbox-shadow: 0 1px " + (alpha(tone(.7), .25)) + ";\n\t\twidth: auto;\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:focus {\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + active + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--select:hover .settings-panel-select,\n\t.settings-panel-select:focus {\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t\t/* margin-bottom: " + (h/2) + "em; */\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\t/*content: '✓';*/\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tcolor: " + (alpha(white, 0)) + ";\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: " + (h*.5) + "em;\n\t\theight: " + (h*.5) + "em;\n\t\tborder-radius: .5px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tmargin-left: 2px;\n\t\tbox-shadow: 0 0 0 2px " + (alpha(tone(.5), .9)) + ";\n\t\tline-height: " + (h/2) + "em;\n\t\tmargin-top: 1px;\n\t\ttext-align: center;\n\t}\n\t.settings-panel-checkbox-label:hover:before {\n\t\tbox-shadow: 0 0 0 2px " + (tone(.5)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tbox-shadow: 0 0 0 2px " + active + ";\n\t\tbackground: " + active + ";\n\t\tcolor: " + (tone(1)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*1.5) + "em;\n\t\theight: " + (h*1.5) + "em;\n\t\tbackground: " + (tone(.55)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: -" + (h*.45) + "em;\n\t\tleft: -" + (h*.5) + "em;\n\t\topacity: 0;\n\t\tmargin-left: 2px;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-checkbox-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: " + (h*.5) + "em;\n\t\twidth: " + (h*.5) + "em;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tfont-family: inherit;\n\t\tborder-radius: 0;\n\t\tpadding-left: " + (h*.75) + "em;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\ttext-transform: uppercase;\n\t\tcolor: " + (tone(.5)) + ";\n\t\tfont-weight: 500;\n\t\tbackground: none;\n\t\twidth: auto;\n\t\tpadding: " + (h/3) + "em " + (h/3) + "em;\n\t\tmin-width: " + (h*3) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tmargin-bottom: -" + (h/4) + "em;\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\tbackground: " + (alpha(tone(.5), .08)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\tbackground: " + (alpha(tone(.5), .333)) + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tmargin: 0;\n\t\tmargin-right: " + (h*.75) + "em;\n\t\tz-index: 2;\n\t\ttext-align: center;\n\t\tpadding: 0 0;\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-input + .settings-panel-switch-label:hover {\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-label:active {\n\t\tcolor: " + (tone(.5)) + ";\n\t}\n\t.settings-panel-switch-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*2) + "em;\n\t\theight: " + (h*2) + "em;\n\t\tmin-width: 100%;\n\t\tmin-height: 100%;\n\t\tbackground: " + (tone(.55)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: 50%;\n\t\tleft: 50%;\n\t\tmargin-left: -" + h + "em;\n\t\tmargin-top: -" + h + "em;\n\t\topacity: 0;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-switch-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-switch-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t::selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t:host hr {\n\t\topacity: 1;\n\t\tborder-bottom: 1px solid " + (alpha(tone(.7), .25)) + ";\n\t\tmargin-left: -" + (h*.666) + "em;\n\t\tmargin-right: -" + (h*.666) + "em;\n\t\tmargin-top: " + (h*.75) + "em;\n\t}\n\t:host a {\n\t}\n\t:host a:hover {\n\t}\n"};
+	}) + "\n\t:host {\n\t\tbackground: " + white + ";\n\t\tcolor: " + black + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t\t-webkit-text-size-adjust: 100%;\n\t\t-webkit-font-smoothing: antialiased;\n\t}\n\t:host a {\n\t\ttext-decoration: none;\n\t\tborder-bottom: 1px solid " + (alpha(tone(.0), .2)) + ";\n\t}\n\t:host a:hover {\n\t\ttext-decoration: none;\n\t\tborder-bottom: 1px solid " + (alpha(tone(.0), 1)) + ";\n\t}\n\n\t.settings-panel-title {\n\t\tcolor: " + (tone(.0)) + ";\n\t\tfont-family: " + font + ";\n\t\tfont-weight: 500;\n\t}\n\n\t.settings-panel-label {\n\t\tcolor: " + (alpha(tone(.0), .666)) + ";\n\t\tfont-weight: 500;\n\t}\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea,\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance: none;\n\t\tappearance: none;\n\t\toutline: none;\n\t\tborder: 0;\n\t\twidth: auto;\n\t\tborder-radius: 0;\n\t\tfont-weight: 500;\n\t\tbackground: none;\n\t\tcolor: " + active + ";\n\t\tbox-shadow: 0 1px " + (alpha(tone(.0), .2)) + ";\n\t}\n\t.settings-panel-text:hover,\n\t.settings-panel-color-value:hover,\n\t.settings-panel-textarea:hover {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-text:focus,\n\t.settings-panel-color-value:focus,\n\t.settings-panel-textarea:focus {\n\t\tbox-shadow: 0 1px " + active + ";\n\n\t}\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tcolor: " + (tone(0)) + ";\n\t\tborder: 0;\n\t\twidth: 85%;\n\t\tmargin-right: " + (h/4) + "em;\n\t}\n\t.settings-panel-range + .settings-panel-value {\n\t\twidth: calc(15% - " + (h/4) + "em);\n\t\tpadding-left: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-runnable-track,\n\t.settings-panel-range:focus::-webkit-slider-runnable-track {\n\t\t/* background: " + active + "; */\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\tbackground: none;\n\t\theight: 2px;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-track,\n\t.settings-panel-range:focus::-moz-range-track {\n\t\t/* background: " + active + "; */\n\t}\n\n\t.settings-panel-range::-ms-track {\n\t\theight: 2px;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tbackground: " + (alpha(active, .2)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\t--active: " + active + ";\n\t\t\t--bg: " + (alpha(active, .2)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (alpha(active, .2)) + ";\n\t\t\t--active: " + active + ";\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range::-webkit-slider-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-webkit-slider-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-moz-range-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-moz-range-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\t.settings-panel-range::-ms-thumb {\n\t\tbackground: " + active + ";\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: 1px;\n\t\tappearance: none;\n\t\ttransition: .05s ease-in transform;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range::-ms-thumb:hover {\n\t\tbox-shadow: 0 0 0 0;\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\t.settings-panel-range[value=\"0\"]::-ms-thumb {\n\t\tbackground: " + white + ";\n\t\tbox-shadow: inset 0 0 0 1.5px " + active + ";\n\t}\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\tbackground: " + (alpha(active, .2)) + ";\n\t\theight: 2px;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\theight: 2px;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after {\n\t\tbackground: " + (alpha(active, .2)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle {\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-value {\n\t\tcolor: " + black + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h/4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h/2) + "em;\n\t\twidth: " + (h/2) + "em;\n\t\tborder-radius: " + (h/2) + "em;\n\t\tbackground: inherit;\n\t\ttransform: scale(1, 1);\n\t\ttransform-origin: center center;\n\t\ttransition: .05s ease-in transform;\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h/4) + "em;\n\t\tright: auto;\n\t}\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-interval:hover .settings-panel-interval-handle:before {\n\t\ttransform: scale(1.2, 1.2);\n\t}\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t\tcolor: " + (tone(0)) + ";\n\t\tfont-weight: 500;\n\t}\n\t.settings-panel-value:first-child {\n\t\tmargin-left: 0;\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tfont-family: inherit;\n\t\tcolor: inherit;\n\t\tborder-radius: 0;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\tfont-weight: 500;\n\t\tpadding-right: 2em;\n\t\tmargin-right: -1em;\n\t\tcolor: " + active + ";\n\t\tbackground: none;\n\t\tline-height: " + h + "em;\n\t\tbox-shadow: 0 1px " + (alpha(tone(.0), .2)) + ";\n\t\twidth: auto;\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:focus {\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcontent: '';\n\t\tborder-right: .3em solid transparent;\n\t\tborder-left: .3em solid transparent;\n\t\tline-height: 2em;\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tvertical-align: middle;\n\t\tdisplay: inline-block;\n\t\twidth: 0;\n\t\ttext-align: center;\n\t\tpointer-events: none;\n\t}\n\t.settings-panel-select-triangle--down {\n\t\ttop: 0em;\n\t\tleft: .5em;\n\t\tborder-top: .3em solid " + active + ";\n\t\tborder-bottom: .0 transparent;\n\t}\n\t.settings-panel-select-triangle--up {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--select:hover .settings-panel-select,\n\t.settings-panel-select:focus {\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\tcolor: " + (tone(0)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t\t/* margin-bottom: " + (h/2) + "em; */\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\t/*content: '✓';*/\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tcolor: " + (alpha(white, 0)) + ";\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: " + (h*.5) + "em;\n\t\theight: " + (h*.5) + "em;\n\t\tborder-radius: .5px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tmargin-left: 2px;\n\t\tbox-shadow: 0 0 0 2px " + (alpha(tone(0), .9)) + ";\n\t\tline-height: " + (h/2) + "em;\n\t\tmargin-top: 1px;\n\t\ttext-align: center;\n\t}\n\t.settings-panel-checkbox-label:hover:before {\n\t\tbox-shadow: 0 0 0 2px " + (tone(0)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\tbox-shadow: 0 0 0 2px " + active + ";\n\t\tbackground: " + active + ";\n\t\tcolor: " + (tone(1)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*1.5) + "em;\n\t\theight: " + (h*1.5) + "em;\n\t\tbackground: " + (tone(.1)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: -" + (h*.45) + "em;\n\t\tleft: -" + (h*.5) + "em;\n\t\topacity: 0;\n\t\tmargin-left: 2px;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-checkbox-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\n\t/** Color */\n\t.settings-panel-color {\n\t\theight: " + (h*.5) + "em;\n\t\twidth: " + (h*.5) + "em;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t}\n\t.settings-panel-color-value {\n\t\tborder: none;\n\t\tfont-family: inherit;\n\t\tborder-radius: 0;\n\t\tpadding-left: " + (h*.75) + "em;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\ttext-transform: uppercase;\n\t\tcolor: " + (tone(0)) + ";\n\t\tfont-weight: 500;\n\t\tbackground: none;\n\t\twidth: auto;\n\t\tpadding: " + (h/3) + "em " + (h/3) + "em;\n\t\tmin-width: " + (h*3) + "em;\n\t\tmargin-top: -" + (h/4) + "em;\n\t\tmargin-bottom: -" + (h/4) + "em;\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\tbackground: " + (alpha(tone(0), .08)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\tbackground: " + (alpha(tone(0), .333)) + ";\n\t}\n\n\n\t/** Switch style */\n\t.settings-panel-switch {\n\t}\n\t.settings-panel-switch-input {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-switch-label {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t\tmargin: 0;\n\t\tmargin-right: " + (h*.75) + "em;\n\t\tz-index: 2;\n\t\ttext-align: center;\n\t\tpadding: 0 0;\n\t\tcolor: " + (tone(0)) + ";\n\t}\n\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\tcolor: " + active + ";\n\t}\n\t.settings-panel-switch-input + .settings-panel-switch-label:hover {\n\t}\n\t.settings-panel-switch-label:hover {\n\t\tcolor: " + (tone(0)) + ";\n\t}\n\t.settings-panel-switch-label:active {\n\t\tcolor: " + (tone(0)) + ";\n\t}\n\t.settings-panel-switch-label:after {\n\t\tcontent: '';\n\t\tz-index: 1;\n\t\tposition: absolute;\n\t\twidth: " + (h*2) + "em;\n\t\theight: " + (h*2) + "em;\n\t\tmin-width: 100%;\n\t\tmin-height: 100%;\n\t\tbackground: " + (tone(.1)) + ";\n\t\tborder-radius: " + h + "em;\n\t\ttop: 50%;\n\t\tleft: 50%;\n\t\tmargin-left: -" + h + "em;\n\t\tmargin-top: -" + h + "em;\n\t\topacity: 0;\n\t\ttransform-origin: center center;\n\t\ttransform: scale(.5, .5);\n\t\ttransition: .1s ease-out;\n\t}\n\t.settings-panel-switch-label:active:after {\n\t\ttransform: scale(1, 1);\n\t\topacity: .08;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-switch-label:after {\n\t\tbackground: " + active + ";\n\t}\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(active, .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t::selection {\n\t\tbackground: " + active + ";\n\t\tcolor: " + white + ";\n\t}\n\t:host hr {\n\t\topacity: 1;\n\t\tborder-bottom: 1px solid " + (alpha(tone(.0), .2)) + ";\n\t\tmargin-left: -" + (h*.666) + "em;\n\t\tmargin-right: -" + (h*.666) + "em;\n\t\tmargin-top: " + (h*.75) + "em;\n\t}\n\t:host a {\n\t}\n\t:host a:hover {\n\t}\n"};
 
 
 function alpha (c, value) {
 	return color(c).setAlpha(value).toString();
 }
-},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}],84:[function(require,module,exports){
+},{"./none":88,"add-px-to-style":7,"color-interpolate":14,"google-fonts":28,"scope-css":59,"tinycolor2":67}],87:[function(require,module,exports){
 /**
  * @module prama/theme/json
  *
@@ -11078,7 +11553,7 @@ function json (opts) {
 		palette: [white, black]
 	}) + "\n\t:host {\n\t\t-webkit-user-select: initial;\n\t\t-moz-user-select: initial;\n\t\t-ms-user-select: initial;\n\t\tuser-select: initial;\n\t}\n\n\t.settings-panel-title {\n\t\tmargin: 0;\n\t\tfont-size: 1.4em;\n\t}\n\n\t.settings-panel-field {\n\t\tdisplay: inline-block;\n\t}\n\n\t.settings-panel-label {\n\t\tdisplay: inline-block;\n\t\twidth: " + labelWidth + ";\n\t\tcolor: " + red + ";\n\t}\n\t.settings-panel-label:before {\n\t\tcontent: '\"';\n\t\topacity: .3;\n\t\tcolor: " + black + ";\n\t}\n\t.settings-panel-label:after {\n\t\tcontent: '\":';\n\t\topacity: .3;\n\t\tcolor: " + black + ";\n\t}\n\t.settings-panel-input {\n\t\tdisplay: inline-block;\n\t\tmin-height: 0;\n\t}\n\t/*\n\t.settings-panel-input:after {\n\t\tcontent: ',';\n\t\tcolor: " + black + ";\n\t\topacity: .3;\n\t}\n\t*/\n\n\t.settings-panel-range {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-range + .settings-panel-value {\n\t\twidth: auto;\n\t}\n\t.settings-panel-value {\n\t\tpadding: 0;\n\t}\n\n\n\t.settings-panel-text,\n\t.settings-panel-color-value,\n\t.settings-panel-select,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tbackground: none;\n\t}\n\n\t.settings-panel-text:focus,\n\t.settings-panel-color-value:focus,\n\t.settings-panel-textarea:focus {\n\t\toutline: none;\n\t}\n\n\n\t.settings-panel-interval {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-field--interval {\n\t\twhite-space: nowrap;\n\t}\n\t.settings-panel-field--interval .settings-panel-input:before {\n\t\tcontent: '[';\n\t\topacity: .3;\n\t}\n\t.settings-panel-field--interval .settings-panel-input:after {\n\t\tcontent: ']';\n\t\topacity: .3;\n\t}\n\n\t/** Decorations */\n\t:host hr {\n\t\tmargin: 0;\n\t\tborder: none;\n\t\theight: 0;\n\t}\n\t.settings-panel-field--disabled {\n\t\topacity: .333;\n\t\tpointer-events: none;\n\t}\n\t";
 };
-},{"./none":85,"add-px-to-style":7}],85:[function(require,module,exports){
+},{"./none":88,"add-px-to-style":7}],88:[function(require,module,exports){
 /**
  * @module  settings-panel/theme/none
  */
@@ -11110,7 +11585,7 @@ function none (opts) {
 	//just size part
 	return ("\n\t\t:host {\n\t\t\tbackground: " + white + ";\n\t\t\tcolor: " + black + ";\n\t\t\tfont-family: " + font + ";\n\t\t\tfont-size: " + (px('font-size', fs)) + ";\n\t\t\tpadding: " + (h*2.5*padding) + "em;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tmin-height: " + h + "em;\n\t\t\tline-height: 1.5;\n\t\t\ttext-align: left;\n\t\t\tfont-size: " + (px('font-size',fs*1.333)) + ";\n\t\t\tpadding: " + (h * 2 * padding / 1.333) + "em " + (h * padding / 1.333) + "em;\n\t\t\tmin-height: " + (h/1.333) + "em;\n\t\t\tmargin: 0;\n\t\t}\n\n\t\t.settings-panel-field {\n\t\t\tpadding: " + (h * padding) + "em;\n\t\t}\n\n\t\t:host.settings-panel-orientation-left .settings-panel-label,\n\t\t:host .settings-panel-orientation-left .settings-panel-label,\n\t\t:host.settings-panel-orientation-right .settings-panel-label,\n\t\t:host .settings-panel-orientation-right .settings-panel-label {\n\t\t\twidth: " + (px('width', labelWidth)) + ";\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label {\n\t\t\tborder-top-width: " + h + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {\n\t\t\ttop: " + (h/8) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-left .settings-panel-label {\n\t\t\tpadding-right: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label {\n\t\t\tpadding-left: " + (h/2) + "em;\n\t\t}\n\t\t:host.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {\n\t\t\twidth: calc(100% - " + labelWidth + ");\n\t\t}\n\n\t\t.settings-panel-text,\n\t\t.settings-panel-textarea,\n\t\t.settings-panel-range,\n\t\t.settings-panel-interval,\n\t\t.settings-panel-select,\n\t\t.settings-panel-color,\n\t\t.settings-panel-color-value,\n\t\t.settings-panel-value {\n\t\t\theight: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-button,\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch,\n\t\t.settings-panel-checkbox-group,\n\t\t.settings-panel-switch-label {\n\t\t\tmin-height: " + h + "em;\n\t\t}\n\t\t.settings-panel-input,\n\t\t.settings-panel-switch,\n\t\t.settings-panel-select,\n\t\t.settings-panel-checkbox-group,\n\t\t.settings-panel-switch-label {\n\t\t\tline-height: " + h + "em;\n\t\t}\n\n\t\t.settings-panel-switch-label,\n\t\t.settings-panel-checkbox,\n\t\t.settings-panel-checkbox-label,\n\t\t.settings-panel-button {\n\t\t\tcursor: pointer;\n\t\t}\n\n\t\t.settings-panel-range::-webkit-slider-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-moz-range-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-track {\n\t\t\tcursor: ew-resize;\n\t\t}\n\t\t.settings-panel-range::-ms-thumb {\n\t\t\tcursor: ew-resize;\n\t\t}\n\n\t\t/* Default triangle styles are from control theme, just set display: block */\n\t\t.settings-panel-select-triangle {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\tborder-right: .3em solid transparent;\n\t\t\tborder-left: .3em solid transparent;\n\t\t\tline-height: " + h + "em;\n\t\t\tright: 2.5%;\n\t\t\theight: 0;\n\t\t\tz-index: 1;\n\t\t\tpointer-events: none;\n\t\t}\n\t\t.settings-panel-select-triangle--up {\n\t\t\ttop: " + (h/2) + "em;\n\t\t\tmargin-top: -" + (h/4 + h/24) + "em;\n\t\t\tborder-bottom: " + (h/4) + "em solid;\n\t\t\tborder-top: 0px transparent;\n\t\t}\n\t\t.settings-panel-select-triangle--down {\n\t\t\ttop: " + (h/2) + "em;\n\t\t\tmargin-top: " + (h/24) + "em;\n\t\t\tborder-top: " + (h/4) + "em solid;\n\t\t\tborder-bottom: .0 transparent;\n\t\t}\n\n\t\t:host hr {\n\t\t\topacity: .5;\n\n\t\t\tcolor: " + black + "\n\t\t}\n\t");
 }
-},{"add-px-to-style":7}],86:[function(require,module,exports){
+},{"add-px-to-style":7}],89:[function(require,module,exports){
 /**
  * @module  settings-panel/theme/typer
  *
@@ -11122,7 +11597,7 @@ var px = require('add-px-to-style');
 var fonts = require('google-fonts');
 var color = require('tinycolor2');
 var scopeCss = require('scope-css');
-var lerp = require('interpolation-arrays');
+var interpolate = require('color-interpolate');
 var none = require('./none');
 
 
@@ -11130,9 +11605,10 @@ module.exports = typer;
 
 // typer.palette = ['#4B4E59', '#BCC1C7' ,'#F1F1F3'];
 // typer.palette = ['#32393F', '#3F4851', '#49565F', '#ADB7C0', '#F4FBFF'];
-typer.palette = ['#111', '#eee'];
-// typer.palette = ['black', 'white'];
-// typer.palette = ['#f95759', '#272727', '#fff'];
+// typer.palette = ['#111', '#eee'];
+typer.palette = ['black', 'white'];
+// typer.palette = ['#fff', '#24D4C0' ,'#21282E'];
+typer.active = '#24D4C0';
 
 typer.fontSize = 12;
 typer.fontFamily = '"Montserrat", sans-serif';
@@ -11141,9 +11617,9 @@ typer.inputHeight = 2;
 typer.padding = 1/5;
 
 //color balance
-typer.bg = .95;
-typer.active = .08;
+typer.bg = .9;
 typer.radius = 2;
+typer.fg = .08;
 
 fonts.add({
 	'Montserrat': [400, 600]
@@ -11162,20 +11638,22 @@ function typer (opts) {
 
 	//background/active tones
 	var bg = opts.bg || typer.bg;
-	var active = opts.active || typer.active;
+	var fg = opts.fg || typer.fg;
+
 
 	//palette
-	var palette = (opts.palette || typer.palette).map(function (v) { return color(v).toRgb(); });
-	var pick = lerp(palette);
+	var palette = opts.palette || typer.palette;
+	var pick = interpolate(palette);
 
 	//obtain palette sorted by brightnes
 	var nPalette = palette.slice().sort(function (a, b) { return color(a).getLuminance() - color(b).getLuminance(); });
-	var npick = lerp(nPalette);
+	var npick = interpolate(nPalette);
 
 	//the color of light/shadow to mix
 	var light = color.mix('white', nPalette[nPalette.length - 1], 25).toString();
 	var shadow = color.mix('black', nPalette[0], 25).toString();
 
+	var active = opts.active || tone(.5);
 
 	//helpers
 	function tone (amt) {
@@ -11214,14 +11692,14 @@ function typer (opts) {
 		if ( d === void 0 ) d = .05;
 		if ( t === void 0 ) t = tone;
 
-		return ("\n\t\t" + (text(active, v)) + "\n\t\tbackground-color: " + (t(v)) + ";\n\t\tbackground-image: linear-gradient(to bottom, " + (lighten(v, d, t)) + ", " + (darken(v, d, t)) + ");\n\t\tbox-shadow: inset 1px 0px " + (alpha(light, .04)) + ", inset 0px 1px " + (alpha(light, .15)) + ", inset 0px -1px 1px " + (alpha(light, .07)) + ", 0 1px 1px " + (alpha(shadow, .35)) + ";\n\t");
+		return ("\n\t\t" + (text(fg, v)) + "\n\t\tbackground-color: " + (t(v)) + ";\n\t\tbackground-image: linear-gradient(to bottom, " + (lighten(v, d, t)) + ", " + (darken(v, d, t)) + ");\n\t\tbox-shadow: inset 1px 0px " + (alpha(light, .04)) + ", inset 0px 1px " + (alpha(light, .15)) + ", inset 0px -1px 1px " + (alpha(light, .07)) + ", 0 1px 2px " + (alpha(shadow, .35)) + ";\n\t");
 	};
 	var push = function (v, d, t) {
 		if ( v === void 0 ) v = .1;
 		if ( d === void 0 ) d = .05;
 		if ( t === void 0 ) t = tone;
 
-		return ("\n\t\tbackground: " + (t(v)) + ";\n\t\t/*background-image: linear-gradient(to bottom, " + (darken(v, d, t)) + ", " + (lighten(v, d, t)) + ");*/\n\t\tbox-shadow: inset 0 1px 2px " + (alpha(shadow, .15)) + ", 0 1px " + (alpha(light, .2)) + ";\n\t\tcolor: " + (t(1 - active)) + ";\n\t\ttext-shadow: none;\n\t");
+		return ("\n\t\tbackground: " + (t(v)) + ";\n\t\t/*background-image: linear-gradient(to bottom, " + (darken(v, d, t)) + ", " + (lighten(v, d, t)) + ");*/\n\t\tbox-shadow: inset 0 1px 2px " + (alpha(shadow, .18)) + ", 0 1px " + (alpha(light, .2)) + ";\n\t\tcolor: " + (t(1 - fg)) + ";\n\t\ttext-shadow: none;\n\t");
 	};
 	var text = function (v, bg) { return color(tone(v)).getLuminance() > color(tone(bg)).getLuminance() ? ("\n\t\tcolor: " + (tone(v)) + ";\n\t\tbackground: " + (tone(bg)) + ";\n\t\ttext-shadow: 0 -1px " + (color.mix(tone(bg), shadow, 50)) + ";\n\t") : ("\n\t\tcolor: " + (tone(v)) + ";\n\t\tbackground: " + (tone(bg)) + ";\n\t\ttext-shadow: 0 1px " + (color.mix(tone(bg), light, 50)) + ";\n\t"); };
 
@@ -11230,8 +11708,8 @@ function typer (opts) {
 		fontFamily: font,
 		inputHeight: h,
 		labelWidth: labelWidth,
-		palette: [tone(active), tone(bg)],
+		palette: [tone(fg), tone(bg)],
 		padding: padding
-	}) + "\n\t\t:host {\n\t\t\t" + (text(.25, bg)) + ";\n\t\t\tbox-shadow: inset 0 1px " + (alpha(light, .15)) + ", 0 1.5px 11px -2px " + (alpha(shadow, .666)) + ";\n\t\t\tborder-radius: " + (radius*2) + "px;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tfont-weight: 400;\n\t\t\t" + (text(.25, bg)) + ";\n\t\t}\n\n\t\t.settings-panel-label {\n\t\t\t" + (text(.5, bg)) + ";\n\t\t}\n\n\t\t.settings-panel-field:hover .settings-panel-label {\n\t\t\tcolor: " + (tone(active)) + ";\n\t\t}\n\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t}\n\t.settings-panel-value:first-child {\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-ms-track {\n\t\t" + (push(active, .05)) + "\n\t\toutline: none;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tborder-radius: .5em;\n\t\t" + (push(active, .05)) + "\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tborder-radius: .5em;\n\t\t" + (push(bg*.9, .05)) + "\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\twidth: 100%;\n\t\t\t--active: " + (tone(active)) + ";\n\t\t\t--bg: " + (tone(bg*.9)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-input {\n\t\t\tmargin-right: " + h + "em;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (tone(bg*.9 -.07)) + ";\n\t\t}\n\t\t.settings-panel-range-value {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tcolor: " + (tone(bg)) + ";\n\t\t\tbackground: " + (tone(active)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h*.65) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t\tmargin-left: " + (h*.1) + "em;\n\t\t\tdisplay: none;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(active)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value-tip,\n\t\t.settings-panel-range:focus ~ .settings-panel-value-tip {\n\t\t\tdisplay: block;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value,\n\t\t.settings-panel-range:focus ~ .settings-panel-value {\n\t\t\tdisplay: block;\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range:hover::-webkit-slider-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {\n\t}\n\t.settings-panel-range::-webkit-slider-thumb:active {\n\t}\n\n\t.settings-panel-range::-moz-range-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover,\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {\n\t}\n\t.settings-panel-range::-moz-range-thumb:active {\n\t}\n\n\t.settings-panel-range::-ms-thumb {\n\t\t" + (pop(active, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-ms-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range:hover::-ms-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {\n\t}\n\t.settings-panel-range::-ms-thumb:active {\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\t" + (push(bg*.9, .05)) + "\n\t\tbackground: " + (tone(bg*.9)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after,\n\t.settings-panel-interval-dragging .settings-panel-interval:after {\n\t\tbackground: " + (tone(bg*.9 -.07)) + ";\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + (tone(active)) + ";\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h*.4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\t" + (pop(active, -.05)) + ";\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h*.4) + "em;\n\t\tright: auto;\n\t}\n\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:before,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before {\n\t\t" + (pop(active, -.05)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-interval {\n\t\t\twidth: 100%;\n\t\t}\n\n\t\t.settings-panel-interval-value {\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tdisplay: none;\n\t\t\tcolor: " + (tone(bg)) + ";\n\t\t\tbackground: " + (tone(active)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: var(--value);\n\t\t}\n\n\t\t.settings-panel-field--interval .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\tdisplay: none;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: var(--low);\n\t\t\tmargin-left: " + (-h*.3) + "em;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(active)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-interval-value--right + .settings-panel-value-tip {\n\t\t\tleft: var(--high);\n\t\t}\n\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--interval:hover .settings-panel-interval-value,\n\t\t.settings-panel-interval-dragging .settings-panel-interval-value {\n\t\t\tdisplay: block;\n\t\t}\n\t\t@media (min-width: 640px) {\n\t\t\t.settings-panel-field--interval:hover .settings-panel-value-tip,\n\t\t\t.settings-panel-interval-dragging .settings-panel-value-tip {\n\t\t\t\tdisplay: block;\n\t\t\t}\n\t\t}\n\t}\n\n\n\t\t/** Switch style */\n\t\t.settings-panel-switch {\n\t\t}\n\t\t.settings-panel-switch-input {\n\t\t\tdisplay: none;\n\t\t}\n\t\t.settings-panel-switch-label {\n\t\t\tposition: relative;\n\t\t\tdisplay: inline-block;\n\t\t\tpadding: 0 " + (h/2) + "em;\n\t\t\tmargin: 0;\n\t\t\tz-index: 2;\n\t\t\ttext-align: center;\n\t\t\t" + (pop(bg * .9, .07)) + ";\n\t\t\tcolor: " + (tone(.25)) + ";\n\t\t}\n\t\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\t\t" + (push(active, .05)) + ";\n\t\t}\n\n\t\t.settings-panel-switch-input:first-child + .settings-panel-switch-label {\n\t\t\tborder-top-left-radius: 2px;\n\t\t\tborder-bottom-left-radius: 2px;\n\t\t}\n\t\t.settings-panel-switch-label:last-child {\n\t\t\tborder-top-right-radius: 2px;\n\t\t\tborder-bottom-right-radius: 2px;\n\t\t}\n\n\t\t.settings-panel-switch-label:hover {\n\t\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t\t}\n\t\t.settings-panel-switch-label:active {\n\t\t\t" + (pop(bg * .9 + (inversed ? .07 : -.07), .07)) + ";\n\t\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: " + (h/4) + "em;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\t" + (pop(bg * .9, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:active,\n\t.settings-panel-select:focus {\n\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcolor: inherit;\n\t\tdisplay: block;\n\t\ttransform: scale(.8);\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\tborder-radius: " + radius + "px;\n\t\t" + (pop(bg * .9, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\t" + (pop(bg * .9 + (inversed ? -.07 : .07), .07)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\t" + (push(active, .05)) + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\theight: " + h + "em;\n\t\tpadding: 0;\n\t\twidth: 100%;\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: .4em;\n\t\t" + (push(bg*.93)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-textarea {\n\t\tpadding-top: .35em;\n\t}\n\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\t" + (push(bg * .93 - .04)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t\toutline: none;\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\tposition: relative;\n\t\twidth: " + h + "em;\n\t\tborder-top-left-radius: 3px;\n\t\tborder-bottom-left-radius: 3px;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t\tbox-shadow: 0 1px " + (alpha(light, .2)) + ";\n\t}\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tpadding-left: " + (h/4) + "em;\n\t\twidth: calc(100% - " + h + "em);\n\t\tfont-family: inherit;\n\t\tborder-top-left-radius: 0;\n\t\tborder-bottom-left-radius: 0;\n\t\tborder-top-right-radius: 3px;\n\t\tborder-bottom-right-radius: 3px;\n\t\t" + (push(bg*.93)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\t" + (push(bg * .93 - .04)) + ";\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\t" + (text(.25, bg)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tfont-size: " + (h*.75) + "em;\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: 2em;\n\t\tmargin-right: -2em;\n\t\tmargin-top: -" + (h*.1) + "em;\n\t\topacity: 0;\n\t\tz-index: 1;\n\t\tposition: relative;\n\t\tcolor: " + (tone(1)) + ";\n\t\ttext-shadow: 0 1px 2px " + (alpha(shadow, .5)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\tmargin-top: -" + (h*.05) + "em;\n\t\twidth: " + (h*.666) + "em;\n\t\theight: " + (h*.666) + "em;\n\t\tborder-radius: " + radius + "px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tline-height: " + (h/2) + "em;\n\t\ttext-align: center;\n\t\tz-index: 0;\n\t\t" + (push(bg * .9)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover {\n\t\tcolor: " + (tone(active)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover:after {\n\t\t" + (push(bg * .9 -.07, .07)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\topacity: 1;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\t" + (push(active, .1)) + ";\n\t}\n\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(tone(.25), .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + (tone(active)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t::selection {\n\t\tbackground: " + (tone(active)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t:host hr {\n\t\tborder: none;\n\t\theight: 3px;\n\t\tborder-radius: " + radius + "px;\n\t\tmargin: " + (h/3) + "em 0;\n\t\t" + (push(bg * .98, .05)) + ";\n\t}\n\t";
+	}) + "\n\t\t:host {\n\t\t\t" + (text(fg, bg)) + ";\n\t\t\tbox-shadow: inset 0 1px " + (alpha(light, .15)) + ", 0 1.5px 11px -2px " + (alpha(shadow, .666)) + ";\n\t\t\tborder-radius: " + (radius*2) + "px;\n\t\t}\n\n\t\t.settings-panel-title {\n\t\t\tfont-weight: 400;\n\t\t\t" + (text(0, bg)) + ";\n\t\t\tbackground: none;\n\t\t}\n\n\t\t.settings-panel-label {\n\t\t\t" + (text(.25, bg)) + ";\n\t\t\tbackground: none;\n\t\t}\n\n\t\t.settings-panel-field:hover .settings-panel-label {\n\t\t\tcolor: " + (tone(fg)) + ";\n\t\t}\n\n\n\n\t/** Values */\n\t.settings-panel-value {\n\t}\n\t.settings-panel-value:first-child {\n\t}\n\t.settings-panel-value:hover,\n\t.settings-panel-value:focus {\n\t}\n\n\n\n\t/** Sliders */\n\t.settings-panel-range {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tbackground: none;\n\t\tborder: 0;\n\t}\n\t.settings-panel-field--range:hover .settings-panel-range,\n\t.settings-panel-range:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(fg, .05)) + "\n\t}\n\t.settings-panel-range::-moz-range-track {\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\t" + (push(fg, .05)) + "\n\t}\n\t.settings-panel-range::-ms-track {\n\t\t" + (push(fg, .05)) + "\n\t\toutline: none;\n\t\tcolor: transparent;\n\t\tborder: none;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t}\n\t.settings-panel-range::-ms-fill-lower {\n\t\tborder-radius: .5em;\n\t\t" + (push(fg, .05)) + "\n\t}\n\t.settings-panel-range::-ms-fill-upper {\n\t\tborder-radius: .5em;\n\t\t" + (push(.93, .05)) + "\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-range {\n\t\t\twidth: 100%;\n\t\t\t--active: " + active + ";\n\t\t\t--bg: " + (tone(.9)) + ";\n\t\t\t--track-background: linear-gradient(to right, var(--active) 0, var(--active) var(--value), var(--bg) 0) no-repeat;\n\t\t}\n\t\t.settings-panel-range::-webkit-slider-runnable-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-range::-moz-range-track {\n\t\t\tbackground: var(--track-background);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-input {\n\t\t\tmargin-right: " + h + "em;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-range,\n\t\t.settings-panel-range:focus {\n\t\t\t--bg: " + (tone(.93)) + ";\n\t\t}\n\t\t.settings-panel-range-value {\n\t\t\tdisplay: none;\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tcolor: " + (tone(fg)) + ";\n\t\t\tbackground: " + (tone(1)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h*.65) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t}\n\t\t.settings-panel-field--range .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: calc(var(--value) - var(--coef) * " + (h*.8) + "em);\n\t\t\tmargin-left: " + (h*.1) + "em;\n\t\t\tdisplay: none;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(1)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value-tip,\n\t\t.settings-panel-range:focus ~ .settings-panel-value-tip {\n\t\t\tdisplay: block;\n\t\t}\n\t\t.settings-panel-field--range:hover .settings-panel-value,\n\t\t.settings-panel-range:focus ~ .settings-panel-value {\n\t\t\tdisplay: block;\n\t\t}\n\t}\n\n\t.settings-panel-range::-webkit-slider-thumb {\n\t\t" + (pop(fg, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-webkit-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-webkit-slider-thumb,\n\t.settings-panel-range:hover::-webkit-slider-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-webkit-slider-thumb {\n\t}\n\t.settings-panel-range::-webkit-slider-thumb:active {\n\t}\n\n\t.settings-panel-range::-moz-range-thumb {\n\t\t" + (pop(fg, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tmargin-top: -" + (h*.4) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-moz-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-moz-range-thumb,\n\t.settings-panel-range::-moz-range-thumb:hover,\n\t.settings-panel-field--range:hover .settings-panel-range::-moz-range-thumb {\n\t}\n\t.settings-panel-range::-moz-range-thumb:active {\n\t}\n\n\t.settings-panel-range::-ms-thumb {\n\t\t" + (pop(fg, -.05)) + ";\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\tborder: 0;\n\t\tposition: relative;\n\t\ttop: .25em;\n\t\t-ms-appearance: none;\n\t\tappearance: none;\n\t\tz-index: 3;\n\t}\n\t.settings-panel-range:focus::-ms-thumb,\n\t.settings-panel-range:hover::-ms-thumb,\n\t.settings-panel-field--range:hover .settings-panel-range::-ms-thumb {\n\t}\n\t.settings-panel-range::-ms-thumb:active {\n\t}\n\n\n\t/** Interval */\n\t.settings-panel-interval {\n\t\tbackground: none;\n\t}\n\t.settings-panel-interval:after {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\twidth: 100%;\n\t\tleft: 0;\n\t\tbottom: 0;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tborder-radius: .5em;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\t" + (push(.9, .05)) + "\n\t\tbackground: " + (tone(.9)) + ";\n\t}\n\t.settings-panel-field--interval:hover .settings-panel-interval:after,\n\t.settings-panel-interval-dragging .settings-panel-interval:after {\n\t\tbackground: " + (tone(.93)) + ";\n\t}\n\t.settings-panel-interval-handle {\n\t\tposition: absolute;\n\t\tz-index: 1;\n\t\ttop: 0;\n\t\theight: .5em;\n\t\tbottom: 0;\n\t\tmargin-top: auto;\n\t\tmargin-bottom: auto;\n\t\tbackground: " + active + ";\n\t}\n\t.settings-panel-interval-handle:after,\n\t.settings-panel-interval-handle:before {\n\t\tcontent: '';\n\t\tposition: absolute;\n\t\tright: -" + (h*.4) + "em;\n\t\ttop: 0;\n\t\tbottom: 0;\n\t\tmargin: auto;\n\t\theight: " + (h*.8) + "em;\n\t\twidth: " + (h*.8) + "em;\n\t\tborder-radius: " + (h*.8) + "em;\n\t\t" + (pop(fg, -.05)) + ";\n\t}\n\t.settings-panel-interval-handle:before {\n\t\tleft: -" + (h*.4) + "em;\n\t\tright: auto;\n\t}\n\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:after,\n\t.settings-panel-field--interval:hover .settings-panel-interval-handle:before,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:after,\n\t.settings-panel-interval-dragging .settings-panel-interval-handle:before {\n\t\t" + (pop(fg, -.05)) + ";\n\t}\n\n\t@supports (--css: variables) {\n\t\t.settings-panel-interval {\n\t\t\twidth: 100%;\n\t\t}\n\n\t\t.settings-panel-interval-value {\n\t\t\tposition: absolute;\n\t\t\ttop: -" + (h*1.25) + "em;\n\t\t\ttext-align: center;\n\t\t\tpadding: 0;\n\t\t\tdisplay: none;\n\t\t\tcolor: " + (tone(fg)) + ";\n\t\t\tbackground: " + (tone(1)) + ";\n\t\t\tbox-shadow: 0 1px 5px -1px " + (alpha(shadow, .5)) + ";\n\t\t\tborder-radius: " + radius + "px;\n\t\t\tz-index: 3;\n\t\t\tmargin-left: " + (-h) + "em;\n\t\t\twidth: " + (h*2) + "em;\n\t\t\ttext-shadow: none;\n\t\t\tleft: var(--value);\n\t\t}\n\n\t\t.settings-panel-field--interval .settings-panel-value-tip {\n\t\t\tposition: absolute;\n\t\t\theight: 0;\n\t\t\tdisplay: none;\n\t\t\ttop: -" + (h*.25) + "em;\n\t\t\tleft: var(--low);\n\t\t\tmargin-left: " + (-h*.3) + "em;\n\t\t\tz-index: 3;\n\t\t\tborder-top: " + (h*.3) + "em solid " + (tone(1)) + ";\n\t\t\tborder-left: " + (h*.3) + "em solid transparent;\n\t\t\tborder-right: " + (h*.3) + "em solid transparent;\n\t\t\tborder-bottom: none;\n\t\t}\n\t\t.settings-panel-interval-value--right + .settings-panel-value-tip {\n\t\t\tleft: var(--high);\n\t\t}\n\n\t\t.settings-panel-input:before {\n\t\t\tborder-top: " + (h*.3) + "em solid " + (alpha(shadow, .25)) + ";\n\t\t}\n\t\t.settings-panel-field--interval:hover .settings-panel-interval-value,\n\t\t.settings-panel-interval-dragging .settings-panel-interval-value {\n\t\t\tdisplay: block;\n\t\t}\n\t\t@media (min-width: 640px) {\n\t\t\t.settings-panel-field--interval:hover .settings-panel-value-tip,\n\t\t\t.settings-panel-interval-dragging .settings-panel-value-tip {\n\t\t\t\tdisplay: block;\n\t\t\t}\n\t\t}\n\t}\n\n\n\t\t/** Switch style */\n\t\t.settings-panel-switch {\n\t\t}\n\t\t.settings-panel-switch-input {\n\t\t\tdisplay: none;\n\t\t}\n\t\t.settings-panel-switch-label {\n\t\t\tposition: relative;\n\t\t\tdisplay: inline-block;\n\t\t\tpadding: 0 " + (h/2) + "em;\n\t\t\tmargin: 0;\n\t\t\tz-index: 2;\n\t\t\ttext-align: center;\n\t\t\t" + (pop(bg * .95, .07)) + ";\n\t\t\tcolor: " + (tone(.25)) + ";\n\t\t}\n\t\t.settings-panel-switch-input:checked + .settings-panel-switch-label {\n\t\t\t" + (push(.95, bg)) + ";\n\t\t\tcolor: " + (tone(fg)) + ";\n\t\t}\n\n\t\t.settings-panel-switch-input:first-child + .settings-panel-switch-label {\n\t\t\tborder-top-left-radius: 2px;\n\t\t\tborder-bottom-left-radius: 2px;\n\t\t}\n\t\t.settings-panel-switch-label:last-child {\n\t\t\tborder-top-right-radius: 2px;\n\t\t\tborder-bottom-right-radius: 2px;\n\t\t}\n\n\t\t.settings-panel-switch-label:hover {\n\t\t\t" + (pop(bg * .95 + (inversed ? -.07 : .07), .07)) + ";\n\t\t}\n\t\t.settings-panel-switch-label:active {\n\t\t\t" + (pop(bg * .95 + (inversed ? .07 : -.07), .07)) + ";\n\t\t}\n\n\n\t/** Select */\n\t.settings-panel-select {\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: " + (h/4) + "em;\n\t\toutline: none;\n\t\tborder: none;\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tappearance:none;\n\t\t" + (pop(bg * .95, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-select:hover,\n\t.settings-panel-select:active,\n\t.settings-panel-select:focus {\n\t\t" + (pop(bg * .95 + (inversed ? -.07 : .07), .07)) + ";\n\t}\n\t.settings-panel-select::-ms-expand {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-select-triangle {\n\t\tcolor: inherit;\n\t\tdisplay: block;\n\t\ttransform: scale(.8);\n\t}\n\n\n\t/** Button */\n\t.settings-panel-button {\n\t\ttext-align: center;\n\t\tborder: none;\n\t\tborder-radius: " + radius + "px;\n\t\t" + (pop(bg * .95, .07)) + ";\n\t\tcolor: " + (tone(.25)) + ";\n\t}\n\t.settings-panel-button:focus {\n\t\toutline: none;\n\t}\n\t.settings-panel-button:hover {\n\t\t" + (pop(bg * .95 + (inversed ? -.07 : .07), .07)) + ";\n\t\tcolor: " + (tone(fg)) + ";\n\t}\n\t.settings-panel-button:active {\n\t\t" + (push(fg, .05)) + ";\n\t}\n\n\n\t/** Text */\n\t.settings-panel-text,\n\t.settings-panel-textarea {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\theight: " + h + "em;\n\t\tpadding: 0;\n\t\twidth: 100%;\n\t\tborder-radius: " + radius + "px;\n\t\tpadding-left: .4em;\n\t\t" + (push(bg*.95)) + ";\n\t\tcolor: " + (tone(0)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-textarea {\n\t\tpadding-top: .35em;\n\t}\n\n\t.settings-panel-text:hover,\n\t.settings-panel-textarea:hover,\n\t.settings-panel-text:focus,\n\t.settings-panel-textarea:focus {\n\t\t" + (push(bg * .95 - .04)) + ";\n\t\tcolor: " + (tone(fg)) + ";\n\t\toutline: none;\n\t}\n\n\t/** Color */\n\t.settings-panel-color {\n\t\tposition: relative;\n\t\twidth: " + h + "em;\n\t\tborder-top-left-radius: 3px;\n\t\tborder-bottom-left-radius: 3px;\n\t\tdisplay: inline-block;\n\t\tvertical-align: baseline;\n\t\tbox-shadow: 0 1px " + (alpha(light, .2)) + ";\n\t}\n\t.settings-panel-color-value {\n\t\t-webkit-appearance: none;\n\t\t-moz-appearance: none;\n\t\t-o-appearance:none;\n\t\tborder: none;\n\t\tpadding-left: " + (h/4) + "em;\n\t\twidth: calc(100% - " + h + "em);\n\t\tfont-family: inherit;\n\t\tborder-top-left-radius: 0;\n\t\tborder-bottom-left-radius: 0;\n\t\tborder-top-right-radius: 3px;\n\t\tborder-bottom-right-radius: 3px;\n\t\t" + (push(bg*.95)) + ";\n\t\tcolor: " + (tone(0)) + ";\n\t\ttext-shadow: none;\n\t}\n\t.settings-panel-color-value:hover,\n\t.settings-panel-color-value:focus {\n\t\toutline: none;\n\t\t" + (push(bg * .95 - .04)) + ";\n\t\tcolor: " + (tone(fg)) + ";\n\t}\n\n\n\t/** Checkbox */\n\t.settings-panel-checkbox {\n\t\tdisplay: none;\n\t}\n\t.settings-panel-checkbox-label {\n\t\tdisplay: inline-block;\n\t\t" + (text(.25, bg)) + ";\n\t\tposition: relative;\n\t\tmargin-right: " + h + "em;\n\t}\n\t.settings-panel-checkbox-label:before {\n\t\tfont-family: \"Material Icons\";\n\t\tcontent: '';\n\t\tfont-weight: bolder;\n\t\tfont-size: " + (h*.75) + "em;\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\twidth: 2em;\n\t\tmargin-right: -2em;\n\t\tmargin-top: -" + (h*.1) + "em;\n\t\topacity: 0;\n\t\tz-index: 1;\n\t\tposition: relative;\n\t\tcolor: " + (tone(fg)) + ";\n\t\ttext-shadow: 0 1px 2px " + (alpha(shadow, .5)) + ";\n\t}\n\t.settings-panel-checkbox-label:after {\n\t\tcontent: '';\n\t\tdisplay: block;\n\t\tfloat: left;\n\t\tmargin-top: -" + (h*.05) + "em;\n\t\twidth: " + (h*.666) + "em;\n\t\theight: " + (h*.666) + "em;\n\t\tborder-radius: " + radius + "px;\n\t\tposition: relative;\n\t\tmargin-right: " + (h/3) + "em;\n\t\tline-height: " + (h/2) + "em;\n\t\ttext-align: center;\n\t\tz-index: 0;\n\t\t" + (push(.9)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover {\n\t\tcolor: " + (tone(fg)) + ";\n\t}\n\t.settings-panel-checkbox-label:hover:after {\n\t\t" + (push(.93, .07)) + ";\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label {\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:before {\n\t\topacity: 1;\n\t}\n\t.settings-panel-checkbox:checked + .settings-panel-checkbox-label:after {\n\t\t" + (push(.93, .1)) + ";\n\t}\n\n\n\t/** Decorations */\n\t::-webkit-input-placeholder {\n\t\tcolor: " + (alpha(tone(0), .5)) + ";\n\t}\n\t::-moz-placeholder {\n\t\tcolor: " + (alpha(tone(0), .5)) + ";\n\t}\n\t:-ms-input-placeholder {\n\t\tcolor: " + (alpha(tone(0), .5)) + ";\n\t}\n\t:-moz-placeholder {\n\t\tcolor: " + (alpha(tone(0), .5)) + ";\n\t}\n\t::-moz-selection {\n\t\tbackground: " + (tone(fg)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t::selection {\n\t\tbackground: " + (tone(fg)) + ";\n\t\tcolor: " + (tone(bg)) + ";\n\t}\n\t:host hr {\n\t\tborder: none;\n\t\theight: 3px;\n\t\tborder-radius: " + radius + "px;\n\t\tmargin: " + (h/3) + "em 0;\n\t\t" + (push(bg * .98, .05)) + ";\n\t}\n\t";
 };
-},{"./none":85,"add-px-to-style":7,"google-fonts":22,"interpolation-arrays":26,"scope-css":56,"tinycolor2":64}]},{},[80]);
+},{"./none":88,"add-px-to-style":7,"color-interpolate":14,"google-fonts":28,"scope-css":59,"tinycolor2":67}]},{},[83]);
