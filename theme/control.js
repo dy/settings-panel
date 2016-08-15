@@ -7,7 +7,7 @@ const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
-const lerp = require('interpolation-arrays');
+const interpolate = require('color-interpolate');
 const none = require('./none');
 
 module.exports = control;
@@ -34,8 +34,8 @@ function control (opts) {
 	let labelWidth = opts.labelWidth || control.labelWidth;
 	let padding = opts.padding || control.padding;
 
-	let palette = (opts.palette || control.palette).map(v => color(v).toRgb());
-	let pick = lerp(palette);
+	let palette = opts.palette || control.palette;
+	let pick = interpolate(palette);
 
 	let white = color(pick(.0)).toString();
 	let light = color(pick(.1)).toString();

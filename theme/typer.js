@@ -9,7 +9,7 @@ const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
-const lerp = require('interpolation-arrays');
+const interpolate = require('color-interpolate');
 const none = require('./none');
 
 
@@ -54,12 +54,12 @@ function typer (opts) {
 
 
 	//palette
-	let palette = (opts.palette || typer.palette).map(v => color(v).toRgb());
-	let pick = lerp(palette);
+	let palette = opts.palette || typer.palette;
+	let pick = interpolate(palette);
 
 	//obtain palette sorted by brightnes
 	let nPalette = palette.slice().sort((a, b) => color(a).getLuminance() - color(b).getLuminance());
-	let npick = lerp(nPalette);
+	let npick = interpolate(nPalette);
 
 	//the color of light/shadow to mix
 	let light = color.mix('white', nPalette[nPalette.length - 1], 25).toString();

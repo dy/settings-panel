@@ -6,7 +6,7 @@
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
-const lerp = require('interpolation-arrays');
+const interpolate = require('color-interpolate');
 const none = require('./none');
 
 module.exports = dragon;
@@ -33,8 +33,8 @@ function dragon (opts) {
 	let font = opts.fontFamily || dragon.fontFamily;
 	let padding = opts.padding || dragon.padding;
 
-	let palette = (opts.palette || dragon.palette).map(v => color(v).toRgb());
-	let pick = lerp(palette);
+	let palette = opts.palette || dragon.palette;
+	let pick = interpolate(palette);
 
 	let white = color(pick(1)).toString();
 	let light = color(pick(.65)).toString();

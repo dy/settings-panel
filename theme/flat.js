@@ -7,8 +7,8 @@ const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
-const lerp = require('interpolation-arrays');
 const none = require('./none');
+const interpolate = require('color-interpolate');
 
 module.exports = flat;
 
@@ -37,8 +37,8 @@ function flat (opts) {
 	let labelWidth = opts.labelWidth || flat.labelWidth;
 	let padding = opts.padding || flat.padding;
 
-	let palette = (opts.palette || flat.palette).map(v => color(v).toRgb());
-	let pick = lerp(palette);
+	let palette = opts.palette || flat.palette;
+	let pick = interpolate(palette);
 
 	//NOTE: this is in case of scaling palette to black/white range
 	let white = tone(1);
