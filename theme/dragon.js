@@ -22,7 +22,7 @@ dragon.fontSize = '12px';
 dragon.fontFamily = '"Roboto", sans-serif';
 dragon.labelWidth = '33.3%';
 dragon.inputHeight = 2;
-dragon.padding = 1/6;
+dragon.padding = 1/5;
 
 function dragon (opts) {
 	opts = opts || {};
@@ -57,7 +57,15 @@ function dragon (opts) {
 		font-size: ${px('font-size', fontSize)};
 		font-family: ${font};
 		font-weight: 400;
-		padding: ${h*.75}em;
+		padding: ${h*.5}em;
+	}
+	:host a {
+		text-decoration: none;
+		border-bottom: .15em solid ${alpha(white, .2)};
+	}
+	:host a:hover {
+		text-decoration: none;
+		border-bottom: .15em solid ${alpha(white, 1)};
 	}
 
 	.settings-panel-title {
@@ -225,10 +233,10 @@ function dragon (opts) {
 	}
 	.settings-panel-checkbox-label {
 		position: relative;
-		margin-top: ${h/4}em;
+		margin-top: ${h/6}em;
 		width: 100%;
 		color: ${notSoLight};
-		margin-bottom: ${h/4}em;
+		margin-bottom: ${h/6}em;
 	}
 	.settings-panel-checkbox-label:empty {
 		margin-left: -${h/4}em;

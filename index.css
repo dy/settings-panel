@@ -22,6 +22,13 @@
 	box-sizing: border-box;
 }
 
+.settings-panel svg {
+	fill: currentColor;
+	max-width: 100%;
+	max-height: 100%;
+	display: inline-block;
+}
+
 .settings-panel input,
 .settings-panel button,
 .settings-panel textarea,

@@ -17,6 +17,11 @@ function Checkbox (opts) {
 		opts.container.appendChild(this.group);
 	}
 
+	//detect multiple options from array value
+	if (!opts.options && Array.isArray(opts.value)) {
+		opts.options = opts.value;
+	}
+
 	//single checkbox
 	if (!opts.options) {
 		let input = this.group.querySelector('.settings-panel-checkbox');
@@ -53,16 +58,20 @@ function Checkbox (opts) {
 		this.group.innerHTML = html;
 
 		this.group.addEventListener('change', () => {
-			let v = [];
-			[].slice.call(this.group.querySelectorAll('.settings-panel-checkbox')).forEach(el => {
-				if (el.checked) v.push(el.getAttribute('data-value'));
-			});
-
-			this.emit('input', v);
+			this.emit('input', getState());
 		});
 		setTimeout(() => {
-			this.emit('init')
+			this.emit('init', getState());
 		});
+
+		let that = this;
+		function getState () {
+			let v = [];
+			[].slice.call(that.group.querySelectorAll('.settings-panel-checkbox')).forEach(el => {
+				if (el.checked) v.push(el.getAttribute('data-value'));
+			});
+			return v;
+		}
 	}
 
 	function createOption (label, value) {

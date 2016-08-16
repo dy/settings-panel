@@ -146,7 +146,12 @@ Panel.prototype.set = function (name, value) {
 	//detect type
 	if (!item.type) {
 		if (item.value && Array.isArray(item.value)) {
-			item.type = 'interval'
+			if (typeof item.value[0] === 'string') {
+				item.type = 'checkbox';
+			}
+			else {
+				item.type = 'interval'
+			}
 		} else if (item.scale || item.max || item.steps || item.step || typeof item.value === 'number') {
 			item.type = 'range'
 		} else if (item.options) {
