@@ -44,5 +44,7 @@ Textarea.prototype.update = function (opts) {
 
 	this.element.disabled = !!this.disabled;
 
+	autosize.update(this.element);
+
 	return this;
 }
