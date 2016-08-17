@@ -99,12 +99,14 @@ Panel.prototype.set = function (name, value) {
 	//handle plain object
 	if (isPlainObject(name)) {
 		let items = name;
+		let list = [];
 		for (let key in items) {
-			let item = items[key];
-			this.set(key, item)
+			items[key].id = key;
+			list.push(items[key]);
 		}
+		list = list.sort((a, b) => (a.order||0) - (b.order||0));
 
-		return this;
+		return this.set(list);
 	}
 
 	//format name

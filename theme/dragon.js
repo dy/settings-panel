@@ -534,7 +534,7 @@ function dragon (opts) {
 	:host hr {
 		border: none;
 		height: 0;
-		margin: ${h*.5}em 0;
+		margin: ${h*.25}em 0;
 		opacity: .333;
 		border-bottom: 1px dotted ${notSoLight};
 	}
