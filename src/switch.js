@@ -1,3 +1,5 @@
+'use strict';
+
 const inherits = require('inherits');
 const Emitter = require('events').EventEmitter;
 const format = require('param-case');
@@ -20,7 +22,7 @@ function Switch (opts) {
 		var html = '';
 
 		if (Array.isArray(opts.options)) {
-			for (i = 0; i < opts.options.length; i++) {
+			for (let i = 0; i < opts.options.length; i++) {
 				let option = opts.options[i]
 				html += createOption(option, option);
 			}

@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events').EventEmitter
 const inherits = require('inherits')
 const isNumeric = require('is-numeric')

@@ -4,6 +4,8 @@
  * A custom html component
  */
 
+'use strict';
+
 const EventEmitter = require('events').EventEmitter
 const inherits = require('inherits')
 const extend = require('just-extend')

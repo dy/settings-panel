@@ -3,6 +3,7 @@
  *
  * Json representation theme
  */
+'use strict';
 
 const px = require('add-px-to-style');
 const none = require('./none');

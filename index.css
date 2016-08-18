@@ -37,6 +37,10 @@
 	font-size: inherit;
 }
 
+.settings-panel textarea {
+	max-height: 8em;
+}
+
 
 .settings-panel a {
 	color: inherit;

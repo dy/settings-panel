@@ -1,6 +1,7 @@
 /**
  * @module  settings-panel/theme/none
  */
+'use strict';
 
 const px = require('add-px-to-style');
 

@@ -1,3 +1,5 @@
+'use strict';
+
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 var format = require('param-case')

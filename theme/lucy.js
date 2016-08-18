@@ -3,6 +3,7 @@
  *
  * Round theme
  */
+'use strict';
 
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');

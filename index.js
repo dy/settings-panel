@@ -1,6 +1,7 @@
 /**
  * @module settings-panel
  */
+'use strict';
 
 const Emitter = require('events').EventEmitter;
 const inherits = require('inherits');
@@ -101,7 +102,10 @@ Panel.prototype.set = function (name, value) {
 		let items = name;
 		let list = [];
 		for (let key in items) {
-			items[key].id = key;
+			if (!isPlainObject(items[key])) {
+				items[key] = {value: items[key]};
+			}
+			if (items[key].id == null) items[key].id = key;
 			list.push(items[key]);
 		}
 		list = list.sort((a, b) => (a.order||0) - (b.order||0));

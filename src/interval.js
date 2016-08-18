@@ -1,3 +1,5 @@
+'use strict';
+
 const isNumeric = require('is-numeric')
 const css = require('dom-css')
 const isMobile = require('is-mobile')()

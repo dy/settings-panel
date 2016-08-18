@@ -3,6 +3,8 @@
  *
  * Midragonlistic theme based off https://dribbble.com/guidorosso NIMA editor settings
  */
+'use strict';
+
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');

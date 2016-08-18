@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events').EventEmitter
 const ColorPicker = require('simple-color-picker')
 const inherits = require('inherits')

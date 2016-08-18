@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events').EventEmitter
 const inherits = require('inherits')
 const css = require('dom-css')

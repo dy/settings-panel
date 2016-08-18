@@ -1,3 +1,5 @@
+'use strict';
+
 const num = require('input-number');
 
 module.exports = function (opts) {

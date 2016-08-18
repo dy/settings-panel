@@ -3,6 +3,8 @@
  *
  * Control-panel theme on steroids
  */
+'use strict';
+
 const px = require('add-px-to-style');
 const fonts = require('google-fonts');
 const color = require('tinycolor2');

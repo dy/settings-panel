@@ -139,7 +139,9 @@ Rerender panel with new options. Options may include values for the theme, like 
 
 ## Spotted in the wild
 
-> [plot-grid](https://dfcreative.github.io/plot-grid)
+> [plot-grid](https://dfcreative.github.io/plot-grid)<br/>
+> [app-audio](https://dfcreative.github.io/app-audio)<br/>
+> [gl-waveform](https://audio-lab.github.io/gl-waveform)<br/>
 
 ## See also
 

@@ -3,3 +3,4 @@
  *
  * Rounded corners theme
  */
+'use strict';
