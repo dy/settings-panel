@@ -47,7 +47,7 @@ function Checkbox (opts) {
 		var html = '';
 
 		if (Array.isArray(opts.options)) {
-			for (i = 0; i < opts.options.length; i++) {
+			for (let i = 0; i < opts.options.length; i++) {
 				let option = opts.options[i]
 				html += createOption(option, option);
 			}

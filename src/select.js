@@ -31,7 +31,7 @@ Select.prototype.update = function (opts) {
 	upTriangle.className = 'settings-panel-select-triangle settings-panel-select-triangle--up'
 
 	if (Array.isArray(opts.options)) {
-		for (i = 0; i < opts.options.length; i++) {
+		for (let i = 0; i < opts.options.length; i++) {
 			option = opts.options[i]
 			el = document.createElement('option')
 			el.value = el.textContent = option
@@ -42,7 +42,7 @@ Select.prototype.update = function (opts) {
 		}
 	} else {
 		keys = Object.keys(opts.options)
-		for (i = 0; i < keys.length; i++) {
+		for (let i = 0; i < keys.length; i++) {
 			key = keys[i]
 			el = document.createElement('option')
 			el.value = key
