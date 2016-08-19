@@ -11,7 +11,7 @@ inherits(Checkbox, EventEmitter)
 function Checkbox (opts) {
 	if (!(this instanceof Checkbox)) return new Checkbox(opts)
 
-	var self = this;
+	var that = this;
 
 	if (!this.group) {
 		this.group = document.createElement('fieldset');
@@ -35,10 +35,10 @@ function Checkbox (opts) {
 			this.labelEl.innerHTML = '&nbsp;';
 			label.className = 'settings-panel-checkbox-label';
 			input.onchange = function (data) {
-				self.emit('input', data.target.checked)
+				that.emit('input', data.target.checked)
 			}
 			setTimeout(function () {
-				self.emit('init', input.checked)
+				that.emit('init', input.checked)
 			})
 		}
 	}
@@ -65,15 +65,14 @@ function Checkbox (opts) {
 		setTimeout(() => {
 			this.emit('init', getState());
 		});
+	}
 
-		let that = this;
-		function getState () {
-			let v = [];
-			[].slice.call(that.group.querySelectorAll('.settings-panel-checkbox')).forEach(el => {
-				if (el.checked) v.push(el.getAttribute('data-value'));
-			});
-			return v;
-		}
+	function getState () {
+		let v = [];
+		[].slice.call(that.group.querySelectorAll('.settings-panel-checkbox')).forEach(el => {
+			if (el.checked) v.push(el.getAttribute('data-value'));
+		});
+		return v;
 	}
 
 	function createOption (label, value) {
