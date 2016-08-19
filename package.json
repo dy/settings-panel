@@ -41,7 +41,8 @@
   },
   "browserify": {
     "transform": [
-      "brfs"
+      "brfs",
+      "strictify"
     ]
   },
   "homepage": "https://github.com/dfcreative/settings-panel#readme",
@@ -64,6 +65,7 @@
     "param-case": "^1.1.2",
     "scope-css": "^1.0.0",
     "simple-color-picker": "0.0.9",
+    "strictify": "^0.2.0",
     "tinycolor2": "^1.3.0"
   },
   "devDependencies": {
