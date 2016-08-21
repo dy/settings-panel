@@ -39,9 +39,10 @@ Color.prototype.update = function (opts) {
 		picker.setColor(valueInput.value);
 	};
 
-	icon.onmouseover = function () {
-		picker.$el.style.display = ''
+	if (opts.readonly) {
+		valueInput.setAttribute('readonly', true);
 	}
+
 
 	var initial = opts.value
 	switch (opts.format) {
@@ -67,13 +68,18 @@ Color.prototype.update = function (opts) {
 
 	picker.$el.style.display = 'none';
 
-	icon.onmouseout = (e) => {
-		picker.$el.style.display = 'none'
+	if (!opts.readonly) {
+		icon.onmouseover = function () {
+			picker.$el.style.display = ''
+		}
+		icon.onmouseout = (e) => {
+			picker.$el.style.display = 'none'
+		}
 	}
 
 	setTimeout(() => {
 		this.emit('init', initial)
-	})
+	});
 
 	picker.onChange((hex) => {
 		let v = format(hex);
