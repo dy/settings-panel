@@ -16,6 +16,7 @@ function Button (opts) {
 		input.addEventListener('click', (e) => {
 			e.preventDefault();
 			this.emit('input');
+			this.emit('action');
 		})
 	}
 

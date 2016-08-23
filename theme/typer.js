@@ -34,7 +34,8 @@ typer.radius = 2;
 typer.fg = .08;
 
 fonts.add({
-	'Montserrat': [400, 600]
+	'Montserrat': [400, 600],
+	'Material Icons': 400
 });
 
 
@@ -130,6 +131,15 @@ function typer (opts) {
 			${text(fg, bg)};
 			box-shadow: inset 0 1px ${alpha(light, .15)}, 0 1.5px 11px -2px ${alpha(shadow, .666)};
 			border-radius: ${radius*2}px;
+		}
+
+		:host a {
+			text-decoration: none;
+			border-bottom: 1px solid ${alpha(tone(.0), .1)};
+		}
+		:host a:hover {
+			text-decoration: none;
+			border-bottom: 1px solid ${alpha(tone(.0), 1)};
 		}
 
 		.settings-panel-title {
@@ -621,7 +631,7 @@ function typer (opts) {
 		line-height: ${h/2}em;
 		text-align: center;
 		z-index: 0;
-		${push(.9)};
+		${push(.915)};
 	}
 	.settings-panel-checkbox-label:hover {
 		color: ${tone(fg)};

@@ -273,6 +273,11 @@ Panel.prototype.set = function (name, value) {
 				this.emit('change', item.id, data, state)
 			});
 
+			component.on('action', () => {
+				let state = extend({}, this.state);
+				item.action && item.action(state);
+			});
+
 			component.on('change', (data) => {
 				item.value = data
 				if (item.id) this.state[item.id] = item.value;
