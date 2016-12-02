@@ -1,6 +1,6 @@
 {
   "name": "settings-panel",
-  "version": "1.8.16",
+  "version": "1.8.17",
   "description": "Panel of inputs for parameter setting",
   "main": "index.js",
   "scripts": {
