@@ -21,6 +21,7 @@ Select.prototype.update = function (opts) {
 	input = document.createElement('select')
 	input.id = opts.id
 	input.className = 'settings-panel-select';
+	input.title = opts.title || opts.label;
 
 	if (opts.disabled) input.disabled = true;
 

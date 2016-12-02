@@ -443,48 +443,51 @@ function typer (opts) {
 	}
 
 
-		/** Switch style */
-		.settings-panel-switch {
-		}
-		.settings-panel-switch-input {
-			display: none;
-		}
-		.settings-panel-switch-label {
-			position: relative;
-			display: inline-block;
-			padding: 0 ${h/2}em;
-			margin: 0;
-			z-index: 2;
-			text-align: center;
-			${pop(bg * .95, .07)};
-			color: ${tone(.25)};
-		}
-		.settings-panel-switch-input:checked + .settings-panel-switch-label {
-			${push(.95, bg)};
-			color: ${tone(fg)};
-		}
+	/** Switch style */
+	.settings-panel-switch {
+	}
+	.settings-panel-switch-input {
+		display: none;
+	}
+	.settings-panel-switch-label {
+		position: relative;
+		display: inline-block;
+		padding: 0 ${h/2}em;
+		margin: 0;
+		z-index: 2;
+		text-align: center;
+		${pop(bg * .95, .07)};
+		color: ${tone(.25)};
+	}
+	.settings-panel-switch-input:checked + .settings-panel-switch-label {
+		${push(.95, bg)};
+		color: ${tone(fg)};
+	}
 
-		.settings-panel-switch-input:first-child + .settings-panel-switch-label {
-			border-top-left-radius: 2px;
-			border-bottom-left-radius: 2px;
-		}
-		.settings-panel-switch-label:last-child {
-			border-top-right-radius: 2px;
-			border-bottom-right-radius: 2px;
-		}
+	.settings-panel-switch-input:first-child + .settings-panel-switch-label {
+		border-top-left-radius: 2px;
+		border-bottom-left-radius: 2px;
+	}
+	.settings-panel-switch-label:last-child {
+		border-top-right-radius: 2px;
+		border-bottom-right-radius: 2px;
+	}
 
-		.settings-panel-switch-label:hover {
-			${pop(bg * .95 + (inversed ? -.07 : .07), .07)};
-		}
-		.settings-panel-switch-label:active {
-			${pop(bg * .95 + (inversed ? .07 : -.07), .07)};
-		}
+	.settings-panel-switch-label:hover {
+		${pop(bg * .95 + (inversed ? -.07 : .07), .07)};
+	}
+	.settings-panel-switch-label:active {
+		${pop(bg * .95 + (inversed ? .07 : -.07), .07)};
+	}
 
 
 	/** Select */
 	.settings-panel-select {
 		border-radius: ${radius}px;
 		padding-left: ${h/4}em;
+		padding-right: ${h/2}em;
+		margin-right: -${h/8}em;
+		min-width: 4em;
 		outline: none;
 		border: none;
 		-webkit-appearance: none;
@@ -601,6 +604,7 @@ function typer (opts) {
 		${text(.25, bg)};
 		position: relative;
 		margin-right: ${h}em;
+		background: none;
 	}
 	.settings-panel-checkbox-label:before {
 		font-family: "Material Icons";
