@@ -1,34 +1,38 @@
 # settings-panel [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
 
-Simple settings panel for your app, demo or tests.
+Settings panel for demo or tests page.
 
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
 
-In the preview there is a _typer_ theme, for other themes or customizations see [demo](http://dfcreative.github.io/settings-panel/).
+In the preview is _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-panel/).
 
 ## Usage
 
 [![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
 
 ```javascript
-var createPanel = require('settings-panel')
+const createPanel = require('settings-panel')
 
-var panel = createPanel([
-  {type: 'range', label: 'my range', min: 0, max: 100, value: 20},
-  {type: 'range', label: 'log range', min: 0.1, max: 100, value: 20, scale: 'log'},
-  {type: 'text', label: 'my text', value: 'my cool setting', help: 'why this is cool'},
-  {type: 'checkbox', label: 'my checkbox', value: true},
-  {type: 'color', label: 'my color', format: 'rgb', value: 'rgb(10,200,0)', change: value => console.log(value)},
-  {type: 'button', label: 'gimme an alert', change: () => alert('hello!')},
-  {type: 'select', label: 'select one', options: ['option 1', 'option 2'], value: 'option 1'}
-],
-  {
-    title: 'Settings'
-  }
-);
+let settings = createPanel([
+  {id: 'switch', label: 'Switch', type: 'switch', value: 'One', options: ['One', 'Two', 'Three']},
+  {id: 'range', label: 'Range', value: 97},
+  {id: 'interval', label: 'Interval', type: 'range', multiple: true, value: [33, 77]},
+  {id: 'checkbox', label: 'Checkbox group', type: 'checkbox', value: ['b', 'c'], options: {a: 'Option A', b: 'Option B', c: 'Option C'}},
+  {id: 'text', label: 'Text', value: 'my setting'},
+  {id: 'color', label: 'Color', value: 'rgb(100, 200, 100)'},
+  {id: 'select', label: 'Select', value: 'State One', options: ['State One', 'State Two', 'State Three']},
+  {id: 'textarea', label: 'Textarea', type: 'textarea', placeholder: 'long text...'},
+  {label: 'Cancel', type: 'button', input: e => alert('cancel')},
+  {label: 'Ok', type: 'button', input: e => alert('ok')}
+])
+
+//update value
+settings.range = 50
+extend(settings, newValues)
+
+//use settings as options for other components
+myComponent.update(settings)
 ```
-
-[**Run this in requirebin**](http://requirebin.com/?gist=21fc39f7f206ca50a4d5cd7298f8b9f8)
 
 ## let settings = require('settings-panel')(fields, options?)
 
@@ -41,6 +45,7 @@ For example,
 let settings = createPanel([
   {id: 'fieldA', type: 'checkbox', ...},
   {id: 'fieldB', type: 'number', ...},
+  directValue,
   ...
 ])
 
@@ -58,6 +63,7 @@ let settings = createPanel({
     type: 'number',
     ...
   },
+  fieldC: directValue
   ...
 })
 
@@ -74,14 +80,15 @@ Property | Meaning
 `default` | Explicitly defines default value, if differs from the initial value.
 `type` | One of `range`, `interval`, `checkbox`, `color`, `select`, `switch`, `raw`, `textarea`, `text` or any `<input>` type, see table below. If undefined, type will be guessed from the value.
 `order` | Will specify position of the field in panel, lower values go first.
-`label` | Label for the input. If label is `false`, no label will be displayed.
+`label` | Label for the input. If label is `false`, no label will be displayed. If no `id` provided, the label value will be used for `id`.
 `title` | Display text in field tooltip.
 `hidden` | Hides field visually, but preserves its value.
 `disabled` | Disables the input, making it inactive. It is still visible.
 `change` | Invoked each time the field value changed, whether through `input` or API.
 `min`, `max`, `step[s]` | `'range'` or `'number'` limits.
 `scale` | `linear` or `log`
-`options` | `select`, `switch` and `checkbox` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object with key/value pairs mapping to value value/label pairs.
+`multiple` | Defines if range is actually an interval
+`options` | `select`, `switch` and `checkbox` can specify `options`, either as an `Array` (in which case the value is the same as the option text) or as an object with key/value pairs mapping to value/label pairs.
 `placeholder` | Used for `text` and `textarea` fields.
 `content` | Defines raw content of an element
 `help` |
@@ -96,8 +103,7 @@ Property | Meaning
 
 Type | Meaning
 ---|---
-`range` |
-`interval` |
+`range`, `interval` |
 `checkbox` |
 `color` |
 `select` |
@@ -105,7 +111,9 @@ Type | Meaning
 `textarea` |
 `text` |
 `number` |
+<!-- `canvas` | -->
 <!-- `pad` | -->
+<!-- `angle` | -->
 <!-- `toggle` | -->
 <!-- `gradient` | -->
 <!-- `palette` | -->

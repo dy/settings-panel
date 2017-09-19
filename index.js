@@ -423,26 +423,26 @@ Panel.prototype.theme = require('./theme/none');
  * Registered components
  */
 Panel.prototype.components = {
-	range: require('./src/range'),
+	range: require('./component/range'),
 
-	button: require('./src/button'),
-	text: require('./src/text'),
-	textarea: require('./src/textarea'),
+	button: require('./component/button'),
+	text: require('./component/text'),
+	textarea: require('./component/textarea'),
 
-	checkbox: require('./src/checkbox'),
-	toggle: require('./src/checkbox'),
+	checkbox: require('./component/checkbox'),
+	toggle: require('./component/checkbox'),
 
-	switch: require('./src/switch'),
+	switch: require('./component/switch'),
 
-	color: require('./src/color'),
+	color: require('./component/color'),
 
-	interval: require('./src/interval'),
-	multirange: require('./src/interval'),
+	interval: require('./component/interval'),
+	multirange: require('./component/interval'),
 
-	custom: require('./src/custom'),
-	raw: require('./src/custom'),
+	custom: require('./component/custom'),
+	raw: require('./component/custom'),
 
-	select: require('./src/select')
+	select: require('./component/select')
 };
 
 
