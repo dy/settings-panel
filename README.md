@@ -1,10 +1,10 @@
-# settings-panel [![unstable](http://badges.github.io/stability-badges/dist/unstable.svg)](http://github.com/badges/stability-badges)
+# settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
 Settings panel for demo or tests page.
 
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
 
-In the preview is _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-panel/).
+_typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-panel/).
 
 ## Usage
 
@@ -17,7 +17,9 @@ let settings = createPanel([
   {id: 'switch', label: 'Switch', type: 'switch', value: 'One', options: ['One', 'Two', 'Three']},
   {id: 'range', label: 'Range', value: 97},
   {id: 'interval', label: 'Interval', type: 'range', multiple: true, value: [33, 77]},
-  {id: 'checkbox', label: 'Checkbox group', type: 'checkbox', value: ['b', 'c'], options: {a: 'Option A', b: 'Option B', c: 'Option C'}},
+  {id: 'checkbox', label: 'Checkbox group', type: 'checkbox', value: ['b', 'c'],
+    options: {a: 'Option A', b: 'Option B', c: 'Option C'}
+  },
   {id: 'text', label: 'Text', value: 'my setting'},
   {id: 'color', label: 'Color', value: 'rgb(100, 200, 100)'},
   {id: 'select', label: 'Select', value: 'State One', options: ['State One', 'State Two', 'State Three']},
@@ -26,7 +28,10 @@ let settings = createPanel([
   {label: 'Ok', type: 'button', input: e => alert('ok')}
 ])
 
-//update value
+//read values
+let [from, to] = settings.interval
+
+//update values
 settings.range = 50
 extend(settings, newValues)
 
@@ -38,10 +43,8 @@ myComponent.update(settings)
 
 Create a settings object and it's GUI panel based on list of fields and adjusted by options. The first argument is a list or object with name/descriptor pairs.
 
-For example,
-
 ```javascript
-//array
+// Create from fields list
 let settings = createPanel([
   {id: 'fieldA', type: 'checkbox', ...},
   {id: 'fieldB', type: 'number', ...},
@@ -49,7 +52,7 @@ let settings = createPanel([
   ...
 ])
 
-//object
+// Create from fields dict
 let settings = createPanel({
   fieldA: {
     type: 'checkbox',
@@ -161,12 +164,17 @@ Option | Default | Meaning
 <!-- `fontFamily` | `'sans-serif'` | -->
 <!-- `css` | `''` | additional css, aside from the theme’s one. Useful for custom styling -->
 <!-- `className` | `'` | appends additional className to the panel element. -->
-})
+
 
 ## See also
 
-> [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.<br/>
-> [oui](https://github.com/wearekuva/oui) — sci-ish panel.<br/>
-> [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.<br/>
-> [quicksettings](https://github.com/bit101/quicksettings) — an alternative versatile settings panel.<br/>
-> [dis-gui](https://github.com/wwwtyro/dis-gui) — remake on dat.gui.<br/>
+* [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.<br/>
+* [oui](https://github.com/wearekuva/oui) — sci-ish panel.<br/>
+* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.<br/>
+* [quicksettings](https://github.com/bit101/quicksettings) — an alternative versatile settings panel.<br/>
+* [dis-gui](https://github.com/wwwtyro/dis-gui) — remake on dat.gui.<br/>
+
+## License
+
+(c) 2017 Dima Yv. MIT License
+
