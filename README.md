@@ -33,19 +33,17 @@ Create object with its properties reflected in UI. Changing property values of t
 
 #### `fields`
 
-Defines property controls. That can be a list:
+Defines property controls.
 
 ```js
+// list
 settings = createSettings([
   {id: 'fieldA', type: 'checkbox', ...},
   {id: 'fieldB', type: 'number', ...},
   ...
 ])
-```
 
-a dict:
-
-```js
+// dict
 settings = createSettings({
   fieldA: {
     order: 0,
@@ -60,11 +58,8 @@ settings = createSettings({
   },
   ...
 })
-```
 
-or an object with direct values (eg. some options):
-
-```js
+// options object with field values
 settings = createSettings({
   value: 1,
   center: [2, 3],
@@ -72,8 +67,6 @@ settings = createSettings({
   ...
 })
 ```
-
-Field descriptor defines:
 
 Property | Default | Meaning
 ---|---|---
