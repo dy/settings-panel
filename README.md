@@ -92,6 +92,8 @@ Property | Default | Meaning
 `placeholder` | `null` | Textual controls placeholder.
 
 
+---
+
 #### `options`
 
 Adjusts appearance of the panel:
@@ -121,6 +123,9 @@ Option | Default | Meaning
 <!-- `fontFamily` | `'sans-serif'` | -->
 <!-- `css` | `''` | additional css, aside from the theme’s one. Useful for custom styling -->
 <!-- `className` | `'` | appends additional className to the panel element. -->
+
+
+---
 
 #### `onchange`
 
