@@ -1,6 +1,6 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-Simple controller panel.
+Create UI for an object.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
