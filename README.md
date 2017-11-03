@@ -51,8 +51,7 @@ settings = createSettings({
     order: 0,
     type: 'checkbox',
     label: 'My Checkbox',
-    value: true,
-    change: value => {}
+    value: true
   },
   fieldB: {
     order: 1,
@@ -74,7 +73,9 @@ settings = createSettings({
 })
 ```
 
-Field param | Default | Meaning
+Field descriptor defines:
+
+Property | Default | Meaning
 ---|---|---
 `id` | dashcase `label` | Property key.
 `value` | `null` | Property value.
