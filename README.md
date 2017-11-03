@@ -152,6 +152,8 @@ myComponent.update(settings)
 options.c = false // GUI is updated here
 ```
 
+---
+
 ### settings.get()
 
 Read control value.
