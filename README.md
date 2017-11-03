@@ -1,6 +1,6 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-UI for an object.
+Provides UI for an object.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
@@ -24,26 +24,27 @@ let settings = createSettings({
   ok: e => alert('click')
 })
 
+// update value in UI
 settings.number = 100
 ```
 
 ### createSettings(fields, options?, onchange?)
 
-Create object with its properties reflected in UI. Changing property values of this object updates UI, and vice versa.
+Create object which properties are reflected in UI. Changing property values of this object updates UI, and vice versa.
 
 #### `fields`
 
-Define controls of the panel:
+Controls of the panel:
 
 ```js
-// list
+// list with descriptors
 settings = createSettings([
-  {id: 'fieldA', type: 'checkbox', ...},
-  {id: 'fieldB', type: 'number', ...},
+  {id: 'fieldA', type: 'checkbox', value: true, ...},
+  {id: 'fieldB', type: 'number', value: 50, ...},
   ...
 ])
 
-// dict
+// dict of descriptors
 settings = createSettings({
   fieldA: {
     order: 0,
@@ -59,7 +60,7 @@ settings = createSettings({
   ...
 })
 
-// options object with field values
+// or some options object with values
 settings = createSettings({
   value: 1,
   center: [2, 3],
@@ -68,7 +69,7 @@ settings = createSettings({
 })
 ```
 
-Every field descriptor defines:
+Every field descriptor may define:
 
 Property | Default | Meaning
 ---|---|---
