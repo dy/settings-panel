@@ -236,5 +236,5 @@ let settings = createSettings({
 
 ## License
 
-(c) 2017 Dima Yv. MIT License
+(c) 2017 Dmitry Yvanow. MIT License
 
