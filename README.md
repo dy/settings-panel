@@ -33,8 +33,6 @@ Create object with its properties reflected in UI. Changing property values of t
 
 #### `fields`
 
-Defines property controls.
-
 ```js
 // list
 settings = createSettings([
@@ -67,6 +65,8 @@ settings = createSettings({
   ...
 })
 ```
+
+Every field descriptor defines:
 
 Property | Default | Meaning
 ---|---|---
