@@ -1,6 +1,6 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-Create UI for an object.
+UI for an object.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
@@ -15,14 +15,12 @@ _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-
 let createSettings = require('settings-panel')
 
 let settings = createSettings({
-  switch: ['a', 'b', 'c'],
   number: 97,
-  interval: [0, 100],
+  range: [0, 100],
   checkbox: false,
   text: 'Hello world',
   color: '#aabbcc',
-  select: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
-  cancel: e => alert('click'),
+  select: ['Option 1', 'Option 2', 'Option 3'],
   ok: e => alert('click')
 })
 
