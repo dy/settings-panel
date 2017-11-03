@@ -24,13 +24,14 @@ let settings = createSettings({
   ok: e => alert('click')
 })
 
-// update value in UI
+// update value
 settings.number = 100
+settings.ok()
 ```
 
 ### createSettings(fields, options?, onchange?)
 
-Create object which properties are reflected in UI. Changing property values of this object updates UI, and vice versa.
+Create an object which properties are reflected in UI. Changing property values of this object updates UI, and vice versa − manipulating UI updates object values. That object can be used as a regular
 
 #### `fields`
 
@@ -69,15 +70,15 @@ settings = createSettings({
 })
 ```
 
-Every field descriptor may define:
+Field descriptor may define:
 
 Property | Default | Meaning
 ---|---|---
-`id` | dashcase `label` | Property key.
+`id` | dashcased `label` | Property key.
 `value` | `null` | Property value.
 `type` | detected from `value` | Property control type, one of the table below or any `<input>` type.
 `order` | incremental | Position of the control in panel.
-`label` | camelcase `id` | Label for the control. `false` disables label.
+`label` | camelcased `id` | Label for the control. `false` disables label.
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
@@ -150,27 +151,27 @@ options.c = false // GUI is updated here
 
 ---
 
-### settings.get()
+### settings.get(id)
 
-Read control value.
+Read value.
 
-### settings.set()
+### settings.set(id, value)
 
-Write control value.
+Write value.
 
-### settings.create()
+### settings.create(descriptor)
 
-Create a new control based on options.
+Create a new control based on field descriptor.
 
-### settings.read()
+### settings.read(id)
 
 Get control parameters.
 
-### settings.update()
+### settings.update(id, descriptor)
 
 Update control parameters.
 
-### settings.delete()
+### settings.delete(id)
 
 Delete control from panel.
 
