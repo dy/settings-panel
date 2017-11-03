@@ -31,7 +31,9 @@ settings.number = 100
 
 Create object with its properties reflected in UI. Changing property values of this object updates UI, and vice versa.
 
-`fields` argument defines property controls. That can be a list:
+#### `fields`
+
+Defines property controls. That can be a list:
 
 ```js
 settings = createSettings([
@@ -89,7 +91,9 @@ Field param | Default | Meaning
 `placeholder` | `null` | Textual controls placeholder.
 
 
-`options` argument may adjust appearance of the panel:
+#### `options`
+
+Adjusts appearance of the panel:
 
 ```js
 createSettings(fields, {
@@ -117,7 +121,9 @@ Option | Default | Meaning
 <!-- `css` | `''` | additional css, aside from the theme’s one. Useful for custom styling -->
 <!-- `className` | `'` | appends additional className to the panel element. -->
 
-`onchange` is fired every time any value changes:
+#### `onchange`
+
+Fired every time any value changes:
 
 ```js
 let settings = createSettings({
