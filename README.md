@@ -33,6 +33,8 @@ Create object with its properties reflected in UI. Changing property values of t
 
 #### `fields`
 
+Define controls of the panel:
+
 ```js
 // list
 settings = createSettings([
