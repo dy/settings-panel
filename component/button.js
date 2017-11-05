@@ -1,14 +1,7 @@
 'use strict';
 
-const EventEmitter = require('events').EventEmitter
-const inherits = require('inherits')
 
-module.exports = Button
-inherits(Button, EventEmitter)
-
-function Button (opts) {
-	if (!(this instanceof Button)) return new Button(opts)
-
+module.exports = function button (opts) {
 	var input = opts.container.querySelector('.settings-panel-button');
 	if (!input) {
 		this.element = input = opts.container.appendChild(document.createElement('button'))

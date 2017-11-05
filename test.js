@@ -1,12 +1,12 @@
 const createPanel = require('./')
-const insertCSS = require('insert-styles');
-const css = require('dom-css');
-const Picker = require('simple-color-picker');
-const Sortable = require('sortablejs');
-const color = require('tinycolor2');
-const colormap = require('colormap');
-const colorScales = require('colormap/colorScales');
-let palettes = require('nice-color-palettes/500');
+const palettes = require('nice-color-palettes');
+// const insertCSS = require('insert-styles');
+// const css = require('dom-css');
+// const Picker = require('simple-color-picker');
+// const Sortable = require('sortablejs');
+// const color = require('tinycolor2');
+// const colormap = require('colormap');
+// const colorScales = require('colormap/colorScales');
 
 let colormaps = {};
 
@@ -31,12 +31,6 @@ palettes = palettes
 		level:"AA", size:"large"
 	});
 });
-
-// prepare mobile
-var meta = document.createElement('meta')
-meta.setAttribute('name', 'viewport')
-meta.setAttribute('content', 'width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=0')
-document.head.appendChild(meta)
 
 
 insertCSS(`

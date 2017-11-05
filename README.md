@@ -85,6 +85,7 @@ Property | Default | Meaning
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.
 `multi` | detected from `value` | Makes range an interval and select a multiselect.
+`format` | `'hex'` | Defines color field format
 `options` | `[]` | Choice control options, either an array `['Label1', 'Label2', ...]` or an object `{Label1: value1, Label2: value2}`.
 `placeholder` | `null` | Textual controls placeholder.
 
@@ -159,9 +160,9 @@ Read value.
 
 Write value.
 
-### settings.create(descriptor)
+### settings.create(descriptor, ...)
 
-Create a new control based on field descriptor.
+Create a new control based on field descriptor or multiple descriptors.
 
 ### settings.read(id)
 
@@ -174,7 +175,6 @@ Update control parameters.
 ### settings.delete(id)
 
 Delete control from panel.
-
 
 
 ## Controls
@@ -194,6 +194,11 @@ let settings = createSettings({
   cancel: {label: 'Cancel', type: 'button', input: e => alert('cancel')},
   ok: {label: 'Ok', type: 'button', input: e => alert('ok')}
 })
+```
+
+## Themes
+
+```js
 ```
 
 [Image here]
