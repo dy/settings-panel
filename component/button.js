@@ -1,24 +1,27 @@
 'use strict';
 
 
-module.exports = function button (opts) {
-	var input = opts.container.querySelector('.settings-panel-button');
-	if (!input) {
-		this.element = input = opts.container.appendChild(document.createElement('button'))
-		input.className = 'settings-panel-button';
-		input.addEventListener('click', (e) => {
-			e.preventDefault();
-			this.emit('input');
-			this.emit('action');
-		})
+module.exports = function createButton (field, cb) {
+	let {container, value, label, change} = field
+
+	let element = field.container.appendChild(document.createElement('button'))
+
+	element.className = 'sp-button'
+	element.addEventListener('click', e => {
+		e.preventDefault()
+
+		fire(e)
+	})
+	element.innerHTML = field.label
+
+	function fire (value) {
+		if (arguments.length) {
+			if (change) change(value, field)
+			if (cb) cb(value, field)
+		}
+
+		return field.value
 	}
 
-	this.update(opts);
+	return fire
 }
-
-Button.prototype.update = function (opts) {
-	this.element.innerHTML = opts.value || opts.label;
-	return this;
-};
-
-Button.prototype.label = false;

@@ -1,52 +1,44 @@
 'use strict';
 
-const EventEmitter = require('events').EventEmitter
-const inherits = require('inherits')
-const css = require('dom-css')
 const autosize = require('autosize');
-const extend = require('just-extend');
+const defined = require('defined')
 
-module.exports = Textarea
-inherits(Textarea, EventEmitter)
+module.exports = createTextarea
 
-function Textarea (opts) {
-	if (!(this instanceof Textarea)) return new Textarea(opts)
+//<textarea rows="1" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
+function createTextarea (field, cb) {
+	let {change} = field
 
-	//<textarea rows="1" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
-	let input = opts.container.querySelector('.settings-panel-textarea');
-	if (!input) {
-		input = opts.container.appendChild(document.createElement('textarea'));
-		input.className = 'settings-panel-textarea';
+	let element = field.container.appendChild(document.createElement('textarea'))
 
-		this.element = input;
+	// attributes
+	element.className = 'sp-textarea'
+	element.rows = defined(field.rows, 1)
+	element.placeholder = defined(field.placeholder, '')
+	element.id = field.id
+	if (field.disabled != null) element.disabled = field.disabled
 
-		setTimeout(() => {
-			this.emit('init', input.value)
-			autosize.update(input);
-		})
+	autosize(element)
 
-		input.oninput = (data) => {
-			this.emit('input', data.target.value)
-		}
-
-		autosize(input);
+	element.oninput = (e) => {
+		update(e.target.value)
 	}
 
-	this.update(opts);
-}
+	update(field.value)
 
-Textarea.prototype.update = function (opts) {
-	extend(this, opts);
+	return update
 
-	this.element.rows = this.rows || 1;
-	this.element.placeholder = this.placeholder || '';
-	this.element.id = this.id
+	function update (value) {
+		if (arguments.length) {
+			field.value = value
+			//TODO: validate here?
+			element.value = defined(value, '')
+			autosize.update(element)
 
-	this.element.value = this.value || '';
+			if (change) change(field.value, field)
+			if (cb) cb(field.value, field)
+		}
 
-	this.element.disabled = !!this.disabled;
-
-	autosize.update(this.element);
-
-	return this;
+		return field.value
+	}
 }

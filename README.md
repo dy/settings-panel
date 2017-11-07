@@ -1,6 +1,6 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-Provides UI for an object.
+Turn an object into UI.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
@@ -82,6 +82,8 @@ Property | Default | Meaning
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
+`width` | `'100%'` | One of `'auto'`, ratios: `'half'`, `'third'` etc., percent or number.
+
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.
 `multi` | detected from `value` | Makes range an interval and select a multiselect.
@@ -89,6 +91,7 @@ Property | Default | Meaning
 `options` | `[]` | Choice control options, either an array `['Label1', 'Label2', ...]` or an object `{Label1: value1, Label2: value2}`.
 `placeholder` | `null` | Textual controls placeholder.
 
+`validate` | `null` | Check if value satisfies condition and display error
 
 ---
 
@@ -110,18 +113,10 @@ Option | Default | Meaning
 ---|---|---
 `title`, `header` | `false` | Panel title.
 `container` | `document.body` | The container element or selector.
-`position` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or `popup`.
+`position` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or array with top-left corner coordinates `[x, y]`.
 `theme` | `'flat'` | One of `control`, `dat`, `dragon`, `flat`, `typer`. See [`all themes`](https://github.com/dfcreative/settings-panel/tree/master/theme).
 `colors` | `['black', 'white']` | Theme palette.
 `background` | theme default | Panel background color.
-`collapse` | `false` | Collapse to options sign.
-`font` | `13` | Customize font and/or font size.
-<!-- `labelWidth` | `'9em'` | -->
-<!-- `inputHeight` | `'1.6em'` | -->
-<!-- `fontFamily` | `'sans-serif'` | -->
-<!-- `css` | `''` | additional css, aside from the theme’s one. Useful for custom styling -->
-<!-- `className` | `'` | appends additional className to the panel element. -->
-
 
 ---
 

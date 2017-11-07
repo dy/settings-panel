@@ -1,44 +1,40 @@
 'use strict';
 
-const EventEmitter = require('events').EventEmitter
-const inherits = require('inherits')
-const css = require('dom-css')
 const num = require('input-number');
-const extend = require('just-extend');
+const defined = require('defined')
 
-module.exports = Text
-inherits(Text, EventEmitter)
+module.exports = function createText (field, cb) {
+	let {change} = field
 
-function Text (opts) {
-	if (!(this instanceof Text)) return new Text(opts)
+	let element = field.element = field.container.appendChild(document.createElement('input'))
+	element.className = 'sp-text'
 
-	let element = opts.container.querySelector('.settings-panel-text');
+	// enable input number control from keyboard
+	num(element)
 
-	if (!element) {
-		element = opts.container.appendChild(document.createElement('input'));
-		element.className = 'settings-panel-text';
-		num(element);
+	// provide attributes
+	element.placeholder = defined(field.placeholder, null)
+	element.type = defined(field.type, 'text')
+	element.id = defined(field.id, 'text-' + field.order)
+	if (field.disabled != null) element.disabled = field.disabled
 
-		if (opts.placeholder) element.placeholder = opts.placeholder;
-
-		this.element = element;
-
-		element.oninput = (data) => {
-			this.emit('input', data.target.value)
-		}
-		setTimeout(() => {
-			this.emit('init', element.value)
-		});
+	element.oninput = (e) => {
+		update(e.target.value)
 	}
 
-	this.update(opts);
-}
+	update(field.value)
 
-Text.prototype.update = function (opts) {
-	extend(this, opts);
-	this.element.type = this.type
-	this.element.id = this.id
-	this.element.value = this.value || ''
-	this.element.disabled = !!this.disabled;
-	return this;
+	return update
+
+	function update (value) {
+		if (arguments.length) {
+			//TODO: validate here?
+			field.value = value
+			element.value = defined(field.value, '')
+			if (change) change(field.value, field)
+			if (cb) cb(field.value, field)
+		}
+
+		return field.value
+	}
 }
