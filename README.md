@@ -149,27 +149,23 @@ options.c = false // GUI is updated here
 
 ### settings.get(id)
 
-Read value.
+Get field descriptor.
 
-### settings.set(id, value)
+### settings.set(id, descriptor)
 
-Write value.
+Update field descriptor.
 
-### settings.create(descriptor, ...)
+### settings.add(field)
 
-Create a new control based on field descriptor or multiple descriptors.
-
-### settings.read(id)
-
-Get control parameters.
-
-### settings.update(id, descriptor)
-
-Update control parameters.
+Add field.
 
 ### settings.delete(id)
 
-Delete control from panel.
+Remove field.
+
+### settings.update(options)
+
+Update panel options.
 
 
 ## Controls

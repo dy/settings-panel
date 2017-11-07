@@ -59,7 +59,7 @@ let settings = createPanel({
 }, {
 	position: 'right'
 }, (k, v) => {
-
+	demoPanel.update({title: v})
 })
 
 let demoPanel = createPanel({

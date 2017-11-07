@@ -48,40 +48,37 @@ const types = createPanel.types = {
 module.exports = createPanel
 
 
-function createPanel(fields, options, onchange) {
+function createPanel(fields, options, cb) {
 	if (typeof options === 'function') {
-		onchange = options
+		cb = options
 		options = {}
 	}
 
 	if (!options) options = {}
 
-
-	// full normalized field descriptors by id
+	// field descriptors sorted by order
 	let descriptors = {}
 
 	// field type counters (just naming purpose)
 	let counts = {}
 
+	// init flag
+	let init = false
+
 	// main settings object with property accessors and hidden methods
 	let state = Object.create(Object.defineProperties({}, {
 		get: {
-			value: get,
+			value: getField,
 			enumerable: false,
 			writable: false
 		},
 		set: {
-			value: set,
+			value: setField,
 			enumerable: false,
 			writable: false
 		},
-		create: {
+		add: {
 			value: createField,
-			enumerable: false,
-			writable: false
-		},
-		read: {
-			value: readField,
 			enumerable: false,
 			writable: false
 		},
@@ -91,7 +88,7 @@ function createPanel(fields, options, onchange) {
 			writable: false
 		},
 		update: {
-			value: updateField,
+			value: update,
 			enumerable: false,
 			writable: false
 		}
@@ -99,8 +96,7 @@ function createPanel(fields, options, onchange) {
 
 
 	// handle container
-	let container = options.container || document.body || document.documentElement
-
+	let container = defined(options.container, document.body, document.documentElement)
 	container.classList.add('sp-container')
 
 	// create element
@@ -110,7 +106,8 @@ function createPanel(fields, options, onchange) {
 
 	let titleEl = element.appendChild(document.createElement('h2'))
 	titleEl.className = 'sp-title'
-	titleEl.innerHTML = options.title || ''
+
+	update(options)
 
 	// convert object to array
 	if (isObj(fields)) {
@@ -140,30 +137,23 @@ function createPanel(fields, options, onchange) {
 		fields = arr.filter(Boolean)
 	}
 
-
 	createField(fields)
+
+	init = true
 
 	return state
 
+	// update panel view
+	function update (diff) {
+		extend(options, pick(diff, {
+			title: 'title',
+			change: 'change onchange'
+		}))
 
-	// write property value
-	function set (key, value) {
-		if (isObj(key)) {
-			for (let k in key) {
-				set(k, key[k])
-			}
-
-			return state
-		}
-
-		state[key] = value
+		// set layout panel options
+		titleEl.innerHTML = defined(options.title, '')
 
 		return state
-	}
-
-	// read property value
-	function get (key) {
-		return state[key]
 	}
 
 	// add new control
@@ -222,8 +212,12 @@ function createPanel(fields, options, onchange) {
 		field.container = element
 
 		// create control corresponding to the field
-		field.create = types[field.type] || types.text
-		field.update = field.create(field, onchange ? (value => onchange(field.id, value, state)) : null )
+		field.create = defined(types[field.type], types.text)
+		field.update = field.create(field, value => {
+			if (!init) return
+			if (cb) cb(field.id, value, state)
+			if (options.change) options.change(field.id, value, state)
+		})
 
 		descriptors[field.order] = field
 
@@ -248,12 +242,13 @@ function createPanel(fields, options, onchange) {
 		return state
 	}
 
-	function readField (options, v) {
+	// get control descriptor
+	function getField (id) {
 
 	}
 
-	// update component options
-	function updateField (options, v) {
+	// update control options
+	function setField (id, field) {
 		if (!isObj(options)) return set(options, v)
 
 		for (let key in options) {
@@ -265,7 +260,7 @@ function createPanel(fields, options, onchange) {
 		return state
 	}
 
-	// delete component
+	// delete control
 	function deleteField (key) {
 		// TODO: destruct component here
 
