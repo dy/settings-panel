@@ -37,17 +37,15 @@ Create panel from a set of fields. Returns state object - changing it's properti
 
 #### `fields`
 
-Controls of the panel:
-
 ```js
-// list with descriptors
+// can be array of fields
 settings = createSettings([
   {id: 'fieldA', type: 'checkbox', value: true, ...},
   {id: 'fieldB', type: 'number', value: 50, ...},
   ...
 ])
 
-// dict of descriptors
+// dict of fields
 settings = createSettings({
   fieldA: {
     order: 0,
@@ -63,7 +61,7 @@ settings = createSettings({
   ...
 })
 
-// or some options object with values
+// or just object with values
 settings = createSettings({
   value: 1,
   center: [2, 3],
@@ -234,5 +232,5 @@ let settings = createSettings({
 
 ## License
 
-(c) 2017 Dmitry Yvanow. MIT License
+(c) 2017 Dmitry Yv. MIT License
 
