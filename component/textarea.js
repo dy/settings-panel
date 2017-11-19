@@ -9,13 +9,18 @@ module.exports = createTextarea
 function createTextarea (field, cb) {
 	let {change} = field
 
+	let labelEl = field.labelEl = field.container.appendChild(document.createElement('label'))
+	labelEl.className = `sp-field-label`
+	labelEl.setAttribute('for', field.id)
+	labelEl.innerHTML = field.label
+
 	let element = field.container.appendChild(document.createElement('textarea'))
 
 	// attributes
 	element.className = 'sp-textarea'
 	element.rows = defined(field.rows, 1)
 	element.placeholder = defined(field.placeholder, '')
-	element.id = field.id
+	element.id = element.name = field.id
 	if (field.disabled != null) element.disabled = field.disabled
 
 	autosize(element)

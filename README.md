@@ -26,6 +26,8 @@ let settings = createSettings({
 
 // update value
 settings.number = 100
+
+// click button
 settings.ok()
 ```
 
@@ -82,7 +84,7 @@ Property | Default | Meaning
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
-`width` | `'100%'` | One of `'auto'`, ratios: `'half'`, `'third'` etc., percent or number.
+`width` | `'100%'` | A [ratio](https://npmjs.org/package/parse-fraction): `'half'`, `'third'` etc., `'auto'`, percentage or a number.
 
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.

@@ -6,6 +6,11 @@ const defined = require('defined')
 module.exports = function createText (field, cb) {
 	let {change} = field
 
+	let labelEl = field.labelEl = field.container.appendChild(document.createElement('label'))
+	labelEl.className = `sp-field-label`
+	labelEl.setAttribute('for', field.id)
+	labelEl.innerHTML = field.label
+
 	let element = field.element = field.container.appendChild(document.createElement('input'))
 	element.className = 'sp-text'
 
@@ -13,9 +18,9 @@ module.exports = function createText (field, cb) {
 	num(element)
 
 	// provide attributes
-	element.placeholder = defined(field.placeholder, null)
+	if (field.placeholder != null) element.placeholder = field.placeholder
 	element.type = defined(field.type, 'text')
-	element.id = defined(field.id, 'text-' + field.order)
+	element.name = element.id = field.id
 	if (field.disabled != null) element.disabled = field.disabled
 
 	element.oninput = (e) => {

@@ -9,6 +9,8 @@ const pick = require('pick-by-alias')
 const isColor = require('is-color')
 const uid = require('get-uid')
 const defined = require('defined')
+const parseFract = require('parse-fraction')
+const css = require('dom-css')
 
 // field constructors
 const types = createPanel.types = {
@@ -173,7 +175,7 @@ function createPanel(fields, options, cb) {
 
 		// normalize field properties
 		field = pick(field, {
-			id: 'id key',
+			id: 'id key name',
 			order: 'order position',
 			value: 'value option val choice default',
 			type: 'type',
@@ -187,6 +189,7 @@ function createPanel(fields, options, cb) {
 			multi: 'multi multiple',
 			options: 'options values choices',
 			placeholder: 'placeholder',
+			width: 'width',
 			change: 'input change onchange onclick click interact interaction act tap'
 		})
 
@@ -209,7 +212,27 @@ function createPanel(fields, options, cb) {
 			field.title = field.label
 		}
 
-		field.container = element
+		// create field container
+		field.container = element.appendChild(document.createElement('div'))
+		field.container.className = `sp-field sp-field--${field.type}`
+		field.container.id = `sp-field-${field.id}`
+
+		// process field width
+		if (field.width != null) {
+			let width
+			if (typeof field.width === 'number') width = field.width + 'px'
+			else if (typeof field.width === 'string') {
+				if (field.width === 'auto') width = field.width
+				else {
+					let [num, denom] = parseFract(field.width)
+					width = num / denom * 100 + '%'
+				}
+			}
+			field.container.style.display = 'inline-block'
+			css(field.container, {
+				width: width
+			})
+		}
 
 		// create control corresponding to the field
 		field.create = defined(types[field.type], types.text)
