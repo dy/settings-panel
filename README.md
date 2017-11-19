@@ -14,7 +14,7 @@ _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-
 ```js
 let createSettings = require('settings-panel')
 
-let settings = createSettings({
+let panel = createSettings({
   number: 97,
   range: [0, 100],
   checkbox: false,
@@ -25,15 +25,15 @@ let settings = createSettings({
 })
 
 // update value
-settings.number = 100
+panel.number = 100
 
 // click button
-settings.ok()
+panel.ok()
 ```
 
 ### createSettings(fields, options?, onchange?)
 
-Create an object which properties are reflected in UI. Changing property values of this object updates UI, and vice versa − manipulating UI updates object values. That object can be used as a regular
+Create panel from a set of fields. Returns state object - changing it's properties updates UI and vice versa. That object can be used as options for other components.
 
 #### `fields`
 
@@ -84,15 +84,13 @@ Property | Default | Meaning
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
-`width` | `'100%'` | A [ratio](https://npmjs.org/package/parse-fraction): `'half'`, `'third'` etc., `'auto'`, percentage or a number.
-
+`width` | `'100%'` | [A ratio](https://npmjs.org/package/parse-fraction): `'half'`, `'third'` or a number of pixels.
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.
 `multi` | detected from `value` | Makes range an interval and select a multiselect.
 `format` | `'hex'` | Defines color field format
 `options` | `[]` | Choice control options, either an array `['Label1', 'Label2', ...]` or an object `{Label1: value1, Label2: value2}`.
 `placeholder` | `null` | Textual controls placeholder.
-
 `validate` | `null` | Check if value satisfies condition and display error
 
 ---
