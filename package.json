@@ -48,7 +48,11 @@
   "dependencies": {
     "camelcase": "^4.1.0",
     "decamelize": "^1.2.0",
+    "defined": "^1.0.0",
+    "dom-css": "^2.1.0",
+    "get-uid": "^1.0.1",
     "is-color": "^0.2.0",
+    "object-assign": "^4.1.1",
     "parse-fraction": "^1.1.0",
     "pick-by-alias": "^1.1.2"
   },
