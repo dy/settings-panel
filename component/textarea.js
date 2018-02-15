@@ -1,37 +1,33 @@
 'use strict';
 
-const autosize = require('autosize');
+const autosize = require('autosize')
 const defined = require('defined')
+const h = require('virtual-dom/h')
 
 module.exports = createTextarea
 
 //<textarea rows="1" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
-function createTextarea (field, cb) {
-	let {change} = field
-
-	let labelEl = field.labelEl = field.container.appendChild(document.createElement('label'))
-	labelEl.className = `sp-field-label`
-	labelEl.setAttribute('for', field.id)
-	labelEl.innerHTML = field.label
-
-	let element = field.container.appendChild(document.createElement('textarea'))
-
-	// attributes
-	element.className = 'sp-textarea'
-	element.rows = defined(field.rows, 1)
-	element.placeholder = defined(field.placeholder, '')
-	element.id = element.name = field.id
-	if (field.disabled != null) element.disabled = field.disabled
-
-	autosize(element)
-
-	element.oninput = (e) => {
-		update(e.target.value)
+function createTextarea ({id, rows, label, change, width, placeholder, type, disabled, value}) {
+	function Autosize () {}
+	Autosize.prototype.hook = function(input, key, value) {
+		autosize(input)
 	}
 
-	update(field.value)
-
-	return update
+	return (
+		<div key={id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}>
+			<label className='sp-field-label' for={id}>{label}</label>
+			<textarea className='sp-textarea'
+				id={id}
+				name={id}
+				type={type}
+				placeholder={placeholder}
+				disabled={!!disabled}
+				onInput={update}
+				value={value}
+				rows={rows || 1}
+				data-autosize={ new Autosize() } />
+		</div>
+	)
 
 	function update (value) {
 		if (arguments.length) {

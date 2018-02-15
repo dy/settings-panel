@@ -4,37 +4,19 @@ const num = require('input-number')
 const defined = require('defined')
 const h = require('virtual-dom/h')
 
-module.exports = (field, cb) => {
-	let el = <Field>
-}
-	return
 
-	let {change} = field
-
-	let labelEl = field.labelEl = field.container.appendChild(document.createElement('label'))
-	labelEl.className = `sp-field-label`
-	labelEl.setAttribute('for', field.id)
-	labelEl.innerHTML = field.label
-
-	let element = field.element = field.container.appendChild(document.createElement('input'))
-	element.className = 'sp-text'
-
-	// enable input number control from keyboard
-	num(element)
-
-	// provide attributes
-	if (field.placeholder != null) element.placeholder = field.placeholder
-	element.type = defined(field.type, 'text')
-	element.name = element.id = field.id
-	if (field.disabled != null) element.disabled = field.disabled
-
-	element.oninput = (e) => {
-		update(e.target.value)
+module.exports = ({id, label, change, width, placeholder, type, disabled, value}) => {
+	function InputNumber () {}
+	InputNumber.prototype.hook = function(input, key, value) {
+		num(input)
 	}
 
-	update(field.value)
-
-	return update
+	return (
+		<div key={id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}>
+			<label className='sp-field-label' for={ id }>{ label }</label>
+			<input className='sp-text' id={id} name={ id } type={type} placeholder={placeholder} disabled={!!disabled} onInput={ update } value={value} data-input-number={ new InputNumber() } />
+		</div>
+	)
 
 	function update (value) {
 		if (arguments.length) {

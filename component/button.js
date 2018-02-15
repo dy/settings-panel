@@ -2,8 +2,11 @@
 
 const h = require('virtual-dom/h')
 
-module.exports = ({value, label, change}) => {
-	return (<button className='sp-button' onClick={fire}>{ label }</button>)
+module.exports = ({id, type, width, value, label, change}) => {
+	return (
+		<div key={id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}>
+			<button className='sp-button' onClick={fire}>{ label }</button>
+		</div>)
 
 	function fire (e) {
 		e.preventDefault()

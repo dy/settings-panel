@@ -64,10 +64,10 @@ palettes = palettes
 
 
 let demoPanel = createPanel({
-	text: {order: 0, placeholder: 'Text...'},
-	// textarea: {order: 1, type: 'textarea', placeholder: 'Long text...'},
+	text: {order: 0, placeholder: 'Text...', value: '123'},
+	textarea: {order: 1, type: 'textarea', placeholder: 'Long text...'},
+	ok: {order: 3, type: 'button', width: 'half', label: 'Ok'},
 	cancel: {order: 2, type: 'button', width: 'half', label: 'Cancel'},
-	ok: {order: 3, type: 'button', width: 'half', label: 'Ok'}
 }, {title: 'Demo Panel'})
 
 

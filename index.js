@@ -27,8 +27,8 @@ module.exports = createPanel
 
 // field constructors
 const TYPES = {
-	// text: require('./component/text'),
-	// textarea: require('./component/textarea'),
+	text: require('./component/text'),
+	textarea: require('./component/textarea'),
 	button: require('./component/button')
 	// submit: require('./component/button'),
 	// range: require('./component/range')
@@ -195,10 +195,7 @@ function createPanel(values, options) {
 			.map(field => {
 				let {type, id, width} = field
 				let Component = types[field.type] || types.text
-				return (
-				<div key={field.id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}><Component {...field}/>
-				</div>
-			)
+				return <Component {...field}/>
 		})
 
 		return (
