@@ -190,7 +190,7 @@ function createPanel(values, options) {
 
 
 	// create components
-	function Panel ({title, position}) {
+	function Panel ({title, position}, fields) {
 		const fieldItems = Object.keys(fields)
 			.map(id => fields[id])
 			.sort((a, b) => a.order - b.order)
@@ -208,12 +208,12 @@ function createPanel(values, options) {
 	)}
 
 	// render routine
-	let panelTree = Panel(options)
+	let panelTree = Panel(options, fields)
 	let panelElement = createElement(panelTree)
 	container.appendChild(panelElement)
 
 	function render () {
-		let newPanelTree = Panel(options)
+		let newPanelTree = Panel(options, fields)
 		let patches = diff(panelTree, newPanelTree)
 		container = patch(container, patches)
 		panelTree = newPanelTree
@@ -290,6 +290,7 @@ function createPanel(values, options) {
 		Object.defineProperty(state, field.id, {
 			get: () => field.value,
 			set: v => {
+				field.value = v
 				if (init) {
 					if (options.change) options.change(field.id, value, state)
 				}

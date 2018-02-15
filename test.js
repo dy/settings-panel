@@ -71,6 +71,8 @@ let demoPanel = createPanel({
 }, {title: 'Demo Panel'})
 
 
+demoPanel.text = 123
+
 // jsx style
 // + easy layout/nested settings
 // - difficult state mapping ?, obj updaing

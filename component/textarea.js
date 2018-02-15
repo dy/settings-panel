@@ -4,10 +4,7 @@ const autosize = require('autosize')
 const defined = require('defined')
 const h = require('virtual-dom/h')
 
-module.exports = createTextarea
-
-//<textarea rows="1" placeholder="${param.placeholder || 'value...'}" id="${param.name}" class="prama-input prama-textarea" title="${param.value}">${param.value}</textarea>
-function createTextarea ({id, rows, label, change, width, placeholder, type, disabled, value}) {
+module.exports = ({id, rows, label, change, width, placeholder, type, disabled, value}) => {
 	function Autosize () {}
 	Autosize.prototype.hook = function(input, key, value) {
 		autosize(input)
