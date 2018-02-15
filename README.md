@@ -16,36 +16,46 @@ let createSettings = require('settings-panel')
 
 let panel = createSettings({
   number: 97,
-  range: [0, 100],
+  interval: [0, 100],
   checkbox: false,
   text: 'Hello world',
   color: '#aabbcc',
-  select: ['Option 1', 'Option 2', 'Option 3'],
-  ok: e => alert('click')
+  toggle: ['A', 'B', 'C']
 })
 
-// update value
+// update values
 panel.number = 100
+panel.interval = [10, 90]
+panel.toggle = ['B', 'C']
 
-// click button
-panel.ok()
+// read values
+panel.number // 100
+panel.toggle // ['B', 'C']
 ```
 
-### createSettings(fields, options?, onchange?)
+### values = createSettings(values, options?)
 
-Create panel from a set of fields. Returns state object - changing it's properties updates UI and vice versa. That object can be used as options for other components.
+Create panel from an object with values. Returns an object with the same values bound to UI − changing its properties updates UI and vice versa. That object can be used as options for other components.
 
 #### `fields`
 
 ```js
-// can be array of fields
+// can be an object with values
+settings = createSettings({
+  value: 1,
+  center: [2, 3],
+  inversed: true,
+  ...
+})
+
+// an array of fields
 settings = createSettings([
   {id: 'fieldA', type: 'checkbox', value: true, ...},
   {id: 'fieldB', type: 'number', value: 50, ...},
   ...
 ])
 
-// dict of fields
+// or dict of fields
 settings = createSettings({
   fieldA: {
     order: 0,
@@ -58,14 +68,6 @@ settings = createSettings({
     type: 'number',
     ...
   },
-  ...
-})
-
-// or just object with values
-settings = createSettings({
-  value: 1,
-  center: [2, 3],
-  inversed: true,
   ...
 })
 ```
@@ -82,14 +84,20 @@ Property | Default | Meaning
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
-`width` | `'100%'` | [A ratio](https://npmjs.org/package/parse-fraction): `'half'`, `'third'` or a number of pixels.
+`width` | `'100%'` | [A ratio](https://npmjs.org/package/parse-fraction) (`'half'`, `'third'`), css width string or a number of pixels.
+`change` | `() => {}` | Invoked when field value changes. If throws an error, the field validation tooltip is shown.
+
+<!--
+Field type specific properties:
+
+Property | Default | Meaning
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.
 `multi` | detected from `value` | Makes range an interval and select a multiselect.
 `format` | `'hex'` | Defines color field format
 `options` | `[]` | Choice control options, either an array `['Label1', 'Label2', ...]` or an object `{Label1: value1, Label2: value2}`.
 `placeholder` | `null` | Textual controls placeholder.
-`validate` | `null` | Check if value satisfies condition and display error
+-->
 
 ---
 
@@ -99,22 +107,20 @@ Adjusts appearance of the panel:
 
 ```js
 createSettings(fields, {
-  title: 'Settings',
   position: 'left',
-  drag: false,
-  theme: 'flat',
+  theme: require('settings-panel/theme/flat'),
   colors: ['black', 'white']
 })
 ```
 
 Option | Default | Meaning
 ---|---|---
-`title`, `header` | `false` | Panel title.
 `container` | `document.body` | The container element or selector.
 `position` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or array with top-left corner coordinates `[x, y]`.
 `theme` | `'flat'` | One of `control`, `dat`, `dragon`, `flat`, `typer`. See [`all themes`](https://github.com/dfcreative/settings-panel/tree/master/theme).
 `colors` | `['black', 'white']` | Theme palette.
 `background` | theme default | Panel background color.
+`className` | `settings-panel` | Class name to add to list of classes
 
 ---
 
@@ -161,10 +167,6 @@ Add field.
 
 Remove field.
 
-### settings.update(options)
-
-Update panel options.
-
 
 ## Controls
 
@@ -193,6 +195,7 @@ let settings = createSettings({
 [Image here]
 
 <!--
+`title`, `header` |
 `range`, `interval` |
 `checkbox` |
 `color` |

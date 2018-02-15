@@ -8,15 +8,15 @@ const palettes = require('nice-color-palettes');
 // const colormap = require('colormap');
 // const colorScales = require('colormap/colorScales');
 
-const icon = {
-	nw: 'nw',
-	ne: 'ne',
-	left: 'left',
-	center: 'center',
-	right: 'right',
-	sw: 'sw',
-	se: 'se'
-}
+// const icon = {
+// 	nw: 'nw',
+// 	ne: 'ne',
+// 	left: 'left',
+// 	center: 'center',
+// 	right: 'right',
+// 	sw: 'sw',
+// 	se: 'se'
+// }
 
 /*
 let colormaps = {};
@@ -45,30 +45,38 @@ palettes = palettes
 */
 
 
-let settings = createPanel({
-	title: {value: 'Demo panel'},
-	position: {value: 'center', options: {
-		[icon.nw]: 'nw',
-		[icon.ne]: 'ne',
-		[icon.left]: 'left',
-		[icon.center]: 'center',
-		[icon.right]: 'right',
-		[icon.sw]: 'sw',
-		[icon.se]: 'se'
-	}}
-}, {
-	position: 'right'
-}, (k, v) => {
-	demoPanel.update({title: v})
-})
+// let settings = createPanel({
+// 	title: {value: 'Demo panel'},
+// 	position: {value: 'center', options: {
+// 		[icon.nw]: 'nw',
+// 		[icon.ne]: 'ne',
+// 		[icon.left]: 'left',
+// 		[icon.center]: 'center',
+// 		[icon.right]: 'right',
+// 		[icon.sw]: 'sw',
+// 		[icon.se]: 'se'
+// 	}}
+// }, {
+// 	position: 'right'
+// }, (k, v) => {
+// 	demoPanel.title = v
+// })
+
 
 let demoPanel = createPanel({
 	text: {order: 0, placeholder: 'Text...'},
-	textarea: {order: 1, type: 'textarea', placeholder: 'Long text...'},
+	// textarea: {order: 1, type: 'textarea', placeholder: 'Long text...'},
 	cancel: {order: 2, type: 'button', width: 'half', label: 'Cancel'},
 	ok: {order: 3, type: 'button', width: 'half', label: 'Ok'}
-}, {
-	title: settings.title,
-	position: settings.position
-})
+}, {title: 'Demo Panel'})
+
+
+// jsx style
+// + easy layout/nested settings
+// - difficult state mapping ?, obj updaing
+// <Settings>
+// 	<Title>Demo Panel</Title>
+// 	<Text placeholder='Text...'></Text>
+// 	<Textarea placeholder='Long text...'></Text>
+// </Settings>
 

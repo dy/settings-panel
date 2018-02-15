@@ -4,6 +4,8 @@ logs
 npm-debug.log*
 gh-pages
 
+*.html
+
 # Runtime data
 pids
 *.pid

@@ -33,7 +33,7 @@
     "ouioui",
     "datgui"
   ],
-  "author": "Dmitry Yvanow <df.creative@gmail.com>",
+  "author": "Dmitry Yv <df.creative@gmail.com>",
   "contributors": [],
   "license": "MIT",
   "bugs": {
@@ -41,22 +41,33 @@
   },
   "browserify": {
     "transform": [
+      ["jsx-transform/browserify", {"factory": "h"}],
       "brfs"
     ]
   },
   "homepage": "https://github.com/dfcreative/settings-panel#readme",
   "dependencies": {
+    "autosize": "^4.0.0",
     "camelcase": "^4.1.0",
     "decamelize": "^1.2.0",
     "defined": "^1.0.0",
     "dom-css": "^2.1.0",
     "get-uid": "^1.0.1",
+    "input-number": "^1.0.5",
+    "insert-styles": "^1.2.1",
     "is-color": "^0.2.0",
+    "is-plain-obj": "^1.1.0",
+    "jsx-transform": "^2.3.0",
+    "nanocomponent": "^6.5.0",
     "object-assign": "^4.1.1",
     "parse-fraction": "^1.1.0",
-    "pick-by-alias": "^1.1.2"
+    "pick-by-alias": "^1.1.2",
+    "scope-css": "^1.0.5",
+    "update-diff": "^1.1.0",
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
-    "enable-mobile": "^1.0.7"
+    "enable-mobile": "^1.0.7",
+    "nice-color-palettes": "^2.0.0"
   }
 }

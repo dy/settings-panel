@@ -9,13 +9,26 @@ const pick = require('pick-by-alias')
 const isColor = require('is-color')
 const uid = require('get-uid')
 const defined = require('defined')
+const updateDiff = require('update-diff')
 const parseFract = require('parse-fraction')
+const h = require('virtual-dom/h')
+const diff = require('virtual-dom/diff')
+const patch = require('virtual-dom/patch')
+const createElement = require('virtual-dom/create-element')
 const css = require('dom-css')
+const scopeCss = require('scope-css')
+const insertCss = require('insert-styles')
+const fs = require('fs')
+insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'))
+
+
+module.exports = createPanel
+
 
 // field constructors
-const types = createPanel.types = {
-	text: require('./component/text'),
-	textarea: require('./component/textarea'),
+const TYPES = {
+	// text: require('./component/text'),
+	// textarea: require('./component/textarea'),
 	button: require('./component/button')
 	// submit: require('./component/button'),
 	// range: require('./component/range')
@@ -47,27 +60,39 @@ const types = createPanel.types = {
 	// ratio:
 }
 
-module.exports = createPanel
 
-
-function createPanel(fields, options, cb) {
-	if (typeof options === 'function') {
-		cb = options
-		options = {}
-	}
-
+function createPanel(values, options) {
 	if (!options) options = {}
 
-	// field descriptors sorted by order
-	let descriptors = {}
+	options = pick(options, {
+		fields: 'fields field descriptors descriptor dict properties',
+		title: 'title heading header',
+		components: 'types components',
+		position: 'position pos',
+		container: 'holder container element',
+		theme: 'theme style',
+		background: 'bg background',
+		palette: 'color colors palette',
+		className: 'class classname className',
+		change: 'onchange change onChange',
+		id: 'id'
+	})
+
+	let types = extend({}, options.components, TYPES)
+
+	// list of field descriptors
+	let fields = {}
+
+	let id = defined(options.id, uid())
 
 	// field type counters (just naming purpose)
 	let counts = {}
 
-	// init flag
+	// init flag to avoid callbacks
 	let init = false
 
-	// main settings object with property accessors and hidden methods
+
+	// main settings object with property accessors and hidden proto methods
 	let state = Object.create(Object.defineProperties({}, {
 		get: {
 			value: getField,
@@ -80,7 +105,7 @@ function createPanel(fields, options, cb) {
 			writable: false
 		},
 		add: {
-			value: createField,
+			value: addField,
 			enumerable: false,
 			writable: false
 		},
@@ -88,39 +113,36 @@ function createPanel(fields, options, cb) {
 			value: deleteField,
 			enumerable: false,
 			writable: false
-		},
-		update: {
-			value: update,
-			enumerable: false,
-			writable: false
 		}
 	}))
 
-
-	// handle container
-	let container = defined(options.container, document.body, document.documentElement)
-	container.classList.add('sp-container')
-
-	// create element
-	let id = uid()
-	let element = container.appendChild(document.createElement('form'))
-	element.className = `sp sp-${id}`
-
-	let titleEl = element.appendChild(document.createElement('h2'))
-	titleEl.className = 'sp-title'
-
-	update(options)
-
-	// convert object to array
-	if (isObj(fields)) {
+	// create fields
+	if (!options.fields) {
+		options.fields = []
+		for (let id in values) {
+			if (isObj(values[id])) options.fields.push(values[id])
+			else options.fields.push({id: id, value: values[id]})
+		}
+	}
+	else if (isObj(options.fields)) {
+		let ids = Object.keys(options.fields)
 		let arr = []
 		let max = 0
 
-		for (let id in fields) {
-			let field = fields[id]
+		for (let id in values) {
+			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
 
-			// convert direct value to descriptor
-			if (!isObj(field)) field = {value: field}
+			if (options.fields[id] !== null) {
+				let field = options.fields[id]
+				options.fields[id] = extend(valueField, field)
+			}
+			else {
+				options.fields[valueField.id] = valueField
+			}
+		}
+
+		for (let id in options.fields) {
+			let field = options.fields[id]
 
 			let order = field.order
 			if (order == null) {
@@ -138,34 +160,75 @@ function createPanel(fields, options, cb) {
 
 		fields = arr.filter(Boolean)
 	}
+	else if (Array.isArray(options.fields)) {
+		let ids = {}
+		options.fields.forEach((field, i) => ids[field.id] = i)
 
-	createField(fields)
+		for (let id in values) {
+			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
 
-	init = true
-
-	return state
-
-	// update panel view
-	function update (diff) {
-		extend(options, pick(diff, {
-			title: 'title',
-			change: 'change onchange'
-		}))
-
-		// set layout panel options
-		titleEl.innerHTML = defined(options.title, '')
-
-		return state
+			if (ids[id] !== null) {
+				let field = options.fields[ids[id]]
+				options.fields[ids[id]] = extend(valueField, field)
+			}
+			else {
+				options.fields.push(valueField)
+			}
+		}
 	}
 
+	addField(options.fields)
+	init = true
+
+	// handle container
+	let container
+	if (typeof options.container === 'string') container = document.querySelector(container)
+	else container = defined(options.container, document.body, document.documentElement)
+	container.classList.add('sp-container')
+
+
+	// create components
+	function Panel ({title, position}) {
+		const fieldItems = Object.keys(fields)
+			.map(id => fields[id])
+			.sort((a, b) => a.order - b.order)
+			.map(field => {
+				let {type, id, width} = field
+				let Component = types[field.type] || types.text
+				return (
+				<div key={field.id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}><Component {...field}/>
+				</div>
+			)
+		})
+
+		return (
+		<form className={`sp sp-${id} sp--${position}`}>
+			{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
+			{ fieldItems }
+		</form>
+	)}
+
+	// render routine
+	let panelTree = Panel(options)
+	let panelElement = createElement(panelTree)
+	container.appendChild(panelElement)
+
+	function render () {
+		let newPanelTree = Panel(options)
+		let patches = diff(panelTree, newPanelTree)
+		container = patch(container, patches)
+		panelTree = newPanelTree
+	}
+
+
 	// add new control
-	function createField (field) {
+	function addField (field) {
 		if (arguments.length > 1) field = [].slice.apply(arguments)
 
 		// handle multiple fields
 		if (Array.isArray(field)) {
-			fields.forEach((field, i) => {
-				createField(field)
+			field.forEach((field, i) => {
+				addField(field)
 			})
 
 			return state
@@ -178,7 +241,7 @@ function createPanel(fields, options, cb) {
 			id: 'id key name',
 			order: 'order position',
 			value: 'value option val choice default',
-			type: 'type',
+			type: 'type component',
 			label: 'label caption',
 			title: 'title tooltip tip',
 			hidden: 'hidden invisible',
@@ -191,7 +254,7 @@ function createPanel(fields, options, cb) {
 			placeholder: 'placeholder',
 			width: 'width',
 			change: 'input change onchange onclick click interact interaction act tap'
-		})
+		}, true)
 
 		// detect type from value or other params
 		if (field.type == null) field.type = detectType(field)
@@ -201,7 +264,6 @@ function createPanel(fields, options, cb) {
 			if (counts[field.type] == null) counts[field.type] = 0
 			field.id = defined(field.label, `${field.type}-${counts[field.type]++}`)
 		}
-
 		field.id = dashcase(field.id, '-')
 
 		if (field.label == null) {
@@ -212,54 +274,28 @@ function createPanel(fields, options, cb) {
 			field.title = field.label
 		}
 
-		// create field container
-		field.container = element.appendChild(document.createElement('div'))
-		field.container.className = `sp-field sp-field--${field.type}`
-		field.container.id = `sp-field-${field.id}`
-
-		// process field width
 		if (field.width != null) {
-			let width
-			if (typeof field.width === 'number') width = field.width + 'px'
+			if (typeof field.width === 'number') field.width = field.width + 'px'
 			else if (typeof field.width === 'string') {
-				if (field.width === 'auto') width = field.width
-				else {
+				if (field.width !== 'auto') {
 					let [num, denom] = parseFract(field.width)
-					width = num / denom * 100 + '%'
+					field.width = num / denom * 100 + '%'
 				}
 			}
-			field.container.style.display = 'inline-block'
-			css(field.container, {
-				width: width
-			})
 		}
 
-		// create control corresponding to the field
-		field.create = defined(types[field.type], types.text)
-		field.update = field.create(field, value => {
-			if (!init) return
-			if (cb) cb(field.id, value, state)
-			if (options.change) options.change(field.id, value, state)
-		})
-
-		descriptors[field.order] = field
-
-		// sort fields
-		let sorted = Object.values(descriptors).sort((a, b) => a.order - b.order)
-		for (let i = 0; i < sorted.length; i++) {
-			let nextField = sorted[i]
-			if (nextField.order > field.order) {
-				field.container.insertBefore(field.element, nextField.element);
-				break;
-			}
-		}
+		// save field
+		fields[field.id] = field
 
 		// create property accessors
 		Object.defineProperty(state, field.id, {
-			get: () => {
-				return field.update()
-			},
-			set: v => field.update(v)
+			get: () => field.value,
+			set: v => {
+				if (init) {
+					if (options.change) options.change(field.id, value, state)
+				}
+				render()
+			}
 		})
 
 		return state
@@ -270,12 +306,12 @@ function createPanel(fields, options, cb) {
 
 	}
 
-	// update control options
+	// update control descriptor
 	function setField (id, field) {
-		if (!isObj(options)) return set(options, v)
+		if (!isObj(field)) return set(field, v)
 
-		for (let key in options) {
-			set(key, options[key])
+		for (let key in field) {
+			set(key, field[key])
 		}
 
 		throw 'Unimplemented'
@@ -293,6 +329,9 @@ function createPanel(fields, options, cb) {
 
 		return state
 	}
+
+
+	return state
 }
 
 

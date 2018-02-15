@@ -1,5 +1,4 @@
-.settings-panel {
-	position: relative;
+.sp {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -8,117 +7,50 @@
 	text-align: left;
 	box-sizing: border-box;
 	font-family: sans-serif;
+	max-width: 100%;
+
+	/** position-specific props */
+	position: relative;
 	font-size: 1rem;
 	width: 32em;
-	max-width: 100%;
 	padding: 1em;
+	box-shadow: 0 1em 3em -.1em rgba(10, 5, 23, .15);
+	background: white;
 }
 
-.settings-panel [hidden] {
+.sp [hidden] {
 	display: none!important;
 }
 
-.settings-panel * {
+.sp * {
 	box-sizing: border-box;
 }
 
-.settings-panel svg {
+.sp svg {
 	fill: currentColor;
 	max-width: 100%;
 	max-height: 100%;
 	display: inline-block;
 }
 
-.settings-panel input,
-.settings-panel button,
-.settings-panel textarea,
-.settings-panel select {
+.sp input,
+.sp button,
+.sp textarea,
+.sp select {
 	font-family: inherit;
 	font-size: inherit;
 }
 
-.settings-panel textarea {
+.sp textarea {
 	max-height: 8em;
 }
 
-
-.settings-panel a {
+.sp a {
 	color: inherit;
 }
 
-/** Basic layout */
-.settings-panel-field {
-	position: relative;
-	padding: .25em;
-	display: table;
-	width: 100%;
-}
-.settings-panel-field:last-child {
-	margin-bottom: 0;
-}
-.settings-panel-label {
-	left: 0;
-	display: table-cell;
-	line-height: 1.2;
-	vertical-align: baseline;
-	padding-top: 0;
-	max-width: 100%;
-}
-.settings-panel-input {
-	display: table-cell;
-	vertical-align: baseline;
-	position: relative;
-	white-space: nowrap;
-}
 
-.settings-panel-orientation-left .settings-panel-label {
-	width: 9em;
-	padding-right: .5em;
-}
-.settings-panel-orientation-right .settings-panel-label {
-	display: block;
-	margin-right: 0;
-	float: right;
-	width: 9em;
-	padding-top: .4em;
-	padding-left: .5em;
-}
-.settings-panel-orientation-right .settings-panel-label + .settings-panel-input {
-	display: block;
-	width: calc(100% - 9em);
-}
-.settings-panel-orientation-top .settings-panel-label {
-	display: block;
-	width: 100%;
-	margin-right: 0;
-	padding-top: 0;
-	line-height: 1.5;
-}
-.settings-panel-orientation-top .settings-panel-label + .settings-panel-input {
-	display: block;
-	width: 100%;
-	padding: 0;
-}
-.settings-panel-orientation-bottom .settings-panel-label {
-	display: block;
-	width: 100%;
-	margin-right: 0;
-	padding: 0;
-	line-height: 1.5;
-	border-top: 2.5em solid transparent;
-}
-.settings-panel-orientation-bottom .settings-panel-label + .settings-panel-input {
-	width: 100%;
-	position: absolute;
-	top: 0;
-}
-
-.settings-panel-orientation-left > .settings-panel-label {
-	width: 9em;
-	display: table-cell;
-}
-
-.settings-panel-title {
+.sp-title {
 	font-size: 1.6em;
 	line-height: 1.25;
 	margin-top: 0;
@@ -126,23 +58,134 @@
 	padding: .25em .25em;
 	text-align: center;
 }
-.settings-panel--collapsible .settings-panel-title {
+.sp--collapsible .sp-title {
 	cursor: pointer;
 }
-.settings-panel--collapsed > *:not(.settings-panel-title) {
+.sp--collapsed > *:not(.sp-title) {
 	display: none!important;
 }
 
 
+
+/** Panel positions */
+.sp--center {
+	position: fixed;
+	z-index: 1;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+}
+.sp--right, .sp--top-right {
+	position: fixed;
+	z-index: 1;
+	right: 0;
+	top: 0;
+}
+.sp--bottom-right {
+	position: fixed;
+	z-index: 1;
+	right: 0;
+	bottom: 0;
+}
+.sp--right {
+	bottom: 0;
+}
+.sp--left, .sp--top-left {
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+}
+.sp--bottom-left {
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	bottom: 0;
+}
+
+
+/** Fields */
+.sp-field {
+	position: relative;
+	padding: .25em;
+	display: table;
+	width: 100%;
+}
+.sp-field:last-child {
+	margin-bottom: 0;
+}
+.sp-label {
+	left: 0;
+	display: table-cell;
+	line-height: 1.2;
+	vertical-align: baseline;
+	padding-top: 0;
+	max-width: 100%;
+}
+.sp-input {
+	display: table-cell;
+	vertical-align: baseline;
+	position: relative;
+	white-space: nowrap;
+}
+
+.sp-orientation-left .sp-label {
+	width: 9em;
+	padding-right: .5em;
+}
+.sp-orientation-right .sp-label {
+	display: block;
+	margin-right: 0;
+	float: right;
+	width: 9em;
+	padding-top: .4em;
+	padding-left: .5em;
+}
+.sp-orientation-right .sp-label + .sp-input {
+	display: block;
+	width: calc(100% - 9em);
+}
+.sp-orientation-top .sp-label {
+	display: block;
+	width: 100%;
+	margin-right: 0;
+	padding-top: 0;
+	line-height: 1.5;
+}
+.sp-orientation-top .sp-label + .sp-input {
+	display: block;
+	width: 100%;
+	padding: 0;
+}
+.sp-orientation-bottom .sp-label {
+	display: block;
+	width: 100%;
+	margin-right: 0;
+	padding: 0;
+	line-height: 1.5;
+	border-top: 2.5em solid transparent;
+}
+.sp-orientation-bottom .sp-label + .sp-input {
+	width: 100%;
+	position: absolute;
+	top: 0;
+}
+
+.sp-orientation-left > .sp-label {
+	width: 9em;
+	display: table-cell;
+}
+
+
 /** Button */
-.settings-panel-field--button {
+.sp-field--button {
 	display: inline-block;
 }
-.settings-panel-field--button .settings-panel-input {
+.sp-field--button .sp-input {
 	display: block;
 	text-align: center;
 }
-.settings-panel-button {
+.sp-button {
 	vertical-align: baseline;
 	line-height: 1;
 	min-height: 2em;
@@ -153,12 +196,12 @@
 
 
 /** Default text and alike style */
-.settings-panel-text {
+.sp-text {
 	height: 2em;
 	width: 100%;
 	vertical-align: baseline;
 }
-.settings-panel-textarea {
+.sp-textarea {
 	width: 100%;
 	display: block;
 	vertical-align: top; /* allowable as we use autoheight */
@@ -166,10 +209,10 @@
 }
 
 /** Checkbox style */
-.settings-panel-field--checkbox .settings-panel-input {
+.sp-field--checkbox .sp-input {
 	line-height: 2em;
 }
-.settings-panel-checkbox-group {
+.sp-checkbox-group {
 	border: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
@@ -179,7 +222,7 @@
 	padding: 0;
 	white-space: normal;
 }
-.settings-panel-checkbox {
+.sp-checkbox {
 	display: inline-block;
 	vertical-align: middle;
 	width: 1.2em;
@@ -187,7 +230,7 @@
 	line-height: 1.2em;
 	margin: -.15em .25em 0 0;
 }
-.settings-panel-checkbox-label {
+.sp-checkbox-label {
 	display: inline-block;
 	vertical-align: baseline;
 	-webkit-user-select: none;
@@ -197,13 +240,13 @@
 	line-height: 1.2;
 	margin-right: 1em;
 }
-.settings-panel-checkbox-group .settings-panel-checkbox-label:last-child {
+.sp-checkbox-group .sp-checkbox-label:last-child {
 	margin-right: 0;
 }
 
 
 /** Color picker style */
-.settings-panel-color {
+.sp-color {
 	position: relative;
 	width: 2em;
 	height: 2em;
@@ -212,12 +255,12 @@
 	bottom: 0;
 	margin: auto;
 }
-.settings-panel-color-value {
+.sp-color-value {
 	width: 100%;
 	height: 2em;
 	padding: 0 0 0 2.5em;
 }
-.settings-panel .Scp {
+.sp .Scp {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -227,19 +270,19 @@
 	cursor: pointer;
 	bottom: -120px;
 }
-.settings-panel .Scp-saturation {
+.sp .Scp-saturation {
 	position: relative;
 	width: calc(100% - 25px);
 	height: 100%;
 	background: linear-gradient(to right, #fff 0%, #f00 100%);
 	float: left;
 }
-.settings-panel .Scp-brightness {
+.sp .Scp-brightness {
 	width: 100%;
 	height: 100%;
 	background: linear-gradient(to top, #000 0%, rgba(255,255,255,0) 100%);
 }
-.settings-panel .Scp-sbSelector {
+.sp .Scp-sbSelector {
 	border: 1px solid;
 	position: absolute;
 	width: 14px;
@@ -251,14 +294,14 @@
 	box-sizing: border-box;
 	z-index: 10;
 }
-.settings-panel .Scp-hue {
+.sp .Scp-hue {
 	width: 20px;
 	height: 100%;
 	position: relative;
 	float: left;
 	background: linear-gradient(to bottom, #f00 0%, #f0f 17%, #00f 34%, #0ff 50%, #0f0 67%, #ff0 84%, #f00 100%);
 }
-.settings-panel .Scp-hSelector {
+.sp .Scp-hSelector {
 	position: absolute;
 	background: #fff;
 	border-bottom: 1px solid #000;
@@ -270,7 +313,7 @@
 
 
 /** Interval style */
-.settings-panel-interval {
+.sp-interval {
 	position: relative;
 	-webkit-appearance: none;
 	display: inline-block;
@@ -287,14 +330,14 @@
 	-ms-user-select: none;
 	user-select: none;
 }
-.settings-panel-interval-handle {
+.sp-interval-handle {
 	background: #7a4;
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	min-width: 1px;
 }
-.settings-panel.settings-panel-interval-dragging * {
+.sp.sp-interval-dragging * {
 	-webkit-touch-callout: none !important;
 	-webkit-user-select: none !important;
 	-khtml-user-select: none !important;
@@ -305,7 +348,7 @@
 	cursor: ew-resize !important;
 }
 
-.settings-panel-interval + .settings-panel-value {
+.sp-interval + .sp-value {
 	right: 0;
 	padding-left: .5em;
 }
@@ -313,7 +356,7 @@
 
 
 /** Select style */
-.settings-panel-select {
+.sp-select {
 	display: inline-block;
 	width: 100%;
 	height: 2em;
@@ -321,7 +364,7 @@
 }
 
 /** Value style */
-.settings-panel-value {
+.sp-value {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	-o-appearance: none;
@@ -340,28 +383,28 @@
 	color: inherit;
 	width: 15%;
 }
-.settings-panel-value:focus {
+.sp-value:focus {
 	outline: 0;
 	box-shadow: 0;
 }
-.settings-panel-value-tip {
+.sp-value-tip {
 	display: none;
 }
 
 /** Range style */
-.settings-panel-range {
+.sp-range {
 	width: 85%;
 	padding: 0;
 	margin: 0px 0;
 	height: 2em;
 	vertical-align: top;
 }
-.settings-panel-range + .settings-panel-value {
+.sp-range + .sp-value {
 	padding-left: .5em;
 	width: 15%;
 }
 
-.settings-panel-switch {
+.sp-switch {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
@@ -372,7 +415,7 @@
 	margin: 0;
 	line-height: 2em;
 }
-.settings-panel-switch-input {
+.sp-switch-input {
 	margin: 0;
 	vertical-align: middle;
 	width: 1.2em;
@@ -380,7 +423,7 @@
 	cursor: pointer;
 	margin-right: .25em;
 }
-.settings-panel-switch-label {
+.sp-switch-label {
 	display: inline-block;
 	vertical-align: baseline;
 	line-height: 1.2;
@@ -388,14 +431,14 @@
 }
 
 
-.settings-panel hr {
+.sp hr {
 	border: none;
 	height: 0;
 	margin: .5em 0;
 	border-bottom: 1px dotted;
 }
 
-.settings-panel-field--disabled {
+.sp-field--disabled {
 	opacity: .5;
 	pointer-events: none;
 }

@@ -1,9 +1,14 @@
 'use strict';
 
-const num = require('input-number');
+const num = require('input-number')
 const defined = require('defined')
+const h = require('virtual-dom/h')
 
-module.exports = function createText (field, cb) {
+module.exports = (field, cb) => {
+	let el = <Field>
+}
+	return
+
 	let {change} = field
 
 	let labelEl = field.labelEl = field.container.appendChild(document.createElement('label'))

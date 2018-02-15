@@ -1,20 +1,13 @@
-'use strict';
+'use strict'
 
+const h = require('virtual-dom/h')
 
-module.exports = function createButton (field, cb) {
-	let {container, value, label, change} = field
+module.exports = ({value, label, change}) => {
+	return (<button className='sp-button' onClick={fire}>{ label }</button>)
 
-	let element = field.container.appendChild(document.createElement('button'))
-
-	element.className = 'sp-button'
-	element.addEventListener('click', e => {
+	function fire (e) {
 		e.preventDefault()
 
-		fire(e)
-	})
-	element.innerHTML = field.label
-
-	function fire (value) {
 		if (arguments.length) {
 			if (change) change(value, field)
 			if (cb) cb(value, field)
@@ -22,6 +15,4 @@ module.exports = function createButton (field, cb) {
 
 		return field.value
 	}
-
-	return fire
 }
