@@ -120,8 +120,7 @@ function createPanel(values, options) {
 	if (!options.fields) {
 		options.fields = []
 		for (let id in values) {
-			if (isObj(values[id])) options.fields.push(values[id])
-			else options.fields.push({id: id, value: values[id]})
+			options.fields.push(getValueField(id))
 		}
 	}
 	else if (isObj(options.fields)) {
@@ -130,7 +129,7 @@ function createPanel(values, options) {
 		let max = 0
 
 		for (let id in values) {
-			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
+			let valueField = getValueField(id)
 
 			if (options.fields[id] !== null) {
 				let field = options.fields[id]
@@ -165,16 +164,19 @@ function createPanel(values, options) {
 		options.fields.forEach((field, i) => ids[field.id] = i)
 
 		for (let id in values) {
-			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
-
 			if (ids[id] !== null) {
 				let field = options.fields[ids[id]]
-				options.fields[ids[id]] = extend(valueField, field)
+				options.fields[ids[id]] = extend(getValueField(id), field)
 			}
 			else {
-				options.fields.push(valueField)
+				options.fields.push(getValueField(id))
 			}
 		}
+	}
+	function getValueField(id) {
+		let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
+		if (!valueField.id) valueField.id = id
+		return valueField
 	}
 
 	addField(options.fields)
