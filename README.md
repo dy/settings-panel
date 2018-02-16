@@ -227,11 +227,12 @@ let settings = createSettings({
 
 ## Analogs
 
-* [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.<br/>
-* [oui](https://github.com/wearekuva/oui) — sci-ish panel.<br/>
-* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.<br/>
-* [quicksettings](https://github.com/bit101/quicksettings) — an alternative versatile settings panel.<br/>
-* [dis-gui](https://github.com/wwwtyro/dis-gui) — remake on dat.gui.<br/>
+* [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
+* [oui](https://github.com/wearekuva/oui) — sci-ish panel.
+* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
+* [quicksettings](https://github.com/bit101/quicksettings) — an alternative versatile settings panel.
+* [dis-gui](https://github.com/wwwtyro/dis-gui) — remake on dat.gui.
+* [virtual-form](https://github.com/yoshuawuyts/virtual-form) − virtual dom form creator.
 
 ## License
 

@@ -41,7 +41,12 @@
   },
   "browserify": {
     "transform": [
-      ["jsx-transform/browserify", {"factory": "h"}],
+      [
+        "jsx-transform/browserify",
+        {
+          "factory": "h"
+        }
+      ],
       "brfs"
     ]
   },
@@ -53,7 +58,7 @@
     "defined": "^1.0.0",
     "dom-css": "^2.1.0",
     "get-uid": "^1.0.1",
-    "input-number": "^1.0.5",
+    "input-number": "^1.1.0",
     "insert-styles": "^1.2.1",
     "is-color": "^0.2.0",
     "is-plain-obj": "^1.1.0",

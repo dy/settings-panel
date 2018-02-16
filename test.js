@@ -71,7 +71,7 @@ let demoPanel = createPanel({
 }, {title: 'Demo Panel'})
 
 
-demoPanel.text = 123
+demoPanel.text = 1235
 
 // jsx style
 // + easy layout/nested settings

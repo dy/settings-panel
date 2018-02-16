@@ -4,11 +4,12 @@ const autosize = require('autosize')
 const defined = require('defined')
 const h = require('virtual-dom/h')
 
+function Autosize () {}
+Autosize.prototype.hook = function(input, key, value) {
+	autosize(input)
+}
+
 module.exports = ({id, rows, label, change, width, placeholder, type, disabled, value}) => {
-	function Autosize () {}
-	Autosize.prototype.hook = function(input, key, value) {
-		autosize(input)
-	}
 
 	return (
 		<div key={id} className={`sp-field sp-field--${type}`} id={`sp-field-${id}`} style={width ? `display: inline-block; width: ${width}` : null}>
@@ -22,7 +23,7 @@ module.exports = ({id, rows, label, change, width, placeholder, type, disabled, 
 				onInput={update}
 				value={value}
 				rows={rows || 1}
-				data-autosize={ new Autosize() } />
+				autosize={ new Autosize() } />
 		</div>
 	)
 

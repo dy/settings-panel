@@ -89,8 +89,7 @@ function createPanel(values, options) {
 	let counts = {}
 
 	// init flag to avoid callbacks
-	let init = false
-
+	let ready = false
 
 	// main settings object with property accessors and hidden proto methods
 	let state = Object.create(Object.defineProperties({}, {
@@ -116,71 +115,11 @@ function createPanel(values, options) {
 		}
 	}))
 
+	if (!options.position) options.position = 'top-left'
+
 	// create fields
-	if (!options.fields) {
-		options.fields = []
-		for (let id in values) {
-			options.fields.push(getValueField(id))
-		}
-	}
-	else if (isObj(options.fields)) {
-		let ids = Object.keys(options.fields)
-		let arr = []
-		let max = 0
+	initFields(options)
 
-		for (let id in values) {
-			let valueField = getValueField(id)
-
-			if (options.fields[id] !== null) {
-				let field = options.fields[id]
-				options.fields[id] = extend(valueField, field)
-			}
-			else {
-				options.fields[valueField.id] = valueField
-			}
-		}
-
-		for (let id in options.fields) {
-			let field = options.fields[id]
-
-			let order = field.order
-			if (order == null) {
-				order = max
-				max++
-			}
-			else if (order > max) {
-				max = order + 1
-			}
-
-			if (field.id === undefined) field.id = id
-
-			arr[order] = field
-		}
-
-		fields = arr.filter(Boolean)
-	}
-	else if (Array.isArray(options.fields)) {
-		let ids = {}
-		options.fields.forEach((field, i) => ids[field.id] = i)
-
-		for (let id in values) {
-			if (ids[id] !== null) {
-				let field = options.fields[ids[id]]
-				options.fields[ids[id]] = extend(getValueField(id), field)
-			}
-			else {
-				options.fields.push(getValueField(id))
-			}
-		}
-	}
-	function getValueField(id) {
-		let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
-		if (!valueField.id) valueField.id = id
-		return valueField
-	}
-
-	addField(options.fields)
-	init = true
 
 	// handle container
 	let container
@@ -201,7 +140,7 @@ function createPanel(values, options) {
 		})
 
 		return (
-		<form className={`sp sp-${id} sp--${position}`}>
+		<form className={`sp sp-${id} sp--${position}`} key={id}>
 			{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
 			{ fieldItems }
 		</form>
@@ -215,8 +154,77 @@ function createPanel(values, options) {
 	function render () {
 		let newPanelTree = Panel(options, fields)
 		let patches = diff(panelTree, newPanelTree)
-		container = patch(container, patches)
+		container = patch(panelElement, patches)
 		panelTree = newPanelTree
+	}
+
+
+	// initFields fields from options
+	function initFields (options) {
+		if (!options.fields) {
+			options.fields = []
+			for (let id in values) {
+				options.fields.push(getValueField(id))
+			}
+		}
+		else if (isObj(options.fields)) {
+			let ids = Object.keys(options.fields)
+			let arr = []
+			let max = 0
+
+			for (let id in values) {
+				let valueField = getValueField(id)
+
+				if (options.fields[id] !== null) {
+					let field = options.fields[id]
+					options.fields[id] = extend(valueField, field)
+				}
+				else {
+					options.fields[valueField.id] = valueField
+				}
+			}
+
+			for (let id in options.fields) {
+				let field = options.fields[id]
+
+				let order = field.order
+				if (order == null) {
+					order = max
+					max++
+				}
+				else if (order > max) {
+					max = order + 1
+				}
+
+				if (field.id === undefined) field.id = id
+
+				arr[order] = field
+			}
+
+			fields = arr.filter(Boolean)
+		}
+		else if (Array.isArray(options.fields)) {
+			let ids = {}
+			options.fields.forEach((field, i) => ids[field.id] = i)
+
+			for (let id in values) {
+				if (ids[id] !== null) {
+					let field = options.fields[ids[id]]
+					options.fields[ids[id]] = extend(getValueField(id), field)
+				}
+				else {
+					options.fields.push(getValueField(id))
+				}
+			}
+		}
+		function getValueField(id) {
+			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
+			if (!valueField.id) valueField.id = id
+			return valueField
+		}
+
+		addField(options.fields)
+		ready = true
 	}
 
 
@@ -291,7 +299,7 @@ function createPanel(values, options) {
 			get: () => field.value,
 			set: v => {
 				field.value = v
-				if (init) {
+				if (ready) {
 					if (options.change) options.change(field.id, value, state)
 				}
 				render()

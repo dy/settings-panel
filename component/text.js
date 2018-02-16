@@ -4,11 +4,6 @@ const num = require('input-number')
 const defined = require('defined')
 const h = require('virtual-dom/h')
 
-function InputNumber () {}
-InputNumber.prototype.hook = function(input, key, value) {
-	num(input)
-}
-
 module.exports = ({id, label, change, width, placeholder, type, disabled, value}) => {
 
 	return (
@@ -22,7 +17,7 @@ module.exports = ({id, label, change, width, placeholder, type, disabled, value}
 				disabled={!!disabled}
 				onInput={update}
 				value={value}
-				data-num={ new InputNumber() } />
+				inputNum={ Object.create({ hook: el => num(el)}) } />
 		</div>
 	)
 
