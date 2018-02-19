@@ -14,53 +14,22 @@ const parseFract = require('parse-fraction')
 const h = require('virtual-dom/h')
 const diff = require('virtual-dom/diff')
 const patch = require('virtual-dom/patch')
-const createElement = require('virtual-dom/create-element')
+const create = require('virtual-dom/create-element')
+const mainLoop = require('main-loop')
 const css = require('dom-css')
 const scopeCss = require('scope-css')
 const insertCss = require('insert-styles')
 const fs = require('fs')
 insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'))
+const Panel = require('./component')
 
 
 module.exports = createPanel
+createPanel.components = Panel.components
+createPanel.h = Panel
 
 
-// field constructors
-const TYPES = {
-	text: require('./component/text'),
-	textarea: require('./component/textarea'),
-	button: require('./component/button')
-	// submit: require('./component/button'),
-	// range: require('./component/range')
-	// interval:
-	// checkbox:
-	// color:
-	// select:
-	// switch:
-	// textarea:
-	// text:
-	// number:
-	// canvas:
-	// angle:
-	// toggle:
-	// gradient:
-	// palette:
-	// taglist:
-	// file:
-	// date:
-	// time:
-	// pad:
-	// vec2:,
-	// vec3:,
-	// vec4:
-	// volume:
-	// log:
-	// unit:
-	// font:
-	// ratio:
-}
-
-
+// main panel constructor
 function createPanel(values, options) {
 	if (!options) options = {}
 
@@ -78,7 +47,7 @@ function createPanel(values, options) {
 		id: 'id'
 	})
 
-	let types = extend({}, options.components, TYPES)
+	let types = extend({}, options.components, Panel.components)
 
 	// list of field descriptors
 	let fields = {}
@@ -128,8 +97,9 @@ function createPanel(values, options) {
 	container.classList.add('sp-container')
 
 
-	// create components
-	function Panel ({title, position}, fields) {
+
+	// render routine
+	let loop = mainLoop({options, fields}, ({options, fields}) => {
 		const fieldItems = Object.keys(fields)
 			.map(id => fields[id])
 			.sort((a, b) => a.order - b.order)
@@ -139,24 +109,10 @@ function createPanel(values, options) {
 				return <Component {...field}/>
 		})
 
-		return (
-		<form className={`sp sp-${id} sp--${position}`} key={id}>
-			{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
-			{ fieldItems }
-		</form>
-	)}
+		return Panel(options, fieldItems)
+	}, { create, diff, patch })
 
-	// render routine
-	let panelTree = Panel(options, fields)
-	let panelElement = createElement(panelTree)
-	container.appendChild(panelElement)
-
-	function render () {
-		let newPanelTree = Panel(options, fields)
-		let patches = diff(panelTree, newPanelTree)
-		container = patch(panelElement, patches)
-		panelTree = newPanelTree
-	}
+	container.appendChild(loop.target)
 
 
 	// initFields fields from options
@@ -302,7 +258,7 @@ function createPanel(values, options) {
 				if (ready) {
 					if (options.change) options.change(field.id, value, state)
 				}
-				render()
+				loop.update({ options, fields })
 			}
 		})
 
@@ -338,11 +294,10 @@ function createPanel(values, options) {
 		return state
 	}
 
-
 	return state
 }
 
-
+// detect type of field (helper)
 function detectType(field) {
 	// options define switch or select, based on number of choices
 	if (field.options) {

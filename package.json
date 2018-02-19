@@ -63,6 +63,7 @@
     "is-color": "^0.2.0",
     "is-plain-obj": "^1.1.0",
     "jsx-transform": "^2.3.0",
+    "main-loop": "^3.4.0",
     "nanocomponent": "^6.5.0",
     "object-assign": "^4.1.1",
     "parse-fraction": "^1.1.0",
