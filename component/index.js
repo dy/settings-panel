@@ -19,10 +19,10 @@ function Panel({id, position, title}, fields) {
 Panel.components = {
 	text: require('./text'),
 	textarea: require('./textarea'),
-	button: require('./button')
+	button: require('./button'),
+	// interval: require('./interval')
 	// submit: require('./button'),
 	// range: require('./range')
-	// interval:
 	// checkbox:
 	// color:
 	// select:

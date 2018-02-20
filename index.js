@@ -26,7 +26,7 @@ const Panel = require('./component')
 
 module.exports = createPanel
 createPanel.components = Panel.components
-createPanel.h = Panel
+createPanel.Panel = Panel
 
 
 // main panel constructor
@@ -87,7 +87,10 @@ function createPanel(values, options) {
 	if (!options.position) options.position = 'top-left'
 
 	// create fields
-	initFields(options)
+	initFields(values, options)
+
+	addField(options.fields)
+	ready = true
 
 
 	// handle container
@@ -113,75 +116,6 @@ function createPanel(values, options) {
 	}, { create, diff, patch })
 
 	container.appendChild(loop.target)
-
-
-	// initFields fields from options
-	function initFields (options) {
-		if (!options.fields) {
-			options.fields = []
-			for (let id in values) {
-				options.fields.push(getValueField(id))
-			}
-		}
-		else if (isObj(options.fields)) {
-			let ids = Object.keys(options.fields)
-			let arr = []
-			let max = 0
-
-			for (let id in values) {
-				let valueField = getValueField(id)
-
-				if (options.fields[id] !== null) {
-					let field = options.fields[id]
-					options.fields[id] = extend(valueField, field)
-				}
-				else {
-					options.fields[valueField.id] = valueField
-				}
-			}
-
-			for (let id in options.fields) {
-				let field = options.fields[id]
-
-				let order = field.order
-				if (order == null) {
-					order = max
-					max++
-				}
-				else if (order > max) {
-					max = order + 1
-				}
-
-				if (field.id === undefined) field.id = id
-
-				arr[order] = field
-			}
-
-			fields = arr.filter(Boolean)
-		}
-		else if (Array.isArray(options.fields)) {
-			let ids = {}
-			options.fields.forEach((field, i) => ids[field.id] = i)
-
-			for (let id in values) {
-				if (ids[id] !== null) {
-					let field = options.fields[ids[id]]
-					options.fields[ids[id]] = extend(getValueField(id), field)
-				}
-				else {
-					options.fields.push(getValueField(id))
-				}
-			}
-		}
-		function getValueField(id) {
-			let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
-			if (!valueField.id) valueField.id = id
-			return valueField
-		}
-
-		addField(options.fields)
-		ready = true
-	}
 
 
 	// add new control
@@ -247,6 +181,14 @@ function createPanel(values, options) {
 			}
 		}
 
+		// bind generic change listener
+		let srcChange = field.change
+		field.change = function (value) {
+			state[field.id] = value
+			if (srcChange) srcChange(value)
+			if (ready && options.change) options.change(state)
+		}
+
 		// save field
 		fields[field.id] = field
 
@@ -255,9 +197,6 @@ function createPanel(values, options) {
 			get: () => field.value,
 			set: v => {
 				field.value = v
-				if (ready) {
-					if (options.change) options.change(field.id, value, state)
-				}
 				loop.update({ options, fields })
 			}
 		})
@@ -295,6 +234,71 @@ function createPanel(values, options) {
 	}
 
 	return state
+}
+
+// initFields fields from options
+function initFields (values, options) {
+	if (!options.fields) {
+		options.fields = []
+		for (let id in values) {
+			options.fields.push(getValueField(id))
+		}
+	}
+	else if (isObj(options.fields)) {
+		let ids = Object.keys(options.fields)
+		let arr = []
+		let max = 0
+
+		for (let id in values) {
+			let valueField = getValueField(id)
+
+			if (options.fields[id] != null) {
+				let field = options.fields[id]
+				options.fields[id] = extend(field, valueField)
+			}
+			else {
+				options.fields[valueField.id] = valueField
+			}
+		}
+
+		for (let id in options.fields) {
+			let field = options.fields[id]
+
+			let order = field.order
+			if (order == null) {
+				order = max
+				max++
+			}
+			else if (order > max) {
+				max = order + 1
+			}
+
+			if (field.id === undefined) field.id = id
+
+			arr[order] = field
+		}
+
+		options.fields = arr.filter(Boolean)
+	}
+	else if (Array.isArray(options.fields)) {
+		let ids = {}
+		options.fields.forEach((field, i) => ids[field.id] = i)
+
+		for (let id in values) {
+			if (ids[id] !== null) {
+				let field = options.fields[ids[id]]
+				options.fields[ids[id]] = extend(getValueField(id), field)
+			}
+			else {
+				options.fields.push(getValueField(id))
+			}
+		}
+	}
+	function getValueField(id) {
+		let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
+		if (!valueField.id) valueField.id = id
+		return valueField
+	}
 }
 
 // detect type of field (helper)

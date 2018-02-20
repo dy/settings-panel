@@ -61,6 +61,7 @@
     "input-number": "^1.1.0",
     "insert-styles": "^1.2.1",
     "is-color": "^0.2.0",
+    "is-mobile": "^0.2.2",
     "is-plain-obj": "^1.1.0",
     "jsx-transform": "^2.3.0",
     "main-loop": "^3.4.0",
