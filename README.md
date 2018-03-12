@@ -1,6 +1,6 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-Turn an object into UI.
+Easy settings for an app, demo or tests.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
@@ -14,28 +14,33 @@ _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-
 ```js
 let createSettings = require('settings-panel')
 
-let panel = createSettings({
-  number: 97,
-  interval: [0, 100],
+let settings = createSettings({
   checkbox: false,
   text: 'Hello world',
   color: '#aabbcc',
-  toggle: ['A', 'B', 'C']
+  toggle: { values: ['A', 'B', 'C'], value: ['B'], multi: true },
+  number: {value: 97, min: 0, max: 100 },
+  interval: {value: [0, 100], min: -100, max: 100 },
 })
 
 // update values
-panel.number = 100
-panel.interval = [10, 90]
-panel.toggle = ['B', 'C']
+settings.values.number = 100
+settings.values.interval = [10, 90]
+settings.values.toggle = ['B', 'C']
 
 // read values
-panel.number // 100
-panel.toggle // ['B', 'C']
+settings.values.number // 100
+settings.values.toggle // ['B', 'C']
+
+// add listener
+settings.on('change', (key, value) => {
+  updateApp(settings.values)
+})
 ```
 
-### values = createSettings(values, options?)
+### `settings = createSettings(fields, options?)`
 
-Create panel from an object with values. Returns an object with the same values bound to UI − changing its properties updates UI and vice versa. That object can be used as options for other components.
+Create panel from set of fields and adjust look by `options`.
 
 #### `fields`
 
@@ -48,27 +53,18 @@ settings = createSettings({
   ...
 })
 
-// an array of fields
+// an array with fields
 settings = createSettings([
-  {id: 'fieldA', type: 'checkbox', value: true, ...},
-  {id: 'fieldB', type: 'number', value: 50, ...},
-  ...
+  { id, value, type, order, label, ...params},
+  { id, value, type, order, label, ...params},
+  ...fields
 ])
 
-// or dict of fields
+// or dict with fields
 settings = createSettings({
-  fieldA: {
-    order: 0,
-    type: 'checkbox',
-    label: 'My Checkbox',
-    value: true
-  },
-  fieldB: {
-    order: 1,
-    type: 'number',
-    ...
-  },
-  ...
+  fieldA: { id, value, type, order, label, ...params},
+  fieldB: { id, value, type, order, label, ...params},
+  ...fields
 })
 ```
 
@@ -103,12 +99,11 @@ Property | Default | Meaning
 
 #### `options`
 
-Adjusts appearance of the panel:
+Adjusts look of the panel:
 
 ```js
 createSettings(fields, {
   position: 'left',
-  theme: require('settings-panel/theme/flat'),
   colors: ['black', 'white']
 })
 ```
@@ -117,14 +112,23 @@ Option | Default | Meaning
 ---|---|---
 `container` | `document.body` | The container element or selector.
 `position` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or array with top-left corner coordinates `[x, y]`.
-`theme` | `'flat'` | One of `control`, `dat`, `dragon`, `flat`, `typer`. See [`all themes`](https://github.com/dfcreative/settings-panel/tree/master/theme).
 `colors` | `['black', 'white']` | Theme palette.
 `background` | theme default | Panel background color.
-`className` | `settings-panel` | Class name to add to list of classes
+`className` | `settings-panel` | Class name to add to list of classes.
+
+Rest of the options are passed to `theme`.
+
+### themes
+
+To enable specific panel theme, use `settings = require('settings-panel/<theme>')`, where `<theme>` can be one of:
+
+* `flat`
+* `bw`
+* `typer`
 
 ---
 
-#### `onchange`
+### `settings.on('change', (key, value, old) => {})`
 
 Fired every time any value changes:
 
@@ -149,23 +153,21 @@ myComponent.update(settings)
 options.c = false // GUI is updated here
 ```
 
----
-
 ### settings.get(id)
 
 Get field descriptor.
 
 ### settings.set(id, descriptor)
 
-Update field descriptor.
+Update field descriptor by id.
 
 ### settings.add(field)
 
-Add field.
+Add field based on descriptor.
 
 ### settings.delete(id)
 
-Remove field.
+Remove field by `id`.
 
 
 ## Controls
@@ -186,13 +188,6 @@ let settings = createSettings({
   ok: {label: 'Ok', type: 'button', input: e => alert('ok')}
 })
 ```
-
-## Themes
-
-```js
-```
-
-[Image here]
 
 <!--
 `title`, `header` |
@@ -225,7 +220,7 @@ let settings = createSettings({
 
 
 
-## Analogs
+## Related
 
 * [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
 * [oui](https://github.com/wearekuva/oui) — sci-ish panel.
@@ -236,5 +231,5 @@ let settings = createSettings({
 
 ## License
 
-(c) 2017 Dmitry Yv. MIT License
+© 2017 Dmitry Yv. MIT License
 

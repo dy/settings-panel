@@ -21,16 +21,16 @@ const scopeCss = require('scope-css')
 const insertCss = require('insert-styles')
 const fs = require('fs')
 insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'))
-const Panel = require('./component')
+const components = require('./component')
 
 
 module.exports = createPanel
-createPanel.components = Panel.components
-createPanel.Panel = Panel
 
 
 // main panel constructor
-function createPanel(values, options) {
+function Panel(values, options) {
+	if (!(this instanceof Panel)) return new Panel(values, options)
+
 	if (!options) options = {}
 
 	options = pick(options, {
@@ -47,11 +47,10 @@ function createPanel(values, options) {
 		id: 'id'
 	})
 
-	let types = extend({}, options.components, Panel.components)
-
 	// list of field descriptors
-	let fields = {}
+	this.fields = {}
 
+	// current instance id
 	let id = defined(options.id, uid())
 
 	// field type counters (just naming purpose)
@@ -60,36 +59,14 @@ function createPanel(values, options) {
 	// init flag to avoid callbacks
 	let ready = false
 
-	// main settings object with property accessors and hidden proto methods
-	let state = Object.create(Object.defineProperties({}, {
-		get: {
-			value: getField,
-			enumerable: false,
-			writable: false
-		},
-		set: {
-			value: setField,
-			enumerable: false,
-			writable: false
-		},
-		add: {
-			value: addField,
-			enumerable: false,
-			writable: false
-		},
-		delete: {
-			value: deleteField,
-			enumerable: false,
-			writable: false
-		}
-	}))
-
 	if (!options.position) options.position = 'top-left'
 
 	// create fields
 	initFields(values, options)
 
-	addField(options.fields)
+	// add fields to panel
+	this.add(options.fields)
+
 	ready = true
 
 
@@ -100,7 +77,6 @@ function createPanel(values, options) {
 	container.classList.add('sp-container')
 
 
-
 	// render routine
 	let loop = mainLoop({options, fields}, ({options, fields}) => {
 		const fieldItems = Object.keys(fields)
@@ -108,130 +84,134 @@ function createPanel(values, options) {
 			.sort((a, b) => a.order - b.order)
 			.map(field => {
 				let {type, id, width} = field
-				let Component = types[field.type] || types.text
+				let Component = components[field.type] || components.text
 				return <Component {...field}/>
 		})
 
-		return Panel(options, fieldItems)
+		return (
+			<form className={`sp sp-${id} sp--${position}`} key={id}>
+				{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
+				{ fieldItems }
+			</form>
+		)
 	}, { create, diff, patch })
 
+
 	container.appendChild(loop.target)
+}
 
 
-	// add new control
-	function addField (field) {
-		if (arguments.length > 1) field = [].slice.apply(arguments)
+// add new control
+Panel.prototype.add = function (field) {
+	if (arguments.length > 1) field = [].slice.apply(arguments)
 
-		// handle multiple fields
-		if (Array.isArray(field)) {
-			field.forEach((field, i) => {
-				addField(field)
-			})
-
-			return state
-		}
-
-		if (!isObj(field)) throw Error('argument should be field descriptor')
-
-		// normalize field properties
-		field = pick(field, {
-			id: 'id key name',
-			order: 'order position',
-			value: 'value option val choice default',
-			type: 'type component',
-			label: 'label caption',
-			title: 'title tooltip tip',
-			hidden: 'hidden invisible',
-			disabled: 'disable disabled inactive',
-			min: 'min',
-			max: 'max',
-			step: 'step',
-			multi: 'multi multiple',
-			options: 'options values choices',
-			placeholder: 'placeholder',
-			width: 'width',
-			change: 'input change onchange onclick click interact interaction act tap'
-		}, true)
-
-		// detect type from value or other params
-		if (field.type == null) field.type = detectType(field)
-
-		// get id from label or name based on type
-		if (field.id == null) {
-			if (counts[field.type] == null) counts[field.type] = 0
-			field.id = defined(field.label, `${field.type}-${counts[field.type]++}`)
-		}
-		field.id = dashcase(field.id, '-')
-
-		if (field.label == null) {
-			field.label = defined(field.title, capcase(field.id))
-		}
-
-		if (field.title == null) {
-			field.title = field.label
-		}
-
-		if (field.width != null) {
-			if (typeof field.width === 'number') field.width = field.width + 'px'
-			else if (typeof field.width === 'string') {
-				if (field.width !== 'auto') {
-					let [num, denom] = parseFract(field.width)
-					field.width = num / denom * 100 + '%'
-				}
-			}
-		}
-
-		// bind generic change listener
-		let srcChange = field.change
-		field.change = function (value) {
-			state[field.id] = value
-			if (srcChange) srcChange(value)
-			if (ready && options.change) options.change(state)
-		}
-
-		// save field
-		fields[field.id] = field
-
-		// create property accessors
-		Object.defineProperty(state, field.id, {
-			get: () => field.value,
-			set: v => {
-				field.value = v
-				loop.update({ options, fields })
-			}
+	// handle multiple fields
+	if (Array.isArray(field)) {
+		field.forEach((field, i) => {
+			this.add(field)
 		})
 
 		return state
 	}
 
-	// get control descriptor
-	function getField (id) {
+	if (!isObj(field)) throw Error('argument should be field descriptor')
 
+	// normalize field properties
+	field = pick(field, {
+		id: 'id key name',
+		order: 'order position',
+		value: 'value option val choice default',
+		type: 'type component',
+		label: 'label caption',
+		title: 'title tooltip tip',
+		hidden: 'hidden invisible',
+		disabled: 'disable disabled inactive',
+		min: 'min',
+		max: 'max',
+		step: 'step',
+		multi: 'multi multiple',
+		options: 'options values choices',
+		placeholder: 'placeholder',
+		width: 'width',
+		change: 'input change onchange onclick click interact interaction act tap'
+	}, true)
+
+	// detect type from value or other params
+	if (field.type == null) field.type = detectType(field)
+
+	// get id from label or name based on type
+	if (field.id == null) {
+		if (counts[field.type] == null) counts[field.type] = 0
+		field.id = defined(field.label, `${field.type}-${counts[field.type]++}`)
+	}
+	field.id = dashcase(field.id, '-')
+
+	if (field.label == null) {
+		field.label = defined(field.title, capcase(field.id))
 	}
 
-	// update control descriptor
-	function setField (id, field) {
-		if (!isObj(field)) return set(field, v)
+	if (field.title == null) {
+		field.title = field.label
+	}
 
-		for (let key in field) {
-			set(key, field[key])
+	if (field.width != null) {
+		if (typeof field.width === 'number') field.width = field.width + 'px'
+		else if (typeof field.width === 'string') {
+			if (field.width !== 'auto') {
+				let [num, denom] = parseFract(field.width)
+				field.width = num / denom * 100 + '%'
+			}
 		}
-
-		throw 'Unimplemented'
-
-		return state
 	}
 
-	// delete control
-	function deleteField (key) {
-		// TODO: destruct component here
-
-		delete state.key
-
-		throw 'Unimplemented'
-
-		return state
+	// bind generic change listener
+	let srcChange = field.change
+	field.change = function (value) {
+		state[field.id] = value
+		if (srcChange) srcChange(value)
+		if (ready && options.change) options.change(state)
 	}
+
+	// save field
+	fields[field.id] = field
+
+	// create property accessors
+	Object.defineProperty(state, field.id, {
+		get: () => field.value,
+		set: v => {
+			field.value = v
+			loop.update({ options, fields })
+		}
+	})
+
+	return state
+}
+
+// get control descriptor
+Panel.prototype.get = function (id) {
+
+}
+
+// update control descriptor
+Panel.prototype.set = function (id, field) {
+	if (!isObj(field)) return set(field, v)
+
+	for (let key in field) {
+		set(key, field[key])
+	}
+
+	throw 'Unimplemented'
+
+	return state
+}
+
+// delete control
+Panel.prototype.delete = function (key) {
+	// TODO: destruct component here
+
+	delete state.key
+
+	throw 'Unimplemented'
 
 	return state
 }

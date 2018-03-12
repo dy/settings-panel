@@ -1,22 +1,7 @@
 'use strict'
 
-const h = require('virtual-dom/h')
-
-// field constructors
-module.exports = Panel
-
-// panel vdom component
-function Panel({id, position, title}, fields) {
-	return (
-	<form className={`sp sp-${id} sp--${position}`} key={id}>
-		{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
-		{ fields }
-	</form>
-	)
-}
-
 // exports
-Panel.components = {
+module.exports = {
 	text: require('./text'),
 	textarea: require('./textarea'),
 	button: require('./button'),
