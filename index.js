@@ -22,9 +22,11 @@ const insertCss = require('insert-styles')
 const fs = require('fs')
 insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'))
 const components = require('./component')
+const Emitter = require('nanobus')
+const inherits = require('inherits')
 
 
-module.exports = createPanel
+module.exports = Panel
 
 
 // main panel constructor
@@ -33,52 +35,50 @@ function Panel(values, options) {
 
 	if (!options) options = {}
 
-	options = pick(options, {
+	Emitter.apply(this)
+
+	extend(this, pick(options, {
 		fields: 'fields field descriptors descriptor dict properties',
 		title: 'title heading header',
 		components: 'types components',
 		position: 'position pos',
 		container: 'holder container element',
-		theme: 'theme style',
 		background: 'bg background',
 		palette: 'color colors palette',
 		className: 'class classname className',
 		change: 'onchange change onChange',
 		id: 'id'
-	})
+	}))
 
 	// list of field descriptors
-	this.fields = {}
+	let fields = this.fields = {}
+
+	// state with actual field values only
+	this.values = {}
 
 	// current instance id
-	let id = defined(options.id, uid())
+	if (!defined(this.id)) this.id = uid()
 
 	// field type counters (just naming purpose)
-	let counts = {}
+	this.counts = {}
 
 	// init flag to avoid callbacks
-	let ready = false
+	this.ready = false
 
-	if (!options.position) options.position = 'top-left'
+	if (!defined(this.position)) this.position = 'top-left'
 
-	// create fields
-	initFields(values, options)
-
-	// add fields to panel
-	this.add(options.fields)
-
-	ready = true
+	// align options.fields with values
+	this.resolveFields(values)
 
 
 	// handle container
-	let container
-	if (typeof options.container === 'string') container = document.querySelector(container)
-	else container = defined(options.container, document.body, document.documentElement)
-	container.classList.add('sp-container')
+	if (typeof this.container === 'string') this.container = document.querySelector(this.container)
+	else this.container = defined(this.container, document.body, document.documentElement)
+	this.container.classList.add('sp-container')
 
 
 	// render routine
-	let loop = mainLoop({options, fields}, ({options, fields}) => {
+	this.loop = mainLoop(this, ({ fields, id, position, title }) => {
 		const fieldItems = Object.keys(fields)
 			.map(id => fields[id])
 			.sort((a, b) => a.order - b.order)
@@ -97,52 +97,67 @@ function Panel(values, options) {
 	}, { create, diff, patch })
 
 
-	container.appendChild(loop.target)
+	this.container.appendChild(this.loop.target)
+
+	// attach update on change
+	this.on('change', () => {
+		this.loop.update(this)
+	})
+
+	// add fields to panel
+	this.update(this.fields)
+
+	this.ready = true
 }
 
 
-// add new control
-Panel.prototype.add = function (field) {
+inherits(Panel, Emitter)
+
+
+// update controls
+Panel.prototype.update = function (field) {
+	let {fields, loop} = this
+
 	if (arguments.length > 1) field = [].slice.apply(arguments)
 
 	// handle multiple fields
 	if (Array.isArray(field)) {
 		field.forEach((field, i) => {
-			this.add(field)
+			this.update(field)
 		})
 
-		return state
+		return this
 	}
 
 	if (!isObj(field)) throw Error('argument should be field descriptor')
 
 	// normalize field properties
 	field = pick(field, {
-		id: 'id key name',
-		order: 'order position',
+		id: 'id key name index',
+		order: 'order weight',
 		value: 'value option val choice default',
-		type: 'type component',
+		type: 'type component kind',
 		label: 'label caption',
 		title: 'title tooltip tip',
-		hidden: 'hidden invisible',
+		hidden: 'hidden invisible mute',
 		disabled: 'disable disabled inactive',
-		min: 'min',
-		max: 'max',
+		min: 'min minValue',
+		max: 'max maxValue',
 		step: 'step',
-		multi: 'multi multiple',
+		multi: 'multi multiple multivalue',
 		options: 'options values choices',
 		placeholder: 'placeholder',
-		width: 'width',
-		change: 'input change onchange onclick click interact interaction act tap'
+		width: 'width size',
+		change: 'input change onchange onChange onclick onClick click interact interaction act tap'
 	}, true)
 
 	// detect type from value or other params
-	if (field.type == null) field.type = detectType(field)
+	if (field.type == null) field.type = Panel.detectType(field)
 
 	// get id from label or name based on type
 	if (field.id == null) {
-		if (counts[field.type] == null) counts[field.type] = 0
-		field.id = defined(field.label, `${field.type}-${counts[field.type]++}`)
+		if (this.counts[field.type] == null) this.counts[field.type] = 0
+		field.id = defined(field.label, `${field.type}-${this.counts[field.type]++}`)
 	}
 	field.id = dashcase(field.id, '-')
 
@@ -164,85 +179,56 @@ Panel.prototype.add = function (field) {
 		}
 	}
 
-	// bind generic change listener
-	let srcChange = field.change
-	field.change = function (value) {
-		state[field.id] = value
-		if (srcChange) srcChange(value)
-		if (ready && options.change) options.change(state)
-	}
-
-	// save field
-	fields[field.id] = field
-
 	// create property accessors
-	Object.defineProperty(state, field.id, {
-		get: () => field.value,
-		set: v => {
-			field.value = v
-			loop.update({ options, fields })
-		}
-	})
+	if (!(field.id in fields)) {
+		fields[field.id] = field
 
-	return state
-}
+		Object.defineProperty(this.values, field.id, {
+			enumerable: true,
+			get: () => field.value,
+			set: v => {
+				let old = field.value
+				field.value = v
 
-// get control descriptor
-Panel.prototype.get = function (id) {
-
-}
-
-// update control descriptor
-Panel.prototype.set = function (id, field) {
-	if (!isObj(field)) return set(field, v)
-
-	for (let key in field) {
-		set(key, field[key])
+				if (this.ready) {
+					if (field.change) field.change(value)
+					this.emit('change', field.key, v, old)
+				}
+			}
+		})
 	}
 
-	throw 'Unimplemented'
+	if ('value' in field) {
+		this.values[field.id] = field.value
+	}
 
-	return state
+	return this
 }
 
-// delete control
-Panel.prototype.delete = function (key) {
-	// TODO: destruct component here
 
-	delete state.key
-
-	throw 'Unimplemented'
-
-	return state
-}
-
-// initFields fields from options
-function initFields (values, options) {
-	if (!options.fields) {
-		options.fields = []
+// make sure options include fields from values
+Panel.prototype.resolveFields = function (values) {
+	// create fields from values, if undefined
+	if (!this.fields) {
+		this.fields = []
 		for (let id in values) {
-			options.fields.push(getValueField(id))
+			this.fields.push(getValueField(id, values))
 		}
 	}
-	else if (isObj(options.fields)) {
-		let ids = Object.keys(options.fields)
+	// convert dict of fields to array with ordered fields
+	else if (isObj(this.fields)) {
+		let ids = Object.keys(this.fields)
 		let arr = []
 		let max = 0
 
+		// make sure this.fields includes all values
 		for (let id in values) {
-			let valueField = getValueField(id)
-
-			if (options.fields[id] != null) {
-				let field = options.fields[id]
-				options.fields[id] = extend(field, valueField)
-			}
-			else {
-				options.fields[valueField.id] = valueField
-			}
+			this.fields[id] = extend({}, this.fields[id], getValueField(id, values))
 		}
 
-		for (let id in options.fields) {
-			let field = options.fields[id]
+		// form an array of fields
+		for (let id in this.fields) {
+			let field = this.fields[id]
 
 			let order = field.order
 			if (order == null) {
@@ -253,36 +239,45 @@ function initFields (values, options) {
 				max = order + 1
 			}
 
-			if (field.id === undefined) field.id = id
+			if (!defined(field.id)) field.id = id
 
 			arr[order] = field
 		}
 
-		options.fields = arr.filter(Boolean)
+		this.fields = arr.filter(Boolean)
 	}
-	else if (Array.isArray(options.fields)) {
+
+	// make sure fields in array contain all ids and cover values
+	else if (Array.isArray(this.fields)) {
 		let ids = {}
-		options.fields.forEach((field, i) => ids[field.id] = i)
+		this.fields.forEach((field, i) => ids[field.id] = i)
 
 		for (let id in values) {
-			if (ids[id] !== null) {
-				let field = options.fields[ids[id]]
-				options.fields[ids[id]] = extend(getValueField(id), field)
+			let valueField = getValueField(id, values)
+
+			// extend defined field with value
+			if (defined(ids[id])) {
+				extend(this.fields[ids[id]], valueField)
 			}
+
+			// put absent fields to the end of array
 			else {
-				options.fields.push(getValueField(id))
+				this.fields.push(valueField)
 			}
 		}
 	}
-	function getValueField(id) {
+
+	// return field with {id, value}
+	function getValueField(id, values) {
 		let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
 		if (!valueField.id) valueField.id = id
 		return valueField
 	}
 }
 
+
 // detect type of field (helper)
-function detectType(field) {
+Panel.detectType = function (field) {
 	// options define switch or select, based on number of choices
 	if (field.options) {
 		// FIXME: options may include few very lengthy elements

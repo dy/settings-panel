@@ -25,8 +25,8 @@ let settings = createSettings({
 
 // update values
 settings.values.number = 100
-settings.values.interval = [10, 90]
-settings.values.toggle = ['B', 'C']
+settings.values.interval = [ 10, 90 ]
+settings.values.toggle = [ 'B', 'C' ]
 
 // read values
 settings.values.number // 100
@@ -118,13 +118,6 @@ Option | Default | Meaning
 
 Rest of the options are passed to `theme`.
 
-### themes
-
-To enable specific panel theme, use `settings = require('settings-panel/<theme>')`, where `<theme>` can be one of:
-
-* `flat`
-* `bw`
-* `typer`
 
 ---
 
@@ -218,6 +211,15 @@ let settings = createSettings({
 <!-- `mic` | -->
 
 
+### Themes
+
+To enable specific panel theme, use `settings = require('settings-panel/<theme>')`, where `<theme>` can be one of:
+
+* `flat`
+* `bw`
+* `typer`
+
+You can write your own theme by looking at the example of one of the themes.
 
 
 ## Related
