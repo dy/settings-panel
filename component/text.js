@@ -24,7 +24,6 @@ module.exports = (field) => {
 	)
 
 	function update (e) {
-		field.value = e.target.value
-		field.change && field.change(e.target.value)
+		field.update(e.target.value)
 	}
 }

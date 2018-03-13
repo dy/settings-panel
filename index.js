@@ -37,18 +37,19 @@ function Panel(values, options) {
 
 	Emitter.apply(this)
 
-	extend(this, pick(options, {
+	options = pick(options, {
 		fields: 'fields field descriptors descriptor dict properties',
 		title: 'title heading header',
-		components: 'types components',
 		position: 'position pos',
 		container: 'holder container element',
-		background: 'bg background',
-		palette: 'color colors palette',
-		className: 'class classname className',
 		change: 'onchange change onChange',
 		id: 'id'
-	}))
+	}, true)
+
+	// align options.fields with values
+	this.resolveFields(values, options)
+
+	this.title = defined(options.title)
 
 	// list of field descriptors
 	let fields = this.fields = {}
@@ -57,7 +58,7 @@ function Panel(values, options) {
 	this.values = {}
 
 	// current instance id
-	if (!defined(this.id)) this.id = uid()
+	this.id = defined(options.id, uid())
 
 	// field type counters (just naming purpose)
 	this.counts = {}
@@ -65,15 +66,11 @@ function Panel(values, options) {
 	// init flag to avoid callbacks
 	this.ready = false
 
-	if (!defined(this.position)) this.position = 'top-left'
-
-	// align options.fields with values
-	this.resolveFields(values)
-
+	this.position = defined(options.position, 'top-left')
 
 	// handle container
-	if (typeof this.container === 'string') this.container = document.querySelector(this.container)
-	else this.container = defined(this.container, document.body, document.documentElement)
+	if (typeof options.container === 'string') this.container = document.querySelector(options.container)
+	else this.container = defined(options.container, document.body, document.documentElement)
 	this.container.classList.add('sp-container')
 
 
@@ -101,13 +98,15 @@ function Panel(values, options) {
 
 	// attach update on change
 	this.on('change', () => {
+		if (options.change) options.change(this.values)
 		this.loop.update(this)
 	})
 
 	// add fields to panel
-	this.update(this.fields)
+	this.update(options.fields)
 
 	this.ready = true
+	this.loop.update(this)
 }
 
 
@@ -151,6 +150,9 @@ Panel.prototype.update = function (field) {
 		change: 'input change onchange onChange onclick onClick click interact interaction act tap'
 	}, true)
 
+	// fetch existing field
+	field = extend(fields[field.id] || {}, field)
+
 	// detect type from value or other params
 	if (field.type == null) field.type = Panel.detectType(field)
 
@@ -183,18 +185,20 @@ Panel.prototype.update = function (field) {
 	if (!(field.id in fields)) {
 		fields[field.id] = field
 
+		field.update = v => {
+			let old = field.value
+			field.value = v
+			if (this.ready) {
+				if (field.change) field.change(v, old)
+				this.emit('change', field.key, v, old)
+			}
+		}
+
 		Object.defineProperty(this.values, field.id, {
 			enumerable: true,
+			configurable: true,
 			get: () => field.value,
-			set: v => {
-				let old = field.value
-				field.value = v
-
-				if (this.ready) {
-					if (field.change) field.change(value)
-					this.emit('change', field.key, v, old)
-				}
-			}
+			set: v => field.update(v)
 		})
 	}
 
@@ -207,28 +211,28 @@ Panel.prototype.update = function (field) {
 
 
 // make sure options include fields from values
-Panel.prototype.resolveFields = function (values) {
+Panel.prototype.resolveFields = function (values, options) {
 	// create fields from values, if undefined
-	if (!this.fields) {
-		this.fields = []
+	if (!options.fields) {
+		options.fields = []
 		for (let id in values) {
-			this.fields.push(getValueField(id, values))
+			options.fields.push(getValueField(id, values))
 		}
 	}
 	// convert dict of fields to array with ordered fields
-	else if (isObj(this.fields)) {
-		let ids = Object.keys(this.fields)
+	else if (isObj(options.fields)) {
+		let ids = Object.keys(options.fields)
 		let arr = []
 		let max = 0
 
-		// make sure this.fields includes all values
+		// make sure options.fields includes all values
 		for (let id in values) {
-			this.fields[id] = extend({}, this.fields[id], getValueField(id, values))
+			options.fields[id] = extend({}, options.fields[id], getValueField(id, values))
 		}
 
 		// form an array of fields
-		for (let id in this.fields) {
-			let field = this.fields[id]
+		for (let id in options.fields) {
+			let field = options.fields[id]
 
 			let order = field.order
 			if (order == null) {
@@ -244,25 +248,25 @@ Panel.prototype.resolveFields = function (values) {
 			arr[order] = field
 		}
 
-		this.fields = arr.filter(Boolean)
+		options.fields = arr.filter(Boolean)
 	}
 
 	// make sure fields in array contain all ids and cover values
-	else if (Array.isArray(this.fields)) {
+	else if (Array.isArray(options.fields)) {
 		let ids = {}
-		this.fields.forEach((field, i) => ids[field.id] = i)
+		options.fields.forEach((field, i) => ids[field.id] = i)
 
 		for (let id in values) {
 			let valueField = getValueField(id, values)
 
 			// extend defined field with value
 			if (defined(ids[id])) {
-				extend(this.fields[ids[id]], valueField)
+				extend(options.fields[ids[id]], valueField)
 			}
 
 			// put absent fields to the end of array
 			else {
-				this.fields.push(valueField)
+				options.fields.push(valueField)
 			}
 		}
 	}
