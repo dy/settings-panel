@@ -2,7 +2,7 @@
 
 Simple settings panel for your app, demo or tests.
 
-[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dy.github.io/settings-panel/)
+[![settings-panel](https://raw.githubusercontent.com/dy/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dy.github.io/settings-panel/)
 
 In the preview there is a _typer_ theme, for other themes or customizations see [demo](http://dy.github.io/settings-panel/).
 
