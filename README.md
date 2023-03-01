@@ -2,9 +2,9 @@
 
 Simple settings panel for your app, demo or tests.
 
-[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
+[![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dy.github.io/settings-panel/)
 
-In the preview there is a _typer_ theme, for other themes or customizations see [demo](http://dfcreative.github.io/settings-panel/).
+In the preview there is a _typer_ theme, for other themes or customizations see [demo](http://dy.github.io/settings-panel/).
 
 ## Usage
 
@@ -139,9 +139,9 @@ Rerender panel with new options. Options may include values for the theme, like 
 
 ## Spotted in the wild
 
-> [plot-grid](https://dfcreative.github.io/plot-grid)<br/>
-> [app-audio](https://dfcreative.github.io/app-audio)<br/>
-> [gl-waveform](https://audio-lab.github.io/gl-waveform)<br/>
+> [plot-grid](https://dy.github.io/plot-grid)<br/>
+> [app-audio](https://dy.github.io/app-audio)<br/>
+> [gl-waveform](https://dy.github.io/gl-waveform)<br/>
 
 ## See also
 
