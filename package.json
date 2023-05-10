@@ -59,7 +59,7 @@
     "is-mobile": "^0.2.2",
     "is-numeric": "0.0.5",
     "is-plain-obj": "^1.1.0",
-    "just-extend": "^1.1.18",
+    "just-extend": "^4.0.2",
     "mumath": "^2.3.0",
     "param-case": "^1.1.2",
     "scope-css": "^1.0.0",
