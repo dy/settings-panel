@@ -1,99 +1,174 @@
 # settings-panel [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges)
 
-Easy settings for an app, demo or tests.
+Easy settings for an app, prototype, demo or tests.
 
 <!-- TODO: really simple tiny cute image here -->
 [![settings-panel](https://raw.githubusercontent.com/dfcreative/settings-panel/gh-pages/images/preview.png "settings-panel")](http://dfcreative.github.io/settings-panel/)
 
 _typer_ theme, for other themes see [demo](http://dfcreative.github.io/settings-panel/).
 
+
 ## Usage
 
-[![npm install settings-panel](https://nodei.co/npm/settings-panel.png?mini=true)](https://npmjs.org/package/settings-panel/)
+Pass initial values to `settings` function, it will display panel with controls and return live state:
 
 ```js
-let createSettings = require('settings-panel')
+import settings from 'settings-panel'
 
-let settings = createSettings({
-  checkbox: false,
-  text: 'Hello world',
-  color: '#aabbcc',
-  toggle: { values: ['A', 'B', 'C'], value: ['B'], multi: true },
-  number: {value: 97, min: 0, max: 100 },
-  interval: {value: [0, 100], min: -100, max: 100 },
+let state = settings({
+  // primitive (auto-inferred control)
+  enabled: false, // checkbox
+  count: 123, // spinner
+  name: 'Hello world', // text
+  bg: '#aabbcc', // color picker
+  position: [0, 0], // XY pad
+  mode: { value: 'a', options: ['b', 'c'] }, // select
+  reset: () => console.log('Reset'), // button
+}, {
+  ...options
 })
 
-// update values
-settings.values.number = 100
-settings.values.interval = [ 10, 90 ]
-settings.values.toggle = [ 'B', 'C' ]
+// read
+state.enabled // false
+state.mode // 'a'
 
-// read values
-settings.values.number // 100
-settings.values.toggle // ['B', 'C']
-
-// add listener
-settings.on('change', (key, value) => {
-  updateApp(settings.values)
-})
+// update
+state.count++
+state.position = [ 1, -1 ]
 ```
 
-### `settings = createSettings(fields, options?)`
+Values can be either _primitives_, _descriptors_ or _controls_.
 
-Create panel from set of fields and adjust look by `options`.
+### Primitives
 
-#### `fields`
+Control for a primitive is auto-inferred from value:
 
 ```js
-// can be an object with values
-settings = createSettings({
-  value: 1,
-  center: [2, 3],
-  inversed: true,
-  ...
-})
+false             // checkbox
 
-// an array with fields
-settings = createSettings([
-  { id, value, type, order, label, ...params},
-  { id, value, type, order, label, ...params},
-  ...fields
-])
+42                // number
+0.5               // slider (if range 0-1)
 
-// or dict with fields
-settings = createSettings({
-  fieldA: { id, value, type, order, label, ...params},
-  fieldB: { id, value, type, order, label, ...params},
-  ...fields
-})
+"text"            // text
+"long text\n..."  // textarea
+"#ff0000"       // color picker
+"rgb(...)"        // color picker
+"2024-03-15"      // date picker
+"14:30"           // time picker
+"https://..."     // url
+"user@mail.com"   // email
+"100px"           // length
+"45deg"           // angle
+"2s"              // duration
+"const x = 1"     // code editor
+'{"a":1}'         // json editor
+
+[1, 2]            // xy pad
+[1, 2, 3]         // vec3
+[x, y, z, w]      // vec4
+[[1,2],[3,4]]     // matrix
+['a', 'b', 'c']   // tag input
+
+{value, min, max} // range
+{value, options}  // select
+{...nested}       // group
+
+() => {}          // button
+
+File object       // file input
+
+new Date()        // dateTime Picker
+
+null/undefined    // optional/empty state
 ```
 
-Field descriptor may define:
+### Descriptor
+
+Descriptor object:
 
 Property | Default | Meaning
 ---|---|---
-`id` | dashcased `label` | Property key.
 `value` | `null` | Property value.
-`type` | detected from `value` | Property control type, one of the table below or any `<input>` type.
-`order` | incremental | Position of the control in panel.
-`label` | camelcased `id` | Label for the control. `false` disables label.
+`label` | `id` | Label for the control.
 `title` | `label` | Tooltip text.
 `hidden` | `false` | Hides control from panel.
 `disabled` | `false` | Disables control interactivity.
-`width` | `'100%'` | [A ratio](https://npmjs.org/package/parse-fraction) (`'half'`, `'third'`), css width string or a number of pixels.
-`change` | `() => {}` | Invoked when field value changes. If throws an error, the field validation tooltip is shown.
+`copy` | `false` | Display copy button
 
-<!--
-Field type specific properties:
+Control-specific properties:
 
 Property | Default | Meaning
+---|---|---
 `min`, `max` | `0..100` | Numeric controls range.
 `step`, `steps` | `1` | Numeric control step or stops.
-`multi` | detected from `value` | Makes range an interval and select a multiselect.
-`format` | `'hex'` | Defines color field format
-`options` | `[]` | Choice control options, either an array `['Label1', 'Label2', ...]` or an object `{Label1: value1, Label2: value2}`.
+`multi` | detected from `value` | Multiselect.
+`format` | `'hex'` | Defines color format
+`options` | `[]` | Choice options, either an array `['value1', 'value2', ...]` or an object `{label1: value1, label2: value2}`.
 `placeholder` | `null` | Textual controls placeholder.
--->
+
+### Controls
+
+Specific controls define how value is being presented. Same primitive can have different control.
+
+#### `text`
+#### `textarea`
+#### `password`
+#### `pin`
+#### `slider`
+#### `range`
+#### `number`
+#### `color`
+#### `swatches`
+#### `gradient`
+#### `font`
+#### `checkbox`
+#### `toggle`
+#### `switch`
+#### `select`
+#### `radio`
+#### `date`
+#### `time`
+#### `interval`
+#### `vec2`
+#### `vec3`
+#### `vec4`
+#### `graph`
+#### `folder`
+#### `button`
+#### `button group`
+#### `sampler`
+#### `tab`
+#### `separator`
+#### `file`
+#### `bitmap`
+  + drag-drop
+#### `brush`
+#### `image`
+#### `audio`
+#### `media`
+#### `fps`
+#### `wave`
+#### `spectrum`
+#### `curve`
+https://leva.pmnd.rs/?path=/story/plugins-bezier--default-bezier
+#### `wheel`
+#### `knob`
+#### `joystick`
+#### `pad`
+#### `plot`
+#### `matrix`
+#### `histogram`
+#### `eq`
+#### `spring`
+#### `path`
+#### `info`
+#### `piano`
+#### `playback`
+#### `list`
+#### `key-value`
+#### `code` (json/etc)
+#### `shader`
+
 
 ---
 
@@ -102,16 +177,25 @@ Property | Default | Meaning
 Adjusts look of the panel:
 
 ```js
-createSettings(fields, {
-  position: 'left',
-  colors: ['black', 'white']
+settings(fields, {
+  container: document.body,
+  collapsed: false,
+  fill: true, // take all horizontal space
+  drag: true,
+  title: ''//
+  filter: true,
+  position: 'top-right', // t, tr, r, br, b, bl, l, tl
+  colors: ['black', 'white'],
+  persist: true,
+  theme: 'default',
+  onchange: () => {...}
 })
 ```
 
 Option | Default | Meaning
 ---|---|---
 `container` | `document.body` | The container element or selector.
-`position` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or array with top-left corner coordinates `[x, y]`.
+`align` | `'top-right'` | One of `top-left`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `center` or array with top-left corner coordinates `[x, y]`.
 `colors` | `['black', 'white']` | Theme palette.
 `background` | theme default | Panel background color.
 `className` | `settings-panel` | Class name to add to list of classes.
@@ -121,7 +205,7 @@ Rest of the options are passed to `theme`.
 
 ---
 
-### `settings.on('change', (key, value, old) => {})`
+### `effect(() => {})`
 
 Fired every time any value changes:
 
@@ -129,8 +213,6 @@ Fired every time any value changes:
 let settings = createSettings({
   cancel: {label: 'Cancel', type: 'button', input: e => alert('cancel')},
   ok: {label: 'Ok', type: 'button', input: e => alert('ok')}
-}, e => {
-  console.log(e)
 })
 
 // read values
@@ -146,37 +228,21 @@ myComponent.update(settings)
 options.c = false // GUI is updated here
 ```
 
-### settings.get(id)
-
-Get field descriptor.
-
-### settings.set(id, descriptor)
-
-Update field descriptor by id.
-
-### settings.add(field)
-
-Add field based on descriptor.
-
-### settings.delete(id)
-
-Remove field by `id`.
-
 
 ## Controls
 
 ```js
 let settings = createSettings({
-  switch: { order: 0, label: 'Switch', type: 'switch', value: 'One', options: ['One', 'Two', 'Three']},
-  range: { order: 0, label: 'Range', value: 97},
-  interval: { order: 1, label: 'Interval', type: 'range', multiple: true, value: [33, 77]},
-  checkbox: { order: 2, label: 'Checkbox group', type: 'checkbox', value: ['b', 'c'],
+  switch: { label: 'Switch', type: 'switch', value: 'One', options: ['One', 'Two', 'Three']},
+  range: { label: 'Range', value: 97},
+  interval: { label: 'Interval', type: 'range', multiple: true, value: [33, 77]},
+  checkbox: { label: 'Checkbox group', type: 'checkbox', value: ['b', 'c'],
     options: {a: 'Option A', b: 'Option B', c: 'Option C'}
   },
-  text: { order: 3, label: 'Text', value: 'my setting'},
-  color: { order: 4, label: 'Color', value: 'rgb(100, 200, 100)'},
-  select: { order: 5, label: 'Select', value: 'State One', options: ['State One', 'State Two', 'State Three']},
-  textarea: { order: 6, label: 'Textarea', type: 'textarea', placeholder: 'long text...'},
+  text: { label: 'Text', value: 'my setting'},
+  color: { label: 'Color', value: 'rgb(100, 200, 100)'},
+  select: { label: 'Select', value: 'State One', options: ['State One', 'State Two', 'State Three']},
+  textarea: { label: 'Textarea', type: 'textarea', placeholder: 'long text...'},
   cancel: {label: 'Cancel', type: 'button', input: e => alert('cancel')},
   ok: {label: 'Ok', type: 'button', input: e => alert('ok')}
 })
@@ -213,25 +279,24 @@ let settings = createSettings({
 
 ### Themes
 
-To enable specific panel theme, use `settings = require('settings-panel/<theme>')`, where `<theme>` can be one of:
-
-* `flat`
-* `bw`
-* `typer`
-
+To enable specific panel theme, use `import theme from 'settings-panel/theme/<theme>')`.
 You can write your own theme by looking at the example of one of the themes.
 
 
-## Related
+## Alternatives
 
-* [control-panel](https://github.com/freeman-lab/control-panel) — original forked settings panel.
-* [oui](https://github.com/wearekuva/oui) — sci-ish panel.
-* [dat.gui](https://github.com/dataarts/dat.gui) — other oldschool settings panel.
-* [quicksettings](https://github.com/bit101/quicksettings) — an alternative versatile settings panel.
-* [dis-gui](https://github.com/wwwtyro/dis-gui) — remake on dat.gui.
-* [virtual-form](https://github.com/yoshuawuyts/virtual-form) − virtual dom form creator.
+* [tweakpane](https://github.com/cocopon/tweakpane)
+* [leva](https://github.com/pmndrs/leva)
+* [uil](https://github.com/lo-th/uil)
+* [control-kit](https://github.com/automat/controlkit.js/)
+* [lil-gui](https://github.com/georgealways/lil-gui)
+* [control-panel](https://github.com/freeman-lab/control-panel)
+* [oui](https://github.com/wearekuva/oui)
+* [dat.gui](https://github.com/dataarts/dat.gui)
+* [quicksettings](https://github.com/Iced-Tea/quicksettings)
+* [dis-gui](https://github.com/wwwtyro/dis-gui)
+* [virtual-form](https://github.com/yoshuawuyts/virtual-form)
 
 ## License
 
-© 2017 Dmitry Yv. MIT License
-
+© 2025 Dmitry Iv. MIT License

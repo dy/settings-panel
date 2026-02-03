@@ -1,82 +1,46 @@
 {
   "name": "settings-panel",
-  "version": "1.8.17",
-  "description": "Properties controls UI",
+  "version": "2.0.0",
+  "description": "Controls designed for purpose that feel right",
+  "type": "module",
   "main": "index.js",
+  "module": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./control/*": "./control/*",
+    "./theme/*": "./theme/*"
+  },
   "scripts": {
-    "build": "browserify test.js -g bubleify -o demo/index.js",
-    "test:browser": "budo test.js -- -g bubleify"
+    "dev": "npx serve .",
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dfcreative/settings-panel.git"
   },
   "keywords": [
-    "slider",
-    "ui",
-    "obj",
-    "obj-ui",
-    "object-ui",
+    "settings",
+    "panel",
     "controls",
-    "input",
-    "range",
+    "ui",
+    "slider",
     "checkbox",
-    "component",
     "color-picker",
-    "xypad",
-    "settings-panel",
-    "control-panel",
-    "options",
-    "form",
-    "dat.gui",
-    "oui",
-    "ouioui",
-    "datgui"
+    "dat-gui",
+    "tweakpane",
+    "gui",
+    "dat.gui"
   ],
   "author": "Dmitry Yv <df.creative@gmail.com>",
-  "contributors": [],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dfcreative/settings-panel/issues"
   },
-  "browserify": {
-    "transform": [
-      [
-        "jsx-transform/browserify",
-        {
-          "factory": "h"
-        }
-      ],
-      "brfs"
-    ]
-  },
   "homepage": "https://github.com/dfcreative/settings-panel#readme",
   "dependencies": {
-    "autosize": "^4.0.0",
-    "camelcase": "^4.1.0",
-    "decamelize": "^1.2.0",
-    "defined": "^1.0.0",
-    "dom-css": "^2.1.0",
-    "get-uid": "^1.0.1",
-    "inherits": "^2.0.3",
-    "input-number": "^1.1.0",
-    "insert-styles": "^1.2.1",
-    "is-color": "^0.2.0",
-    "is-mobile": "^0.2.2",
-    "is-plain-obj": "^1.1.0",
-    "jsx-transform": "^2.3.0",
-    "main-loop": "^3.4.0",
-    "nanobus": "^4.3.3",
-    "nanocomponent": "^6.5.0",
-    "object-assign": "^4.1.1",
-    "parse-fraction": "^1.1.0",
-    "pick-by-alias": "^1.1.2",
-    "scope-css": "^1.0.5",
-    "update-diff": "^1.1.0",
-    "virtual-dom": "^2.1.1"
+    "sprae": "^12.4.2"
   },
   "devDependencies": {
-    "enable-mobile": "^1.0.7",
-    "nice-color-palettes": "^2.0.0"
+    "@playwright/test": "^1.58.1"
   }
 }

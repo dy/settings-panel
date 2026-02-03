@@ -1,332 +1,157 @@
-/** @module  settings-panel */
-'use strict'
+/**
+ * settings-panel v2
+ * Controls designed for purpose that feel right.
+ */
 
-const isObj = require('is-plain-obj')
-const extend = require('object-assign')
-const dashcase = require('decamelize')
-const capcase = require('camelcase')
-const pick = require('pick-by-alias')
-const isColor = require('is-color')
-const uid = require('get-uid')
-const defined = require('defined')
-const updateDiff = require('update-diff')
-const parseFract = require('parse-fraction')
-const h = require('virtual-dom/h')
-const diff = require('virtual-dom/diff')
-const patch = require('virtual-dom/patch')
-const create = require('virtual-dom/create-element')
-const mainLoop = require('main-loop')
-const css = require('dom-css')
-const scopeCss = require('scope-css')
-const insertCss = require('insert-styles')
-const fs = require('fs')
-insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'))
-const components = require('./component')
-const Emitter = require('nanobus')
-const inherits = require('inherits')
+import { store } from 'sprae'
+import { infer } from './infer.js'
+import { injectStyles } from './theme/default.js'
+
+// Controls (auto-register)
+import './control/boolean.js'
+import './control/number.js'
+import './control/slider.js'
+import './control/select.js'
+import './control/color.js'
+import './control/folder.js'
+import './control/text.js'
+import './control/textarea.js'
+import './control/button.js'
+
+// Inject theme CSS
+injectStyles()
 
 
-module.exports = Panel
+/**
+ * Create settings panel
+ * @param {Object} schema - Field definitions
+ * @param {Object} [options] - Panel options
+ * @returns {Object} Reactive store with values
+ */
+export default function settings(schema, options = {}) {
+  const {
+    container = document.body,
+    theme = 'default',
+    collapsed = false,
+  } = options
 
+  // Extract values recursively
+  function extractValues(schema, prefix = '') {
+    const values = {}
+    for (const [key, def] of Object.entries(schema)) {
+      const field = infer(key, def)
+      if (field.type === 'folder' && field.children) {
+        Object.assign(values, extractValues(field.children, key + '.'))
+      } else {
+        values[prefix + key] = field.value
+      }
+    }
+    return values
+  }
 
-// main panel constructor
-function Panel(values, options) {
-	if (!(this instanceof Panel)) return new Panel(values, options)
+  // Normalize schema recursively
+  function normalizeSchema(schema) {
+    const normalized = {}
+    for (const [key, def] of Object.entries(schema)) {
+      normalized[key] = infer(key, def)
+    }
+    return normalized
+  }
 
-	if (!options) options = {}
+  const normalized = normalizeSchema(schema)
+  const values = extractValues(schema)
 
-	Emitter.apply(this)
+  // Create reactive store for values
+  const state = store(values)
 
-	options = pick(options, {
-		fields: 'fields field descriptors descriptor dict properties',
-		title: 'title heading header',
-		position: 'position pos',
-		container: 'holder container element',
-		change: 'onchange change onChange',
-		id: 'id'
-	}, true)
+  // Create panel element
+  const panel = document.createElement('settings-panel')
+  panel.setAttribute('theme', theme)
+  if (collapsed) panel.setAttribute('collapsed', '')
 
-	// align options.fields with values
-	this.resolveFields(values, options)
+  // Render controls
+  for (const [key, field] of Object.entries(normalized)) {
+    const control = createControl(key, field, state, '')
+    if (control) panel.appendChild(control)
+  }
 
-	this.title = defined(options.title)
+  container.appendChild(panel)
 
-	// list of field descriptors
-	let fields = this.fields = {}
-
-	// state with actual field values only
-	this.values = {}
-
-	// current instance id
-	this.id = defined(options.id, uid())
-
-	// field type counters (just naming purpose)
-	this.counts = {}
-
-	// init flag to avoid callbacks
-	this.ready = false
-
-	this.position = defined(options.position, 'top-left')
-
-	// handle container
-	if (typeof options.container === 'string') this.container = document.querySelector(options.container)
-	else this.container = defined(options.container, document.body, document.documentElement)
-	this.container.classList.add('sp-container')
-
-
-	// render routine
-	this.loop = mainLoop(this, ({ fields, id, position, title }) => {
-		const fieldItems = Object.keys(fields)
-			.map(id => fields[id])
-			.sort((a, b) => a.order - b.order)
-			.map(field => {
-				let {type, id, width} = field
-				let Component = components[field.type] || components.text
-				return <Component {...field}/>
-		})
-
-		return (
-			<form className={`sp sp-${id} sp--${position}`} key={id}>
-				{ title ? (<h2 className={`sp-title`}>{ title }</h2>) : null }
-				{ fieldItems }
-			</form>
-		)
-	}, { create, diff, patch })
-
-
-	this.container.appendChild(this.loop.target)
-
-	// attach update on change
-	this.on('change', () => {
-		if (options.change) options.change(this.values)
-		this.loop.update(this)
-	})
-
-	// add fields to panel
-	this.update(options.fields)
-
-	this.ready = true
-	this.loop.update(this)
+  // Return reactive state
+  return state
 }
 
+/**
+ * Create control element for field
+ */
+function createControl(key, field, state, prefix = '') {
+  const { type } = field
+  const fullKey = prefix + key
 
-inherits(Panel, Emitter)
+  // Folder is special - contains children
+  if (type === 'folder') {
+    const folder = document.createElement('s-folder')
+    folder.setAttribute('label', field.label || key)
+    if (field.collapsed) folder.setAttribute('collapsed', '')
 
+    // Wait for folder to initialize, then add children
+    requestAnimationFrame(() => {
+      const content = folder.content || folder.querySelector('.s-content')
+      if (!content) return
 
-// update controls
-Panel.prototype.update = function (field) {
-	let {fields, loop} = this
+      for (const [childKey, childDef] of Object.entries(field.children || {})) {
+        const childField = infer(childKey, childDef)
+        const childControl = createControl(childKey, childField, state, fullKey + '.')
+        if (childControl) content.appendChild(childControl)
+      }
+    })
+    return folder
+  }
 
-	if (arguments.length > 1) field = [].slice.apply(arguments)
+  // Map type to control element
+  const tagMap = {
+    boolean: 's-boolean',
+    number: 's-number',
+    slider: 's-slider',
+    select: 's-select',
+    color: 's-color',
+    text: 's-text',
+    textarea: 's-textarea',
+    button: 's-button',
+  }
 
-	// handle multiple fields
-	if (Array.isArray(field)) {
-		field.forEach((field, i) => {
-			this.update(field)
-		})
+  const tag = tagMap[type]
+  if (!tag) {
+    console.warn(`Unknown control type: ${type}`)
+    return null
+  }
 
-		return this
-	}
+  const el = document.createElement(tag)
+  el.setAttribute('key', fullKey)
+  el.setAttribute('label', field.label || key)
 
-	if (!isObj(field)) throw Error('argument should be field descriptor')
+  // Button has special handling for action
+  if (type === 'button' && field.action) {
+    el.onclick = field.action
+    if (field.text) el.setAttribute('text', field.text)
+  }
 
-	// normalize field properties
-	field = pick(field, {
-		id: 'id key name index',
-		order: 'order weight',
-		value: 'value option val choice default',
-		type: 'type component kind',
-		label: 'label caption',
-		title: 'title tooltip tip',
-		hidden: 'hidden invisible mute',
-		disabled: 'disable disabled inactive',
-		min: 'min minValue',
-		max: 'max maxValue',
-		step: 'step',
-		multi: 'multi multiple multivalue',
-		options: 'options values choices',
-		placeholder: 'placeholder',
-		width: 'width size',
-		change: 'input change onchange onChange onclick onClick click interact interaction act tap'
-	}, true)
+  // Pass field options as attributes
+  for (const [k, v] of Object.entries(field)) {
+    if (k === 'type' || k === 'value' || k === 'label' || k === 'action') continue
+    if (v === undefined || v === null) continue
+    if (typeof v === 'object') {
+      el.setAttribute(k, JSON.stringify(v))
+    } else {
+      el.setAttribute(k, v)
+    }
+  }
 
-	// fetch existing field
-	field = extend(fields[field.id] || {}, field)
+  // Bind to state
+  el.state = state
+  el.field = field
 
-	// detect type from value or other params
-	if (field.type == null) field.type = Panel.detectType(field)
-
-	// get id from label or name based on type
-	if (field.id == null) {
-		if (this.counts[field.type] == null) this.counts[field.type] = 0
-		field.id = defined(field.label, `${field.type}-${this.counts[field.type]++}`)
-	}
-	field.id = dashcase(field.id, '-')
-
-	if (field.label == null) {
-		field.label = defined(field.title, capcase(field.id))
-	}
-
-	if (field.title == null) {
-		field.title = field.label
-	}
-
-	if (field.width != null) {
-		if (typeof field.width === 'number') field.width = field.width + 'px'
-		else if (typeof field.width === 'string') {
-			if (field.width !== 'auto') {
-				let [num, denom] = parseFract(field.width)
-				field.width = num / denom * 100 + '%'
-			}
-		}
-	}
-
-	// create property accessors
-	if (!(field.id in fields)) {
-		fields[field.id] = field
-
-		field.update = v => {
-			let old = field.value
-			field.value = v
-			if (this.ready) {
-				if (field.change) field.change(v, old)
-				this.emit('change', field.key, v, old)
-			}
-		}
-
-		Object.defineProperty(this.values, field.id, {
-			enumerable: true,
-			configurable: true,
-			get: () => field.value,
-			set: v => field.update(v)
-		})
-	}
-
-	if ('value' in field) {
-		this.values[field.id] = field.value
-	}
-
-	return this
+  return el
 }
 
-
-// make sure options include fields from values
-Panel.prototype.resolveFields = function (values, options) {
-	// create fields from values, if undefined
-	if (!options.fields) {
-		options.fields = []
-		for (let id in values) {
-			options.fields.push(getValueField(id, values))
-		}
-	}
-	// convert dict of fields to array with ordered fields
-	else if (isObj(options.fields)) {
-		let ids = Object.keys(options.fields)
-		let arr = []
-		let max = 0
-
-		// make sure options.fields includes all values
-		for (let id in values) {
-			options.fields[id] = extend({}, options.fields[id], getValueField(id, values))
-		}
-
-		// form an array of fields
-		for (let id in options.fields) {
-			let field = options.fields[id]
-
-			let order = field.order
-			if (order == null) {
-				order = max
-				max++
-			}
-			else if (order > max) {
-				max = order + 1
-			}
-
-			if (!defined(field.id)) field.id = id
-
-			arr[order] = field
-		}
-
-		options.fields = arr.filter(Boolean)
-	}
-
-	// make sure fields in array contain all ids and cover values
-	else if (Array.isArray(options.fields)) {
-		let ids = {}
-		options.fields.forEach((field, i) => ids[field.id] = i)
-
-		for (let id in values) {
-			let valueField = getValueField(id, values)
-
-			// extend defined field with value
-			if (defined(ids[id])) {
-				extend(options.fields[ids[id]], valueField)
-			}
-
-			// put absent fields to the end of array
-			else {
-				options.fields.push(valueField)
-			}
-		}
-	}
-
-	// return field with {id, value}
-	function getValueField(id, values) {
-		let valueField = isObj(values[id]) ? values[id] : {id: id, value: values[id]}
-		if (!valueField.id) valueField.id = id
-		return valueField
-	}
-}
-
-
-// detect type of field (helper)
-Panel.detectType = function (field) {
-	// options define switch or select, based on number of choices
-	if (field.options) {
-		// FIXME: options may include few very lengthy elements
-		if (Array.isArray(field.options)) {
-			if ( field.options.length < 5 ) {
-				return 'switch'
-			}
-			else {
-				return 'select'
-			}
-		}
-		else if (isObj(field.options)) {
-			return Object.keys(field.options).length < 5 ? 'switch' : 'select'
-		}
-	}
-
-	// [0, 100] is likely range
-	// FIXME: that can be xy-pad
-	if (Array.isArray(field.value)) {
-		if (field.value.length === 2 && typeof field.value[0] === 'number') {
-			return 'interval'
-		}
-	}
-
-	// numeric params define range/number
-	if (field.max != null || field.step || typeof field.value === 'number') {
-		return 'range'
-	}
-
-	// color types
-	if (field.format || isColor(field.value)) {
-		return 'color'
-	}
-
-	if (typeof field.value === 'boolean') {
-		return 'checkbox'
-	}
-
-	// textareas ususally contain newlines or are quite lengthy
-	if (field.value && (field.value.length > 140 || /\n/.test(field.value))) {
-		return 'textarea'
-	}
-
-	// TODO: detect email, address, date, buffer/imagedata, colormap, list of colors, file, taglist,
-
-	// cast by default to text
-	return 'text'
-}
+export { settings, infer }
