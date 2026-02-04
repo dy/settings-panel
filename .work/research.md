@@ -1,16 +1,27 @@
-## [ ] Should we separate active color?
+## Vision
 
-	+ Makes sense for flat
-	+ Makes sense for typer
-	+ Unseful for control
-	* Bearable for dragon
-	* Possible to autodetect active color from palette, if undefined.
-	+ Expands palette to full range
-	+ Enables need in component enabler
-	* funny thing is that many schemes have active color in between edges, it is contrast to all of edge values.
-		* Also edge values seem good working for labels/title as it increase readability due to contrast, but active color highlights, it does not make things contrast.
-		* Also too often we don’t need brightness relationship between label/title/bg, because as far bg can be transparent, we can manage to do bw scale via opacity.
-		✔~ Therefore initial idea of picking active color from the middle may be good. As far as we avoid `active` option and put things back to single palette.
+* Parameter controls that are presentation-ready, not just functional.
+* Each combination of any theme params should look beautiful
+* Controls designed for purpose that _feel right_.
+	* Log slider that *is* logarithmic
+	* Palette picker that *understands* color
+	* XY pad with pointerlock precision
+	* Waveform display that *knows* audio
+	* Font picker that *knows* font
+
+## Principles
+
+	* Quality > quantity
+	* Each type crafted for its purpose
+	* Resist feature-count pressure
+	* No React lock-in, no plugin ecosystem complexity
+
+## Technical Direction
+
+	* Signals-based reactivity
+	* 0 dependencies
+	* Framework-agnostic (vanilla JS, sprae-compatible)
+	* Open, minimal API
 
 ## [ ] What are good theme principles?
 
@@ -42,20 +53,6 @@
 		+ allows for enabling inner panel
 	* 5. per-component theme update - let components decide their look based on theme
 		- firbids user component customization
-
-## [ ] Should title be a separate element, or not?
-
-	* + it allows for inserting multiple titles
-		- multiple titles wants be styles in custom way, ideally h2/h3
-	* - is is discrepancy with control-panel
-	* + it makes title in code visually easier to find
-	* - title is not really a field
-	* - subgroups are better done in subpanels
-
-## [ ] What is the optimal way to organize themes?
-
-* use themes/*.js with functions, returning dynamic css based off variables
-* use palette instead of picked colors to allow for dynamic switching without theme change.
 
 ## [ ] Comprehensive Component Analysis (from alternatives)
 
@@ -145,8 +142,6 @@
 	12. **Container**
 			- folder, tab → grouping
 
-	---
-
 	## Final Strategy: 12 Components
 
 	### 1. `number`
@@ -159,8 +154,6 @@
 	| `spinner` | Compact up/down arrows |
 
 	**Options**: `min`, `max`, `step`, `precision`, `unit` (px, %, deg), `format` (fn)
-
-	---
 
 	### 2. `slider`
 	Constrained numeric with visual track.
@@ -178,8 +171,6 @@
 
 	**Signature feature**: Log slider that *feels* logarithmic.
 
-	---
-
 	### 3. `text`
 	String/text value input.
 
@@ -194,8 +185,6 @@
 
 	**Options**: `placeholder`, `maxlength`, `rows`, `pattern`, `validate` (fn), `format` (language hint)
 
-	---
-
 	### 4. `boolean`
 	True/false toggle.
 
@@ -207,8 +196,6 @@
 	| `button` | Press-to-toggle button |
 
 	**Options**: `labels` (on/off text)
-
-	---
 
 	### 5. `select`
 	Choice from predefined options.
@@ -225,8 +212,6 @@
 
 	**Options**: `options` (array or {label: value}), `searchable`, `creatable` (allow new values)
 
-	---
-
 	### 6. `color`
 	Color value in various formats.
 
@@ -242,8 +227,6 @@
 
 	**Signature feature**: Palette picker that *understands* color.
 
-	---
-
 	### 7. `vector`
 	Multi-dimensional numeric values.
 
@@ -258,8 +241,6 @@
 
 	**Signature feature**: Pointerlock trackpad for precision.
 
-	---
-
 	### 8. `button`
 	Action triggers.
 
@@ -271,8 +252,6 @@
 	| `toggle` | Stateful press/release |
 
 	**Options**: `label`, `icon`, `disabled`, `confirm` (require double-click)
-
-	---
 
 	### 9. `file`
 	File/media input.
@@ -286,8 +265,6 @@
 	| `paste` | Paste from clipboard |
 
 	**Options**: `accept` (mime types), `multiple`, `maxSize`, `preview`
-
-	---
 
 	### 10. `graph`
 	Read-only visualization.
@@ -304,8 +281,6 @@
 
 	**Signature feature**: Waveform that *knows* audio.
 
-	---
-
 	### 11. `folder`
 	Grouping and organization.
 
@@ -317,8 +292,6 @@
 	| `row` | Inline horizontal group |
 
 	**Options**: `collapsed`, `label`, `icon`
-
-	---
 
 	### 12. `canvas`
 	Custom/special rendering.
@@ -333,7 +306,6 @@
 
 	**Options**: `render` (fn), `width`, `height`
 
-	---
 
 	## Extension Mechanism
 
@@ -357,8 +329,6 @@
 	- `spring` (physics params)
 	- `path` (SVG path editor)
 
-	---
-
 	## Coverage Matrix
 
 	| Use case | Component | Type |
@@ -377,39 +347,10 @@
 	| Action button | button | button |
 	| Settings group | folder | folder |
 
-	---
-
 	### Core Philosophy
 	> 12 components × N types = 99% coverage.
 	> Plugin mechanism for the exotic 1%.
 	> Each type crafted for its purpose.
-
-## [ ] Positioning
-> Controls designed for purpose that _feel right_.
-> 12 components × N types = complete coverage.
-> Plugin mechanism for exotic needs.
-
-## Signature Features (differentiation)
-
-	* Log slider that *is* logarithmic
-	* Palette picker that *understands* color
-	* XY pad with pointerlock precision
-	* Waveform display that *knows* audio
-	* Font picker that *knows* font
-
-## Technical Direction
-
-	* Signals-based reactivity
-	* 0 dependencies
-	* Framework-agnostic (vanilla JS, sprae-compatible)
-	* Open, minimal API
-
-## Principles
-
-	* Quality > quantity
-	* Each type crafted for its purpose
-	* Resist feature-count pressure
-	* No React lock-in, no plugin ecosystem complexity
 
 
 ## How to infer types from primitives?**

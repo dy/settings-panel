@@ -1,28 +1,9 @@
-# [ ] MVP
+* [ ] Sheet/spec for all controls with their kinds
+  - So we should have a sheet (page? what's that called - where all components with their types are present, like flat storybook) - and settings panel at demo.html should be able to preview
+* [ ] Appearance kind - top-right corner is just an option
 
-* [ ] API
-* [ ] control type auto-detection
+## [ ] MVP v1
 
-
-#### [ ] Foundation + Select + Boolean
-- [ ] Core architecture (signals, render loop)
-- [ ] `select` (dropdown, segmented)
-- [ ] `boolean` (toggle)
-- [ ] Basic theming (1 theme: minimal dark)
-
-#### [ ] Number + Slider + Color
-- [ ] `number` (input)
-- [ ] `slider` (linear only first)
-- [ ] `color` (swatch, swatches)
-- [ ] `folder` (basic collapse)
-
-#### [ ] Lighthigh Integration
-- [ ] Wire to lighthigh
-- [ ] Polish interactions
-- [ ] Ship alpha.1
-
-#### [ ] Slider.log + Graph
-- [ ] `slider` (log, range)
-- [ ] `graph` (waveform, line)
-- [ ] Wire to waveform project
-- [ ] Ship alpha.2
+* [ ] 4-5 core high-quality themes
+* [ ] ~12 core high-quality controls
+* [ ] demo with spec page and self-customization
