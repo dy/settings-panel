@@ -12,7 +12,9 @@
   },
   "scripts": {
     "dev": "npx serve .",
-    "test": "node test.js"
+    "test": "node test/infer.js && npx playwright test",
+    "test:unit": "node test/infer.js",
+    "test:e2e": "npx playwright test"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,7 @@
     "sprae": "^12.4.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.1"
+    "@playwright/test": "^1.58.1",
+    "tst": "^9.2.2"
   }
 }
