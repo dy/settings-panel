@@ -890,35 +890,7 @@ settings({
 
 ---
 
-## Component Relationships
-
-```
-number ──┬── slider (constrained, visual)
-         └── knob (constrained, rotary)
-
-text ────┬── textarea (multiline)
-         ├── code (syntax)
-         └── json (validated)
-
-select ──┬── radio (always visible)
-         ├── buttons (action-like)
-         └── segmented (ios-style)
-
-file ────┬── image (preview)
-         └── audio (waveform)
-
-graph ───┬── meter (level)
-         ├── waveform (audio)
-         └── spectrum (fft)
-
-curve ───┬── bezier (easing)
-         ├── envelope (adsr)
-         └── gradient (color)
-```
-
----
-
-## Control Signatures
+## Common control params
 
 Every control follows this pattern:
 
@@ -926,7 +898,6 @@ Every control follows this pattern:
 interface Control<T> {
   // Identity
   type: string
-  subtype?: string
 
   // Value
   value: T

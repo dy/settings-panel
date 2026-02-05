@@ -3,9 +3,9 @@
  * Controls designed for purpose that feel right.
  */
 
-import { store } from 'sprae'
+import store from 'sprae/store'
 import { infer } from './infer.js'
-import { injectStyles } from './theme/default.js'
+import { injectThemes, themes, themeCatalog } from './theme/index.js'
 
 // Controls (auto-register)
 import './control/boolean.js'
@@ -19,7 +19,20 @@ import './control/textarea.js'
 import './control/button.js'
 
 // Inject theme CSS
-injectStyles()
+injectThemes()
+
+// Control type → element tag mapping (extensible)
+export const controlTypes = {
+  boolean: 's-boolean',
+  number: 's-number',
+  slider: 's-slider',
+  select: 's-select',
+  color: 's-color',
+  text: 's-text',
+  textarea: 's-textarea',
+  button: 's-button',
+  folder: 's-folder',
+}
 
 
 /**
@@ -33,6 +46,7 @@ export default function settings(schema, options = {}) {
     container = document.body,
     theme = 'default',
     collapsed = false,
+    //
   } = options
 
   // Extract values recursively
@@ -69,6 +83,10 @@ export default function settings(schema, options = {}) {
   panel.setAttribute('theme', theme)
   if (collapsed) panel.setAttribute('collapsed', '')
 
+  // Expose factory for folder children
+  panel._state = state
+  panel._createControl = (name, field, prefix) => createControl(name, field, state, prefix)
+
   // Render controls
   for (const [key, field] of Object.entries(normalized)) {
     const control = createControl(key, field, state, '')
@@ -84,74 +102,40 @@ export default function settings(schema, options = {}) {
 /**
  * Create control element for field
  */
-function createControl(key, field, state, prefix = '') {
+function createControl(name, field, state, prefix = '') {
   const { type } = field
-  const fullKey = prefix + key
+  const path = prefix + name
 
-  // Folder is special - contains children
-  if (type === 'folder') {
-    const folder = document.createElement('s-folder')
-    folder.setAttribute('label', field.label || key)
-    if (field.collapsed) folder.setAttribute('collapsed', '')
-
-    // Wait for folder to initialize, then add children
-    requestAnimationFrame(() => {
-      const content = folder.content || folder.querySelector('.s-content')
-      if (!content) return
-
-      for (const [childKey, childDef] of Object.entries(field.children || {})) {
-        const childField = infer(childKey, childDef)
-        const childControl = createControl(childKey, childField, state, fullKey + '.')
-        if (childControl) content.appendChild(childControl)
-      }
-    })
-    return folder
-  }
-
-  // Map type to control element
-  const tagMap = {
-    boolean: 's-boolean',
-    number: 's-number',
-    slider: 's-slider',
-    select: 's-select',
-    color: 's-color',
-    text: 's-text',
-    textarea: 's-textarea',
-    button: 's-button',
-  }
-
-  const tag = tagMap[type]
+  const tag = controlTypes[type]
   if (!tag) {
     console.warn(`Unknown control type: ${type}`)
     return null
   }
 
   const el = document.createElement(tag)
-  el.setAttribute('key', fullKey)
-  el.setAttribute('label', field.label || key)
+  el.setAttribute('name', path)
 
-  // Button has special handling for action
-  if (type === 'button' && field.action) {
-    el.onclick = field.action
-    if (field.text) el.setAttribute('text', field.text)
-  }
+  // Common params (handled specially)
+  const reserved = ['type', 'value', 'children']
 
-  // Pass field options as attributes
+  // Pass field config as property (controls read what they need)
+  el.field = field
+  el.state = state
+
+  // Set all other attributes (controls read what they need)
   for (const [k, v] of Object.entries(field)) {
-    if (k === 'type' || k === 'value' || k === 'label' || k === 'action') continue
-    if (v === undefined || v === null) continue
-    if (typeof v === 'object') {
-      el.setAttribute(k, JSON.stringify(v))
+    if (reserved.includes(k)) continue
+    if (v == null) continue
+    // Functions are set as properties, not attributes
+    if (typeof v === 'function') {
+      el[k] = v
     } else {
-      el.setAttribute(k, v)
+      el.setAttribute(k, typeof v === 'object' ? JSON.stringify(v) : v)
     }
   }
-
-  // Bind to state
-  el.state = state
-  el.field = field
 
   return el
 }
 
-export { settings, infer }
+export { settings, infer, createControl }
+export { themes, themeCatalog }
