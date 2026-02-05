@@ -1,10 +1,48 @@
-
-## [ ] Theme Taxonomy (Design Philosophies)
+## Theme Taxonomy (Design Philosophies)
 
 Themes define HOW things look — the visual language, not the colors.
 Mode defines WHAT colors. They're orthogonal.
 
----
+
+## Proposed Theme Set (Refined)
+
+For settings-panel, these 8 cover the meaningful territory:
+
+| Theme | Philosophy | Iconic Reference | Key Visual |
+|-------|-----------|------------------|------------|
+| **swiss** | Invisible design | Braun, Stripe | Grids, no shadows, functional borders |
+| **terminal** | Information density | Bloomberg, vim | Monospace, 1px, no radius |
+| **industrial** | Exposed honesty | Teenage Engineering | Visible structure, accent color |
+| **analog** | Physical metaphors | Universal Audio | Realistic shadows, textures |
+| **classic** | Print heritage | The New Yorker | Serif, generous margins |
+| **morphism** | Soft extrusion | Neumorphism trend | Paired shadows, same-surface |
+| **glass** | Layered blur | macOS Big Sur | Transparency, thin borders |
+| **neo** | Raw boldness | Gumroad | Hard shadows, thick borders |
+
+### What we're NOT including (and why):
+- **Bauhaus** — Absorbed into Swiss (same DNA, less pure)
+- **Art Deco** — Too ornamental for utility interfaces
+- **Material** — Too Google-specific, shadow model conflicts
+- **Flat** — Swiss covers this territory
+- **Mid-Century** — More furniture than interface
+
+
+## Coverage Matrix
+
+| Trend/Movement | Covered By |
+|----------------|------------|
+| Flat design | swiss |
+| Minimalism | swiss (+ low density) |
+| Brutalism (web) | terminal or neo |
+| Skeuomorphism | analog |
+| Neumorphism | morphism |
+| Glassmorphism | glass |
+| Neobrutalism | neo |
+| Material Design | swiss + depth param |
+| Industrial | industrial |
+| Editorial | classic |
+
+
 
 ## Historical Movements → Interface Design
 
@@ -396,42 +434,3 @@ Mode defines WHAT colors. They're orthogonal.
 | **macOS Big Sur** | Glassmorphism | Frosted glass, depth |
 
 ---
-
-## Proposed Theme Set (Refined)
-
-For settings-panel, these 8 cover the meaningful territory:
-
-| Theme | Philosophy | Iconic Reference | Key Visual |
-|-------|-----------|------------------|------------|
-| **swiss** | Invisible design | Braun, Stripe | Grids, no shadows, functional borders |
-| **terminal** | Information density | Bloomberg, vim | Monospace, 1px, no radius |
-| **industrial** | Exposed honesty | Teenage Engineering | Visible structure, accent color |
-| **analog** | Physical metaphors | Universal Audio | Realistic shadows, textures |
-| **classic** | Print heritage | The New Yorker | Serif, generous margins |
-| **morphism** | Soft extrusion | Neumorphism trend | Paired shadows, same-surface |
-| **glass** | Layered blur | macOS Big Sur | Transparency, thin borders |
-| **neo** | Raw boldness | Gumroad | Hard shadows, thick borders |
-
-### What we're NOT including (and why):
-- **Bauhaus** — Absorbed into Swiss (same DNA, less pure)
-- **Art Deco** — Too ornamental for utility interfaces
-- **Material** — Too Google-specific, shadow model conflicts
-- **Flat** — Swiss covers this territory
-- **Mid-Century** — More furniture than interface
-
----
-
-## Coverage Matrix
-
-| Trend/Movement | Covered By |
-|----------------|------------|
-| Flat design | swiss |
-| Minimalism | swiss (+ low density) |
-| Brutalism (web) | terminal or neo |
-| Skeuomorphism | analog |
-| Neumorphism | morphism |
-| Glassmorphism | glass |
-| Neobrutalism | neo |
-| Material Design | swiss + depth param |
-| Industrial | industrial |
-| Editorial | classic |

@@ -5,7 +5,6 @@ Theme = function(params) → CSS
 Themes receive universal params and interpret them through their own physics.
 Some params map directly. Others go through the theme's "stylizer."
 
----
 
 ## Universal Params (every theme receives)
 
@@ -219,9 +218,33 @@ Exposed only when relevant theme is selected.
 | glass | `blur` | 8–32px | Backdrop blur intensity |
 | glass | `opacity` | 0.5–0.95 | Surface transparency |
 | analog | `material` | wood, metal, leather, fabric | Texture |
-| analog | `lighting` | 0–360° | Light direction |
+| analog | `lighting` | 0–360° | Light direction (see below) |
 | neo | `offset` | 2–8px | Shadow offset distance |
 | win95 | `3d-depth` | 0–1 | Bevel intensity |
+
+### Lighting × Mode Interaction (analog)
+
+For the `analog` theme, `lighting` direction combines with palette mode:
+
+| Mode | Shadow character |
+|------|------------------|
+| `day` | Cast shadows — sharp, directional from lighting angle |
+| `golden` | Warm cast shadows — longer, amber-tinted |
+| `dawn` / `evening` | Diffuse shadows — softer blur, less directional |
+| `midnight` | Ambient only — minimal shadows, glow highlights |
+
+```css
+/* day + lighting: 315° (top-left) */
+box-shadow: 4px 4px 8px rgba(0,0,0,0.25);
+
+/* dawn + lighting: 315° */
+box-shadow: 4px 4px 16px rgba(0,0,0,0.12);  /* softer, more diffuse */
+
+/* midnight — glow instead of shadow */
+box-shadow: 0 0 12px rgba(255,255,255,0.05);
+```
+
+This lets analog theme produce realistic lighting without adding universal complexity.
 
 ---
 
@@ -252,42 +275,6 @@ palette('#4F46E5')                    // accent only
 palette('#4F46E5', { mode: 'dark' })  // + mode
 palette({ accent, mode, temperature, saturation, contrast })  // full
 ```
-
-### Derivation (OKLCH)
-
-| Role | Light mode | Dark mode |
-|------|------------|-----------|
-| bg | L: 0.97 | L: 0.12 |
-| surface | L: 0.99 | L: 0.18 |
-| muted | L: 0.94 | L: 0.22 |
-| border | L: 0.85 | L: 0.30 |
-| dim | L: 0.55 | L: 0.55 |
-| text | L: 0.15 | L: 0.92 |
-
-Hue = `temperature × 60` (0 = cool, 60 = warm)
-Chroma = 0.01–0.02 (subtle tint toward accent)
-
-### Semantic Colors
-
-Derived from accent's chroma/lightness, rotated to canonical hues:
-
-| Role | Hue |
-|------|-----|
-| danger | 25° (red) |
-| warning | 70° (amber) |
-| success | 145° (green) |
-| info | 230° (blue) |
-
-### Accessibility
-
-| Pair | Minimum |
-|------|---------|
-| text/bg | 7:1 (AAA) |
-| text/surface | 7:1 (AAA) |
-| dim/bg | 4.5:1 (AA) |
-| accent/bg | 3:1 (AA large) |
-
-Auto-adjust if user override breaks contrast.
 
 ### Libraries
 
