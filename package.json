@@ -12,8 +12,8 @@
   },
   "scripts": {
     "dev": "npx serve .",
-    "test": "node test/infer.js && npx playwright test",
-    "test:unit": "node test/infer.js",
+    "test": "node test/infer.js && node test/signals.js && node test/settings.js && npx playwright test",
+    "test:unit": "node test/infer.js && node test/signals.js && node test/settings.js",
     "test:e2e": "npx playwright test"
   },
   "repository": {
@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
+    "happy-dom": "^20.5.0",
     "tst": "^9.2.2"
   }
 }

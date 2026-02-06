@@ -2,86 +2,42 @@
  * Select control - dropdown, radio, buttons
  */
 
-import sprae, { signal } from 'sprae'
+import control from './control.js'
 
 const templates = {
   dropdown: `
-    <label class="s-control s-select s-dropdown">
-      <span class="s-label" :text="label"></span>
-      <span class="s-input">
-        <select :onchange="e => update(e.target.value)">
-          <option :each="opt in options" :value="opt.value" :selected="opt.value === _val" :text="opt.label"></option>
-        </select>
-      </span>
-    </label>
+    <select :value="value" :onchange="e => set(e.target.value)">
+      <option :each="opt in options" :value="opt.value" :selected="opt.value == value" :text="opt.label"></option>
+    </select>
   `,
   radio: `
-    <fieldset class="s-control s-select s-radio">
-      <legend class="s-label" :text="label"></legend>
-      <span class="s-input">
-        <label :each="opt in options" :class="{ selected: opt.value === _val }">
-          <input type="radio" :name="name" :value="opt.value" :checked="opt.value === _val" :onchange="e => update(e.target.value)" />
-          <span :text="opt.label"></span>
-        </label>
-      </span>
-    </fieldset>
+    <label :each="opt in options" :class="{ selected: opt.value == value }">
+      <input type="radio" :name="radioName" :value="opt.value" :checked="opt.value == value" :onchange="() => set(opt.value)" />
+      <span :text="opt.label"></span>
+    </label>
   `,
   buttons: `
-    <fieldset class="s-control s-select s-buttons">
-      <legend class="s-label" :text="label"></legend>
-      <span class="s-input">
-        <button
-          :each="opt in options"
-          :class="{ selected: opt.value === _val }"
-          :onclick="() => update(opt.value)"
-          :text="opt.label"
-        ></button>
-      </span>
-    </fieldset>
+    <button
+      :each="opt in options"
+      :class="{ selected: opt.value == value }"
+      :onclick="() => set(opt.value)"
+      :text="opt.label"
+    ></button>
   `
 }
 
-class SSelect extends HTMLElement {
-  connectedCallback() {
-    if (this._init) return
-    this._init = true
+const normalizeOptions = opts =>
+  (opts || []).map(o => typeof o === 'string' ? { value: o, label: o } : o)
 
-    const key = this.getAttribute('key')
-    const label = this.getAttribute('label') || key
-    const variant = this.getAttribute('variant') || 'dropdown'
-    const optionsAttr = this.getAttribute('options')
+export default (sig, opts = {}) => {
+  const { variant = 'dropdown', options: rawOptions = [], ...rest } = opts
+  const options = normalizeOptions(rawOptions)
+  const radioName = `s-${Math.random().toString(36).slice(2)}`
 
-    let options = []
-    if (optionsAttr?.startsWith('[')) {
-      options = JSON.parse(optionsAttr)
-    } else if (optionsAttr) {
-      options = optionsAttr.split(',').map(v => ({ value: v.trim(), label: v.trim() }))
-    }
-
-    this.innerHTML = templates[variant] || templates.dropdown
-
-    const el = this
-    const _val = signal(options[0]?.value ?? '')
-    
-    sprae(this, {
-      label,
-      options,
-      name: `s-${key}-${Math.random().toString(36).slice(2)}`,
-      _val,
-      update(val) { 
-        _val.value = val
-        if (el._store) el._store[key] = val 
-      }
-    })
-    
-    this._sync = () => { _val.value = el._store?.[key] ?? options[0]?.value ?? '' }
-  }
-
-  set state(s) { 
-    this._store = s
-    this._sync?.()
-  }
-  get state() { return this._store }
+  return control(sig, {
+    ...rest,
+    type: `select ${variant}`,
+    template: templates[variant] || templates.dropdown,
+    options, radioName
+  })
 }
-
-customElements.define('s-select', SSelect)

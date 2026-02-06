@@ -10,7 +10,7 @@ const fonts = require('google-fonts');
 const color = require('tinycolor2');
 const scopeCss = require('scope-css');
 const lerp = require('interpolation-arrays');
-const none = require('./none');
+const none = require('../legacy/none');
 
 module.exports = dat;
 

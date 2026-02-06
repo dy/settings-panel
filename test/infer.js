@@ -1,5 +1,5 @@
 import test, { is, ok } from 'tst'
-import infer from '../infer.js'
+import { infer } from '../index.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BOOLEAN

@@ -106,16 +106,11 @@ from(0.5)                    // plain value → create signal
 A control is a decorator whose side effect is rendering UI:
 
 ```js
-// Settings panel internally:
-const state = {}
-for (const [key, def] of Object.entries(controls)) {
-  const sig = signal(def.value)
-  const decorated = control(sig, { ...def, container: panel })
-
-  Object.defineProperty(state, key, {
-    get: () => decorated.value,
-    set: (v) => { decorated.value = v }
-  })
+// Folder internally:
+const state = store(initials)          // sprae/store — reactive proxy
+for (const [key, field] of entries) {
+  const sig = state[_signals][key]     // store's internal signal
+  const decorated = factory(sig, { ...field, controls, container })
 }
 return state
 ```

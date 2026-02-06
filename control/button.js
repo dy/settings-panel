@@ -2,37 +2,39 @@
  * Button control - action trigger
  */
 
-import sprae from 'sprae'
+import sprae, { signal } from 'sprae'
 
 const template = `
-  <div class="s-control s-button">
-    <span class="s-label" :text="label"></span>
+  <div class="s-control s-button" :class="{ disabled: _disabled, loading: _loading }">
+    <span class="s-label" :text="label" :hidden="!label"></span>
     <span class="s-input">
-      <button :onclick="action" :text="text"></button>
+      <button :onclick="click" :disabled="_disabled" :text="text"></button>
     </span>
   </div>
 `
 
-class SButton extends HTMLElement {
-  connectedCallback() {
-    if (this._init) return
-    this._init = true
+export default (sig, opts = {}) => {
+  const { label = '', text = 'Action', onClick, disabled = false } = opts
 
-    const label = this.getAttribute('label') || ''
-    const text = this.getAttribute('text') || 'Action'
+  const el = document.createElement('div')
+  el.innerHTML = template
 
-    this.innerHTML = template
+  const _disabled = signal(disabled)
+  const _loading = signal(false)
 
-    const el = this
-    sprae(this, {
-      label,
-      text,
-      action() { el._action?.() }
-    })
+  const click = async () => {
+    if (_disabled.value || _loading.value || !onClick) return
+    const result = onClick()
+    if (result instanceof Promise) {
+      _loading.value = true
+      try { await result } finally { _loading.value = false }
+    }
   }
 
-  set onclick(fn) { this._action = fn }
-  get onclick() { return this._action }
-}
+  sprae(el, { label, text, click, _disabled, _loading })
 
-customElements.define('s-button', SButton)
+  return Object.assign(sig, {
+    el: el.firstElementChild,
+    [Symbol.dispose]() { el.firstElementChild?.remove() }
+  })
+}

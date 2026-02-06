@@ -24,7 +24,7 @@ const state = settings(controls, options?)
 | `persist` | `boolean \| string` | `false` | localStorage key |
 | `animation` | `boolean \| 'reduced'` | `'auto'` | Motion preference |
 | `keyboard` | `boolean` | `true` | Global shortcuts |
-| `onChange` | `(key, value) => void` | — | Change callback |
+| `onChange` | `(state) => void` | — | Change callback |
 
 **Position values:**
 ```

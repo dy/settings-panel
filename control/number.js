@@ -1,63 +1,24 @@
 /**
- * Number control - numeric input with optional step
+ * Number control - numeric input with stepper
  */
 
-import sprae, { signal } from 'sprae'
+import control from './control.js'
 
 const template = `
-  <label class="s-control s-number">
-    <span class="s-label" :text="label"></span>
-    <span class="s-input">
-      <button class="s-step s-dec" :onclick="dec" :disabled="_val <= min">−</button>
-      <input
-        type="number"
-        :value="_val"
-        :min="min"
-        :max="max"
-        :step="step"
-        :oninput="e => update(+e.target.value)"
-      />
-      <button class="s-step s-inc" :onclick="inc" :disabled="_val >= max">+</button>
-    </span>
-  </label>
+  <button class="s-step s-dec" :onclick="dec" :disabled="value <= min">−</button>
+  <input type="number" :value="value" :min="min" :max="max" :step="step" :oninput="e => set(+e.target.value)" />
+  <button class="s-step s-inc" :onclick="inc" :disabled="value >= max">+</button>
 `
 
-class SNumber extends HTMLElement {
-  connectedCallback() {
-    if (this._init) return
-    this._init = true
+export default (sig, opts = {}) => {
+  const { min = -Infinity, max = Infinity, step = 1, ...rest } = opts
+  const clamp = v => Math.min(max, Math.max(min, v))
 
-    const key = this.getAttribute('key')
-    const label = this.getAttribute('label') || key
-    const min = +this.getAttribute('min') || -Infinity
-    const max = +this.getAttribute('max') || Infinity
-    const step = +this.getAttribute('step') || 1
-
-    this.innerHTML = template
-
-    const el = this
-    const _val = signal(0)
-    
-    sprae(this, {
-      label, min, max, step,
-      _val,
-      update(val) { 
-        const clamped = Math.min(max, Math.max(min, val))
-        _val.value = clamped
-        if (el._store) el._store[key] = clamped
-      },
-      inc() { this.update(_val.value + step) },
-      dec() { this.update(_val.value - step) }
-    })
-    
-    this._sync = () => { _val.value = el._store?.[key] ?? 0 }
-  }
-
-  set state(s) { 
-    this._store = s
-    this._sync?.()
-  }
-  get state() { return this._store }
+  return control(sig, {
+    ...rest,
+    type: 'number', template, min, max, step,
+    set: v => { sig.value = clamp(v) },
+    inc: () => { sig.value = clamp(sig.value + step) },
+    dec: () => { sig.value = clamp(sig.value - step) }
+  })
 }
-
-customElements.define('s-number', SNumber)

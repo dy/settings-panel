@@ -84,7 +84,25 @@ settings(controls, {
   collapsed: false,
   draggable: true,
   persist: 'my-app',
-  onChange: (key, value) => console.log(key, value)
+  onchange: (state) => console.log(state)
+})
+```
+
+### Subscribing to changes
+
+```js
+import settings, { effect } from 'settings-panel'
+
+const state = settings({ volume: 0.5 })
+
+// Option 1: callback (fires on any change)
+settings({ volume: 0.5 }, {
+  onchange: (state) => console.log(state.volume)
+})
+
+// Option 2: effect (signal-native, track specific keys)
+effect(() => {
+  console.log('volume changed:', state.volume)
 })
 ```
 

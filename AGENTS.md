@@ -25,17 +25,17 @@ If not written, it is undecided.
 
 Data-first: controls are signal decorators, not custom elements.
 - `control(signal, opts)` → decorated signal with `.el` and `[Symbol.dispose]()`
-- Templates bind to `sig.value` directly via sprae
+- Templates bind to `value` (auto-unwrapped signal) and `set` (write channel)
 - No intermediate signals unless needed (e.g., log scale slider)
 
 **Panel is decoupled from controls:**
-- settings() = theme CSS + panel container + root folder + onchange wiring
+- settings() = theme CSS + panel container + root folder + onchange effect
 - Folder is self-sufficient: imports infer, receives controls registry
 - Folder state is `sprae/store` — reactive proxy, one signal per prop
 - Controls receive store's internal signals directly (no duplication)
 - No type-specific checks in panel (no `if (type === 'folder')`)
 - No callback threading (no notify/render/path passed through tree)
-- onchange wired at settings() level via effect on store state
+- onchange wired at settings() level via single effect on all state keys
 
 Signal utilities in `/signals.js`:
 - `from(source)` - normalize to signal (preact, solid, TC39, plain value)
@@ -47,7 +47,7 @@ Control pattern in `/control/*.js`:
 ```js
 import control from './control.js'
 export default (sig, opts) =>
-  control(sig, { type: 'my', template: `<input :value="sig" />`, ...opts })
+  control(sig, { type: 'my', template: `<input :value="value" />`, ...opts })
 ```
 
 ## Code
@@ -56,6 +56,6 @@ export default (sig, opts) =>
 - Use nested CSS over flat CSS.
 - Themes compose each other, not layered hierarchy.
 - Bind templates directly to source signal, avoid intermediate state.
-- Sprae auto-unwraps signals: use `sig` not `sig.value` in template reads.
+- Sprae auto-unwraps signals: templates use `value` (read) and `set` (write).
 - Sprae `:value` is two-way binding for inputs.
-- For explicit writes, pass `set: v => { sig.value = v }` in state.
+- For explicit writes, controls override `set` in opts (e.g., clamping).

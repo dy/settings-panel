@@ -1,33 +1,23 @@
 /**
- * Color control - picker, swatches, palette
+ * Color control - picker, swatches
  */
 
-import sprae, { signal } from 'sprae'
+import control from './control.js'
 
 const templates = {
   picker: `
-    <label class="s-control s-color s-picker">
-      <span class="s-label" :text="label"></span>
-      <span class="s-input">
-        <input type="color" :value="_val" :oninput="e => update(e.target.value)" />
-        <span class="s-preview" :style="'background:' + _val"></span>
-        <span class="s-hex" :text="_val"></span>
-      </span>
-    </label>
+    <input type="color" :value="value" />
+    <span class="s-preview" :style="'background:' + value"></span>
+    <span class="s-hex" :text="value"></span>
   `,
   swatches: `
-    <fieldset class="s-control s-color s-swatches">
-      <legend class="s-label" :text="label"></legend>
-      <span class="s-input">
-        <button
-          :each="c in colors"
-          :class="{ selected: c === _val }"
-          :style="'background:' + c"
-          :onclick="() => update(c)"
-          :title="c"
-        ></button>
-      </span>
-    </fieldset>
+    <button
+      :each="c in colors"
+      :class="{ selected: c == value }"
+      :style="'background:' + c"
+      :onclick="() => set(c)"
+      :title="c"
+    ></button>
   `
 }
 
@@ -38,46 +28,12 @@ const defaultColors = [
   '#ffffff', '#c0c0c0', '#808080', '#000000'
 ]
 
-class SColor extends HTMLElement {
-  connectedCallback() {
-    if (this._init) return
-    this._init = true
-
-    const key = this.getAttribute('key')
-    const label = this.getAttribute('label') || key
-    const variant = this.getAttribute('variant') || 'picker'
-    const colorsAttr = this.getAttribute('colors')
-
-    let colors = defaultColors
-    if (colorsAttr?.startsWith('[')) {
-      colors = JSON.parse(colorsAttr)
-    } else if (colorsAttr) {
-      colors = colorsAttr.split(',').map(c => c.trim())
-    }
-
-    this.innerHTML = templates[variant] || templates.picker
-
-    const el = this
-    const _val = signal('#000000')
-    
-    sprae(this, {
-      label,
-      colors,
-      _val,
-      update(val) { 
-        _val.value = val
-        if (el._store) el._store[key] = val 
-      }
-    })
-    
-    this._sync = () => { _val.value = el._store?.[key] ?? '#000000' }
-  }
-
-  set state(s) { 
-    this._store = s
-    this._sync?.()
-  }
-  get state() { return this._store }
+export default (sig, opts = {}) => {
+  const { variant = 'picker', colors = defaultColors, ...rest } = opts
+  return control(sig, {
+    ...rest,
+    type: `color ${variant}`,
+    template: templates[variant] || templates.picker,
+    colors
+  })
 }
-
-customElements.define('s-color', SColor)
