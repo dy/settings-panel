@@ -5,6 +5,7 @@
 
 import { signal, effect } from 'sprae'
 import defaultTheme from './theme/default.js'
+import { css as serialize } from './theme/css.js'
 
 // Import control factories
 import boolean from './control/boolean.js'
@@ -53,19 +54,14 @@ export default function settings(schema, options = {}) {
   } = options
 
   // Inject theme CSS
-  const themeObj = theme && typeof theme === 'object' ? theme : defaultTheme
-  const styleId = `settings-panel-${themeObj.id || 'default'}`
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style')
-    style.id = styleId
-    style.textContent = themeObj.css
-    document.head.appendChild(style)
-  }
+  const toCSS = v => typeof v === 'object' ? serialize(v) : v
+  const style = document.createElement('style')
+  style.textContent = toCSS(typeof theme === 'function' ? theme() : theme)
+  document.head.appendChild(style)
 
   // Create panel container
   const panel = document.createElement('div')
   panel.className = 's-panel'
-  if (themeObj?.id && themeObj.id !== 'default') panel.setAttribute('data-theme', themeObj.id)
   if (collapsed) panel.classList.add('s-collapsed')
 
   // Root folder builds all controls
@@ -86,14 +82,25 @@ export default function settings(schema, options = {}) {
 
   const state = root.value
 
-  // Wire onchange via single effect on all state keys
+  // Live re-theme: re-calls theme fn with new params, updates <style>
+  state.retheme = (params) => {
+    if (typeof theme === 'function') style.textContent = toCSS(theme(params))
+  }
+
+  // Wire onchange via single effect on all state keys (recursive into folders)
   let stopEffect
   if (onchange) {
-    const keys = Object.keys(state)
-    let init = true
+    const touch = (obj) => {
+      for (const k of Object.keys(obj)) {
+        const v = obj[k]
+        if (v && typeof v === 'object' && !Array.isArray(v)) touch(v)
+      }
+    }
+    let ready = false
+    queueMicrotask(() => { ready = true })
     stopEffect = effect(() => {
-      for (const k of keys) state[k]
-      if (init) return (init = false)
+      touch(state)
+      if (!ready) return
       onchange(state)
     })
   }
@@ -102,6 +109,7 @@ export default function settings(schema, options = {}) {
     stopEffect?.()
     root[Symbol.dispose]()
     panel.remove()
+    style.remove()
   }
 
   return state

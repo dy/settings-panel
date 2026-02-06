@@ -147,4 +147,34 @@ test.describe('settings-panel controls', () => {
     expect(changes.length).toBeGreaterThan(0)
     expect(changes[0].testValue).toBeCloseTo(0.8, 1)
   })
+
+  test('theme axes change appearance', async ({ page }) => {
+    await page.goto('/demo/demo.html')
+    const panel = page.locator('.s-panel')
+
+    // Capture initial computed style
+    const initialBg = await panel.evaluate(el => getComputedStyle(el).backgroundColor)
+
+    // Switch mood to midnight
+    const moodSelect = page.locator('.s-select.dropdown select').first()
+    await moodSelect.selectOption('midnight')
+    await page.waitForTimeout(200)
+    const midnightBg = await panel.evaluate(el => getComputedStyle(el).backgroundColor)
+    expect(midnightBg).not.toBe(initialBg)
+
+    // Change accent hue — inside Appearance folder
+    const accentSlider = page.locator('.s-folder:last-of-type input[type="range"]').first()
+    await accentSlider.fill('30', { force: true })
+    await page.waitForTimeout(200)
+    const initialAccent = await panel.evaluate(el => getComputedStyle(el).getPropertyValue('--accent'))
+    expect(initialAccent).toContain('30')
+
+    // Change density — should affect padding
+    const densitySlider = page.locator('.s-folder:last-of-type input[type="range"]').nth(1)
+    const initialPadding = await panel.evaluate(el => getComputedStyle(el).padding)
+    await densitySlider.fill('1', { force: true })
+    await page.waitForTimeout(200)
+    const newPadding = await panel.evaluate(el => getComputedStyle(el).padding)
+    expect(newPadding).not.toBe(initialPadding)
+  })
 })
