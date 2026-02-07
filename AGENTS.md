@@ -3,9 +3,11 @@
 The goal is panel with controls designed for purpose that _feel right_.
 
 Source of truth:
-- `.work/todo.md` — roadmap + progress. Do not invent tasks.
-- `.work/research.md` — vision, constraints, decisions.
-- `docs/*` – aspects.
+- `docs/axes.md` — 12 theme axes (lightness, accent, temperature, ..., motion).
+- `docs/themes.md` — 10 foundational themes (soft, swiss, classic, ..., retro).
+- `docs/options.md` — panel options (container, title, theme, collapsed, persist, key, onChange).
+- `docs/controls.md` — control types.
+- `docs/signals.md` — signals pattern, switching implementations, passing signals.
 
 Rules:
 - If unclear or missing, ask. Do not guess.
@@ -17,9 +19,8 @@ If not written, it is undecided.
 ## Structure
 
 - `/control/*` - control components. Not utils or factories.
-- `/theme/*` - theme files. Each theme is self-contained, peer to others (no foundational/base layer).
-- `/signals.js` - signal utilities (from, map, persist, throttle, etc.)
-- `/index.js` - main entry, settings(), infer(), register()
+- `/theme/*` - theme files. Each theme is a function(axes) → CSS string. Self-contained, peer to others.
+- `/index.js` - main entry, settings(), infer(), register().
 
 ## Architecture
 
@@ -37,11 +38,12 @@ Data-first: controls are signal decorators, not custom elements.
 - No callback threading (no notify/render/path passed through tree)
 - onchange wired at settings() level via single effect on all state keys
 
-Signal utilities in `/signals.js`:
-- `from(source)` - normalize to signal (preact, solid, TC39, plain value)
-- `map(sig, fn)` - derived signal with transform
-- `persist(sig, key)` - localStorage sync
-- `throttle(sig, ms)` - rate-limited updates
+**Theme pattern:**
+- theme(axes?) → CSS string → `<style>`
+- 12 universal axes: lightness, accent, temperature, saturation, contrast,
+  density, roundness, depth, weight, texture, font, motion
+- Axes control intent, theme computes implementation
+- Theme as signal for live re-theming
 
 Control pattern in `/control/*.js`:
 ```js
@@ -54,7 +56,7 @@ export default (sig, opts) =>
 
 - Core must be minimal, modular. Do not bundle all themes.
 - Use nested CSS over flat CSS.
-- Themes compose each other, not layered hierarchy.
+- Themes are peers, not layered hierarchy.
 - Bind templates directly to source signal, avoid intermediate state.
 - Sprae auto-unwraps signals: templates use `value` (read) and `set` (write).
 - Sprae `:value` is two-way binding for inputs.
