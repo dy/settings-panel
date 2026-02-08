@@ -4,7 +4,7 @@
  * soft(axes?) → CSS string
  */
 
-const { min, max, round } = Math
+const { min, max, round, abs } = Math
 const clamp = (v, lo, hi) => min(hi, max(lo, v))
 const lerp = (a, b, t) => a + (b - a) * t
 const px = v => v + 'px'
@@ -15,15 +15,23 @@ const TEX = {
   crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
 }
 
-// oklch shorthand — monotone: chroma always 0, lerp L to sRGB visible range
-const L_MIN = 0.16, L_MAX = 0.99
-const lch = (l, a) => {
-  // l = lerp(L_MIN, L_MAX, l) // 0→0.16, 1→0.99
-  return a != null ? `oklch(${l} 0 0 / ${a})` : `oklch(${l} 0 0)`
-}
+// Color temperature in Kelvin — universal, intuitive
+//   1500K  candle (deep amber/red)
+//   2700K  incandescent (warm)
+//   5000K  neutral white
+//   6500K  daylight (cool)
+//  15000K  shade/sky (violet)
+//
+// Maps K → chroma & hue via normalized T
+const TEMP_NEUTRAL = 5000  // center point
+const TEMP_MIN = 1500      // warm edge
+const TEMP_MAX = 15000     // cool edge
+const HUE_WARM = 50        // orange-red
+const HUE_COOL = 280       // violet
 
 export default function soft({
-  lightness = .97,
+  lightness = 97,      // 0-100 (maps to OKLCH 0-1)
+  temperature = 5000,  // Kelvin: 2500 (warm) → 5000 (neutral) → 7500 (cool)
   contrast = .5,
   texture = 'flat',
   spacing = .5,
@@ -33,7 +41,22 @@ export default function soft({
   roundness = .5,
 } = {}) {
 
-  const L = lightness
+  // Temperature: Kelvin → normalized T → chroma & hue
+  const K = clamp(temperature, TEMP_MIN, TEMP_MAX)
+  // Normalize: -1 (warm) at 1500K, 0 at 5000K, +1 (cool) at 15000K
+  const T = K < TEMP_NEUTRAL
+    ? -(TEMP_NEUTRAL - K) / (TEMP_NEUTRAL - TEMP_MIN)
+    : (K - TEMP_NEUTRAL) / (TEMP_MAX - TEMP_NEUTRAL)
+  const chroma = T * T * 0.025  // quadratic, more vivid at extremes
+  const hue = T < 0 ? HUE_WARM : HUE_COOL
+
+  // oklch helper with temperature tint
+  const lch = (l, a) => {
+    const c = chroma, h = hue
+    return a != null ? `oklch(${l} ${c} ${h} / ${a})` : `oklch(${l} ${c} ${h})`
+  }
+
+  const L = clamp(lightness, 0, 100) / 100  // normalize to 0-1
   const dark = L < .5
   const hi = (d, l=L) => clamp(l + d, .27, 1)
   const lo = (d, l=L) => clamp(l - d, 0, 1)

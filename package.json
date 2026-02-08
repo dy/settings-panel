@@ -41,7 +41,8 @@
   },
   "homepage": "https://github.com/dfcreative/settings-panel#readme",
   "dependencies": {
-    "sprae": "^12.4.2"
+    "sprae": "^12.4.2",
+    "sube": "^2.3.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
