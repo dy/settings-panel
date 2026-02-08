@@ -33,9 +33,7 @@ export default function control(sig, opts) {
   const el = wrapper.firstElementChild
   if (label) el.dataset.name = label
 
-  const set = state.set || (v => { sig.value = v })
-
-  sprae(wrapper, { ...state, label, hint, title, value: sig, set })
+  sprae(wrapper, { ...state, label, hint, title })
 
   // Mount if container provided
   if (container) {

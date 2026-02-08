@@ -11,5 +11,5 @@ const template = `
 
 export default (sig, opts = {}) => {
   const { variant = 'toggle', ...rest } = opts
-  return control(sig, { ...rest, type: `boolean ${variant}`, template })
+  return control(sig, { ...rest, type: `boolean ${variant}`, template, value: sig, set: v => { sig.value = v } })
 }

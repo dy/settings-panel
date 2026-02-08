@@ -7,6 +7,7 @@
   "module": "index.js",
   "exports": {
     ".": "./index.js",
+    "./signals": "./signals.js",
     "./control/*": "./control/*",
     "./theme/*": "./theme/*"
   },
@@ -33,7 +34,7 @@
     "gui",
     "dat.gui"
   ],
-  "author": "Dmitry Yv <df.creative@gmail.com>",
+  "author": "Dmitry Iv <df.creative@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dfcreative/settings-panel/issues"

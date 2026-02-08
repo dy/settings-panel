@@ -8,5 +8,5 @@ const template = `<textarea :value="value" :placeholder="placeholder" :rows="row
 
 export default (sig, opts = {}) => {
   const { placeholder = '', rows = 3, ...rest } = opts
-  return control(sig, { ...rest, type: 'textarea', template, placeholder, rows })
+  return control(sig, { ...rest, type: 'textarea', template, value: sig, placeholder, rows })
 }

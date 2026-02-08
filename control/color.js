@@ -34,6 +34,7 @@ export default (sig, opts = {}) => {
     ...rest,
     type: `color ${variant}`,
     template: templates[variant] || templates.picker,
+    value: sig, set: v => { sig.value = v },
     colors
   })
 }

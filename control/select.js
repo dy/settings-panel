@@ -38,6 +38,7 @@ export default (sig, opts = {}) => {
     ...rest,
     type: `select ${variant}`,
     template: templates[variant] || templates.dropdown,
+    value: sig, set: v => { sig.value = v },
     options, radioName
   })
 }

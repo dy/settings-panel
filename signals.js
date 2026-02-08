@@ -4,10 +4,10 @@
  * Uses sprae/signal internally, will port to nadi later
  */
 
-import { signal, effect, untracked, computed, batch, use } from 'sprae'
+import { signal, effect, untracked, computed, batch, store, use } from 'sprae'
 
 // Re-export core
-export { signal, effect, untracked, computed, batch, use }
+export { signal, effect, untracked, computed, batch, store, use }
 
 /**
  * Create signal from various sources

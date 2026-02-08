@@ -1,436 +1,217 @@
-## Theme Taxonomy (Design Philosophies)
+## Theme Taxonomy
 
-Themes define HOW things look — the visual language, not the colors.
-Mode defines WHAT colors. They're orthogonal.
+Themes define visual *structure* — how depth works, how borders behave, how surfaces feel.
+Lightness defines *luminance*. Axes define *tuning*. All orthogonal.
+
+A theme is distinct only if it has a structural property that can't be achieved
+by tweaking axes (density, roundness, depth, weight) of another theme.
 
 
-## Proposed Theme Set (Refined)
+## The 10 Foundational Themes
 
-For settings-panel, these 8 cover the meaningful territory:
+| # | Name | Structural Distinction | Iconic Reference |
+|---|------|----------------------|------------------|
+| 1 | **soft** | Subtle shadows, generous radius, gentle transitions | Linear, Tailwind UI, Figma |
+| 2 | **swiss** | No shadows, grid-pure, typographic hierarchy only | Braun, Stripe, FabFilter |
+| 3 | **classic** | Serif typography, rule lines, print margins | Notion, iA Writer, The New Yorker |
+| 4 | **terminal** | Monospace, 0 radius, 1px borders, max density | Bloomberg, vim, Ableton |
+| 5 | **industrial** | Exposed structure, functional labels, accent = interaction | Teenage Engineering, Nothing |
+| 6 | **brutal** | Hard offset shadows (no blur), thick borders (2-4px) | Gumroad |
+| 7 | **glass** | backdrop-filter blur, transparency, thin light borders | macOS Big Sur, Windows 11 |
+| 8 | **neu** | Paired shadows (light+dark), same-surface color, no borders | Neumorphism / claymorphism |
+| 9 | **skeu** | Realistic textures, directional lighting, physical affordances | iOS 1-6, Universal Audio |
+| 10 | **retro** | Inset/outset bevel borders, system colors, pixel-crisp | Windows 95/98, classic GTK |
 
-| Theme | Philosophy | Iconic Reference | Key Visual |
-|-------|-----------|------------------|------------|
-| **swiss** | Invisible design | Braun, Stripe | Grids, no shadows, functional borders |
-| **terminal** | Information density | Bloomberg, vim | Monospace, 1px, no radius |
-| **industrial** | Exposed honesty | Teenage Engineering | Visible structure, accent color |
-| **analog** | Physical metaphors | Universal Audio | Realistic shadows, textures |
-| **classic** | Print heritage | The New Yorker | Serif, generous margins |
-| **morphism** | Soft extrusion | Neumorphism trend | Paired shadows, same-surface |
-| **glass** | Layered blur | macOS Big Sur | Transparency, thin borders |
-| **neo** | Raw boldness | Gumroad | Hard shadows, thick borders |
+### What each structurally owns (can't be faked by another)
 
-### What we're NOT including (and why):
-- **Bauhaus** — Absorbed into Swiss (same DNA, less pure)
-- **Art Deco** — Too ornamental for utility interfaces
-- **Material** — Too Google-specific, shadow model conflicts
-- **Flat** — Swiss covers this territory
-- **Mid-Century** — More furniture than interface
+- **soft**: the *mainstream default* — nothing extreme, everything gentle
+- **swiss**: *absence* of depth is the statement — shadows would break it
+- **classic**: *serif* — the only theme where serif is the right call
+- **terminal**: *monospace everywhere* — not just code, all text
+- **industrial**: *the label IS the decoration* — POWER, SYNC, modular grid
+- **brutal**: *hard offset shadow* (4px 4px 0 black) — unique depth model
+- **glass**: *backdrop-filter* — unique CSS mechanism, unique depth
+- **neu**: *paired inset/outset shadows on same-color surface* — unique
+- **skeu**: *real material textures* (leather, brushed metal) — unique surface
+- **retro**: *bevel via border-color* (light top-left, dark bottom-right) — unique border model
+
+
+### What was merged (and why)
+
+| Candidate | Absorbed Into | Reason |
+|-----------|--------------|--------|
+| flat / material / surface | **swiss** (depth=0) or **soft** (depth>0) | No unique structural property — just depth parameter |
+| corporate / enterprise | **swiss** or **soft** | Palette + weight choices, not structure |
+| claymorphism | **neu** + color param | Same paired-shadow model, just more colorful |
+| aqua | **skeu** (gel material) | Skeuomorphism with a specific material — gel buttons |
+| analog / instrument | **skeu** (audio material) | Skeuomorphism with metal/knob material |
+| vaporwave / synthwave | palette, not theme | Apply neon palette to any theme's structure |
+| neon / cyber | palette, not theme | Glow = colored box-shadow, works on any structure |
+| minimal | **swiss** + sparse density | Minimalism is swiss with fewer elements |
+| calm UI / friendly professional | **soft** | This IS soft — that's the whole point of soft |
 
 
 ## Coverage Matrix
 
 | Trend/Movement | Covered By |
 |----------------|------------|
-| Flat design | swiss |
-| Minimalism | swiss (+ low density) |
-| Brutalism (web) | terminal or neo |
-| Skeuomorphism | analog |
-| Neumorphism | morphism |
+| Flat design | swiss (depth=0) |
+| Minimalism | swiss (sparse density) |
+| Material Design | soft (structured elevation) |
+| Brutalism (web) | brutal or terminal |
+| Skeuomorphism | skeu |
+| Neumorphism | neu |
+| Claymorphism | neu (+ color, + roundness) |
 | Glassmorphism | glass |
-| Neobrutalism | neo |
-| Material Design | swiss + depth param |
+| Neobrutalism | brutal |
+| Aquamorphism | skeu (gel material) |
+| Win95 / system UI | retro |
 | Industrial | industrial |
-| Editorial | classic |
+| Editorial / print | classic |
+| Corporate / SaaS | swiss or soft |
+| Vaporwave / synthwave | any theme + neon palette |
+
+
+## Implementation Order
+
+1. **soft** — default, most users, lowest risk
+2. **classic** — serif gives immediate visual contrast
+3. **brutal** — hard shadows are simple CSS, high impact
+4. **glass** — backdrop-filter, visually striking
+5. **terminal** — monospace + density, appeals to devs
+6. **swiss** — restraint is hard to get right
+7. **neu** — paired shadows need care
+8. **industrial** — label-as-decoration needs thought
+9. **retro** — bevel borders are specific
+10. **skeu** — textures are the most work
+
+
+
+## Structural Rules Per Theme
+
+### soft (default)
+- Shadows: subtle drop (0 2px 8px, low opacity)
+- Borders: 1px, low contrast
+- Radius: generous (8-14px)
+- Typography: system sans, normal weight
+- Surface: solid, gentle palette
+- Transitions: smooth (140-200ms)
+- Feel: approachable, safe, mainstream
+
+### swiss
+- Shadows: none (depth=0 enforced)
+- Borders: 1px functional (informational, not decorative)
+- Radius: subtle (2-4px) or none
+- Typography: geometric sans (Inter, Helvetica), weight carries hierarchy
+- Surface: solid, whitespace is active design element
+- Grid: mathematical, visible in alignment
+- Feel: invisible design — if you notice the UI, it failed
+
+### classic
+- Shadows: none or hairline rule
+- Borders: rule lines (horizontal dividers, not boxes)
+- Radius: 0 or very subtle (2px)
+- Typography: **serif** (Georgia, Garamond), generous line-height (1.5+)
+- Surface: paper/cream tones
+- Margins: generous, controlled line length (~66ch)
+- Feel: centuries of print wisdom, scholarly, timeless
+
+### terminal
+- Shadows: none
+- Borders: 1px solid, or none
+- Radius: 0 (enforced)
+- Typography: **monospace everywhere**, small size (12px)
+- Surface: solid, dark default
+- Color: semantic only (green=ok, red=error, yellow=warn, cyan=info)
+- Density: maximum
+- Feel: every pixel earns its place
+
+### industrial
+- Shadows: none or minimal
+- Borders: visible, structural (like panel seams)
+- Radius: small (2-4px)
+- Typography: industrial sans (DIN, Eurostile), uppercase labels
+- Surface: matte, raw, modular panels
+- Accent: high-visibility (orange, yellow) = interaction point
+- Labels: literal function words as decoration ("VOLUME", "RATE")
+- Feel: the machine is beautiful because it's a machine
+
+### brutal
+- Shadows: **hard offset, no blur** (4px 4px 0 black)
+- Borders: **thick** (2-4px), always black/dark
+- Radius: 0 or small (0-4px)
+- Typography: bold sans, can be quirky
+- Surface: solid, high saturation, can clash
+- Gradients: none
+- Feel: raw, confrontational, playful punk
+
+### glass
+- Shadows: subtle or none (blur IS the depth)
+- Borders: **thin light stroke** (1px white/light at ~20% opacity)
+- Radius: generous (12-20px)
+- Typography: light/medium weight sans
+- Surface: **transparent + backdrop-filter blur** (12-20px)
+- Layers: stacked translucent surfaces
+- Requires: interesting background behind it
+- Feel: airy, premium, modern depth
+
+### neu
+- Shadows: **paired** — dark shadow (bottom-right) + light shadow (top-left)
+- Borders: **none** (shadows define edges)
+- Radius: very high (12-20px)
+- Typography: medium weight sans
+- Surface: **same color as background** (elements extrude from surface)
+- Contrast: low (accessibility risk — must be careful)
+- Inset state: invert shadow direction for pressed/active
+- Feel: soft plastic, clay, quiet
+
+### skeu
+- Shadows: **directional, realistic** (consistent light source, usually top-left)
+- Borders: material-dependent (brushed metal ridge, leather stitch)
+- Radius: varies by material metaphor
+- Typography: varies (can include engraved, embossed)
+- Surface: **realistic textures** (leather grain, brushed aluminum, wood, felt)
+- Gradients: physical (lighting, curvature)
+- Affordances: buttons look pressable, sliders look grabbable
+- Feel: the world before screens, analog warmth
+
+### retro
+- Shadows: none (depth via border colors)
+- Borders: **inset/outset bevel** (light color top+left, dark color bottom+right, 2px)
+- Radius: 0 (enforced)
+- Typography: system/bitmap feel (small, pixel-aligned)
+- Surface: solid system colors (silver/gray, teal, navy)
+- Buttons: raised bevel (light top-left, dark bottom-right)
+- Inputs: sunken bevel (dark top-left, light bottom-right)
+- Feel: nostalgic, OS-native, 1995
 
-
-
-## Historical Movements → Interface Design
-
-### BAUHAUS (1919–1933)
-*"Form follows function."*
-
-**Philosophy:** Unity of art and craft. Geometry as language. Primary colors as vocabulary. The machine aesthetic celebrated, not hidden.
-
-**Visual DNA:**
-- Primary colors (red, yellow, blue) + black/white
-- Geometric primitives: circle, square, triangle
-- Asymmetric balance
-- Sans-serif typography (Futura, geometric)
-- Grid as skeleton, not decoration
-
-**Examples:** Wassily chair, Bauhaus Dessau building, Herbert Bayer posters
-**Interface echoes:** Early iOS icons (geometric), Windows Phone tiles, Google Material icons
-
-**Rules:**
-- Shapes are fundamental: circles, squares, triangles
-- Color is structural, not decorative
-- Asymmetry creates tension and hierarchy
-- No ornament — the form IS the content
-
----
-
-### SWISS / International Typographic Style (1950s–60s)
-*"Content, not decoration."*
-
-**Philosophy:** Objective clarity. The grid as organizing principle. Typography as architecture. The designer is invisible — the content speaks.
-
-**Visual DNA:**
-- Mathematical grids
-- Sans-serif (Helvetica, Univers, Akzidenz)
-- Asymmetric layouts
-- Photography over illustration
-- Generous whitespace
-- Flush-left, ragged-right text
-
-**Lineage:** Josef Müller-Brockmann, Max Bill, Massimo Vignelli, Dieter Rams
-**Brands:** Braun, Vitsœ, Apple (post-2013), Stripe, Linear, FabFilter, Figma
-**Associations:** German engineering, precision, honesty, trust
-
-**Rules:**
-- The grid is sacred
-- Borders are informational, not decorative
-- Shadows are functional (focus states only)
-- Typography carries all hierarchy
-- Whitespace is active, not empty
-- If it doesn't communicate, remove it
-
----
-
-### ART DECO (1920s–30s)
-*"Geometric elegance."*
-
-**Philosophy:** Luxury through geometry. Machine-age optimism. Ornament that earns its place through mathematical beauty.
-
-**Visual DNA:**
-- Symmetry and repetition
-- Sunburst/radiating patterns
-- Stepped forms (ziggurat)
-- Gold, silver, black lacquer
-- Geometric serif typography
-- Fan shapes, chevrons
-
-**Examples:** Chrysler Building, Rockefeller Center, Tamara de Lempicka paintings
-**Associations:** Jazz age, cinema, luxury, gatsby
-
-**Rules:**
-- Symmetry is power
-- Metallics signal quality
-- Geometry can be ornamental if mathematical
-- Vertical emphasis suggests aspiration
-- Borders can be decorative if patterned
-
----
-
-### MID-CENTURY MODERN (1945–1969)
-*"Optimistic functionalism."*
-
-**Philosophy:** Democratic design. Technology serves humanity. Organic meets geometric. The home as sanctuary.
-
-**Visual DNA:**
-- Organic curves + geometric structure
-- Natural materials (wood, leather, wool)
-- Warm neutrals + accent colors
-- Tapered legs, floating forms
-- Exposed structure (honest construction)
-
-**Lineage:** Eames, Saarinen, Noguchi, Jacobsen
-**Brands:** Herman Miller, Knoll, Bang & Olufsen
-**Associations:** Space age, California, Danish hygge
-
-**Rules:**
-- Warmth through materials, not decoration
-- Structure can be visible and beautiful
-- Curves soften but don't obscure
-- Color is accent, not cacophony
-
----
-
-### TERMINAL / Utilitarian (1970s–now)
-*"Information density over polish."*
-
-**Philosophy:** Every pixel earns its place. Decoration is waste. Speed is respect. The interface disappears into the task.
-
-**Visual DNA:**
-- Monospace typography
-- 1px borders or none
-- High information density
-- Color = status (green=ok, red=error, yellow=warn)
-- No gradients, no shadows
-- Hard edges, no radius
-
-**Lineage:** VT100, Bloomberg Terminal, vim, htop
-**Brands:** Bloomberg, Ableton Live, Elektron, JetBrains
-**Associations:** Trading floors, hacker culture, power users, efficiency
-
-**Rules:**
-- Monospace is the only font
-- Animation is instant or absent
-- Color is semantic, never decorative
-- Density = power
-- No rounded corners
-- 1px borders maximum
-
----
-
-### INDUSTRIAL / Teenage Engineering (2000s–now)
-*"Exposed honesty."*
-
-**Philosophy:** Show the work. The machine is beautiful because it's a machine. Utility is the aesthetic. Playfulness in restraint.
-
-**Visual DNA:**
-- Exposed screws, PCB traces, raw materials
-- High-visibility accents (orange, yellow)
-- Modular, reconfigurable
-- Rubberized, tactile surfaces
-- Industrial typography (DIN, Eurostile)
-- Function labels as decoration
-
-**Lineage:** Teenage Engineering, Nothing Phone, industrial equipment, Braun (early)
-**Brands:** Teenage Engineering, Nothing, Analogue, field recorders
-**Associations:** Makers, synth nerds, Scandinavian design, modularity
-
-**Rules:**
-- Structure is visible
-- Accent color is functional (danger, interaction)
-- Labels are literal ("POWER", "SYNC")
-- Modularity over integration
-- Tactile feedback matters
-- Imperfection is honest
-
----
-
-### SKEUOMORPHISM / Analog (2007–2013)
-*"The world before screens."*
-
-**Philosophy:** Digital should feel physical. Metaphors reduce cognitive load. The familiar is welcoming.
-
-**Visual DNA:**
-- Realistic textures (leather, wood, felt, metal)
-- Directional lighting, consistent shadows
-- Physical affordances (buttons that press, pages that turn)
-- Gradients that suggest dimension
-- Bevels, embossing, reflections
-
-**Lineage:** iOS 1–6, Waves Audio plugins, Universal Audio, vintage audio gear
-**Brands:** Universal Audio, Waves, Apple (2007–2013), old iOS
-**Associations:** Nostalgia, analog warmth, recording studios, craftsmanship
-
-**Rules:**
-- Light source is consistent (usually top-left)
-- Shadows are realistic (blur, spread, direction)
-- Textures suggest specific materials
-- Buttons look pressable
-- Knobs look turnable
-- Metaphors should be recognizable
-
----
-
-### FLAT DESIGN (2012–2017)
-*"Honest digital."*
-
-**Philosophy:** Screens are screens. No fake depth. Content over chrome. Bold color, bold typography.
-
-**Visual DNA:**
-- Solid colors, no gradients
-- No shadows or depth
-- Geometric icons
-- Bold sans-serif typography
-- Color blocks define hierarchy
-- Minimal borders
-
-**Lineage:** Windows 8 Metro, iOS 7, early Material Design
-**Brands:** Microsoft (Metro era), iOS 7–10, Spotify (early)
-**Associations:** Modernism redux, clarity, digital-native
-
-**Rules:**
-- No gradients
-- No shadows
-- No textures
-- Color is the only hierarchy tool
-- Typography must be strong
-- Icons are geometric primitives
-
----
-
-### MATERIAL DESIGN (2014–now)
-*"Paper in digital space."*
-
-**Philosophy:** Surfaces are paper. Depth through elevation. Motion is meaningful. Bold color, intentional.
-
-**Visual DNA:**
-- Elevation shadows (multiple layers)
-- Paper-like surfaces that stack
-- Ripple effects on touch
-- 8dp grid
-- Bold accent colors
-- Roboto typography
-
-**Lineage:** Google Material Design, Android
-**Brands:** Google, Android apps, many web apps
-**Associations:** Android, Google, motion design
-
-**Rules:**
-- Shadows indicate elevation (not light source)
-- Surfaces never pass through each other
-- Motion has meaning (entry, exit, emphasis)
-- Color is systematic (primary, secondary, surface)
-- Touch ripples from touch point
-
----
-
-### NEUMORPHISM / Soft UI (2019–2020)
-*"Soft extrusion."*
-
-**Philosophy:** Elements push out of or sink into the surface. Same-material depth. Subtle, not dramatic.
-
-**Visual DNA:**
-- Paired shadows (dark + light)
-- Same-color surfaces
-- Extremely rounded corners
-- Low contrast
-- Soft, muted colors
-- No borders
-
-**Lineage:** Dribbble concepts, Alexander Plyuto's explorations
-**Brands:** (Few production uses — accessibility issues)
-**Associations:** Soft plastic, clay, quiet luxury
-
-**Rules:**
-- Shadows always paired (dark bottom-right, light top-left)
-- Background and elements are same color family
-- Roundness is very high
-- Contrast is dangerously low (accessibility!)
-- No sharp edges anywhere
-
----
-
-### GLASSMORPHISM (2020–now)
-*"Layered translucency."*
-
-**Philosophy:** Depth through blur, not shadow. Surfaces are frosted glass. Context bleeds through.
-
-**Visual DNA:**
-- Background blur (frosted glass)
-- Subtle white/light borders
-- Transparency/opacity
-- Floating layers
-- Vivid backgrounds (the blur needs something to blur)
-- Thin strokes
-
-**Lineage:** macOS Big Sur, Windows 11, iOS 15+ widgets
-**Brands:** Apple (Big Sur+), Windows 11, many modern apps
-**Associations:** Premium, modern, airy, depth
-
-**Rules:**
-- Blur is the primary depth cue
-- Borders are thin, often white/light
-- Background must be interesting (blur of nothing = nothing)
-- Transparency varies by layer
-- Works best with vibrant backgrounds
-
----
-
-### NEOBRUTALISM (2021–now)
-*"Raw, bold, anti-polish."*
-
-**Philosophy:** Reject smoothness. Visible structure. High contrast. Playful confrontation.
-
-**Visual DNA:**
-- Hard shadows (offset, no blur)
-- Thick black borders
-- High saturation colors
-- Raw, sometimes clashing palettes
-- Visible grid structure
-- Bold, sometimes quirky typography
-
-**Lineage:** Gumroad redesign, Figma marketing, indie web
-**Brands:** Gumroad, Figma (marketing), indie projects
-**Associations:** Punk, zines, construction, honesty, Gen-Z
-
-**Rules:**
-- Shadows are hard offset (e.g., 4px 4px 0 black)
-- Borders are thick (2-4px) and always black
-- Colors can clash — that's the point
-- No gradients
-- No blur
-- Structure is visible and celebrated
-
----
-
-### CLASSIC / Editorial (timeless)
-*"The book as interface."*
-
-**Philosophy:** Centuries of print wisdom. Hierarchy through typography. Restraint is elegance.
-
-**Visual DNA:**
-- Serif typography
-- Generous line height and margins
-- Black text, cream/white background
-- Subtle borders or none
-- Pilcrows, drop caps, small caps
-- Rule lines as punctuation
-
-**Lineage:** Baskerville, Garamond, The New Yorker, traditional publishing
-**Brands:** Medium (early), Notion, iA Writer, Substack
-**Associations:** Reading, writing, scholarship, timelessness
-
-**Rules:**
-- Serif is default
-- Line length is controlled (~66 characters)
-- Whitespace is generous
-- Color is minimal (text + one accent)
-- Hierarchy through size and weight, not color
-- Ornament is typographic (rules, small caps)
-
----
-
-### MINIMALISM (eternal)
-*"Less, but better."*
-
-**Philosophy:** Reduction to essence. Only what's necessary. Space is presence.
-
-**Visual DNA:**
-- Maximum whitespace
-- Single accent color (or none)
-- Thin lines or none
-- Geometric sans-serif
-- Asymmetric balance
-- Hidden complexity
-
-**Lineage:** Dieter Rams, John Pawson, Apple (post-Ive)
-**Brands:** Apple, Muji, Aesop, Linear
-**Associations:** Luxury through restraint, Japanese aesthetics, clarity
-
-**Rules:**
-- Every element must justify its existence
-- Whitespace is the primary design element
-- One typeface, two weights maximum
-- Color is accent, not theme
-- Interaction reveals, not decorates
-
----
 
 ## Brand Mapping
 
-| Brand | Primary Theme | Notes |
-|-------|---------------|-------|
-| **Braun** | Swiss | Rams' "less but better" — pure functionalism |
-| **Teenage Engineering** | Industrial | Exposed PCB, orange accents, modular |
-| **Apple (2007-2013)** | Skeuomorphism | Leather, wood, realistic shadows |
-| **Apple (2013+)** | Swiss / Minimalism | Flat, typographic, whitespace |
-| **Bloomberg Terminal** | Terminal | Max density, monospace, status colors |
-| **Stripe** | Swiss | Clean grids, generous space, subtle gradients |
-| **Linear** | Minimalism | Dark, sparse, keyboard-first |
-| **Notion** | Classic / Editorial | Serif option, reading-optimized, warm |
-| **Figma** | Swiss | Grids, functional color, clarity |
-| **Ableton Live** | Terminal / Industrial | Dense, functional, no decoration |
-| **Elektron** | Terminal | Monospace, dense, utilitarian |
-| **Universal Audio** | Skeuomorphism | Photorealistic vintage gear |
-| **FabFilter** | Swiss | Clean, functional, readable |
-| **Roland/Korg** | Digital | LCD aesthetic, segmented displays |
-| **Native Instruments** | Swiss / Industrial | Clean with industrial accents |
-| **Gumroad** | Neobrutalism | Hard shadows, thick borders, bold color |
-| **Windows 11** | Glassmorphism | Blur, transparency, rounded |
-| **macOS Big Sur** | Glassmorphism | Frosted glass, depth |
-
----
+| Brand | Theme | Why |
+|-------|-------|-----|
+| Braun | swiss | Rams' "less but better" |
+| Stripe | swiss | Clean grids, generous space |
+| FabFilter | swiss | Functional, readable, no flair |
+| Figma | swiss | Grid-driven, functional color |
+| Linear | swiss | Dark, sparse, keyboard-first |
+| Apple (2013+) | swiss | Typographic, whitespace-driven |
+| Notion | classic | Serif option, reading-optimized |
+| iA Writer | classic | Print heritage, type-first |
+| Medium (early) | classic | Editorial, generous margins |
+| Bloomberg | terminal | Max density, monospace, status colors |
+| vim / htop | terminal | Every pixel earns its place |
+| Ableton Live | terminal | Dense, functional, no decoration |
+| Elektron | terminal | Monospace, utilitarian |
+| Teenage Engineering | industrial | Exposed PCB, orange accent, modular |
+| Nothing Phone | industrial | Visible structure, glyph interface |
+| Gumroad | brutal | Hard shadows, thick borders, bold |
+| macOS Big Sur | glass | Frosted panels, translucent layers |
+| Windows 11 | glass | Mica/acrylic blur, thin borders |
+| iOS 1–6 | skeu | Leather, wood, realistic shadows |
+| Universal Audio | skeu | Photorealistic vintage gear |
+| Waves Audio | skeu | Analog plugin replicas |
+| Windows 95/98 | retro | Bevel borders, system palette |
+| classic GTK | retro | Raised/sunken border model |
+| Tailwind UI | soft | Gentle shadows, generous radius |
+| Radix / shadcn | soft | Subtle depth, smooth transitions |

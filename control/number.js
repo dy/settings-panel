@@ -16,7 +16,7 @@ export default (sig, opts = {}) => {
 
   return control(sig, {
     ...rest,
-    type: 'number', template, min, max, step,
+    type: 'number', template, value: sig, min, max, step,
     set: v => { sig.value = clamp(v) },
     inc: () => { sig.value = clamp(sig.value + step) },
     dec: () => { sig.value = clamp(sig.value - step) }

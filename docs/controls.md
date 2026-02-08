@@ -184,9 +184,9 @@ interface SliderParams {
   type?: 'linear' | 'log' | 'exp' | 'range' | 'stepped'
   min: number
   max: number
-  step?: number
-  steps?: number[]          // explicit step values
-  marks?: boolean | number[] | Record<number, string>  // tick marks
+  step?: number | number[]  // increment OR discrete values (array = snap)
+  marks?: boolean | number[] | Record<number, string>  // tick marks + labels
+  track?: string            // CSS gradient for track background
   origin?: number           // center point (for bipolar)
   orientation?: 'horizontal' | 'vertical'
 
@@ -197,7 +197,7 @@ interface SliderParams {
 
   // Display
   showValue?: boolean
-  formatValue?: (n: number) => string
+  format?: (n: number) => string
   fillFrom?: 'start' | 'end' | 'origin'
 }
 ```

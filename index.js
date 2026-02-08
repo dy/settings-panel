@@ -4,8 +4,7 @@
  */
 
 import { signal, effect } from 'sprae'
-import defaultTheme from './theme/default.js'
-import { css as serialize } from './theme/css.js'
+import soft from './theme/soft.js'
 
 // Import control factories
 import boolean from './control/boolean.js'
@@ -19,7 +18,7 @@ import textarea from './control/textarea.js'
 import button from './control/button.js'
 
 export { boolean, number, slider, select, color, folder, text, textarea, button }
-export { effect, signal } from 'sprae'
+export * from './signals.js'
 
 // Control registry
 const controls = {
@@ -48,15 +47,16 @@ export function register(type, factory) {
 export default function settings(schema, options = {}) {
   const {
     container = document.body,
-    theme = defaultTheme,
+    theme = soft,
     collapsed = false,
     onchange = options.onChange
   } = options
 
   // Inject theme CSS
-  const toCSS = v => typeof v === 'object' ? serialize(v) : v
   const style = document.createElement('style')
-  style.textContent = toCSS(typeof theme === 'function' ? theme() : theme)
+  const stopTheme = effect(() => {
+    style.textContent = theme.valueOf()()
+  })
   document.head.appendChild(style)
 
   // Create panel container
@@ -82,13 +82,8 @@ export default function settings(schema, options = {}) {
 
   const state = root.value
 
-  // Live re-theme: re-calls theme fn with new params, updates <style>
-  state.retheme = (params) => {
-    if (typeof theme === 'function') style.textContent = toCSS(theme(params))
-  }
-
   // Wire onchange via single effect on all state keys (recursive into folders)
-  let stopEffect
+  let stopOnchange
   if (onchange) {
     const touch = (obj) => {
       for (const k of Object.keys(obj)) {
@@ -98,7 +93,7 @@ export default function settings(schema, options = {}) {
     }
     let ready = false
     queueMicrotask(() => { ready = true })
-    stopEffect = effect(() => {
+    stopOnchange = effect(() => {
       touch(state)
       if (!ready) return
       onchange(state)
@@ -106,10 +101,11 @@ export default function settings(schema, options = {}) {
   }
 
   state[Symbol.dispose] = () => {
-    stopEffect?.()
+    stopOnchange?.()
     root[Symbol.dispose]()
     panel.remove()
     style.remove()
+    stopTheme()
   }
 
   return state
