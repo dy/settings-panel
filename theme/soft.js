@@ -15,19 +15,18 @@ const TEX = {
   crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
 }
 
-// Color temperature in Kelvin — universal, intuitive
-//   1500K  candle (deep amber/red)
-//   2700K  incandescent (warm)
-//   5000K  neutral white
-//   6500K  daylight (cool)
-//  15000K  shade/sky (violet)
+// Color temperature in Kelvin — continuous spectrum
+//   1500K  candle (amber ~30°)
+//   5000K  daylight (yellow ~60°)
+//  15000K  shade/sky (violet ~280°)
 //
-// Maps K → chroma & hue via normalized T
+// Hue interpolates through red (short arc): 30° → 60° → 360°/0° → 280°
 const TEMP_NEUTRAL = 5000  // center point
 const TEMP_MIN = 1500      // warm edge
 const TEMP_MAX = 15000     // cool edge
-const HUE_WARM = 50        // orange-red
-const HUE_COOL = 280       // violet
+const HUE_WARM = 30        // candle amber
+const HUE_NEUTRAL = 60     // daylight yellow
+const HUE_COOL = -80       // violet (280° via wrap)
 
 export default function soft({
   lightness = 97,      // 0-100 (maps to OKLCH 0-1)
@@ -47,8 +46,13 @@ export default function soft({
   const T = K < TEMP_NEUTRAL
     ? -(TEMP_NEUTRAL - K) / (TEMP_NEUTRAL - TEMP_MIN)
     : (K - TEMP_NEUTRAL) / (TEMP_MAX - TEMP_NEUTRAL)
-  const chroma = T * T * 0.025  // quadratic, more vivid at extremes
-  const hue = T < 0 ? HUE_WARM : HUE_COOL
+  // Chroma: subtle tint at neutral, vivid at extremes
+  const chroma = 0.004 + T * T * 0.021
+  // Hue: continuous through red (short arc 30° → 60° → 0°/360° → 280°)
+  const rawHue = T < 0
+    ? lerp(HUE_NEUTRAL, HUE_WARM, -T)   // 60° → 30°
+    : lerp(HUE_NEUTRAL, HUE_COOL, T)    // 60° → -80° (wraps to 280°)
+  const hue = rawHue < 0 ? rawHue + 360 : rawHue
 
   // oklch helper with temperature tint
   const lch = (l, a) => {
@@ -67,9 +71,11 @@ export default function soft({
   const dim     = lch(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
   const input   = lch(lo(.1))
   const track   = lch(lo(dark ? .01 : .06))
-  const accent  = lch(dark ? .72 : .58)
+  // Accent: saturated at temperature hue, subtle tint at neutral
+  const accentC = 0.08 + abs(T) * 0.12  // 0.08 at neutral → 0.20 at extremes
+  const accent  = `oklch(${dark ? .72 : .58} ${accentC} ${hue})`
   const accentK = lch(dark ? .15 : .98)
-  const focus   = lch(dark ? .72 : .58, .35)
+  const focus   = `oklch(${dark ? .72 : .58} ${accentC} ${hue} / .35)`
   const edge    = 'color-mix(in oklch, currentColor 20%, transparent)'
   const divider = 'color-mix(in oklch, currentColor 10%, transparent)'
   const inlay   = lch(dark ? 1 : 0, .04)
@@ -171,8 +177,9 @@ export default function soft({
     border: 0;
     & + .s-control { border-top: 1px solid ${divider}; }
   }
-  .s-label { flex: 0 0 auto; min-width: 80px; font-weight: ${fwB}; color: ${text}; }
-  .s-hint { font-size: 11px; color: ${dim}; }
+  .s-label-group { flex: 0 0 auto; width: 80px; display: flex; flex-direction: column; gap: 2px; }
+  .s-label { font-weight: ${fwB}; color: ${text}; }
+  .s-hint { font-size: 10px; color: ${dim}; line-height: 1.3; }
   .s-input { flex: 1; display: flex; align-items: baseline; gap: calc(${sp1} * .6); }
 
   /* ── Inputs ── */

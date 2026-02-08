@@ -24,8 +24,10 @@ export default function control(sig, opts) {
   const wrapper = document.createElement('div')
 
   wrapper.innerHTML = `<label class="${classes}">
-      <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
-      <span class="s-hint" :text="hint" :hidden="!hint"></span>
+      <span class="s-label-group" :hidden="!label && !hint">
+        <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
+        <span class="s-hint" :text="hint" :hidden="!hint"></span>
+      </span>
       <span class="s-input"></span>
     </label>`
   wrapper.querySelector('.s-input').innerHTML = template

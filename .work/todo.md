@@ -9,3 +9,5 @@
   * [ ] make sure they properly update state
 * [ ] demo with showcase and self-customization
 * [ ] research opening strategies
+
+* [ ] `help` property for tooltip
