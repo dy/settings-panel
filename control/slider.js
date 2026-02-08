@@ -77,17 +77,21 @@ export default (sig, opts = {}) => {
 
   const marks = markVals.map(v => ({ pct: ((v - min) / (max - min)) * 100 }))
 
-  // Snap to nearest mark when within threshold (% of range, default 3%)
-  const snapThreshold = snapOpt === false ? 0 : (typeof snapOpt === 'number' ? snapOpt : 3)
+  // Snap to nearest mark when within threshold (% of range, default 2%)
+  // Always include min/max as snap targets so ends are reachable
+  const snapThreshold = snapOpt === false ? 0 : (typeof snapOpt === 'number' ? snapOpt : 2)
   const snapDist = (max - min) * snapThreshold / 100
+  const snapTargets = [...new Set([min, ...markVals, max])]
 
   const snap = v => {
     v = Math.min(max, Math.max(min, v))
-    if (!snapDist || !markVals.length) return v
-    for (const m of markVals) {
-      if (Math.abs(v - m) <= snapDist) return m
+    if (!snapDist) return v
+    let best = v, bestDist = Infinity
+    for (const t of snapTargets) {
+      const d = Math.abs(v - t)
+      if (d <= snapDist && d < bestDist) { best = t; bestDist = d }
     }
-    return v
+    return best
   }
 
   // Set with snap — also update display value to prevent jerk

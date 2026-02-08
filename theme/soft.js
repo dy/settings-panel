@@ -15,8 +15,12 @@ const TEX = {
   crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
 }
 
-// oklch shorthand — monotone: chroma always 0
-const lch = (l, a) => a != null ? `oklch(${l} 0 0 / ${a})` : `oklch(${l} 0 0)`
+// oklch shorthand — monotone: chroma always 0, lerp L to sRGB visible range
+const L_MIN = 0.16, L_MAX = 0.99
+const lch = (l, a) => {
+  // l = lerp(L_MIN, L_MAX, l) // 0→0.16, 1→0.99
+  return a != null ? `oklch(${l} 0 0 / ${a})` : `oklch(${l} 0 0)`
+}
 
 export default function soft({
   lightness = .97,
@@ -37,7 +41,7 @@ export default function soft({
   // ── Palette ──
   const surface = lch(L)
   const text    = lch(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast))
-  const dim     = lch(dark ? lerp(.48, .65, contrast) : lerp(.58, .42, contrast))
+  const dim     = lch(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
   const input   = lch(lo(.1))
   const track   = lch(lo(dark ? .01 : .06))
   const accent  = lch(dark ? .72 : .58)
@@ -239,14 +243,12 @@ export default function soft({
       font-size: 9px;
       text-align: center;
       white-space: nowrap;
-      color: ${dark ? 'white' : 'black'};
-      opacity: .5;
-      &.active { opacity: 1; }
+      color: ${dim};
+      &.active { color: var(--accent); }
     }
     .s-value {
       min-width: 48px; text-align: right; font-family: ${mono}; font-size: 11px;
-      color: ${dark ? 'white' : 'black'};
-      opacity: .5;
+      color: ${dim};
     }
   }
 
