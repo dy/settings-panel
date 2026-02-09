@@ -1,94 +1,33 @@
-Panel with controls designed for purpose that _feel right_.
+Purpose-built parameter controls that _feel right_. Miniature app helper, not app settings replacer.
 
-## Goal
+## Docs (source of truth)
+- `docs/axes.md` — theme axes
+- `docs/themes.md` — foundational themes
+- `docs/options.md` — panel options
+- `docs/controls.md` — control types
+- `docs/signals.md` — signals pattern
 
-* Miniature and easy to plug app helper.
-* NOT app setings replacer: controls are designed for specific purpose, not generic.
-* NOT center of attention: should not switch focus from the main app - just neat useful controls matching visually.
-* NOT style/theme generator: it may happen so that the theme has elaborate controls for theme picker, but it has no goal to become generic theme descriptor.
-
-## Differentiation
-
-* Parameter controls that are presentation-ready, not just functional.
-* Each combination of any theme params should look beautiful
-* Controls designed for purpose that _feel right_.
-	* Log slider that *is* logarithmic
-	* Palette picker that *understands* color
-	* XY pad with pointerlock precision
-	* Waveform display that *knows* audio
-	* Font picker that *knows* font
-
-## Principles
-
-	* Quality > quantity
-	* Each type crafted for its purpose
-	* Resist feature-count pressure
-	* No React lock-in, no plugin ecosystem complexity
-
-## Technical Direction
-
-	* Signals-based reactivity
-	* 0 dependencies
-	* Framework-agnostic (vanilla JS, sprae-compatible)
-	* Open, minimal API
-
-
-## Source of truth:
-- `docs/axes.md` — 12 theme axes (lightness, accent, temperature, ..., motion).
-- `docs/themes.md` — 10 foundational themes (soft, swiss, classic, ..., retro).
-- `docs/options.md` — panel options (container, title, theme, collapsed, persist, key, onChange).
-- `docs/controls.md` — control types.
-- `docs/signals.md` — signals pattern, switching implementations, passing signals.
-
-## Rules:
+## Rules
 - If unclear or missing, ask. Do not guess.
 - Prefer deletion over expansion.
-- Respect existing decisions unless told to revise.
-
-If not written, it is undecided.
+- If not written, it is undecided.
 
 ## Structure
-
-- `/control/*` - control components. Not utils or factories.
-- `/theme/*` - theme files. Each theme is a function(axes) → CSS string. Self-contained, peer to others.
-- `/index.js` - main entry, settings(), infer(), register().
+- `/control/*` — controls. `/control/control.js` is base wrapper.
+- `/theme/*` — `theme(axes?) → CSS string`. Peers, not hierarchy.
+- `/index.js` — settings(), infer(), register().
 
 ## Architecture
+Controls are signal decorators: `factory(sig, opts) → sig` with `.el`, `[Symbol.dispose]`.
+- `control.js` wraps template with label/hint/title structure, mounts, handles dispose
+- Controls pass state explicitly: `value: sig, set: v => { sig.value = v }`
+- No implicit injection — control.js knows nothing about value/set
+- Sprae auto-unwraps signals in templates. `:value` is two-way for inputs.
 
-Data-first: controls are signal decorators, not custom elements.
-- `control(signal, opts)` → decorated signal with `.el` and `[Symbol.dispose]()`
-- Templates bind to `value` (auto-unwrapped signal) and `set` (write channel)
-- No intermediate signals unless needed (e.g., log scale slider)
-
-**Panel is decoupled from controls:**
-- settings() = theme CSS + panel container + root folder + onchange effect
+Panel flow: `settings() → theme <style> + panel el + root folder + onchange effect`
 - Folder is self-sufficient: imports infer, receives controls registry
 - Folder state is `sprae/store` — reactive proxy, one signal per prop
-- Controls receive store's internal signals directly (no duplication)
-- No type-specific checks in panel (no `if (type === 'folder')`)
-- No callback threading (no notify/render/path passed through tree)
-- onchange wired at settings() level via single effect on all state keys
+- Controls receive store's internal signals directly
+- onchange wired at settings() level via single effect
 
-**Theme pattern:**
-- theme(axes?) → CSS string → `<style>`
-- 11 universal axes: lightness, accent, contrast,
-  spacing, size, roundness, depth, weight, texture, font, motion
-- Axes control intent, theme computes implementation
-- Theme as signal for live re-theming
-
-Control pattern in `/control/*.js`:
-```js
-import control from './control.js'
-export default (sig, opts) =>
-  control(sig, { type: 'my', template: `<input :value="value" />`, ...opts })
-```
-
-## Code
-
-- Core must be minimal, modular. Do not bundle all themes.
-- Use nested CSS over flat CSS.
-- Themes are peers, not layered hierarchy.
-- Bind templates directly to source signal, avoid intermediate state.
-- Sprae auto-unwraps signals: templates use `value` (read) and `set` (write).
-- Sprae `:value` is two-way binding for inputs.
-- For explicit writes, controls override `set` in opts (e.g., clamping).
+Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.

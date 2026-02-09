@@ -15,22 +15,61 @@ const TEX = {
   crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
 }
 
-// Color temperature in Kelvin — continuous spectrum
-//   1500K  candle (amber ~30°)
-//   5000K  daylight (yellow ~60°)
-//  15000K  shade/sky (violet ~280°)
-//
-// Hue interpolates through red (short arc): 30° → 60° → 360°/0° → 280°
-const TEMP_NEUTRAL = 5000  // center point
-const TEMP_MIN = 1500      // warm edge
-const TEMP_MAX = 15000     // cool edge
-const HUE_WARM = 30        // candle amber
-const HUE_NEUTRAL = 60     // daylight yellow
-const HUE_COOL = -80       // violet (280° via wrap)
+/**
+ * Parse CSS color to OKLCH components
+ * Supports: #hex, oklch(), rgb(), hsl()
+ */
+function parseColor(color) {
+  if (!color) return { L: 0.97, C: 0.01, H: 60 }
+
+  // oklch(L C H) or oklch(L C H / a)
+  const oklch = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
+  if (oklch) return { L: +oklch[1], C: +oklch[2], H: +oklch[3] }
+
+  // #hex → RGB → OKLCH (simplified)
+  if (color.startsWith('#')) {
+    const hex = color.slice(1)
+    const r = parseInt(hex.slice(0, 2), 16) / 255
+    const g = parseInt(hex.slice(2, 4), 16) / 255
+    const b = parseInt(hex.slice(4, 6), 16) / 255
+    // Linear RGB
+    const rl = r <= 0.04045 ? r / 12.92 : ((r + 0.055) / 1.055) ** 2.4
+    const gl = g <= 0.04045 ? g / 12.92 : ((g + 0.055) / 1.055) ** 2.4
+    const bl = b <= 0.04045 ? b / 12.92 : ((b + 0.055) / 1.055) ** 2.4
+    // OKLab
+    const l_ = Math.cbrt(0.4122214708*rl + 0.5363325363*gl + 0.0514459929*bl)
+    const m_ = Math.cbrt(0.2119034982*rl + 0.6806995451*gl + 0.1073969566*bl)
+    const s_ = Math.cbrt(0.0883024619*rl + 0.2817188376*gl + 0.6299787005*bl)
+    const L = 0.2104542553*l_ + 0.7936177850*m_ - 0.0040720468*s_
+    const a = 1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_
+    const ob = 0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_
+    const C = Math.sqrt(a*a + ob*ob)
+    let H = Math.atan2(ob, a) * 180 / Math.PI
+    if (H < 0) H += 360
+    return { L, C, H }
+  }
+
+  return { L: 0.97, C: 0.01, H: 60 }
+}
+
+/**
+ * Default shade function — OKLCH-based
+ * @param {number} L - lightness (0-1)
+ * @param {number} C - chroma from surface
+ * @param {number} H - hue from surface
+ * @param {number} [alpha] - optional alpha
+ * @returns {string} CSS color
+ */
+function defaultShade(L, C, H, alpha) {
+  L = clamp(L, 0, 1)
+  return alpha != null
+    ? `oklch(${L} ${C} ${H} / ${alpha})`
+    : `oklch(${L} ${C} ${H})`
+}
 
 export default function soft({
-  lightness = 97,      // 0-100 (maps to OKLCH 0-1)
-  temperature = 5000,  // Kelvin: 2500 (warm) → 5000 (neutral) → 7500 (cool)
+  shade = '#f5f4f2',    // base color, palette, or function — defines lightness, hue, chroma
+  accent,               // interactive color (optional, derived from shade if omitted)
   contrast = .5,
   texture = 'flat',
   spacing = .5,
@@ -40,48 +79,35 @@ export default function soft({
   roundness = .5,
 } = {}) {
 
-  // Temperature: Kelvin → normalized T → chroma & hue
-  const K = clamp(temperature, TEMP_MIN, TEMP_MAX)
-  // Normalize: -1 (warm) at 1500K, 0 at 5000K, +1 (cool) at 15000K
-  const T = K < TEMP_NEUTRAL
-    ? -(TEMP_NEUTRAL - K) / (TEMP_NEUTRAL - TEMP_MIN)
-    : (K - TEMP_NEUTRAL) / (TEMP_MAX - TEMP_NEUTRAL)
-  // Chroma: subtle tint at neutral, vivid at extremes
-  const chroma = 0.004 + T * T * 0.021
-  // Hue: continuous through red (short arc 30° → 60° → 0°/360° → 280°)
-  const rawHue = T < 0
-    ? lerp(HUE_NEUTRAL, HUE_WARM, -T)   // 60° → 30°
-    : lerp(HUE_NEUTRAL, HUE_COOL, T)    // 60° → -80° (wraps to 280°)
-  const hue = rawHue < 0 ? rawHue + 360 : rawHue
-
-  // oklch helper with temperature tint
-  const lch = (l, a) => {
-    const c = chroma, h = hue
-    return a != null ? `oklch(${l} ${c} ${h} / ${a})` : `oklch(${l} ${c} ${h})`
-  }
-
-  const L = clamp(lightness, 0, 100) / 100  // normalize to 0-1
+  // Shade: color string → parse and build ramp; function → use directly
+  const isFunc = typeof shade === 'function'
+  const { L, C, H } = isFunc ? { L: 0.97, C: 0.01, H: 60 } : parseColor(shade)
   const dark = L < .5
-  const hi = (d, l=L) => clamp(l + d, .27, 1)
-  const lo = (d, l=L) => clamp(l - d, 0, 1)
+  const K = 0.2 // black lightness
+
+  // Shade function: user-provided or default OKLCH ramp
+  const $ = isFunc ? shade : ((l, c=C, h=H, a=1) => defaultShade(l, c, h, a))
 
   // ── Palette ──
-  const surface = lch(L)
-  const text    = lch(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast))
-  const dim     = lch(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
-  const input   = lch(lo(.1))
-  const track   = lch(lo(dark ? .01 : .06))
-  // Accent: saturated at temperature hue, subtle tint at neutral
-  const accentC = 0.08 + abs(T) * 0.12  // 0.08 at neutral → 0.20 at extremes
-  const accent  = `oklch(${dark ? .72 : .58} ${accentC} ${hue})`
-  const accentK = lch(dark ? .15 : .98)
-  const focus   = `oklch(${dark ? .72 : .58} ${accentC} ${hue} / .35)`
+  const shadeColor = $(L)
+  const text    = $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast))
+  const dim     = $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
+  const input   = $(max(L - .1, K))
+  const track   = $(max(L - .1, K))
+
+  // Accent: use provided or derive from surface with boosted chroma
+  const accentC = min(C * 8, 0.25)  // boost chroma for accent
+  const accentColor = accent || `oklch(${dark ? .72 : .58} ${accentC} ${H})`
+  const accentContrast = $(dark ? .15 : .98)
+  const focus   = accent
+    ? accent.replace(/\)$/, ' / .35)').replace('oklch(', 'oklch(')
+    : `oklch(${dark ? .72 : .58} ${accentC} ${H} / .35)`
   const edge    = 'color-mix(in oklch, currentColor 20%, transparent)'
   const divider = 'color-mix(in oklch, currentColor 10%, transparent)'
-  const inlay   = lch(dark ? 1 : 0, .04)
+  const inlay   = $(dark ? 1 : 0, C, H, .04)
 
   // ── Weight ──
-  const bw  = lerp(1, 2.5, weight)
+  const bw  = weight
   const fw  = round(lerp(400, 600, weight))
   const fwB = round(lerp(500, 800, weight))
 
@@ -98,7 +124,7 @@ export default function soft({
   const minW = px(lerp(240, 380, spacing))
 
   // ── Depth — diffuse shadows ──
-  const sh = (y, bl, a) => `0 ${px(y)} ${px(bl)} ${lch(0, a)}`
+  const sh = (y, bl, a) => `0 ${px(y)} ${px(bl)} ${$(0, C, H, a)}`
   const panelSh = sh(lerp(0, 10, depth), lerp(0, 24, depth), lerp(0, dark ? .35 : .15, depth))
   const thumbSh = sh(lerp(0, 2, depth), lerp(2, 8, depth), lerp(.1, .35, depth))
   const knobSh  = sh(lerp(0, 1, depth), lerp(1, 5, depth), lerp(.05, .25, depth))
@@ -118,10 +144,10 @@ export default function soft({
   // ── Shared fragments ──
   const inputBase = `
     background: ${input};
-    border: ${bw}px solid ${lch(hi(.03))};
-    border-bottom-color: ${lch(hi(.05))};
+    border: ${bw}px solid ${$((L + .03))};
+    border-bottom-color: ${$((L + .05))};
     border-radius: ${radSm};
-    box-shadow: inset 0 ${bw}px 0 ${lch(lo(.14))};
+    box-shadow: inset 0 ${bw}px 0 ${$(L-0.14)};
     color: ${text};
     padding: 6px 8px;
     font: inherit;
@@ -136,7 +162,7 @@ export default function soft({
 
   const thumb = `
       width: ${thumbSz}; height: ${thumbSz};
-      background: ${lch(.99)};
+      background: ${$(.99)};
       border: none;
       border-radius: 50%;
       box-shadow: inset 0 0 0 2px var(--accent), ${thumbSh};
@@ -146,17 +172,18 @@ export default function soft({
       `
 
   return `.s-panel {
-  --accent: ${accent};
-  --accent-c: ${accentK};
+  --accent: ${accentColor};
+  --accent-c: ${accentContrast};
   --focus: ${focus};
   --thumb: ${thumbSz};
+  --bg: ${shadeColor};
 
   color: ${text};
-  background: ${surface};
+  background: var(--bg);
   background-image: ${tex};
-  border: ${bw}px solid ${lch(lo(.1))};
+  outline: ${bw}px solid ${$(0, C, H, contrast)};
+  border: ${bw}px solid ${$(max(L, K) + contrast*.5, C, H)};
   border-radius: ${rad};
-  box-shadow: inset 0 0 0 ${bw}px ${lch(hi(.05))}, ${panelSh};
   padding: ${sp3};
   font: ${fw} ${fs}/1.35 system-ui, -apple-system, sans-serif;
   min-width: ${minW};
@@ -175,7 +202,6 @@ export default function soft({
     min-height: ${ctrlH};
     margin: 0;
     border: 0;
-    & + .s-control { border-top: 1px solid ${divider}; }
   }
   .s-label-group { flex: 0 0 auto; width: 80px; display: flex; flex-direction: column; gap: 2px; }
   .s-label { font-weight: ${fwB}; color: ${text}; }
@@ -196,12 +222,12 @@ export default function soft({
       position: relative;
       cursor: pointer;
       transition: background 140ms;
-      box-shadow: inset 0 0 0 ${bw}px ${lch(lo(.1))};
+      box-shadow: inset 0 0 0 ${bw}px ${$((L - .1))};
       &::after {
         content: '';
         position: absolute;
         width: 14px; height: 14px;
-        background: ${lch(.99)};
+        background: ${$(.99)};
         border-radius: 50%;
         top: 3px; left: 3px;
         transition: transform 140ms;
@@ -210,7 +236,7 @@ export default function soft({
     }
     &:has(input:checked) .s-track {
       background: var(--accent);
-      &::after { transform: translateX(16px); box-shadow: 0 0 0 2px ${lch(1, .15)}; }
+      &::after { transform: translateX(16px); box-shadow: 0 0 0 2px ${$(1, C, H, .15)}; }
     }
   }
 
@@ -247,7 +273,7 @@ export default function soft({
       border-radius: 999px;
       -webkit-appearance: none;
       cursor: pointer;
-      box-shadow: inset 0 ${bw}px ${bw}px 0 ${lch(0, .05)};
+      box-shadow: inset 0 ${bw}px ${bw}px 0 ${$(0, C, H, .05)};
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb}; }
       &::-moz-range-thumb { ${thumb} }
     }
@@ -262,9 +288,9 @@ export default function soft({
       position: absolute;
       width: 1px; height: 10px;
       top: 50%;
-      background: ${surface};
+      background: ${shadeColor};
       transform: translate(-50%, -50%);
-      &.active { background: ${surface}; }
+      &.active { background: ${shadeColor}; }
     }
     .s-mark-label {
       position: absolute;
@@ -309,15 +335,19 @@ export default function soft({
   }
 
   /* ── Color ── */
-  .s-color input[type="color"] { width: 0; height: 0; opacity: 0; position: absolute; }
-  .s-preview { width: 26px; height: 26px; border-radius: ${radSm}; cursor: pointer; border: 1px solid ${edge}; box-shadow: inset 0 0 0 1px ${inlay}; }
-  .s-hex { font-family: ${mono}; font-size: 11px; color: ${dim}; }
+  .s-color-input {
+    flex: 1; position: relative; display: flex; align-items: center;
+    input[type="color"] { position: absolute; left: 4px; width: 20px; height: 20px; padding: 0; border: none; background: transparent; cursor: pointer; }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid ${edge}; border-radius: ${radSm}; }
+    input[type="text"] { flex: 1; padding-left: 30px; font-family: ${mono}; font-size: 11px; }
+  }
   .s-swatches {
     .s-input { flex-wrap: wrap; gap: 4px; }
     button {
       width: 22px; height: 22px; border: 1px solid transparent; border-radius: ${radSm};
       cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px ${inlay};
-      &.selected { border-color: ${text}; box-shadow: 0 0 0 2px ${surface}; }
+      &.selected { border-color: ${text}; box-shadow: 0 0 0 2px ${shadeColor}; }
     }
   }
 

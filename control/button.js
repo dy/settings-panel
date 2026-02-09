@@ -2,22 +2,13 @@
  * Button control - action trigger
  */
 
-import sprae, { signal } from 'sprae'
+import control from './control.js'
+import { signal } from 'sprae'
 
-const template = `
-  <div class="s-control s-button" :class="{ disabled: _disabled, loading: _loading }">
-    <span class="s-label" :text="label" :hidden="!label"></span>
-    <span class="s-input">
-      <button :onclick="click" :disabled="_disabled" :text="text"></button>
-    </span>
-  </div>
-`
+const template = `<button :onclick="click" :disabled="_disabled" :text="text"></button>`
 
 export default (sig, opts = {}) => {
-  const { label = '', text = 'Action', onClick, disabled = false } = opts
-
-  const el = document.createElement('div')
-  el.innerHTML = template
+  const { text = 'Action', onClick, disabled = false, ...rest } = opts
 
   const _disabled = signal(disabled)
   const _loading = signal(false)
@@ -31,10 +22,13 @@ export default (sig, opts = {}) => {
     }
   }
 
-  sprae(el, { label, text, click, _disabled, _loading })
-
-  return Object.assign(sig, {
-    el: el.firstElementChild,
-    [Symbol.dispose]() { el.firstElementChild?.remove() }
+  return control(sig, {
+    ...rest,
+    type: 'button',
+    template,
+    text,
+    click,
+    _disabled,
+    _loading
   })
 }

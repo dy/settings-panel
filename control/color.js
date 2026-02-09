@@ -6,9 +6,10 @@ import control from './control.js'
 
 const templates = {
   picker: `
-    <input type="color" :value="value" />
-    <span class="s-preview" :style="'background:' + value"></span>
-    <span class="s-hex" :text="value"></span>
+    <span class="s-color-input">
+      <input type="color" :value="value" :oninput="e => set(e.target.value)" />
+      <input type="text" :value="value" :oninput="e => set(e.target.value)" spellcheck="false" />
+    </span>
   `,
   swatches: `
     <button

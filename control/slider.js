@@ -8,9 +8,10 @@
  *   marks - visual indicators on track:
  *           false (default), true (at step positions), 'ends', 'center',
  *           [values] (ticks only), {value: 'label'} (ticks + labels)
- *   snap - snap to marks: true (default if marks), false, or number (% threshold)
+ *   snap - snap to marks during drag: false (default), true if step provided, or number (% threshold)
  *   track - CSS gradient for custom track background
- *   format - value formatter
+ *   unit - suffix appended to displayed value (e.g. 'px', '%', 'ms')
+ *   format - (value) → string, overrides default auto-precision display
  */
 
 import control from './control.js'
@@ -18,7 +19,7 @@ import { signal, effect, computed } from '../signals.js'
 
 const template = `
   <span class="s-track">
-    <input type="range" :style="track ? '--track:' + track : '--p:' + progress + '%'" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" />
+    <input type="range" :style="track ? '--track:' + track : '--p:' + progress + '%'" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
     <span class="s-marks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
   </span>
@@ -28,7 +29,8 @@ const template = `
 const defaultFormat = v => v >= 1000 ? v.toFixed(0) : v >= 100 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3)
 
 export default (sig, opts = {}) => {
-  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', marks: marksOpt, snap: snapOpt, track, format = defaultFormat, ...rest } = opts
+  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', marks: marksOpt, snap: snapOpt, track, unit = '', format: fmt, ...rest } = opts
+  const format = fmt || (v => defaultFormat(v) + unit)
 
   // Step: number (continuous) or array (discrete with snap)
   const discrete = Array.isArray(stepOpt)
@@ -79,12 +81,12 @@ export default (sig, opts = {}) => {
 
   // Snap to nearest mark when within threshold (% of range, default 2%)
   // Always include min/max as snap targets so ends are reachable
-  const snapThreshold = snapOpt === false ? 0 : (typeof snapOpt === 'number' ? snapOpt : 2)
+  const snapDefault = discrete || 'step' in opts ? 2 : 0
+  const snapThreshold = snapOpt === false ? 0 : (typeof snapOpt === 'number' ? snapOpt : snapDefault)
   const snapDist = (max - min) * snapThreshold / 100
   const snapTargets = [...new Set([min, ...markVals, max])]
 
   const snap = v => {
-    v = Math.min(max, Math.max(min, v))
     if (!snapDist) return v
     let best = v, bestDist = Infinity
     for (const t of snapTargets) {
@@ -94,18 +96,23 @@ export default (sig, opts = {}) => {
     return best
   }
 
-  // Set with snap — also update display value to prevent jerk
+  // Snap only during pointer drag, not keyboard
+  let dragging = false
+  const grab = () => { dragging = true }
+  const release = () => { dragging = false }
+
   const set = d => {
     const raw = fromDisplay(d)
-    const snapped = snap(raw)
-    sig.value = snapped
-    if (snapped !== raw) value.value = toDisplay(snapped)
+    const clamped = Math.min(max, Math.max(min, raw))
+    const final = dragging ? snap(clamped) : clamped
+    sig.value = final
+    if (final !== raw) value.value = toDisplay(final)
   }
 
   return control(sig, {
     ...rest,
     type: 'slider', template, dispose, value, progress, marks, labels, track,
-    dMin, dMax, dStep, set,
+    dMin, dMax, dStep, set, grab, release,
     format
   })
 }
