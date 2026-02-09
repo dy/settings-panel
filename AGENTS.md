@@ -11,6 +11,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 - If unclear or missing, ask. Do not guess.
 - Prefer deletion over expansion.
 - If not written, it is undecided.
+- Never apply symptomatic fixes (disabling, hiding, workarounds). Find and fix root cause.
 
 ## Structure
 - `/control/*` — controls. `/control/control.js` is base wrapper.

@@ -181,8 +181,8 @@ export default function soft({
   color: ${text};
   background: var(--bg);
   background-image: ${tex};
-  outline: ${bw}px solid ${$(0, C, H, contrast)};
-  border: ${bw}px solid ${$(max(L, K) + contrast*.5, C, H)};
+  outline: ${bw}px solid ${$(0, C, H, contrast*.5 / L)};
+  border: ${bw}px solid ${$(1, C, H, contrast*.5 / (1-L))};
   border-radius: ${rad};
   padding: ${sp3};
   font: ${fw} ${fs}/1.35 system-ui, -apple-system, sans-serif;
