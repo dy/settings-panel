@@ -106,7 +106,21 @@ Same value, different physics per theme:
 This is where themes diverge most — depth reveals the structural soul.
 
 
-### 8. `weight`
+### 9. `relief`
+
+**The surface curvature.** Apparent 3D shape of controls via lighting gradient.
+Buttons are convex (highlight top, shadow bottom). Inputs are concave (shadow top, highlight bottom).
+Direction is semantic — the axis controls intensity only.
+
+| 0 | 0.5 | 1 |
+|---|-----|---|
+| Flat. Digital. Clean. | Subtle roll. Tactile. | Full pillow/inset. Skeuomorphic. |
+
+0–1. Default: `0`.
+Classic toolkits call this `relief` (Tk: raised/sunken, GTK: shadow-type, Win32: edge style).
+
+
+### 10. `weight`
 
 **The heaviness.** Stroke width, border thickness, font-weight.
 
@@ -119,7 +133,7 @@ This is where themes diverge most — depth reveals the structural soul.
 
 ## Character — personality
 
-### 9. `texture`
+### 11. `texture`
 
 **The surface.** Pattern overlaid on backgrounds.
 
@@ -135,7 +149,7 @@ Default: `flat`.
 Orthogonal to depth — you can have flat+dots or deep+dots.
 
 
-### 10. `font`
+### 12. `font`
 
 **The voice.** Typographic family that sets the tone.
 
@@ -152,7 +166,7 @@ Theme constraints: terminal forces `mono`, classic defaults `serif`.
 
 ## Time
 
-### 11. `motion`
+### 13. `motion`
 
 **The energy.** Duration and intensity of transitions and animations.
 Theme chooses the curve (ease, linear, spring). User chooses the speed.
@@ -191,15 +205,16 @@ Same value, different character per theme:
 | 6 | `roundness` | 0–1 | sharp ↔ pill | geometry |
 | 7 | `depth` | 0–1 | flat ↔ dramatic | elevation |
 | 8 | `weight` | 0–1 | hairline ↔ chunky | heaviness |
-| 9 | `texture` | preset | flat / dots / crosses / grid / paper | surface |
-| 10 | `font` | select | geometric / humanist / mono / serif | voice |
-| 11 | `motion` | 0–1 | instant ↔ expressive | energy |
+| 9 | `relief` | 0–1 | flat ↔ pillowy | curvature |
+| 10 | `texture` | preset | flat / dots / crosses / grid / paper | surface |
+| 11 | `font` | select | geometric / humanist / mono / serif | voice |
+| 12 | `motion` | 0–1 | instant ↔ expressive | energy |
 
 | Group | Axes | What it controls |
 |-------|------|-----------------|
 | **Color** | lightness, accent, contrast | The palette |
 | **Shape** | spacing, size, roundness | Space, scale, and geometry |
-| **Surface** | depth, weight | Physical feel |
+| **Surface** | depth, weight, relief | Physical feel |
 | **Character** | texture, font | Personality |
 | **Time** | motion | Energy |
 

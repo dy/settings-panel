@@ -8,7 +8,7 @@ import { signal } from 'sprae'
 const template = `<button :onclick="click" :disabled="_disabled" :text="text"></button>`
 
 export default (sig, opts = {}) => {
-  const { text = 'Action', onClick, disabled = false, ...rest } = opts
+  const { text = 'Action', onClick, disabled = false, variant, ...rest } = opts
 
   const _disabled = signal(disabled)
   const _loading = signal(false)
@@ -24,7 +24,7 @@ export default (sig, opts = {}) => {
 
   return control(sig, {
     ...rest,
-    type: 'button',
+    type: variant ? `button ${variant}` : 'button',
     template,
     text,
     click,

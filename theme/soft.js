@@ -77,6 +77,7 @@ export default function soft({
   weight = .5,
   depth = .4,
   roundness = .5,
+  relief = 0,
 } = {}) {
 
   // Shade: color string → parse and build ramp; function → use directly
@@ -92,8 +93,9 @@ export default function soft({
   const shadeColor = $(L)
   const text    = $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast))
   const dim     = $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
-  const input   = $(max(L - .1, K))
-  const track   = $(max(L - .1, K))
+  const Li = L - .05 // input lightness
+  const input   = $(Li)
+  const track   = $(Li)
 
   // Accent: use provided or derive from surface with boosted chroma
   const accentC = min(C * 8, 0.25)  // boost chroma for accent
@@ -134,6 +136,14 @@ export default function soft({
   const rad   = px(roundness * 24)
   const radSm = roundness > .6 ? '999px' : px(roundness * 12)
 
+  // ── Relief — surface curvature via lighting gradient ──
+  // Delta capped so highlight never exceeds panel surface L
+  const rd = relief * (L - Li)
+  const hiR = $(1, C, H, rd / (1 - Li))
+  const loR = $(0, C, H, rd / Li)
+  const convex  = relief ? `linear-gradient(${hiR}, ${loR})` : 'none'
+  const concave = relief ? `linear-gradient(${loR}, ${hiR})` : 'none'
+
   // ── Texture ──
   const texFn = TEX[texture]
   const tex = !texFn || texFn === 'none' ? 'none'
@@ -144,10 +154,11 @@ export default function soft({
   // ── Shared fragments ──
   const inputBase = `
     background: ${input};
-    border: ${bw}px solid ${$((L + .03))};
-    border-bottom-color: ${$((L + .05))};
+    background-image: ${concave};
+    outline: ${bw}px solid ${$(1, C, H, contrast * .2 / (1 - L))};
+    border: none;
     border-radius: ${radSm};
-    box-shadow: inset 0 ${bw}px 0 ${$(L-0.14)};
+    box-shadow: inset 0 0 0 ${bw}px ${$(0, C, H, contrast * .3 / L)};
     color: ${text};
     padding: 6px 8px;
     font: inherit;
@@ -163,6 +174,7 @@ export default function soft({
   const thumb = `
       width: ${thumbSz}; height: ${thumbSz};
       background: ${$(.99)};
+      background-image: ${convex};
       border: none;
       border-radius: 50%;
       box-shadow: inset 0 0 0 2px var(--accent), ${thumbSh};
@@ -218,16 +230,18 @@ export default function soft({
     .s-track {
       width: 36px; height: 20px;
       background: ${track};
+      background-image: ${concave};
       border-radius: 999px;
       position: relative;
       cursor: pointer;
       transition: background 140ms;
-      box-shadow: inset 0 0 0 ${bw}px ${$((L - .1))};
+      box-shadow: inset 0 0 0 ${bw}px ${$(0, C, H, contrast * .2 / L)};
       &::after {
         content: '';
         position: absolute;
         width: 14px; height: 14px;
         background: ${$(.99)};
+        background-image: ${convex};
         border-radius: 50%;
         top: 3px; left: 3px;
         transition: transform 140ms;
@@ -247,7 +261,7 @@ export default function soft({
   }
   .s-step {
     width: 26px; height: 26px;
-    background: ${input}; border: 1px solid ${edge}; border-radius: ${radSm};
+    background: ${input}; background-image: ${convex}; border: 1px solid ${edge}; border-radius: ${radSm};
     color: ${text}; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; line-height: 1;
@@ -311,9 +325,9 @@ export default function soft({
   /* ── Select ── */
   .s-select select {
     flex: 1; cursor: pointer; appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, ${dim} 50%), linear-gradient(135deg, ${dim} 50%, transparent 50%);
-    background-position: calc(100% - 14px) 50%, calc(100% - 10px) 50%;
-    background-size: 4px 4px, 4px 4px;
+    background-image: ${concave}, linear-gradient(45deg, transparent 50%, ${dim} 50%), linear-gradient(135deg, ${dim} 50%, transparent 50%);
+    background-position: 0 0, calc(100% - 14px) 50%, calc(100% - 10px) 50%;
+    background-size: 100% 100%, 4px 4px, 4px 4px;
     background-repeat: no-repeat;
     padding-right: 26px;
   }
@@ -321,7 +335,7 @@ export default function soft({
     flex-wrap: wrap;
     .s-input { gap: calc(${sp1} * .4); }
     button {
-      background: ${input}; border: 1px solid ${edge}; border-radius: 999px;
+      background: ${input}; background-image: ${convex}; border: 1px solid ${edge}; border-radius: 999px;
       color: ${dim}; padding: 4px 10px; cursor: pointer;
       font-size: 11px; font-weight: ${fw};
       transition: background 140ms, color 140ms, border-color 140ms;
@@ -357,17 +371,22 @@ export default function soft({
   /* ── Textarea ── */
   .s-textarea {
     align-items: flex-start;
-    textarea { flex: 1; font-family: ${mono}; font-size: 11px; resize: vertical; min-height: 64px; }
+    textarea { flex: 1; font-family: ${mono}; font-size: 11px; resize: none; overflow: hidden; }
   }
 
   /* ── Button ── */
   .s-button button {
-    background: var(--accent); border: 1px solid transparent; border-radius: ${radSm};
+    background: var(--accent); background-image: ${convex}; border: 1px solid transparent; border-radius: ${radSm};
     color: var(--accent-c); padding: 7px 14px; cursor: pointer;
     font-weight: ${fwB}; font-size: 11px; box-shadow: ${btnSh};
     transition: filter 140ms, transform 100ms, box-shadow 140ms;
     &:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: ${sh(lerp(1, 4, depth), lerp(2, 12, depth), lerp(.05, .2, depth))}; }
     &:active { transform: translateY(0); filter: brightness(.95); box-shadow: none; }
+  }
+  .s-button.secondary button {
+    background: ${$(min(L + .1, 1))}; background-image: ${convex}; border-color: ${edge};
+    color: ${text}; font-weight: ${fw};
+    &:hover { border-color: var(--accent); color: var(--accent); }
   }
 
   /* ── Folder ── */
