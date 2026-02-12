@@ -4,7 +4,7 @@
  * soft(axes?) → CSS string
  */
 
-const { min, max, round } = Math
+const { min, max, round, ceil } = Math
 const clamp = (v, lo, hi) => min(hi, max(lo, v))
 const lerp = (a, b, t) => a + (b - a) * t
 
@@ -49,9 +49,10 @@ function parseColor(color) {
 
 function defaultShade(L, C, H, alpha) {
   L = clamp(L, 0, 1)
+  const l = +L.toFixed(3), c = +C.toFixed(4), h = +H.toFixed(1)
   return alpha != null
-    ? `oklch(${L} ${C} ${H} / ${alpha})`
-    : `oklch(${L} ${C} ${H})`
+    ? `oklch(${l} ${c} ${h} / ${+alpha.toFixed(3)})`
+    : `oklch(${l} ${c} ${h})`
 }
 
 export default function soft({
@@ -73,7 +74,7 @@ export default function soft({
   const $ = isFunc ? shade : ((l, c=C, h=H, a) => defaultShade(l, c, h, a))
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
-  const Li = lerp(.02, .08, contrast)
+  const Li = lerp(.032, 0.064, contrast)
   const accentC = min(C * 8, 0.25)
   const accentColor = accent || `oklch(${dark ? .72 : .58} ${accentC} ${H})`
   const u = 4  // fixed grid quantum (px)
@@ -83,8 +84,6 @@ export default function soft({
   const rd = ra * Li
   const hiR = $(1, C, H, rd / (1 - L + Li))
   const loR = $(0, C, H, rd / (L - Li))
-  const convex  = ra ? `linear-gradient(${rs > 0 ? hiR : loR}, ${rs > 0 ? loR : hiR})` : 'none'
-  const concave = ra ? `linear-gradient(${rs > 0 ? loR : hiR}, ${rs > 0 ? hiR : loR})` : 'none'
 
   // Shadow helper (depth-dependent)
   const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0, C, H, a)}`
@@ -100,25 +99,27 @@ export default function soft({
   const fontSize = lerp(11, 15, size)
   const lh = 4 * u  // 16, 20, 24px — always on grid
   const inputH = lh + 2 * u * (.75 + .75 * spacing)  // matches input padding
+  const thumbSize = roundness ? 4 * u : ( 4 / 1.128) * u  // 12, 16, 20px — on grid
+  const thumbR = roundness ? thumbSize / 2 : 0
 
   // ── CSS variable block ──
-  // All CSS props derive from these. Bevel: --bh (highlight) + --bs (shadow)
-  // are the shared pair — inputs use bh outside/bs inside (concave),
-  // buttons swap them: bs outside/bh inside (convex).
+  // All CSS props derive from these. Bevel: --bh (high) + --bl (low)
+  // are the shared pair — inputs use bh outside/bl inside (concave),
+  // buttons swap them: bl outside/bh inside (convex).
   const vars = {
     '--bg':       $(L),
     '--text':     $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
     '--dim':      $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast))),
-    '--input':    $(dark ? 1 : 0, C, H, Li),
+    '--input':    $(L - Li, C, H),
     '--accent':   accentColor,
     '--accent-c': $(dark ? .15 : .98),
     '--focus':    accent
       ? accent.replace(/\)$/, ' / .35)').replace('oklch(', 'oklch(')
       : `oklch(${dark ? .72 : .58} ${accentC} ${H} / .35)`,
-    '--convex':   convex,
-    '--concave':  concave,
-    '--bh':       $(1, C, H, contrast * .2 / (1-L)),
-    '--bs':       $(0, C, H, contrast * .3 / L),
+    '--convex':   ra ? `linear-gradient(${rs > 0 ? hiR : loR}, ${rs > 0 ? loR : hiR})` : 'none',
+    '--concave':  ra ? `linear-gradient(${rs > 0 ? loR : hiR}, ${rs > 0 ? hiR : loR})` : 'none',
+    '--bh':       $(1, C, H, contrast * .3 / (1 - L)),
+    '--bl':       $(0, C, H, contrast * .3 / L),
     '--edge':     'color-mix(in oklch, currentColor 20%, transparent)',
     '--w':        `${weight / 400}px`,
     '--fw':       round(weight),
@@ -127,7 +128,7 @@ export default function soft({
     '--sp':       spacing,
     '--r':        `${roundness}px`,
     '--ri':       `${roundness / 2 > inputH / 4 ? inputH / 2 : roundness / 2}px`,
-    '--thumb':    `${lerp(12, 18, size)}px`,
+    '--thumb':    `${thumbSize}px`,
   }
 
   const varBlock = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join('\n  ')
@@ -136,8 +137,8 @@ export default function soft({
   const thumb = `
       width: var(--thumb); height: var(--thumb);
       background: ${$(.99)}; background-image: var(--convex);
-      border: none; border-radius: 50%;
-      box-shadow: inset 0 0 0 2px var(--accent), ${sh(lerp(0, 2, depth), lerp(2, 8, depth), lerp(.1, .35, depth))};
+      border: none; border-radius: ${thumbR}px;
+      box-shadow: 0 0 0 var(--w) var(--accent), inset 0 0 0 var(--w) var(--accent), ${sh(lerp(0, 2, depth), lerp(2, 8, depth), lerp(.1, .35, depth))};
       cursor: grab; z-index: 1; position: relative;`
 
   return `.s-panel {
@@ -147,18 +148,19 @@ export default function soft({
   color: var(--text);
   background: var(--bg);
   background-image: ${ra ? `var(--convex), ` : ''}${tex};
-  outline: var(--w) solid ${$(0, C, H, contrast*.5 / L)};
-  border: var(--w) solid ${$(1, C, H, contrast*.5 / (1-L))};
+  outline: var(--w) solid var(--bl);
+  box-shadow: inset 0 calc(1 * var(--w)) var(--bh), inset 0 0 0 var(--w) var(--bh);;
   border-radius: var(--r);
   padding: calc(var(--u) * 3 * var(--sp));
   font: var(--fw) ${fontSize}px system-ui, -apple-system, sans-serif;
   line-height: ${lh}px;
+  text-shadow: 0 calc(${dark ? -1 : 1} * var(--w)) 0 var(${dark ? `--bl` : `--bh`});
   min-width: calc(var(--u) * 60);
   position: relative;
   isolation: isolate;
   -webkit-font-smoothing: antialiased;
 
-  *, *::before, *::after { box-sizing: border-box; }
+  &, *, *::before, *::after { box-sizing: border-box; background-origin: border-box; }
 
   /* ── Control row ── */
   .s-control {
@@ -177,10 +179,10 @@ export default function soft({
     background: var(--input); background-image: var(--concave);
     border: none; border-radius: var(--ri);
     outline: var(--w) solid var(--bh);
-    box-shadow: inset 0 0 0 var(--w) var(--bs);
+    box-shadow: inset 0 0 0 var(--w) var(--bl), 0 var(--w) 0 0 var(--bh);
     color: var(--text);
     padding: calc(var(--u) * (0.75 + 0.75 * var(--sp))) calc(var(--u) * (1 + 1 * var(--sp)));
-    font-size: .95em; line-height: inherit;
+    font: inherit; font-size: .95em;
     transition: border-color 140ms, box-shadow 140ms;
     &::placeholder { color: var(--dim); opacity: .6; }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
@@ -239,10 +241,11 @@ export default function soft({
     .s-track { flex: 1; position: relative; display: flex; align-items: center; }
     input[type="range"] {
       width: 100%; height: 0.6em; margin: 0;
-      background: var(--track, linear-gradient(to right, var(--accent) var(--p, 0%), var(--input) var(--p, 0%)));
+      background: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--p, 0%), var(--input) var(--p, 0%)));
       border-radius: 999px;
       -webkit-appearance: none; cursor: pointer;
-      box-shadow: inset 0 var(--w) var(--w) 0 ${$(0, C, H, .05)};
+      outline: var(--w) solid var(--bh);
+      box-shadow: inset 0 var(--w) var(--w) var(--bl), 0 var(--w) 0 0 var(--bh);
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
     }
@@ -253,10 +256,10 @@ export default function soft({
       pointer-events: none;
     }
     .s-mark {
-      position: absolute; width: 1px; height: 10px; top: 50%;
-      background: var(--bg);
+      position: absolute; width: ${ceil(weight / 400 * 2) / 2}px; height: 100%; top: 50%;
+      background: linear-gradient(var(--bh), var(--bh)) var(--bg);
       transform: translate(-50%, -50%);
-      &.active { background: var(--bg); }
+      &.active { background: linear-gradient(var(--bh), var(--bh)) var(--bg); }
     }
     .s-mark-label {
       position: absolute; top: 100%;
@@ -266,7 +269,7 @@ export default function soft({
       &.active { color: var(--accent); }
     }
     .s-value {
-      min-width: calc(var(--u) * 12);
+      min-width: calc(var(--u) * 10);
       text-align: right; font-family: ${mono}; font-size: 11px;
       color: var(--dim);
     }
@@ -304,14 +307,14 @@ export default function soft({
     flex: 1; position: relative; display: flex; align-items: center;
     input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; background: transparent; cursor: pointer; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: 1px solid var(--edge); border-radius: var(--ri); }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--ri); }
     input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); font-family: ${mono}; font-size: 11px; }
   }
   .s-swatches {
     .s-input { flex-wrap: wrap; gap: var(--u); }
     button {
       width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: 1px solid transparent; border-radius: var(--ri);
-      cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px ${$(0, C, H, .04)};
+      cursor: pointer; padding: 0; box-shadow: inset 0 0 0 var(--w) ${$(0, C, H, .04)};
       &.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg); }
     }
   }
@@ -328,7 +331,6 @@ export default function soft({
   /* ── Button ── */
   .s-button button {
     background: var(--accent); background-image: var(--convex);
-    background-origin: border-box;
     outline: var(--w) solid color-mix(in oklch, currentColor ${contrast * 20}%, transparent);
     border: var(--w) solid color-mix(in oklch, white ${contrast * 20}%, transparent);
     box-shadow: none;
@@ -351,7 +353,7 @@ export default function soft({
     > summary {
       cursor: pointer; padding: calc(var(--u) * 1.5) 0; font-weight: var(--fwB);
       list-style: none; display: flex; align-items: center; color: var(--text);
-      border-bottom: var(--w) solid var(--bs); box-shadow: 0 var(--w) 0 0 var(--bh);
+      border-bottom: var(--w) solid var(--bl); box-shadow: 0 var(--w) 0 0 var(--bh);
       &::-webkit-details-marker { display: none; }
       &::after {
         content: ''; width: 7px; height: 7px; margin-left: auto; flex-shrink: 0;
