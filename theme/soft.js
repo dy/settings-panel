@@ -60,7 +60,7 @@ export default function soft({
   contrast = .5,
   texture = 'flat',
   spacing = 1,
-  size = .5,
+  size = 1,
   weight = 400,
   depth = .4,
   roundness = 12,
@@ -73,17 +73,18 @@ export default function soft({
   const $ = isFunc ? shade : ((l, c=C, h=H, a) => defaultShade(l, c, h, a))
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
-  const Li = L - .05
+  const Li = lerp(.02, .08, contrast)
   const accentC = min(C * 8, 0.25)
   const accentColor = accent || `oklch(${dark ? .72 : .58} ${accentC} ${H})`
   const u = 4  // fixed grid quantum (px)
 
-  // Relief: delta capped so highlight ≤ surface L
-  const rd = relief * (L - Li)
-  const hiR = $(1, C, H, rd / (1 - Li))
-  const loR = $(0, C, H, rd / Li)
-  const convex  = relief ? `linear-gradient(${hiR}, ${loR})` : 'none'
-  const concave = relief ? `linear-gradient(${loR}, ${hiR})` : 'none'
+  // Relief: abs for intensity, sign for direction (negative = engraved)
+  const ra = Math.abs(relief), rs = relief < 0 ? -1 : 1
+  const rd = ra * Li
+  const hiR = $(1, C, H, rd / (1 - L + Li))
+  const loR = $(0, C, H, rd / (L - Li))
+  const convex  = ra ? `linear-gradient(${rs > 0 ? hiR : loR}, ${rs > 0 ? loR : hiR})` : 'none'
+  const concave = ra ? `linear-gradient(${rs > 0 ? loR : hiR}, ${rs > 0 ? hiR : loR})` : 'none'
 
   // Shadow helper (depth-dependent)
   const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0, C, H, a)}`
@@ -95,6 +96,11 @@ export default function soft({
 
   const mono = "ui-monospace, 'SF Mono', monospace"
 
+  // Grid-aligned text metrics
+  const fontSize = lerp(11, 15, size)
+  const lh = 4 * u  // 16, 20, 24px — always on grid
+  const inputH = lh + 2 * u * (.75 + .75 * spacing)  // matches input padding
+
   // ── CSS variable block ──
   // All CSS props derive from these. Bevel: --bh (highlight) + --bs (shadow)
   // are the shared pair — inputs use bh outside/bs inside (concave),
@@ -103,7 +109,7 @@ export default function soft({
     '--bg':       $(L),
     '--text':     $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
     '--dim':      $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast))),
-    '--input':    $(Li),
+    '--input':    $(dark ? 1 : 0, C, H, Li),
     '--accent':   accentColor,
     '--accent-c': $(dark ? .15 : .98),
     '--focus':    accent
@@ -120,7 +126,7 @@ export default function soft({
     '--u':        `${u}px`,
     '--sp':       spacing,
     '--r':        `${roundness}px`,
-    '--ri':       `${max(0, roundness - max(0, u * 1.5))}px`,
+    '--ri':       `${roundness / 2 > inputH / 4 ? inputH / 2 : roundness / 2}px`,
     '--thumb':    `${lerp(12, 18, size)}px`,
   }
 
@@ -137,14 +143,16 @@ export default function soft({
   return `.s-panel {
   ${varBlock}
 
+  display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
   color: var(--text);
   background: var(--bg);
-  background-image: ${tex};
+  background-image: ${ra ? `var(--convex), ` : ''}${tex};
   outline: var(--w) solid ${$(0, C, H, contrast*.5 / L)};
   border: var(--w) solid ${$(1, C, H, contrast*.5 / (1-L))};
   border-radius: var(--r);
   padding: calc(var(--u) * 3 * var(--sp));
-  font: var(--fw) ${lerp(11, 15, size)}px/1.35 system-ui, -apple-system, sans-serif;
+  font: var(--fw) ${fontSize}px system-ui, -apple-system, sans-serif;
+  line-height: ${lh}px;
   min-width: calc(var(--u) * 60);
   position: relative;
   isolation: isolate;
@@ -156,9 +164,8 @@ export default function soft({
   .s-control {
     display: flex; align-items: baseline;
     gap: calc(var(--u) * 2 * var(--sp));
-    padding: calc(var(--u) * var(--sp)) 0;
-    min-height: ${lerp(20, 42, size)}px;
     margin: 0; border: 0;
+    min-height: ${inputH}px;
   }
   .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
   .s-label { font-weight: var(--fwB); color: var(--text); }
@@ -172,7 +179,8 @@ export default function soft({
     outline: var(--w) solid var(--bh);
     box-shadow: inset 0 0 0 var(--w) var(--bs);
     color: var(--text);
-    padding: calc(var(--u) * 1.5) calc(var(--u) * 2); font: inherit; font-size: .95em;
+    padding: calc(var(--u) * (0.75 + 0.75 * var(--sp))) calc(var(--u) * (1 + 1 * var(--sp)));
+    font-size: .95em; line-height: inherit;
     transition: border-color 140ms, box-shadow 140ms;
     &::placeholder { color: var(--dim); opacity: .6; }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
@@ -181,6 +189,7 @@ export default function soft({
 
   /* ── Boolean ── */
   .s-boolean {
+    align-items: center;
     input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
     .s-track {
       width: calc(var(--u) * 10); height: calc(var(--u) * 5);
@@ -224,6 +233,7 @@ export default function soft({
 
   /* ── Slider ── */
   .s-slider {
+    align-items: center;
     .s-input { flex-direction: row; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 16px; }
     .s-track { flex: 1; position: relative; display: flex; align-items: center; }
@@ -319,7 +329,8 @@ export default function soft({
   .s-button button {
     background: var(--accent); background-image: var(--convex);
     background-origin: border-box;
-    outline: var(--w) solid var(--bs); border: var(--w) solid var(--bh);
+    outline: var(--w) solid color-mix(in oklch, currentColor ${contrast * 20}%, transparent);
+    border: var(--w) solid color-mix(in oklch, white ${contrast * 20}%, transparent);
     box-shadow: none;
     border-radius: var(--ri);
     color: var(--accent-c); padding: calc(var(--u) * 2) calc(var(--u) * 4); cursor: pointer;
@@ -336,20 +347,25 @@ export default function soft({
 
   /* ── Folder ── */
   .s-folder {
-    display: block; border: 0; padding: 0; margin: var(--u) 0;
+    display: block; border: 0; padding: 0;
     > summary {
       cursor: pointer; padding: calc(var(--u) * 1.5) 0; font-weight: var(--fwB);
-      list-style: none; display: flex; align-items: center; gap: calc(var(--u) * 2); color: var(--text);
+      list-style: none; display: flex; align-items: center; color: var(--text);
+      border-bottom: var(--w) solid var(--bs); box-shadow: 0 var(--w) 0 0 var(--bh);
       &::-webkit-details-marker { display: none; }
-      &::before {
-        content: ''; width: 7px; height: 7px;
+      &::after {
+        content: ''; width: 7px; height: 7px; margin-left: auto; flex-shrink: 0;
         border-right: var(--w) solid var(--dim); border-bottom: var(--w) solid var(--dim);
-        transform: rotate(-45deg); transition: transform 140ms;
+        transform: rotate(45deg); transition: transform 140ms;
       }
     }
-    &[open] > summary::before { transform: rotate(45deg); }
+    &[open] > summary { border-bottom: none; box-shadow: none; }
+    &[open] > summary::after { transform: rotate(-135deg); }
   }
-  .s-content { padding: var(--u) 0 var(--u) calc(var(--u) * 4); border-left: 1px solid color-mix(in oklch, currentColor 10%, transparent); margin: calc(var(--u) * .5) 0 calc(var(--u) * .5) var(--u); }
+  .s-content {
+    padding: calc(var(--u) * 2 * var(--sp)) 0;
+    display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0ms !important; }
