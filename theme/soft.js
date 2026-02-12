@@ -64,7 +64,7 @@ export default function soft({
   size = 1,
   weight = 400,
   depth = .4,
-  roundness = 12,
+  roundness = .5,
   relief = 0,
 } = {}) {
 
@@ -99,8 +99,14 @@ export default function soft({
   const fontSize = lerp(11, 15, size)
   const lh = 4 * u  // 16, 20, 24px — always on grid
   const inputH = lh + 2 * u * (.75 + .75 * spacing)  // matches input padding
-  const thumbSize = roundness ? 4 * u : ( 4 / 1.128) * u  // 12, 16, 20px — on grid
-  const thumbR = roundness ? thumbSize / 2 : 0
+
+
+  // Roundness: 0–1 normalized → px, max depends on spacing
+  const maxR = round(14 + 12 * spacing)
+  const r = round(roundness * maxR)
+
+  const thumbSize = r ? 4 * u : ( 4 / 1.128) * u  // 12, 16, 20px — on grid
+  const thumbR = r ? thumbSize / 2 : 0
 
   // ── CSS variable block ──
   // All CSS props derive from these. Bevel: --bh (high) + --bl (low)
@@ -126,8 +132,8 @@ export default function soft({
     '--fwB':      round(min(weight + 100, 900)),
     '--u':        `${u}px`,
     '--sp':       spacing,
-    '--r':        `${roundness}px`,
-    '--ri':       `${roundness / 2 > inputH / 4 ? inputH / 2 : roundness / 2}px`,
+    '--r':        `${r}px`,
+    '--ri':       `${r / 2 > inputH / 4 ? inputH / 2 : r / 2}px`,
     '--thumb':    `${thumbSize}px`,
   }
 
