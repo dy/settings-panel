@@ -78,7 +78,7 @@ export default function soft({
   const lo = (a) => $(min(0.1, L), min(C * 4, 0.27, L / 2), H, clamp(a, 0, 1))
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
-  const Li = lerp(.032, 0.064, contrast)
+  const Li = lerp(.027, 0.064, contrast)
   const accentC = min(C * 8, 0.25)
   const accentColor = accent || `oklch(${dark ? .72 : .58} ${accentC} ${H})`
   const u = 4  // fixed grid quantum (px)
@@ -122,7 +122,7 @@ export default function soft({
     '--bg':       $(L),
     '--text':     $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
     '--dim':      $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast))),
-    '--input':    $(L - Li, C, H),
+    '--input':    $(L - Li, C * 1.01, H),
     '--accent':   accentColor,
     '--accent-c': $(dark ? .15 : .98),
     '--focus':    accent
@@ -178,7 +178,6 @@ export default function soft({
     display: flex; align-items: baseline;
     gap: calc(var(--u) * 2 * var(--sp));
     margin: 0; border: 0;
-    min-height: ${inputH}px;
   }
   .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
   .s-label { font-weight: var(--fwB); color: var(--text); }
@@ -246,7 +245,7 @@ export default function soft({
 
   /* ── Slider ── */
   .s-slider {
-    align-items: center;
+    padding: calc(1.25*var(--u)) 0;
     .s-input { flex-direction: row; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 16px; }
     .s-track { flex: 1; position: relative; display: flex; align-items: center; }
@@ -256,7 +255,7 @@ export default function soft({
       border-radius: var(--ri);
       -webkit-appearance: none; cursor: pointer;
       outline: var(--w) solid var(--bh);
-      box-shadow: inset 0 var(--w) var(--w) var(--bl), 0 var(--w) 0 0 var(--bh);
+      box-shadow: inset 0 var(--w) 0 var(--bl), 0 var(--w) 0 0 var(--bh);
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
     }
