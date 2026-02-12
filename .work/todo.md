@@ -11,3 +11,16 @@
 * [ ] research opening strategies
 
 * [ ] `help` property for tooltip
+
+## Cases
+
+* [ ] Figma
+* [ ] dat.gui+
+* [ ] Apples
+* [ ] refactoring.ui
+
+## Ideas
+
+* [ ] canonical internal structure (form)
+  * [ ] produced HTML/theme can be used for generic forms design
+  * [ ] minimal base.css generator for websites

@@ -4,10 +4,9 @@
  * soft(axes?) → CSS string
  */
 
-const { min, max, round, abs } = Math
+const { min, max, round } = Math
 const clamp = (v, lo, hi) => min(hi, max(lo, v))
 const lerp = (a, b, t) => a + (b - a) * t
-const px = v => v + 'px'
 
 const TEX = {
   flat: 'none',
@@ -17,26 +16,22 @@ const TEX = {
 
 /**
  * Parse CSS color to OKLCH components
- * Supports: #hex, oklch(), rgb(), hsl()
+ * Supports: #hex, oklch()
  */
 function parseColor(color) {
   if (!color) return { L: 0.97, C: 0.01, H: 60 }
 
-  // oklch(L C H) or oklch(L C H / a)
   const oklch = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
   if (oklch) return { L: +oklch[1], C: +oklch[2], H: +oklch[3] }
 
-  // #hex → RGB → OKLCH (simplified)
   if (color.startsWith('#')) {
     const hex = color.slice(1)
     const r = parseInt(hex.slice(0, 2), 16) / 255
     const g = parseInt(hex.slice(2, 4), 16) / 255
     const b = parseInt(hex.slice(4, 6), 16) / 255
-    // Linear RGB
     const rl = r <= 0.04045 ? r / 12.92 : ((r + 0.055) / 1.055) ** 2.4
     const gl = g <= 0.04045 ? g / 12.92 : ((g + 0.055) / 1.055) ** 2.4
     const bl = b <= 0.04045 ? b / 12.92 : ((b + 0.055) / 1.055) ** 2.4
-    // OKLab
     const l_ = Math.cbrt(0.4122214708*rl + 0.5363325363*gl + 0.0514459929*bl)
     const m_ = Math.cbrt(0.2119034982*rl + 0.6806995451*gl + 0.1073969566*bl)
     const s_ = Math.cbrt(0.0883024619*rl + 0.2817188376*gl + 0.6299787005*bl)
@@ -52,14 +47,6 @@ function parseColor(color) {
   return { L: 0.97, C: 0.01, H: 60 }
 }
 
-/**
- * Default shade function — OKLCH-based
- * @param {number} L - lightness (0-1)
- * @param {number} C - chroma from surface
- * @param {number} H - hue from surface
- * @param {number} [alpha] - optional alpha
- * @returns {string} CSS color
- */
 function defaultShade(L, C, H, alpha) {
   L = clamp(L, 0, 1)
   return alpha != null
@@ -68,137 +55,97 @@ function defaultShade(L, C, H, alpha) {
 }
 
 export default function soft({
-  shade = '#f5f4f2',    // base color, palette, or function — defines lightness, hue, chroma
-  accent,               // interactive color (optional, derived from shade if omitted)
+  shade = '#f5f4f2',
+  accent,
   contrast = .5,
   texture = 'flat',
-  spacing = .5,
+  spacing = 1,
   size = .5,
-  weight = .5,
+  weight = 400,
   depth = .4,
-  roundness = .5,
+  roundness = 12,
   relief = 0,
 } = {}) {
 
-  // Shade: color string → parse and build ramp; function → use directly
   const isFunc = typeof shade === 'function'
   const { L, C, H } = isFunc ? { L: 0.97, C: 0.01, H: 60 } : parseColor(shade)
   const dark = L < .5
-  const K = 0.2 // black lightness
+  const $ = isFunc ? shade : ((l, c=C, h=H, a) => defaultShade(l, c, h, a))
 
-  // Shade function: user-provided or default OKLCH ramp
-  const $ = isFunc ? shade : ((l, c=C, h=H, a=1) => defaultShade(l, c, h, a))
-
-  // ── Palette ──
-  const shadeColor = $(L)
-  const text    = $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast))
-  const dim     = $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast)))
-  const Li = L - .05 // input lightness
-  const input   = $(Li)
-  const track   = $(Li)
-
-  // Accent: use provided or derive from surface with boosted chroma
-  const accentC = min(C * 8, 0.25)  // boost chroma for accent
+  // ── Axes → CSS vars (minimal set, everything else derives) ──
+  const Li = L - .05
+  const accentC = min(C * 8, 0.25)
   const accentColor = accent || `oklch(${dark ? .72 : .58} ${accentC} ${H})`
-  const accentContrast = $(dark ? .15 : .98)
-  const focus   = accent
-    ? accent.replace(/\)$/, ' / .35)').replace('oklch(', 'oklch(')
-    : `oklch(${dark ? .72 : .58} ${accentC} ${H} / .35)`
-  const edge    = 'color-mix(in oklch, currentColor 20%, transparent)'
-  const divider = 'color-mix(in oklch, currentColor 10%, transparent)'
-  const inlay   = $(dark ? 1 : 0, C, H, .04)
+  const u = 4  // fixed grid quantum (px)
 
-  // ── Weight ──
-  const bw  = weight
-  const fw  = round(lerp(400, 600, weight))
-  const fwB = round(lerp(500, 800, weight))
-
-  // ── Size ──
-  const fs      = px(lerp(11, 15, size))
-  const ctrlH   = px(lerp(20, 42, size))
-  const thumbSz = px(lerp(12, 18, size))
-
-  // ── Spacing ──
-  const u    = lerp(3, 10, spacing)
-  const sp1  = px(u)
-  const sp2  = px(u * 1.5)
-  const sp3  = px(u * 2.5)
-  const minW = px(lerp(240, 380, spacing))
-
-  // ── Depth — diffuse shadows ──
-  const sh = (y, bl, a) => `0 ${px(y)} ${px(bl)} ${$(0, C, H, a)}`
-  const panelSh = sh(lerp(0, 10, depth), lerp(0, 24, depth), lerp(0, dark ? .35 : .15, depth))
-  const thumbSh = sh(lerp(0, 2, depth), lerp(2, 8, depth), lerp(.1, .35, depth))
-  const knobSh  = sh(lerp(0, 1, depth), lerp(1, 5, depth), lerp(.05, .25, depth))
-  const btnSh   = sh(lerp(0, 2, depth), lerp(0, 8, depth), lerp(0, .15, depth))
-
-  // ── Roundness ──
-  const rad   = px(roundness * 24)
-  const radSm = roundness > .6 ? '999px' : px(roundness * 12)
-
-  // ── Relief — surface curvature via lighting gradient ──
-  // Delta capped so highlight never exceeds panel surface L
+  // Relief: delta capped so highlight ≤ surface L
   const rd = relief * (L - Li)
   const hiR = $(1, C, H, rd / (1 - Li))
   const loR = $(0, C, H, rd / Li)
   const convex  = relief ? `linear-gradient(${hiR}, ${loR})` : 'none'
   const concave = relief ? `linear-gradient(${loR}, ${hiR})` : 'none'
 
-  // ── Texture ──
+  // Shadow helper (depth-dependent)
+  const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0, C, H, a)}`
+
+  // Texture (data URI, must stay JS)
   const texFn = TEX[texture]
   const tex = !texFn || texFn === 'none' ? 'none'
     : texFn(dark ? '255,255,255' : '0,0,0', dark ? '.04' : '.05')
 
   const mono = "ui-monospace, 'SF Mono', monospace"
 
-  // ── Shared fragments ──
-  const inputBase = `
-    background: ${input};
-    background-image: ${concave};
-    outline: ${bw}px solid ${$(1, C, H, contrast * .2 / (1 - L))};
-    border: none;
-    border-radius: ${radSm};
-    box-shadow: inset 0 0 0 ${bw}px ${$(0, C, H, contrast * .3 / L)};
-    color: ${text};
-    padding: 6px 8px;
-    font: inherit;
-    font-size: .95em;
-    transition: border-color 140ms, box-shadow 140ms;
-    &::placeholder { color: ${dim}; opacity: .6; }
-    &:focus-visible {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--focus);
-    }`
+  // ── CSS variable block ──
+  // All CSS props derive from these. Bevel: --bh (highlight) + --bs (shadow)
+  // are the shared pair — inputs use bh outside/bs inside (concave),
+  // buttons swap them: bs outside/bh inside (convex).
+  const vars = {
+    '--bg':       $(L),
+    '--text':     $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
+    '--dim':      $(dark ? max(L + .25, lerp(.48, .65, contrast)) : min(L - .25, lerp(.58, .42, contrast))),
+    '--input':    $(Li),
+    '--accent':   accentColor,
+    '--accent-c': $(dark ? .15 : .98),
+    '--focus':    accent
+      ? accent.replace(/\)$/, ' / .35)').replace('oklch(', 'oklch(')
+      : `oklch(${dark ? .72 : .58} ${accentC} ${H} / .35)`,
+    '--convex':   convex,
+    '--concave':  concave,
+    '--bh':       $(1, C, H, contrast * .2 / (1-L)),
+    '--bs':       $(0, C, H, contrast * .3 / L),
+    '--edge':     'color-mix(in oklch, currentColor 20%, transparent)',
+    '--w':        `${weight / 400}px`,
+    '--fw':       round(weight),
+    '--fwB':      round(min(weight + 100, 900)),
+    '--u':        `${u}px`,
+    '--sp':       spacing,
+    '--r':        `${roundness}px`,
+    '--ri':       `${max(0, roundness - max(0, u * 1.5))}px`,
+    '--thumb':    `${lerp(12, 18, size)}px`,
+  }
 
+  const varBlock = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join('\n  ')
+
+  // Thumb fragment (shared between webkit/moz)
   const thumb = `
-      width: ${thumbSz}; height: ${thumbSz};
-      background: ${$(.99)};
-      background-image: ${convex};
-      border: none;
-      border-radius: 50%;
-      box-shadow: inset 0 0 0 2px var(--accent), ${thumbSh};
-      cursor: grab;
-      z-index: 1;
-      position: relative;
-      `
+      width: var(--thumb); height: var(--thumb);
+      background: ${$(.99)}; background-image: var(--convex);
+      border: none; border-radius: 50%;
+      box-shadow: inset 0 0 0 2px var(--accent), ${sh(lerp(0, 2, depth), lerp(2, 8, depth), lerp(.1, .35, depth))};
+      cursor: grab; z-index: 1; position: relative;`
 
   return `.s-panel {
-  --accent: ${accentColor};
-  --accent-c: ${accentContrast};
-  --focus: ${focus};
-  --thumb: ${thumbSz};
-  --bg: ${shadeColor};
+  ${varBlock}
 
-  color: ${text};
+  color: var(--text);
   background: var(--bg);
   background-image: ${tex};
-  outline: ${bw}px solid ${$(0, C, H, contrast*.5 / L)};
-  border: ${bw}px solid ${$(1, C, H, contrast*.5 / (1-L))};
-  border-radius: ${rad};
-  padding: ${sp3};
-  font: ${fw} ${fs}/1.35 system-ui, -apple-system, sans-serif;
-  min-width: ${minW};
+  outline: var(--w) solid ${$(0, C, H, contrast*.5 / L)};
+  border: var(--w) solid ${$(1, C, H, contrast*.5 / (1-L))};
+  border-radius: var(--r);
+  padding: calc(var(--u) * 3 * var(--sp));
+  font: var(--fw) ${lerp(11, 15, size)}px/1.35 system-ui, -apple-system, sans-serif;
+  min-width: calc(var(--u) * 60);
   position: relative;
   isolation: isolate;
   -webkit-font-smoothing: antialiased;
@@ -207,62 +154,67 @@ export default function soft({
 
   /* ── Control row ── */
   .s-control {
-    display: flex;
-    align-items: baseline;
-    gap: ${sp2};
-    padding: calc(${sp1} * .75) 0;
-    min-height: ${ctrlH};
-    margin: 0;
-    border: 0;
+    display: flex; align-items: baseline;
+    gap: calc(var(--u) * 2 * var(--sp));
+    padding: calc(var(--u) * var(--sp)) 0;
+    min-height: ${lerp(20, 42, size)}px;
+    margin: 0; border: 0;
   }
-  .s-label-group { flex: 0 0 auto; width: 80px; display: flex; flex-direction: column; gap: 2px; }
-  .s-label { font-weight: ${fwB}; color: ${text}; }
-  .s-hint { font-size: 10px; color: ${dim}; line-height: 1.3; }
-  .s-input { flex: 1; display: flex; align-items: baseline; gap: calc(${sp1} * .6); }
+  .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
+  .s-label { font-weight: var(--fwB); color: var(--text); }
+  .s-hint { font-size: 10px; color: var(--dim); line-height: 1.3; }
+  .s-input { flex: 1; display: flex; align-items: baseline; gap: calc(var(--u) * var(--sp)); }
 
-  /* ── Inputs ── */
-  input[type="text"], input[type="number"], textarea, select { ${inputBase} }
+  /* ── Input base ── */
+  input[type="text"], input[type="number"], textarea, select {
+    background: var(--input); background-image: var(--concave);
+    border: none; border-radius: var(--ri);
+    outline: var(--w) solid var(--bh);
+    box-shadow: inset 0 0 0 var(--w) var(--bs);
+    color: var(--text);
+    padding: calc(var(--u) * 1.5) calc(var(--u) * 2); font: inherit; font-size: .95em;
+    transition: border-color 140ms, box-shadow 140ms;
+    &::placeholder { color: var(--dim); opacity: .6; }
+    &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+  }
   button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus); }
 
   /* ── Boolean ── */
   .s-boolean {
     input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
     .s-track {
-      width: 36px; height: 20px;
-      background: ${track};
-      background-image: ${concave};
+      width: calc(var(--u) * 10); height: calc(var(--u) * 5);
+      background: var(--input); background-image: var(--concave);
       border-radius: 999px;
-      position: relative;
-      cursor: pointer;
+      position: relative; cursor: pointer;
       transition: background 140ms;
-      box-shadow: inset 0 0 0 ${bw}px ${$(0, C, H, contrast * .2 / L)};
+      box-shadow: inset 0 0 0 var(--w) ${$(0, C, H, contrast * .2 / L)};
       &::after {
-        content: '';
-        position: absolute;
-        width: 14px; height: 14px;
-        background: ${$(.99)};
-        background-image: ${convex};
+        content: ''; position: absolute;
+        width: calc(var(--u) * 4); height: calc(var(--u) * 4);
+        background: ${$(.99)}; background-image: var(--convex);
         border-radius: 50%;
-        top: 3px; left: 3px;
+        top: calc(var(--u) * .5); left: calc(var(--u) * .5);
         transition: transform 140ms;
-        box-shadow: ${knobSh};
+        box-shadow: ${sh(lerp(0, 1, depth), lerp(1, 5, depth), lerp(.05, .25, depth))};
       }
     }
     &:has(input:checked) .s-track {
       background: var(--accent);
-      &::after { transform: translateX(16px); box-shadow: 0 0 0 2px ${$(1, C, H, .15)}; }
+      &::after { transform: translateX(calc(var(--u) * 5)); box-shadow: 0 0 0 2px ${$(1, C, H, .15)}; }
     }
   }
 
   /* ── Number ── */
   .s-number input[type="number"] {
-    width: 76px; font-family: ${mono}; text-align: right;
+    width: calc(var(--u) * 20); font-family: ${mono}; text-align: right;
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; }
   }
   .s-step {
-    width: 26px; height: 26px;
-    background: ${input}; background-image: ${convex}; border: 1px solid ${edge}; border-radius: ${radSm};
-    color: ${text}; cursor: pointer;
+    width: calc(var(--u) * 7); height: calc(var(--u) * 7);
+    background: var(--input); background-image: var(--convex);
+    border: 1px solid var(--edge); border-radius: var(--ri);
+    color: var(--text); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; line-height: 1;
     transition: background 140ms, color 140ms, border-color 140ms;
@@ -274,58 +226,46 @@ export default function soft({
   .s-slider {
     .s-input { flex-direction: row; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 16px; }
-    .s-track {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+    .s-track { flex: 1; position: relative; display: flex; align-items: center; }
     input[type="range"] {
-      width: 100%; height: 0.6em;
-      margin: 0;
-      background: var(--track, linear-gradient(to right, var(--accent) var(--p, 0%), ${input} var(--p, 0%)));
+      width: 100%; height: 0.6em; margin: 0;
+      background: var(--track, linear-gradient(to right, var(--accent) var(--p, 0%), var(--input) var(--p, 0%)));
       border-radius: 999px;
-      -webkit-appearance: none;
-      cursor: pointer;
-      box-shadow: inset 0 ${bw}px ${bw}px 0 ${$(0, C, H, .05)};
-      &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb}; }
+      -webkit-appearance: none; cursor: pointer;
+      box-shadow: inset 0 var(--w) var(--w) 0 ${$(0, C, H, .05)};
+      &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
     }
     .s-marks, .s-mark-labels {
       position: absolute;
-      left: calc(var(--thumb) / 2);
-      right: calc(var(--thumb) / 2);
+      left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2);
       top: 0; bottom: 0;
       pointer-events: none;
     }
     .s-mark {
-      position: absolute;
-      width: 1px; height: 10px;
-      top: 50%;
-      background: ${shadeColor};
+      position: absolute; width: 1px; height: 10px; top: 50%;
+      background: var(--bg);
       transform: translate(-50%, -50%);
-      &.active { background: ${shadeColor}; }
+      &.active { background: var(--bg); }
     }
     .s-mark-label {
-      position: absolute;
-      top: 100%;
+      position: absolute; top: 100%;
       transform: translate(-50%, 4px);
-      font-size: 9px;
-      text-align: center;
-      white-space: nowrap;
-      color: ${dim};
+      font-size: 9px; text-align: center; white-space: nowrap;
+      color: var(--dim);
       &.active { color: var(--accent); }
     }
     .s-value {
-      min-width: 48px; text-align: right; font-family: ${mono}; font-size: 11px;
-      color: ${dim};
+      min-width: calc(var(--u) * 12);
+      text-align: right; font-family: ${mono}; font-size: 11px;
+      color: var(--dim);
     }
   }
 
   /* ── Select ── */
   .s-select select {
     flex: 1; cursor: pointer; appearance: none;
-    background-image: ${concave}, linear-gradient(45deg, transparent 50%, ${dim} 50%), linear-gradient(135deg, ${dim} 50%, transparent 50%);
+    background-image: var(--concave), linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(135deg, var(--dim) 50%, transparent 50%);
     background-position: 0 0, calc(100% - 14px) 50%, calc(100% - 10px) 50%;
     background-size: 100% 100%, 4px 4px, 4px 4px;
     background-repeat: no-repeat;
@@ -333,35 +273,36 @@ export default function soft({
   }
   .s-buttons {
     flex-wrap: wrap;
-    .s-input { gap: calc(${sp1} * .4); }
+    .s-input { gap: calc(var(--u) * .5 * var(--sp)); }
     button {
-      background: ${input}; background-image: ${convex}; border: 1px solid ${edge}; border-radius: 999px;
-      color: ${dim}; padding: 4px 10px; cursor: pointer;
-      font-size: 11px; font-weight: ${fw};
+      background: var(--input); background-image: var(--convex);
+      border: 1px solid var(--edge); border-radius: 999px;
+      color: var(--dim); padding: var(--u) calc(var(--u) * 2.5); cursor: pointer;
+      font-size: 11px; font-weight: var(--fw);
       transition: background 140ms, color 140ms, border-color 140ms;
-      &:hover { border-color: var(--accent); color: ${text}; }
+      &:hover { border-color: var(--accent); color: var(--text); }
       &.selected { background: var(--accent); color: var(--accent-c); border-color: transparent; }
     }
   }
   .s-radio {
-    .s-input { flex-direction: column; align-items: flex-start; gap: calc(${sp1} * .4); }
-    label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: ${dim}; &.selected { color: ${text}; } }
+    .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * .5 * var(--sp)); }
+    label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; color: var(--dim); &.selected { color: var(--text); } }
   }
 
   /* ── Color ── */
   .s-color-input {
     flex: 1; position: relative; display: flex; align-items: center;
-    input[type="color"] { position: absolute; left: 4px; width: 20px; height: 20px; padding: 0; border: none; background: transparent; cursor: pointer; }
+    input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; background: transparent; cursor: pointer; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: 1px solid ${edge}; border-radius: ${radSm}; }
-    input[type="text"] { flex: 1; padding-left: 30px; font-family: ${mono}; font-size: 11px; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid var(--edge); border-radius: var(--ri); }
+    input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); font-family: ${mono}; font-size: 11px; }
   }
   .s-swatches {
-    .s-input { flex-wrap: wrap; gap: 4px; }
+    .s-input { flex-wrap: wrap; gap: var(--u); }
     button {
-      width: 22px; height: 22px; border: 1px solid transparent; border-radius: ${radSm};
-      cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px ${inlay};
-      &.selected { border-color: ${text}; box-shadow: 0 0 0 2px ${shadeColor}; }
+      width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: 1px solid transparent; border-radius: var(--ri);
+      cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px ${$(0, C, H, .04)};
+      &.selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg); }
     }
   }
 
@@ -376,35 +317,39 @@ export default function soft({
 
   /* ── Button ── */
   .s-button button {
-    background: var(--accent); background-image: ${convex}; border: 1px solid transparent; border-radius: ${radSm};
-    color: var(--accent-c); padding: 7px 14px; cursor: pointer;
-    font-weight: ${fwB}; font-size: 11px; box-shadow: ${btnSh};
+    background: var(--accent); background-image: var(--convex);
+    background-origin: border-box;
+    outline: var(--w) solid var(--bs); border: var(--w) solid var(--bh);
+    box-shadow: none;
+    border-radius: var(--ri);
+    color: var(--accent-c); padding: calc(var(--u) * 2) calc(var(--u) * 4); cursor: pointer;
+    font-weight: var(--fwB); font-size: 11px;
     transition: filter 140ms, transform 100ms, box-shadow 140ms;
     &:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: ${sh(lerp(1, 4, depth), lerp(2, 12, depth), lerp(.05, .2, depth))}; }
     &:active { transform: translateY(0); filter: brightness(.95); box-shadow: none; }
   }
   .s-button.secondary button {
-    background: ${$(min(L + .1, 1))}; background-image: ${convex}; border-color: ${edge};
-    color: ${text}; font-weight: ${fw};
-    &:hover { border-color: var(--accent); color: var(--accent); }
+    background-color: ${$(min(L, 1))}; background-image: var(--convex);
+    color: var(--text); font-weight: var(--fw);
+    &:hover { color: var(--accent); }
   }
 
   /* ── Folder ── */
   .s-folder {
-    display: block; border: 0; padding: 0; margin: 4px 0;
+    display: block; border: 0; padding: 0; margin: var(--u) 0;
     > summary {
-      cursor: pointer; padding: 6px 0; font-weight: ${fwB};
-      list-style: none; display: flex; align-items: center; gap: 8px; color: ${text};
+      cursor: pointer; padding: calc(var(--u) * 1.5) 0; font-weight: var(--fwB);
+      list-style: none; display: flex; align-items: center; gap: calc(var(--u) * 2); color: var(--text);
       &::-webkit-details-marker { display: none; }
       &::before {
         content: ''; width: 7px; height: 7px;
-        border-right: ${bw}px solid ${dim}; border-bottom: ${bw}px solid ${dim};
+        border-right: var(--w) solid var(--dim); border-bottom: var(--w) solid var(--dim);
         transform: rotate(-45deg); transition: transform 140ms;
       }
     }
     &[open] > summary::before { transform: rotate(45deg); }
   }
-  .s-content { padding: 4px 0 4px 14px; border-left: 1px solid ${divider}; margin: 2px 0 2px 5px; }
+  .s-content { padding: var(--u) 0 var(--u) calc(var(--u) * 4); border-left: 1px solid color-mix(in oklch, currentColor 10%, transparent); margin: calc(var(--u) * .5) 0 calc(var(--u) * .5) var(--u); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0ms !important; }

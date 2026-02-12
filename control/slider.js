@@ -43,7 +43,6 @@ const makeCurve = (opt) => {
 
 export default (sig, opts = {}) => {
   const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, unit = '', format: fmt, ...rest } = opts
-  const format = fmt || (v => defaultFormat(v) + unit)
 
   // Curve (maps normalized [0,1] non-linearly)
   const curve = makeCurve(curveOpt)
@@ -105,20 +104,26 @@ export default (sig, opts = {}) => {
       if (count <= 10) {
         for (let v = min; v <= max; v += step) markVals.push(Math.round(v * 1e10) / 1e10)
       } else {
-        // Find nice interval giving ~4-10 marks
+        // Find nice interval: prefer even division of range, hitting endpoints, count near 5
         const range = max - min
         const mag = Math.pow(10, Math.floor(Math.log10(range)))
-        const nices = [.1, .2, .25, .5, 1, 2, 2.5, 5, 10]
-        let interval = range
-        for (const n of nices) {
-          const s = n * mag
-          const c = range / s
-          if (c >= 4 && c <= 8) { interval = s; break }
+        let best = range, bestScore = Infinity
+        for (const s of [mag / 10, mag]) {
+          for (const n of [1, 2, 2.5, 5, 3, 4]) {
+            const interval = +(n * s).toPrecision(10)
+            const cnt = Math.floor(range / interval + 1e-9) + 1
+            if (cnt < 3 || cnt > 9) continue
+            const rem = Math.abs(range / interval - Math.round(range / interval))
+            const even = rem < 1e-9
+            const hitsMin = Math.abs(Math.round(min / interval) * interval - min) < interval * 1e-9
+            const hitsMax = Math.abs(Math.round(max / interval) * interval - max) < interval * 1e-9
+            const core = n <= 5 && n !== 3 && n !== 4
+            const score = (even ? 0 : 20) + (hitsMin ? 0 : 5) + (hitsMax ? 0 : 5) + Math.abs(cnt - 5) + (core ? 0 : .1)
+            if (score < bestScore) { best = interval; bestScore = score }
+          }
         }
-        for (let v = Math.ceil(min / interval) * interval; v <= max; v += interval)
+        for (let v = Math.ceil(min / best - 1e-9) * best; v <= max + best * 1e-9; v += best)
           markVals.push(Math.round(v * 1e10) / 1e10)
-        if (markVals[0] !== min) markVals.unshift(min)
-        if (markVals[markVals.length - 1] !== max) markVals.push(max)
       }
     }
   } else if (marksOpt === 'ends') {
@@ -134,8 +139,7 @@ export default (sig, opts = {}) => {
 
   // Snap to nearest mark in display space (constant visual zone regardless of curve)
   // Always include min/max as snap targets so ends are reachable
-  const snapDefault = discrete || 'step' in opts ? 2 : 0
-  const snapThreshold = snapOpt === false ? 0 : (typeof snapOpt === 'number' ? snapOpt : snapDefault)
+  const snapThreshold = snapOpt === false ? 0 : typeof snapOpt === 'number' ? snapOpt : (snapOpt === true || discrete || 'step' in opts) ? 2 : 0
   const snapRange = (dMax - dMin) * snapThreshold / 100
   const snapTargets = [...new Set([min, ...markVals, max])]
 
@@ -155,10 +159,16 @@ export default (sig, opts = {}) => {
   const grab = () => { dragging = true }
   const release = () => { dragging = false }
 
+  // Quantize to step precision
+  const prec = step ? Math.round(-Math.log10(step)) : 10
+  const format = fmt || (step ? (v => v.toFixed(Math.max(0, prec)) + unit) : (v => defaultFormat(v) + unit))
+  const quantize = v => step ? Math.round(v / step) * step : v
+  const clean = v => +quantize(v).toFixed(Math.max(0, prec))
+
   const set = d => {
     const raw = fromDisplay(d)
     const clamped = Math.min(max, Math.max(min, raw))
-    const final = dragging ? snap(clamped) : clamped
+    const final = clean(dragging ? snap(clamped) : clamped)
     sig.value = final
     if (final !== raw) value.value = toDisplay(final)
   }
