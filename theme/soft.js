@@ -47,14 +47,6 @@ function parseColor(color) {
   return { L: 0.97, C: 0.01, H: 60 }
 }
 
-function defaultShade(L, C, H, alpha) {
-  L = clamp(L, 0, 1)
-  const l = +L.toFixed(3), c = +C.toFixed(4), h = +H.toFixed(1)
-  return alpha != null
-    ? `oklch(${l} ${c} ${h} / ${+alpha.toFixed(3)})`
-    : `oklch(${l} ${c} ${h})`
-}
-
 export default function soft({
   shade = '#f5f4f2',
   accent,
@@ -69,28 +61,25 @@ export default function soft({
 } = {}) {
 
   const isFunc = typeof shade === 'function'
-  const { L: shadeL, C: shadeC, H: shadeH } = isFunc ? { L: 0.97, C: 0.01, H: 60 } : parseColor(shade)
-  const dark = shadeL < .6
-  const $ = isFunc ? shade : ((l, c = shadeC, h = shadeH, a) => defaultShade(l, c, h, a))
+  const { L: surfaceL, C: surfaceC, H: surfaceH } = isFunc ? { L: 0.97, C: 0.01, H: 60 } : parseColor(shade)
+  const dark = surfaceL < .6
+  const $ = isFunc ? shade : (L = surfaceL, C = surfaceC, H = surfaceH, alpha) => {
+    L = clamp(L, 0, 1)
+    const l = +L.toFixed(3), c = +C.toFixed(4), h = +H.toFixed(1)
+    return alpha != null
+      ? `oklch(${l} ${c} ${h} / ${+alpha.toFixed(3)})`
+      : `oklch(${l} ${c} ${h})`
+  }
   // Shadow/highlight: accept optional chroma/hue overrides
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
-  const Li = lerp(.027, 0.064, contrast)
-  const { L: accentL, C: accentC, H: accentH } = accent ? parseColor(accent) : { L: dark ? .72 : .58, C: min(shadeC * 8, 0.27), H: shadeH }
-  const accentColor = accent || `oklch(${accentL} ${accentC} ${accentH})`
+  const { L: accentL, C: accentC, H: accentH } = accent ? parseColor(accent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
   const u = 4  // fixed grid quantum (px)
 
-  // Relief: abs for intensity, sign for direction (negative = engraved)
-  // Classic approach: semi-transparent white/black gradients, normal blend
-  const ra = Math.abs(relief)
-  const rhi = `rgba(255,255,255,${(ra * 0.2).toFixed(2)})`
-  const rlo = `rgba(0,0,0,${(ra * 0.2).toFixed(2)})`
-
-
   // Shadow helper (depth-dependent)
-  const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0.108, shadeC * 2, shadeH, a)}`
+  const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0.108, surfaceC + 0.1, surfaceH, a)}`
 
   // Texture (data URI, must stay JS)
   const texFn = TEX[texture]
@@ -100,7 +89,7 @@ export default function soft({
   const mono = "ui-monospace, 'SF Mono', monospace"
 
   // Grid-aligned text metrics
-  const fontSize = lerp(11, 15, size)
+  const fontSize = lerp(10, 14, size)
   const lh = 4 * u  // 16, 20, 24px — always on grid
   const inputH = lh + 2 * u * (.75 + .75 * spacing)  // matches input padding
 
@@ -112,27 +101,28 @@ export default function soft({
   const thumbSize = r ? 4 * u : (4 / 1.128) * u  // 12, 16, 20px — on grid
   const thumbR = r ? thumbSize / 2 : 0
 
-  const w = weight / 400
+  const w = clamp((weight + 100) / 400, 1, 4)
 
   // ── CSS variable block ──
   // All CSS props derive from these. Bevel: --bh (high) + --bl (low)
   // are the shared pair — inputs use bh outside/bl inside (concave),
   // buttons swap them: bl outside/bh inside (convex).
   const vars = {
-    '--bg': $(shadeL),
-    '--input': $(shadeL - Li, shadeC, shadeH),
-    '--accent': accentColor,
-    '--focus': `oklch(${accentL} ${accentC} ${accentH} / .35)`,
-    '--convex': ra ? `linear-gradient(${relief > 0 ? rhi : rlo}, ${relief > 0 ? rlo : rhi})` : 'none',
-    '--concave': ra ? `linear-gradient(${relief > 0 ? rlo : rhi}, ${relief > 0 ? rhi : rlo})` : 'none',
-    '--bh': $(1, min(shadeC * 1.08, 1 - shadeL), shadeH, clamp(contrast * lerp(.1, .2, shadeL), 0, 1)),
-    '--bl': $(min(0.108, shadeL), min(shadeC * 4, 0.27, shadeL / 2), shadeH, clamp(contrast * lerp(.5, .1, shadeL), 0, 1)),
-    '--text': $(dark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
-    '--text-dim': $(dark ? max(shadeL + .25, lerp(.48, .65, contrast)) : min(shadeL - .25, lerp(.58, .42, contrast))),
-    '--text-accent': $(accentDark ? lerp(.78, .97, contrast) : lerp(.32, .12, contrast)),
+    '--bg': $(surfaceL),
+    '--input': $(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, 0.25),
+    '--accent': `color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%)`,
+    '--focus': $(accentL, accentC, accentH, 0.35),
+    '--bh': $(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1)),
+    '--bl': $(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1)),
+    '--convex': relief ? `linear-gradient(${$(1, surfaceC, surfaceH, 0.2 * relief)}, transparent 49%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
+    '--concave': relief ? `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.2 * relief)}, transparent 49%, transparent 51%, ${$(1, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
+    '--text-light': $(lerp(.32, .12, contrast)),
+    '--text-dark': $(max(surfaceL, accentL, lerp(.78, .97, contrast))),
+    '--text': dark ? 'var(--text-dark)' : 'var(--text-light)',
+    '--text-dim': $(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast))),
+    '--text-accent': `color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.5, accentH)} 85%)`,
     '--w': `${w}px`,
     '--fw': round(weight),
-    '--fwB': round(min(weight + 100, 900)),
     '--u': `${u}px`,
     '--sp': spacing,
     '--r': `${r}px`,
@@ -168,7 +158,7 @@ export default function soft({
     border-radius: var(--rb);
     color: var(--text-accent); cursor: pointer;
     font: inherit;
-    font-size: 11px;
+    font-weight: bolder;
     text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${accentDark ? `--bl` : `--bh`});
     transition: background 140ms, color 140ms, box-shadow 140ms, filter 140ms;
     &:hover {  }
@@ -179,6 +169,7 @@ export default function soft({
   const thumb = `
       width: var(--thumb); height: var(--thumb);
       ${raise(1)}
+      background-color: var(--text-dark);
       border: none; border-radius: ${thumbR}px;
       cursor: grab; z-index: 1; position: relative;`
 
@@ -187,7 +178,7 @@ export default function soft({
   display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
   color: var(--text);
   ${raise(depth)}
-  background-image: ${ra ? `var(--convex), ` : ''}${tex};
+  background-image: ${relief ? `var(--convex), ` : ''}${tex};
   border-radius: var(--r);
   padding: calc(var(--u) * 3 * var(--sp));
   font: var(--fw) ${fontSize}px system-ui, -apple-system, sans-serif;
@@ -207,8 +198,8 @@ export default function soft({
     margin: 0; border: 0;
   }
   .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
-  .s-label { font-weight: var(--fwB); color: var(--text); }
-  .s-hint { font-size: 10px; color: var(--text-dim); line-height: 1.3; }
+  .s-label { color: var(--text); }
+  .s-hint { font-size: smaller; color: var(--text-dim); line-height: ${lh}px; }
   .s-input { flex: 1; display: flex; align-items: baseline; gap: calc(var(--u) * var(--sp)); }
 
   /* ── Input base ── */
@@ -217,7 +208,7 @@ export default function soft({
     border: none; border-radius: var(--ri);
     color: var(--text);
     padding: calc(var(--u) * (0.75 + 0.75 * var(--sp))) calc(var(--u) * (1 + 1 * var(--sp)));
-    font: inherit; font-size: .95em;
+    font: inherit;
     transition: border-color 140ms, box-shadow 140ms;
     &::placeholder { color: var(--text-dim); opacity: .6; }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
@@ -251,7 +242,7 @@ export default function soft({
 
   /* ── Number ── */
   .s-number input[type="number"] {
-    width: calc(var(--u) * 20); font-family: ${mono}; text-align: right;
+    width: calc(var(--u) * 20); text-align: right;
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; }
   }
 
@@ -260,8 +251,8 @@ export default function soft({
     ${btn()}
     width: calc(var(--u) * 7); height: calc(var(--u) * 7);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; line-height: 1; color: var(--text);
-    &:hover:not(:disabled) { background-color: var(--accent); color: var(--text-accent); }
+    line-height: 1; color: var(--text);
+    &:hover:not(:disabled) { background-color: var(--accent); }
   }
 
   /* ── Slider ── */
@@ -294,13 +285,13 @@ export default function soft({
     .s-mark-label {
       position: absolute; top: 100%;
       transform: translate(-50%, 4px);
-      font-size: 9px; text-align: center; white-space: nowrap;
+      font-size: smaller; text-align: center; white-space: nowrap;
       color: var(--text-dim);
       &.active { color: var(--accent); }
     }
     .s-value {
       min-width: calc(var(--u) * 10);
-      text-align: right; font-family: ${mono}; font-size: 11px;
+      font-size: smaller; text-align: right;
       color: var(--text-dim);
     }
   }
@@ -334,7 +325,7 @@ export default function soft({
     input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; background: transparent; cursor: pointer; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
-    input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); font-family: ${mono}; font-size: 11px; }
+    input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); }
   }
   .s-swatches {
     .s-input { flex-wrap: wrap; gap: var(--u); }
@@ -352,7 +343,7 @@ export default function soft({
   /* ── Textarea ── */
   .s-textarea {
     align-items: flex-start;
-    textarea { flex: 1; font-family: ${mono}; font-size: 11px; resize: none; overflow: hidden; }
+    textarea { flex: 1; resize: none; overflow: hidden; }
   }
 
   /* ── Button (action) ── */
@@ -360,14 +351,14 @@ export default function soft({
     ${btn()}
     background-color: var(--accent);
     padding: calc(var(--u) * 2.5) calc(var(--u) * 4);
-    color: var(--text-accent); font-weight: var(--fwB);
+    color: var(--text-accent);
     &:hover { filter: brightness(1.1); }
     &:active { filter: brightness(.95); }
   }
   .s-button.secondary button {
-    background-color: ${$(min(shadeL, 1))};
+    background-color: ${$(min(surfaceL, 1))};
     border: var(--w) solid var(--bh);
-    color: var(--text); font-weight: var(--fw);
+    color: var(--text);
     &:hover { color: var(--accent); filter: none; }
   }
 
@@ -375,7 +366,7 @@ export default function soft({
   .s-folder {
     display: block; border: 0; padding: 0;
     > summary {
-      cursor: pointer; padding: calc(var(--u) * 1.5) 0; font-weight: var(--fwB);
+      cursor: pointer; padding: calc(var(--u) * 1.5) 0;
       list-style: none; display: flex; align-items: center; color: var(--text);
       border-bottom: var(--w) solid var(--bl); box-shadow: 0 var(--w) 0 0 var(--bh);
       &::-webkit-details-marker { display: none; }

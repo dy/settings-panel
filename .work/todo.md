@@ -4,9 +4,9 @@
 * [ ] Theme: Skeu
   * [x] tweets best practices
   * [ ] depth
-  * [ ] buttons
+  * [x] buttons
   * [ ] texture
-  * [ ] font
+  * [x] font
   * [ ] calibrate: jhey, examples
   * [ ] reflected light?
   * [ ] contrast = roundness contrast as well? (rounded button, square shape)
