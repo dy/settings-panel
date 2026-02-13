@@ -139,6 +139,7 @@ export default function soft({
     '--sp': spacing,
     '--r': `${r}px`,
     '--ri': `${r / 2 > inputH / 4 ? inputH / 2 : r / 2}px`,
+    '--rb': r / 2 > inputH / 4 ? '999px' : `var(--ri)`,
     '--thumb': `${thumbSize}px`,
   }
 
@@ -162,11 +163,11 @@ export default function soft({
 
   // Button base fragment
   const btn = () => `${raise(1)}
-    border: none; border-radius: var(--ri);
+    border: var(--w) solid oklch(from var(--accent) calc(l - ${contrast * 0.1}) c h); border-radius: var(--rb);
     color: var(--dim); cursor: pointer;
     font: inherit; font-size: 11px;
     transition: background 140ms, color 140ms, box-shadow 140ms, filter 140ms;
-    &:hover { color: var(--text); }
+    &:hover {  }
     &:disabled { opacity: .35; cursor: not-allowed; }
     &.selected, &[aria-pressed="true"] { background-color: var(--accent); color: var(--accent-c); }`
 
@@ -328,7 +329,7 @@ export default function soft({
     flex: 1; position: relative; display: flex; align-items: center;
     input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; background: transparent; cursor: pointer; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--ri); }
+    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
     input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); font-family: ${mono}; font-size: 11px; }
   }
   .s-swatches {
@@ -356,8 +357,8 @@ export default function soft({
     background-color: var(--accent);
     padding: calc(var(--u) * 2) calc(var(--u) * 4);
     color: var(--accent-c); font-weight: var(--fwB);
-    &:hover { filter: brightness(1.1); box-shadow: ${sh(lerp(1, 4, depth), lerp(2, 12, depth), lerp(.05, .2, depth))}; }
-    &:active { filter: brightness(.95); box-shadow: none; }
+    &:hover { filter: brightness(1.1); }
+    &:active { filter: brightness(.95); }
   }
   .s-button.secondary button {
     background-color: ${$(min(L, 1))};

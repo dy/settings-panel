@@ -10,6 +10,7 @@
  *           [values] (ticks only), {value: 'label'} (ticks + labels)
  *   snap - snap to marks during drag: false (default), true if step provided, or number (% threshold)
  *   track - CSS gradient for custom track background
+ *   haptic - vibrate on mark crossings during drag: true (10ms tick) or ms duration
  *   unit - suffix appended to displayed value (e.g. 'px', '%', 'ms')
  *   format - (value) → string, overrides default auto-precision display
  */
@@ -42,7 +43,7 @@ const makeCurve = (opt) => {
 }
 
 export default (sig, opts = {}) => {
-  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, unit = '', format: fmt, ...rest } = opts
+  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, unit = '', format: fmt, ...rest } = opts
 
   // Curve (maps normalized [0,1] non-linearly)
   const curve = makeCurve(curveOpt)
@@ -156,8 +157,22 @@ export default (sig, opts = {}) => {
 
   // Snap only during pointer drag, not keyboard
   let dragging = false
-  const grab = () => { dragging = true }
+  const grab = () => { dragging = true; lastMark = -1 }
   const release = () => { dragging = false }
+
+  // Haptic: vibrate when crossing a mark during drag
+  const vibMs = haptic === true ? 10 : haptic || 0
+  let lastMark = -1
+  const tick = v => {
+    if (!vibMs || !dragging || !snapTargets.length) return
+    let nearest = 0, best = Infinity
+    for (let i = 0; i < snapTargets.length; i++) {
+      const d = Math.abs(v - snapTargets[i])
+      if (d < best) { best = d; nearest = i }
+    }
+    if (nearest !== lastMark && lastMark !== -1) console.log('vib', vibMs), navigator.vibrate?.(vibMs)
+    lastMark = nearest
+  }
 
   // Quantize to step precision
   const prec = step ? Math.round(-Math.log10(step)) : 10
@@ -169,6 +184,7 @@ export default (sig, opts = {}) => {
     const raw = fromDisplay(d)
     const clamped = Math.min(max, Math.max(min, raw))
     const final = clean(dragging ? snap(clamped) : clamped)
+    tick(final)
     sig.value = final
     if (final !== raw) value.value = toDisplay(final)
   }
