@@ -49,6 +49,7 @@ export default function settings(schema, options = {}) {
     container = document.body,
     theme = soft,
     collapsed = false,
+    persist = false,
     onchange = options.onChange
   } = options
 
@@ -82,15 +83,40 @@ export default function settings(schema, options = {}) {
 
   const state = root.value
 
-  // Wire onchange via single effect on all state keys (recursive into folders)
-  let stopOnchange
-  if (onchange) {
-    const touch = (obj) => {
-      for (const k of Object.keys(obj)) {
-        const v = obj[k]
-        if (v && typeof v === 'object' && !Array.isArray(v)) touch(v)
+  // Read all reactive keys recursively (use inside effect to subscribe to entire tree)
+  const touch = (obj) => { for (const k of Object.keys(obj)) { const v = obj[k]; if (v && typeof v === 'object' && !Array.isArray(v)) touch(v) } }
+
+  // ── Persistence ──
+  const storeKey = persist === true ? 'settings-panel' : persist
+  let stopPersist
+
+  if (storeKey) {
+    const restore = (target, saved) => {
+      for (const k of Object.keys(saved)) {
+        if (!(k in target)) continue
+        const v = saved[k], cur = target[k]
+        if (v && typeof v === 'object' && !Array.isArray(v) && cur && typeof cur === 'object') restore(cur, v)
+        else target[k] = v
       }
     }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey))
+      if (saved) restore(state, saved)
+    } catch {}
+
+    let ready = false
+    queueMicrotask(() => { ready = true })
+    stopPersist = effect(() => {
+      const json = JSON.stringify(state)
+      if (!ready) return
+      localStorage.setItem(storeKey, json)
+    })
+  }
+
+  // Wire onchange
+  let stopOnchange
+  if (onchange) {
     let ready = false
     queueMicrotask(() => { ready = true })
     stopOnchange = effect(() => {
@@ -101,6 +127,7 @@ export default function settings(schema, options = {}) {
   }
 
   state[Symbol.dispose] = () => {
+    stopPersist?.()
     stopOnchange?.()
     root[Symbol.dispose]()
     panel.remove()
