@@ -1,5 +1,6 @@
 ## [ ] MVP
 
+* [ ] Theme: default (size calibrator)
 * [ ] Theme: Skeu
   * [x] tweets best practices
   * [ ] depth
