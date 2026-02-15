@@ -4,7 +4,7 @@
  */
 
 import { signal, effect } from 'sprae'
-import soft from './theme/soft.js'
+import base from './theme/default.js'
 
 // Import control factories
 import boolean from './control/boolean.js'
@@ -47,28 +47,56 @@ export function register(type, factory) {
 export default function settings(schema, options = {}) {
   const {
     container = document.body,
-    theme = soft,
+    theme = base,
     collapsed = false,
     persist = false,
-    onchange = options.onChange
+    onchange = options.onChange || options.onchange
   } = options
 
   // Inject theme CSS
-  const style = document.createElement('style')
-  const stopTheme = effect(() => {
-    style.textContent = theme.valueOf()()
-  })
-  document.head.appendChild(style)
+  const style = theme ? document.createElement('style') : null
+  if (style) {
+    style.textContent = typeof theme === 'function' ? theme() : theme
+    document.head.appendChild(style)
+  }
 
   // Create panel container
   const panel = document.createElement('div')
   panel.className = 's-panel'
   if (collapsed) panel.classList.add('s-collapsed')
 
+  // ── Persistence: merge saved state into schema before building controls ──
+  const storeKey = persist === true ? 'settings-panel' : persist
+  let saved
+  if (storeKey) {
+    try { saved = JSON.parse(localStorage.getItem(storeKey)) } catch {}
+  }
+
+  const mergeDefaults = (schema, saved) => {
+    if (!saved) return schema
+    const out = {}
+    for (const [k, def] of Object.entries(schema)) {
+      const sv = saved[k]
+      if (!(k in saved) || sv == null) { out[k] = def; continue }
+      if (def && typeof def === 'object' && !Array.isArray(def) && def.children) {
+        out[k] = { ...def, children: mergeDefaults(def.children, sv) }
+      } else if (def && typeof def === 'object' && !Array.isArray(def) && 'value' in def) {
+        out[k] = { ...def, value: sv }
+      } else if (typeof def !== 'object' && typeof def === typeof sv) {
+        out[k] = sv
+      } else {
+        out[k] = def
+      }
+    }
+    return out
+  }
+
+  const resolvedSchema = mergeDefaults(schema, saved)
+
   // Root folder builds all controls
   const sig = signal(null)
   const root = folder(sig, {
-    children: schema,
+    children: resolvedSchema,
     controls,
     container: panel,
     collapsed: false,
@@ -86,25 +114,8 @@ export default function settings(schema, options = {}) {
   // Read all reactive keys recursively (use inside effect to subscribe to entire tree)
   const touch = (obj) => { for (const k of Object.keys(obj)) { const v = obj[k]; if (v && typeof v === 'object' && !Array.isArray(v)) touch(v) } }
 
-  // ── Persistence ──
-  const storeKey = persist === true ? 'settings-panel' : persist
   let stopPersist
-
   if (storeKey) {
-    const restore = (target, saved) => {
-      for (const k of Object.keys(saved)) {
-        if (!(k in target)) continue
-        const v = saved[k], cur = target[k]
-        if (v && typeof v === 'object' && !Array.isArray(v) && cur && typeof cur === 'object') restore(cur, v)
-        else target[k] = v
-      }
-    }
-
-    try {
-      const saved = JSON.parse(localStorage.getItem(storeKey))
-      if (saved) restore(state, saved)
-    } catch {}
-
     let ready = false
     queueMicrotask(() => { ready = true })
     stopPersist = effect(() => {
@@ -131,8 +142,7 @@ export default function settings(schema, options = {}) {
     stopOnchange?.()
     root[Symbol.dispose]()
     panel.remove()
-    style.remove()
-    stopTheme()
+    style?.remove()
   }
 
   return state

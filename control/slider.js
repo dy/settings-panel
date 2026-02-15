@@ -20,7 +20,8 @@ import { signal, effect, computed } from '../signals.js'
 
 const template = `
   <span class="s-track">
-    <input type="range" :style="track ? '--track:' + track : '--p:' + progress + '%'" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
+    <input type="range" :list="nativeTicks ? listId : null" :style="track ? '--track:' + track : '--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
+    <datalist :id="listId"><option :each="v in markVals" :value="v"></option></datalist>
     <span class="s-marks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
   </span>
@@ -170,7 +171,7 @@ export default (sig, opts = {}) => {
       const d = Math.abs(v - snapTargets[i])
       if (d < best) { best = d; nearest = i }
     }
-    if (nearest !== lastMark && lastMark !== -1) console.log('vib', vibMs), navigator.vibrate?.(vibMs)
+    if (nearest !== lastMark && lastMark !== -1) navigator.vibrate?.(vibMs)
     lastMark = nearest
   }
 
@@ -189,10 +190,21 @@ export default (sig, opts = {}) => {
     if (final !== raw) value.value = toDisplay(final)
   }
 
-  return control(sig, {
+  const listId = `s-${Math.random().toString(36).slice(2)}`
+  const nativeTicks = signal(false)
+
+  const result = control(sig, {
     ...rest,
-    type: 'slider', template, dispose, value, actual, progress, marks, labels, track,
+    type: 'slider', template, dispose, value, actual, progress, marks, markVals, labels, track, listId, nativeTicks,
     dMin, dMax, dStep, set, grab, release,
     format
   })
+
+  // After mount + styles applied: enable native datalist only if theme keeps appearance:auto
+  requestAnimationFrame(() => {
+    const inp = result.el.querySelector('input[type=range]')
+    if (inp && getComputedStyle(inp).appearance !== 'none') nativeTicks.value = true
+  })
+
+  return result
 }

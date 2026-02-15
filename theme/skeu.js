@@ -1,7 +1,7 @@
 /**
- * Soft theme — monotone, diffuse, tactile
+ * Skeu theme — monotone, diffuse, tactile
  *
- * soft(axes?) → CSS string
+ * skeu(axes?) → CSS string
  */
 
 const { min, max, round, ceil } = Math
@@ -47,7 +47,7 @@ function parseColor(color) {
   return { L: 0.97, C: 0.01, H: 60 }
 }
 
-export default function soft({
+export default function skeu({
   shade = '#f5f4f2',
   accent,
   contrast = .5,
@@ -114,8 +114,8 @@ export default function soft({
     '--focus': $(accentL, accentC, accentH, 0.35),
     '--bh': $(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1)),
     '--bl': $(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1)),
-    '--convex': relief ? `linear-gradient(${$(1, surfaceC, surfaceH, 0.2 * relief)}, transparent 49%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
-    '--concave': relief ? `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.2 * relief)}, transparent 49%, transparent 51%, ${$(1, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
+    '--convex': relief ? `linear-gradient(${$(1, surfaceC, surfaceH, 0.2 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)})` : 'none',
+    '--concave': relief ? `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 50%, transparent 51%, ${$(1, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
     '--text-light': $(lerp(.32, .12, contrast)),
     '--text-dark': $(max(surfaceL, accentL, lerp(.78, .97, contrast))),
     '--text': dark ? 'var(--text-dark)' : 'var(--text-light)',
@@ -264,12 +264,15 @@ export default function soft({
     input[type="range"] {
       width: 100%; height: 0.6em; margin: 0;
       ${raise(-depth)}
-      background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--p, 0%), var(--input) var(--p, 0%)));
+      --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
+      background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--input) var(--fill)));
       border: none; border-radius: var(--ri);
       -webkit-appearance: none; cursor: pointer;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
+      &::-webkit-slider-container { appearance: none; }
     }
+    datalist { display: none; }
     .s-marks, .s-mark-labels {
       position: absolute;
       left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2);
