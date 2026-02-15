@@ -1,50 +1,18 @@
 /**
  * Skeu theme — monotone, diffuse, tactile
  *
+ * Layers on top of base theme (CSS cascade override).
  * skeu(axes?) → CSS string
  */
 
+import base, { parseColor, lerp, clamp } from './default.js'
+
 const { min, max, round, ceil } = Math
-const clamp = (v, lo, hi) => min(hi, max(lo, v))
-const lerp = (a, b, t) => a + (b - a) * t
 
 const TEX = {
   flat: 'none',
   dots: (c, a) => `url("data:image/svg+xml,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='6' cy='6' r='.6' fill='rgba(${c},${a})'/%3E%3C/svg%3E")`,
   crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
-}
-
-/**
- * Parse CSS color to OKLCH components
- * Supports: #hex, oklch()
- */
-function parseColor(color) {
-  if (!color) return { L: 0.97, C: 0.01, H: 60 }
-
-  const oklch = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
-  if (oklch) return { L: +oklch[1], C: +oklch[2], H: +oklch[3] }
-
-  if (color.startsWith('#')) {
-    const hex = color.slice(1)
-    const r = parseInt(hex.slice(0, 2), 16) / 255
-    const g = parseInt(hex.slice(2, 4), 16) / 255
-    const b = parseInt(hex.slice(4, 6), 16) / 255
-    const rl = r <= 0.04045 ? r / 12.92 : ((r + 0.055) / 1.055) ** 2.4
-    const gl = g <= 0.04045 ? g / 12.92 : ((g + 0.055) / 1.055) ** 2.4
-    const bl = b <= 0.04045 ? b / 12.92 : ((b + 0.055) / 1.055) ** 2.4
-    const l_ = Math.cbrt(0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl)
-    const m_ = Math.cbrt(0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl)
-    const s_ = Math.cbrt(0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl)
-    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
-    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
-    const ob = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
-    const C = Math.sqrt(a * a + ob * ob)
-    let H = Math.atan2(ob, a) * 180 / Math.PI
-    if (H < 0) H += 360
-    return { L, C, H }
-  }
-
-  return { L: 0.97, C: 0.01, H: 60 }
 }
 
 export default function skeu({
@@ -56,8 +24,9 @@ export default function skeu({
   size = 1,
   weight = 400,
   depth = .4,
-  roundness = .5,
+  roundness = 0.5,
   relief = 0,
+  unit = 4,
 } = {}) {
 
   const isFunc = typeof shade === 'function'
@@ -70,13 +39,12 @@ export default function skeu({
       ? `oklch(${l} ${c} ${h} / ${+alpha.toFixed(3)})`
       : `oklch(${l} ${c} ${h})`
   }
-  // Shadow/highlight: accept optional chroma/hue overrides
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
   const { L: accentL, C: accentC, H: accentH } = accent ? parseColor(accent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
-  const u = 4  // fixed grid quantum (px)
+  const u = unit
 
   // Shadow helper (depth-dependent)
   const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0.108, surfaceC + 0.1, surfaceH, a)}`
@@ -86,26 +54,22 @@ export default function skeu({
   const tex = !texFn || texFn === 'none' ? 'none'
     : texFn(dark ? '255,255,255' : '0,0,0', dark ? '.04' : '.05')
 
-  const mono = "ui-monospace, 'SF Mono', monospace"
-
   // Grid-aligned text metrics
   const fontSize = lerp(10, 14, size)
-  const lh = 4 * u  // 16, 20, 24px — always on grid
-  const inputH = lh + 2 * u * (.75 + .75 * spacing)  // matches input padding
-
+  const lh = 4 * u
+  const inputH = lh + 2 * u * (.75 + .75 * spacing)
 
   // Roundness: 0–1 normalized → px, max depends on spacing
   const maxR = round(14 + 12 * spacing)
   const r = round(roundness * maxR)
 
-  const thumbSize = r ? 4 * u : (4 / 1.128) * u  // 12, 16, 20px — on grid
+  const thumbSize = r ? 4 * u : (4 / 1.128) * u
   const thumbR = r ? thumbSize / 2 : 0
 
   const w = clamp((weight + 100) / 400, 1, 4)
 
   // ── CSS variable block ──
-  // All CSS props derive from these. Bevel: --bh (high) + --bl (low)
-  // are the shared pair — inputs use bh outside/bl inside (concave),
+  // Bevel: --bh (high) + --bl (low) — inputs use bh outside/bl inside (concave),
   // buttons swap them: bl outside/bh inside (convex).
   const vars = {
     '--bg': $(surfaceL),
@@ -137,9 +101,9 @@ export default function skeu({
   // raise(d, bg) — d<0 sunken, d>0 raised, 0 flat
   const raise = (d, bg = d < 0 ? 'var(--input)' : 'var(--bg)') => {
     const abs = Math.abs(d)
-    const relief = d < 0 ? 'var(--concave)' : d > 0 ? 'var(--convex)' : 'none'
+    const relf = d < 0 ? 'var(--concave)' : d > 0 ? 'var(--convex)' : 'none'
     return `background-color: ${bg};
-    background-image: ${relief};
+    background-image: ${relf};
     background-blend-mode: overlay, normal;
     outline: var(--w) solid ${d < 0 ? 'var(--bh)' : 'var(--bl)'};
     ${d < 0 ?
@@ -173,52 +137,42 @@ export default function skeu({
       border: none; border-radius: ${thumbR}px;
       cursor: grab; z-index: 1; position: relative;`
 
-  return `.s-panel {
+  // ── Base layer (structural + default visuals) ──
+  const baseCSS = base({ shade, spacing, size, weight, accent, roundness })
+
+  // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
+  const overrides = `.s-panel {
   ${varBlock}
-  display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
   color: var(--text);
   ${raise(depth)}
   background-image: ${relief ? `var(--convex), ` : ''}${tex};
-  border-radius: var(--r);
-  padding: calc(var(--u) * 3 * var(--sp));
   font: var(--fw) ${fontSize}px system-ui, -apple-system, sans-serif;
   line-height: ${lh}px;
   text-shadow: 0 calc(${dark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${dark ? `--bl` : `--bh`});
-  min-width: calc(var(--u) * 60);
   position: relative;
   isolation: isolate;
-  -webkit-font-smoothing: antialiased;
 
-  &, *, *::before, *::after { box-sizing: border-box; background-origin: border-box; }
+  &, *, *::before, *::after { background-origin: border-box; }
 
-  /* ── Control row ── */
-  .s-control {
-    display: flex; align-items: baseline;
-    gap: calc(var(--u) * 2 * var(--sp));
-    margin: 0; border: 0;
-  }
-  .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
   .s-label { color: var(--text); }
-  .s-hint { font-size: smaller; color: var(--text-dim); line-height: ${lh}px; }
-  .s-input { flex: 1; display: flex; align-items: baseline; gap: calc(var(--u) * var(--sp)); }
+  .s-hint { color: var(--text-dim); opacity: 1; }
 
   /* ── Input base ── */
   input[type="text"], input[type="number"], textarea, select {
     ${raise(-depth)}
     border: none; border-radius: var(--ri);
     color: var(--text);
+    height: auto;
     padding: calc(var(--u) * (0.75 + 0.75 * var(--sp))) calc(var(--u) * (1 + 1 * var(--sp)));
-    font: inherit;
     transition: border-color 140ms, box-shadow 140ms;
     &::placeholder { color: var(--text-dim); opacity: .6; }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
   }
   button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus); }
 
-  /* ── Boolean ── */
+  /* ── Boolean (custom toggle) ── */
   .s-boolean {
-    align-items: center;
-    input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
+    input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
     .s-track {
       width: calc(var(--u) * 10); height: calc(var(--u) * 5);
       ${raise(-depth)}
@@ -242,43 +196,36 @@ export default function skeu({
 
   /* ── Number ── */
   .s-number input[type="number"] {
-    width: calc(var(--u) * 20); text-align: right;
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; }
   }
 
   /* ── Step buttons ── */
   .s-step {
     ${btn()}
-    width: calc(var(--u) * 7); height: calc(var(--u) * 7);
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1; color: var(--text);
+    color: var(--text);
+    border-radius: var(--rb);
+    background: none; ${raise(1)}
     &:hover:not(:disabled) { background-color: var(--accent); }
   }
 
-  /* ── Slider ── */
+  /* ── Slider (custom appearance) ── */
   .s-slider {
-    padding: calc(1.25*var(--u)) 0;
-    .s-input { flex-direction: row; }
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 16px; }
-    .s-track { flex: 1; position: relative; display: flex; align-items: center; }
     input[type="range"] {
-      width: 100%; height: 0.6em; margin: 0;
+      height: 0.6em;
       ${raise(-depth)}
       --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
       background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--input) var(--fill)));
       border: none; border-radius: var(--ri);
-      -webkit-appearance: none; cursor: pointer;
+      -webkit-appearance: none;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
       &::-webkit-slider-container { appearance: none; }
     }
     datalist { display: none; }
     .s-marks, .s-mark-labels {
-      position: absolute;
       left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2);
-      top: 0; bottom: 0;
-      pointer-events: none;
     }
+    .s-marks { display: flex; }
     .s-mark {
       position: absolute; width: ${ceil(w * 2) / 2}px; height: 100%; top: 50%;
       background: linear-gradient(var(--bh), var(--bh)) var(--bg);
@@ -286,22 +233,15 @@ export default function skeu({
       &.active { background: linear-gradient(var(--bh), var(--bh)) var(--bg); }
     }
     .s-mark-label {
-      position: absolute; top: 100%;
-      transform: translate(-50%, 4px);
-      font-size: smaller; text-align: center; white-space: nowrap;
-      color: var(--text-dim);
+      color: var(--text-dim); opacity: 1;
       &.active { color: var(--accent); }
     }
-    .s-value {
-      min-width: calc(var(--u) * 10);
-      font-size: smaller; text-align: right;
-      color: var(--text-dim);
-    }
+    .s-value { color: var(--text-dim); opacity: 1; }
   }
 
-  /* ── Select ── */
+  /* ── Select (custom arrow) ── */
   .s-select select {
-    flex: 1; cursor: pointer; appearance: none;
+    appearance: none;
     background-image: var(--concave), linear-gradient(45deg, transparent 50%, var(--text-dim) 50%), linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
     background-position: 0 0, calc(100% - 14px) 50%, calc(100% - 10px) 50%;
     background-size: 100% 100%, 4px 4px, 4px 4px;
@@ -309,8 +249,6 @@ export default function skeu({
     padding-right: 26px;
   }
   .s-buttons {
-    flex-wrap: wrap;
-    .s-input { gap: calc(var(--u) * .5 * var(--sp)); }
     button {
       ${btn()}
       padding: var(--u) calc(var(--u) * 2.5);
@@ -318,43 +256,28 @@ export default function skeu({
     }
   }
   .s-radio {
-    .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * .5 * var(--sp)); }
-    label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; color: var(--text-dim); &.selected { color: var(--text); } }
+    label { color: var(--text-dim); opacity: 1; &.selected { color: var(--text); opacity: 1; } }
   }
 
   /* ── Color ── */
   .s-color-input {
-    flex: 1; position: relative; display: flex; align-items: center;
-    input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; background: transparent; cursor: pointer; }
+    input[type="color"] { background: transparent; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
-    input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); }
   }
-  .s-swatches {
-    .s-input { flex-wrap: wrap; gap: var(--u); }
-    button {
-      ${btn()}
-      width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0;
-      box-shadow: inset 0 0 0 var(--w) var(--bl);
-      &.selected { border: 1px solid var(--text); box-shadow: 0 0 0 2px var(--bg); }
-    }
-  }
-
-  /* ── Text ── */
-  .s-text input[type="text"] { flex: 1; }
-
-  /* ── Textarea ── */
-  .s-textarea {
-    align-items: flex-start;
-    textarea { flex: 1; resize: none; overflow: hidden; }
+  .s-swatches button {
+    ${btn()}
+    box-shadow: inset 0 0 0 var(--w) var(--bl);
+    border-radius: var(--r);
+    &.selected { border: 1px solid var(--text); box-shadow: 0 0 0 2px var(--bg); }
   }
 
   /* ── Button (action) ── */
   .s-button button {
     ${btn()}
     background-color: var(--accent);
-    padding: calc(var(--u) * 2.5) calc(var(--u) * 4);
     color: var(--text-accent);
+    border-radius: var(--r);
     &:hover { filter: brightness(1.1); }
     &:active { filter: brightness(.95); }
   }
@@ -366,29 +289,16 @@ export default function skeu({
   }
 
   /* ── Folder ── */
-  .s-folder {
-    display: block; border: 0; padding: 0;
-    > summary {
-      cursor: pointer; padding: calc(var(--u) * 1.5) 0;
-      list-style: none; display: flex; align-items: center; color: var(--text);
-      border-bottom: var(--w) solid var(--bl); box-shadow: 0 var(--w) 0 0 var(--bh);
-      &::-webkit-details-marker { display: none; }
-      &::after {
-        content: ''; width: 7px; height: 7px; margin-left: auto; flex-shrink: 0;
-        border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim);
-        transform: rotate(45deg); transition: transform 140ms;
-      }
+  .s-folder > summary {
+    color: var(--text);
+    border-bottom: var(--w) solid var(--bl); box-shadow: 0 var(--w) 0 0 var(--bh);
+    opacity: 1;
+    &::after {
+      border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim);
     }
-    &[open] > summary { border-bottom: none; box-shadow: none; }
-    &[open] > summary::after { transform: rotate(-135deg); }
   }
-  .s-content {
-    padding: calc(var(--u) * 2 * var(--sp)) 0;
-    display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition-duration: 0ms !important; }
-  }
+  .s-folder[open] > summary { box-shadow: none; }
 }`
+
+  return baseCSS + '\n' + overrides
 }

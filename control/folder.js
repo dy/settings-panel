@@ -55,6 +55,7 @@ export default (sig, opts = {}) => {
       controls,
       container: content
     })
+    if (decorated.el) decorated.el.dataset.key = key
     disposers.push(decorated[Symbol.dispose])
   }
 
