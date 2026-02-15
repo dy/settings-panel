@@ -5,6 +5,8 @@
   * [x] inverse color logic
   * [x] disable inactive axes
   * [x] centralize
+  * [ ] size/spacing: should be well-done, not hardcoded
+  * [x] log ticks: should match datalist properly
 * [ ] Theme: Skeu
   * [x] tweets best practices
   * [ ] depth

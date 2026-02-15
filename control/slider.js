@@ -21,9 +21,9 @@ import { signal, effect, computed } from '../signals.js'
 const template = `
   <span class="s-track">
     <input type="range" :list="nativeTicks ? listId : null" :style="track ? '--track:' + track : '--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
-    <datalist :id="listId"><option :each="v in markVals" :value="v"></option></datalist>
-    <span class="s-marks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
-    <span class="s-mark-labels" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
+    <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
+    <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
+    <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
   </span>
   <span class="s-value" :text="format(actual)"></span>
 `
@@ -44,7 +44,7 @@ const makeCurve = (opt) => {
 }
 
 export default (sig, opts = {}) => {
-  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, unit = '', format: fmt, ...rest } = opts
+  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
 
   // Curve (maps normalized [0,1] non-linearly)
   const curve = makeCurve(curveOpt)
@@ -82,13 +82,13 @@ export default (sig, opts = {}) => {
   const dMax = isLog ? 1000 : max
   const dStep = isLog ? 1 : (discrete ? 'any' : step)
 
-  const progress = computed(() => ((value.value - dMin) / (dMax - dMin)) * 100)
+  const progress = computed(() => +((value.value - dMin) / (dMax - dMin) * 100).toFixed(3))
 
   // Mark positions must account for curve (display is curved, marks should appear at curved positions)
   const markPct = v => {
     const n = (v - min) / (max - min)
     const curved = curve.from ? curve.from(n) : n
-    return curved * 100
+    return +(curved * 100).toFixed(3)
   }
 
   // Resolve marks first (needed for snap)
@@ -135,6 +135,7 @@ export default (sig, opts = {}) => {
   }
 
   const marks = markVals.map(v => ({ pct: markPct(v) }))
+  const markDisplayVals = markVals.map(v => +toDisplay(v).toFixed(3))
   const labels = Object.keys(labelTexts).length
     ? markVals.map(v => ({ pct: markPct(v), text: labelTexts[v] }))
     : []
@@ -191,19 +192,19 @@ export default (sig, opts = {}) => {
   }
 
   const listId = `s-${Math.random().toString(36).slice(2)}`
-  const nativeTicks = signal(false)
+  const nativeTicks = signal(nativeTicksOpt ?? false)
 
   const result = control(sig, {
     ...rest,
-    type: 'slider', template, dispose, value, actual, progress, marks, markVals, labels, track, listId, nativeTicks,
+    type: 'slider', template, dispose, value, actual, progress, marks, markVals, markDisplayVals, labels, track, listId, nativeTicks,
     dMin, dMax, dStep, set, grab, release,
     format
   })
 
-  // After mount + styles applied: enable native datalist only if theme keeps appearance:auto
-  requestAnimationFrame(() => {
+  // Auto-detect: native ticks only if theme keeps appearance:auto
+  if (nativeTicksOpt == null) requestAnimationFrame(() => {
     const inp = result.el.querySelector('input[type=range]')
-    if (inp && getComputedStyle(inp).appearance !== 'none') nativeTicks.value = true
+    if (inp) nativeTicks.value = getComputedStyle(inp).appearance !== 'none'
   })
 
   return result
