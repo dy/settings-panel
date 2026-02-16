@@ -2,11 +2,13 @@ import './register.js'
 import test, { is, ok } from 'tst'
 import settings, { effect, signal } from '../index.js'
 
+const tick = () => new Promise(r => queueMicrotask(r))
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ONCHANGE CALLBACK
 // ─────────────────────────────────────────────────────────────────────────────
 
-test('onchange: fires on state change', () => {
+test('onchange: fires on state change', async () => {
   let last = null
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -15,6 +17,7 @@ test('onchange: fires on state change', () => {
     { container, onchange: s => { last = { ...s } } }
   )
 
+  await tick()
   state.volume = 0.8
   is(last.volume, 0.8)
 
@@ -22,7 +25,7 @@ test('onchange: fires on state change', () => {
   container.remove()
 })
 
-test('onChange: camelCase also works', () => {
+test('onChange: camelCase also works', async () => {
   let called = false
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -31,6 +34,7 @@ test('onChange: camelCase also works', () => {
     { container, onChange: () => { called = true } }
   )
 
+  await tick()
   state.enabled = false
   ok(called)
 
@@ -38,7 +42,7 @@ test('onChange: camelCase also works', () => {
   container.remove()
 })
 
-test('onchange: receives full state', () => {
+test('onchange: receives full state', async () => {
   let last = null
   const container = document.createElement('div')
   document.body.appendChild(container)
@@ -47,6 +51,7 @@ test('onchange: receives full state', () => {
     { container, onchange: s => { last = s } }
   )
 
+  await tick()
   state.a = 10
   is(last.a, 10)
   is(last.b, 2)

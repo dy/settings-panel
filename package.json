@@ -13,8 +13,8 @@
   },
   "scripts": {
     "dev": "npx serve .",
-    "test": "node test/infer.js && node test/signals.js && node test/settings.js && npx playwright test",
-    "test:unit": "node test/infer.js && node test/signals.js && node test/settings.js",
+    "test": "node test/infer.js && node test/signals.js && node test/settings.js && node test/controls.js && npx playwright test",
+    "test:unit": "node test/infer.js && node test/signals.js && node test/settings.js && node test/controls.js",
     "test:e2e": "npx playwright test"
   },
   "repository": {

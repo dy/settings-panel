@@ -84,12 +84,8 @@ export default (sig, opts = {}) => {
 
   const progress = computed(() => +((value.value - dMin) / (dMax - dMin) * 100).toFixed(3))
 
-  // Mark positions must account for curve (display is curved, marks should appear at curved positions)
-  const markPct = v => {
-    const n = (v - min) / (max - min)
-    const curved = curve.from ? curve.from(n) : n
-    return +(curved * 100).toFixed(3)
-  }
+  // Percentage position on slider for any real value
+  const pct = v => +((toDisplay(v) - dMin) / (dMax - dMin) * 100).toFixed(3)
 
   // Resolve marks first (needed for snap)
   let markVals = [], labelTexts = {}
@@ -134,10 +130,10 @@ export default (sig, opts = {}) => {
     markVals = [(min + max) / 2]
   }
 
-  const marks = markVals.map(v => ({ pct: markPct(v) }))
+  const marks = markVals.map(v => ({ pct: pct(v) }))
   const markDisplayVals = markVals.map(v => +toDisplay(v).toFixed(3))
   const labels = Object.keys(labelTexts).length
-    ? markVals.map(v => ({ pct: markPct(v), text: labelTexts[v] }))
+    ? markVals.map(v => ({ pct: pct(v), text: labelTexts[v] }))
     : []
 
   // Snap to nearest mark in display space (constant visual zone regardless of curve)
@@ -177,7 +173,7 @@ export default (sig, opts = {}) => {
   }
 
   // Quantize to step precision
-  const prec = step ? Math.round(-Math.log10(step)) : 10
+  const prec = step ? (String(step).split('.')[1] || '').length : 10
   const format = fmt || (step ? (v => v.toFixed(Math.max(0, prec)) + unit) : (v => defaultFormat(v) + unit))
   const quantize = v => step ? Math.round(v / step) * step : v
   const clean = v => +quantize(v).toFixed(Math.max(0, prec))
@@ -196,7 +192,7 @@ export default (sig, opts = {}) => {
 
   const result = control(sig, {
     ...rest,
-    type: 'slider', template, dispose, value, actual, progress, marks, markVals, markDisplayVals, labels, track, listId, nativeTicks,
+    type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, track, listId, nativeTicks,
     dMin, dMax, dStep, set, grab, release,
     format
   })

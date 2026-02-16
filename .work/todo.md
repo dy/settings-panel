@@ -14,13 +14,12 @@
   * [ ] texture
     * [ ] grain: texture that can be animated
   * [x] font
-  * [ ] calibrate: jhey, examples
-  * [ ] reflected light?
-  * [ ] contrast = roundness contrast as well? (rounded button, square shape)
-  * [ ] breath: pulse on focused controls, shadow oscillation on hover
+  * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
-  * [ ] spring?: sliders overshoot
-  * [ ] tests for corner cases from screenshots
+
+## [ ] v1.1
+
+* [ ] Theme: Figma
 * [ ] Theme: Neu
 * [ ] Theme: Studio (figma, control-panel, mo)
 * [ ] Theme: Aurora: Mesh gradients, flowing soft color blobs
@@ -43,6 +42,10 @@
 
 ## Ideas
 
+* [ ] contrast = roundness contrast as well? (rounded button, square shape)
+* [ ] breath: pulse on focused controls, shadow oscillation on hover
+* [ ] spring?: sliders overshoot
+* [ ] reflected light?
 * [ ] canonical internal structure (form)
   * [ ] produced HTML/theme can be used for generic forms design
   * [ ] minimal base.css generator for websites
