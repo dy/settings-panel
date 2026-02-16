@@ -22,17 +22,17 @@ Below 0.5 is dark mode (light text on dark background).
 
 **The signature color.** CSS color for interactive and brand elements.
 
-Accepts any CSS color — theme extracts the hue:
+Accepts any CSS color, or a number 0–1 to derive from shade:
 - `accent: '#5588cc'` — blue
 - `accent: '#ff6600'` — orange
 - `accent: 'oklch(.6 .2 310)'` — purple
-- `accent: 210` — hue angle (legacy)
+- `accent: 0.6` — shade hue at lightness 0.6, chroma ≥ 0.15
 
-Default: `'#5588cc'`.
+Default: `'#2563eb'`.
 
-The theme computes the right lightness and chroma for the accent
-based on lightness/contrast axes. User picks the color,
-system adapts the shade for dark/light.
+Number accent uses shade's hue with boosted chroma — harmonious
+with the background. The theme computes the right lightness and
+chroma for the accent based on lightness/contrast axes.
 
 
 ### 3. `contrast`

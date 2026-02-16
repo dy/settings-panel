@@ -9,6 +9,14 @@ const { round, min, max } = Math
 export const lerp = (a, b, t) => a + (b - a) * t
 export const clamp = (v, lo, hi) => min(hi, max(lo, v))
 
+// Resolve accent: number 0..1 → oklch derived from shade hue, string → passthrough
+export const resolveAccent = (accent, shade) => {
+  if (typeof accent !== 'number') return accent
+  const { C, H } = parseColor(shade)
+  const L = clamp(accent, 0, 1)
+  return `oklch(${+L.toFixed(3)} ${+max(C, 0.15).toFixed(4)} ${+H.toFixed(1)})`
+}
+
 export function parseColor(color) {
   if (!color) return { L: 0.97, C: 0.01, H: 60 }
   const oklch = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
@@ -45,6 +53,8 @@ export default function base({
   unit = 4,
   ...rest
 } = {}) {
+  accent = resolveAccent(accent, shade)
+
   const u = unit
   const fontSize = lerp(11, 15, size)
   const lh = 4 * u

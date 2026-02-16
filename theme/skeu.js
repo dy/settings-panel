@@ -5,7 +5,7 @@
  * skeu(axes?) → CSS string
  */
 
-import base, { parseColor, lerp, clamp } from './default.js'
+import base, { parseColor, resolveAccent, lerp, clamp } from './default.js'
 
 const { min, max, round, ceil } = Math
 
@@ -41,7 +41,8 @@ export default function skeu({
   }
 
   // ── Axes → CSS vars (minimal set, everything else derives) ──
-  const { L: accentL, C: accentC, H: accentH } = accent ? parseColor(accent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
+  const resolvedAccent = resolveAccent(accent, shade)
+  const { L: accentL, C: accentC, H: accentH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
   const u = unit
@@ -138,7 +139,7 @@ export default function skeu({
       cursor: grab; z-index: 1; position: relative;`
 
   // ── Base layer (structural + default visuals) ──
-  const baseCSS = base({ shade, spacing, size, weight, accent, roundness })
+  const baseCSS = base({ shade, spacing, size, weight, accent: resolvedAccent, roundness })
 
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {

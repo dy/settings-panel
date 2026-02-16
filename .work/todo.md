@@ -6,6 +6,7 @@
   * [x] disable inactive axes
   * [x] centralize
   * [ ] size/spacing: should be well-done, not hardcoded
+    * [ ] unit axis?
   * [x] log ticks: should match datalist properly
 * [ ] Theme: Skeu
   * [x] tweets best practices
