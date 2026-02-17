@@ -52,7 +52,7 @@ Below 0.3 may fail WCAG — themes can enforce a floor.
 
 ### 4. `spacing`
 
-**How much air.** Padding, gaps, margins, control height, type size, panel width.
+**How much air.** Padding, gaps, and margins between elements.
 
 | 0 | 0.5 | 1 |
 |---|-----|---|
@@ -63,7 +63,7 @@ Below 0.3 may fail WCAG — themes can enforce a floor.
 
 ### 5. `size`
 
-**The scale.** Overall size of controls, type, and interactive elements.
+**The scale.** Overall size of type, controls, and the layout grid unit.
 
 | 0 | 0.5 | 1 |
 |---|-----|---|

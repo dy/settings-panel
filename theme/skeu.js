@@ -11,8 +11,8 @@ const { min, max, round, ceil } = Math
 
 const TEX = {
   flat: 'none',
-  dots: (c, a) => `url("data:image/svg+xml,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='6' cy='6' r='.6' fill='rgba(${c},${a})'/%3E%3C/svg%3E")`,
-  crosses: (c, a) => `url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 4v8M4 8h8' stroke='rgba(${c},${a})' stroke-width='.6'/%3E%3C/svg%3E")`,
+  dots: (c, a, u) => { const s = 2 * u, h = s / 2, r = u * .15; return `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${h}' cy='${h}' r='${r}' fill='rgba(${c},${a})'/%3E%3C/svg%3E")` },
+  crosses: (c, a, u) => { const s = 4 * u, h = s / 2, q = u; return `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${h} ${q}v${s - 2 * q}M${q} ${h}h${s - 2 * q}' stroke='rgba(${c},${a})' stroke-width='${u * .15}'/%3E%3C/svg%3E")` },
 }
 
 export default function skeu({
@@ -21,12 +21,12 @@ export default function skeu({
   contrast = .5,
   texture = 'flat',
   spacing = 1,
-  size = 1,
+  size = 0.5,
   weight = 400,
   depth = .4,
   roundness = 0.5,
   relief = 0,
-  unit = 4,
+  unit,
 } = {}) {
 
   const isFunc = typeof shade === 'function'
@@ -45,7 +45,7 @@ export default function skeu({
   const { L: accentL, C: accentC, H: accentH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
-  const u = unit
+  const u = Number.isFinite(unit) ? unit : round(lerp(3, 5, clamp(size, 0, 1)))
 
   // Shadow helper (depth-dependent)
   const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0.108, surfaceC + 0.1, surfaceH, a)}`
@@ -53,12 +53,10 @@ export default function skeu({
   // Texture (data URI, must stay JS)
   const texFn = TEX[texture]
   const tex = !texFn || texFn === 'none' ? 'none'
-    : texFn(dark ? '255,255,255' : '0,0,0', dark ? '.04' : '.05')
+    : texFn(dark ? '255,255,255' : '0,0,0', dark ? '.04' : '.05', u)
+  const texOff = tex !== 'none' ? `${-(texture === 'dots' ? 2 : 4) * u / 2}px` : '0'
 
-  // Grid-aligned text metrics
-  const fontSize = lerp(10, 14, size)
-  const lh = 4 * u
-  const inputH = lh + 2 * u * (.75 + .75 * spacing)
+  const inputH = 8 * u
 
   // Roundness: 0–1 normalized → px, max depends on spacing
   const maxR = round(14 + 12 * spacing)
@@ -74,22 +72,21 @@ export default function skeu({
   // buttons swap them: bl outside/bh inside (convex).
   const vars = {
     '--bg': $(surfaceL),
-    '--input': $(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, 0.25),
+    '--input': $(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief)),
     '--accent': `color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%)`,
     '--focus': $(accentL, accentC, accentH, 0.35),
     '--bh': $(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1)),
     '--bl': $(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1)),
-    '--convex': relief ? `linear-gradient(${$(1, surfaceC, surfaceH, 0.2 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)})` : 'none',
-    '--concave': relief ? `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 50%, transparent 51%, ${$(1, surfaceC, surfaceH, 0.2 * relief)})` : 'none',
+    '--convex': relief ? `linear-gradient(${$(1, surfaceC, surfaceH, 0.15 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)})` : 'none',
+    '--concave': relief ? `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.15 * relief)})` : 'none',
     '--text-light': $(lerp(.32, .12, contrast)),
     '--text-dark': $(max(surfaceL, accentL, lerp(.78, .97, contrast))),
     '--text': dark ? 'var(--text-dark)' : 'var(--text-light)',
     '--text-dim': $(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast))),
     '--text-accent': `color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.5, accentH)} 85%)`,
     '--w': `${w}px`,
-    '--fw': round(weight),
     '--u': `${u}px`,
-    '--sp': spacing,
+    '--spacing': spacing,
     '--r': `${r}px`,
     '--ri': `${r / 2 > inputH / 4 ? inputH / 2 : r / 2}px`,
     '--rb': r / 2 > inputH / 4 ? '999px' : `var(--ri)`,
@@ -147,8 +144,8 @@ export default function skeu({
   color: var(--text);
   ${raise(depth)}
   background-image: ${relief ? `var(--convex), ` : ''}${tex};
-  font: var(--fw) ${fontSize}px system-ui, -apple-system, sans-serif;
-  line-height: ${lh}px;
+  background-blend-mode: ${relief ? 'overlay, ' : ''}normal;
+  background-position: ${relief ? '0 0, ' : ''}${texOff} ${texOff};
   text-shadow: 0 calc(${dark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${dark ? `--bl` : `--bh`});
   position: relative;
   isolation: isolate;
@@ -163,8 +160,6 @@ export default function skeu({
     ${raise(-depth)}
     border: none; border-radius: var(--ri);
     color: var(--text);
-    height: auto;
-    padding: calc(var(--u) * (0.75 + 0.75 * var(--sp))) calc(var(--u) * (1 + 1 * var(--sp)));
     transition: border-color 140ms, box-shadow 140ms;
     &::placeholder { color: var(--text-dim); opacity: .6; }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
@@ -204,9 +199,8 @@ export default function skeu({
   .s-step {
     ${btn()}
     color: var(--text);
-    border-radius: var(--rb);
-    background: none; ${raise(1)}
-    &:hover:not(:disabled) { background-color: var(--accent); }
+    border-radius: var(--r);
+    &:hover:not(:disabled) { filter: brightness(1.05); }
   }
 
   /* ── Slider (custom appearance) ── */
@@ -249,14 +243,16 @@ export default function skeu({
     background-repeat: no-repeat;
     padding-right: 26px;
   }
-  .s-buttons {
-    button {
-      ${btn()}
-      padding: var(--u) calc(var(--u) * 2.5);
-      border-radius: 999px;
-    }
+  .s-select.buttons button {
+    ${btn()}
+    color: var(--text);
+    margin-left: 0;
+    border-radius: 0;
+    &:first-child { border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
+    &:last-child { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
+    &:hover:not(:disabled) { filter: brightness(1.05); }
   }
-  .s-radio {
+  .s-select.radio {
     label { color: var(--text-dim); opacity: 1; &.selected { color: var(--text); opacity: 1; } }
   }
 
@@ -264,7 +260,7 @@ export default function skeu({
   .s-color-input {
     input[type="color"] { background: transparent; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
+    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--r); }
   }
   .s-swatches button {
     ${btn()}
@@ -277,12 +273,11 @@ export default function skeu({
   .s-button button {
     ${btn()}
     background-color: var(--accent);
-    color: var(--text-accent);
-    border-radius: var(--r);
     &:hover { filter: brightness(1.1); }
     &:active { filter: brightness(.95); }
   }
   .s-button.secondary button {
+    ${btn()}
     background-color: ${$(min(surfaceL, 1))};
     border: var(--w) solid var(--bh);
     color: var(--text);

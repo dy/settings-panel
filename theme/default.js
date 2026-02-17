@@ -46,38 +46,36 @@ export function parseColor(color) {
 export default function base({
   shade = '#f5f4f2',
   spacing = 1,
-  size = 1,
+  size = 0.5,
   weight = 400,
   accent = '#2563eb',
   roundness = 0.5,
-  unit = 4,
   ...rest
 } = {}) {
   accent = resolveAccent(accent, shade)
 
-  const u = unit
-  const fontSize = lerp(11, 15, size)
+  const u = Number.isFinite(rest.unit) ? rest.unit : round(lerp(3, 5, clamp(size, 0, 1)))
+  const fontSize = round(u * 3.25)
   const lh = 4 * u
   const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
   const dark = L < .6
   const fg = dark ? 'white' : 'black'
   const border = dark ? 'white' : 'black'
-  const inputH = lh + 2 * round(u * 1.5) + 2 // line-height + 2*padding + 2*border
 
   return `.s-panel {
   --bg: ${shade};
   --accent: ${accent};
   --u: ${u}px;
-  --sp: ${spacing};
+  --spacing: ${spacing};
   --r: ${r}px;
 
-  display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
+  display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--spacing));
   background-color: var(--bg);
   color-scheme: ${dark ? 'dark' : 'light'};
   color: color-mix(in oklch, var(--bg), ${fg} 85%);
   accent-color: var(--accent);
-  padding: calc(var(--u) * 3 * var(--sp));
+  padding: calc(var(--u) * 4 * var(--spacing));
   border-radius: var(--r);
   font: ${round(weight)} ${fontSize}px system-ui, -apple-system, sans-serif;
   line-height: ${lh}px;
@@ -90,24 +88,25 @@ export default function base({
   /* ── Control row ── */
   .s-control {
     display: flex; align-items: baseline;
-    gap: calc(var(--u) * 2 * var(--sp));
+    min-height: calc(var(--u) * 6 * min(var(--spacing), 1));
+    gap: calc(var(--u) * 2 * var(--spacing));
     margin: 0; padding: 0; border: 0;
     &[hidden] { display: none; }
   }
-  .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; }
-  .s-hint { font-size: smaller; opacity: .6; line-height: ${lh}px; }
-  .s-input { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: calc(var(--u) * var(--sp)); }
+  .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; line-height: ${fontSize + 1}px; }
+  .s-hint { font-size: smaller; opacity: .6; }
+  .s-input { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: calc(var(--u) * 2 * var(--spacing)); }
 
   /* ── Input base ── */
   input[type="text"], input[type="number"], textarea, select {
     width: 0; min-width: 0;
-    height: ${inputH}px;
-    padding: calc(var(--u) * 1.5) calc(var(--u) * 2);
+    min-height: calc(var(--u) * 8 * min(var(--spacing), 1));
+    padding: calc(var(--u) * 2 * min(var(--spacing), 1));
     font: inherit;
     color: inherit;
   }
   select {
-    padding-right: calc(var(--u) * 6);
+    padding-right: calc(var(--u) * 6 * min(var(--spacing), 1));
     cursor: pointer;
     option { font-family: system-ui, -apple-system, sans-serif; }
   }
@@ -123,19 +122,23 @@ export default function base({
   /* ── Number ── */
   .s-number input[type="number"] { width: calc(var(--u) * 20); text-align: right; }
 
-  /* ── Step buttons ── */
-  .s-step {
-    width: calc(var(--u) * 7); height: calc(var(--u) * 7);
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
+  /* ── Secondary button base ── */
+  .s-step, .s-select.buttons button {
     border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
     background: color-mix(in oklch, var(--bg), ${fg} 5%);
-    &:active { background: color-mix(in oklch, var(--bg), ${fg} 10%); }
+    &:active:not(:disabled) { background: color-mix(in oklch, var(--bg), ${fg} 10%); }
+  }
+
+  /* ── Step buttons ── */
+  .s-step {
+    width: calc(var(--u) * 8); height: calc(var(--u) * 8);
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
   }
 
   /* ── Slider ── */
   .s-slider {
-    padding: calc(1.25*var(--u)) 0;
+    padding: calc(var(--u) * 2 * min(var(--spacing), 1)) 0;
     .s-input { flex-direction: row; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: ${lh}px; }
     .s-track { flex: 1; position: relative; display: flex; align-items: center; }
@@ -157,7 +160,7 @@ export default function base({
       &.active { opacity: 1; color: var(--accent); }
     }
     .s-value {
-      min-width: calc(var(--u) * 10);
+      min-width: 4ch;
       font-size: smaller; text-align: right;
       opacity: .6;
     }
@@ -165,26 +168,41 @@ export default function base({
 
   /* ── Select ── */
   .s-select select { flex: 1; cursor: pointer; }
-  .s-buttons {
+  .s-select.buttons {
     flex-wrap: wrap;
-    .s-input { gap: calc(var(--u) * .5 * var(--sp)); }
+    .s-input { gap: 0; }
     button {
       padding: var(--u) calc(var(--u) * 2.5);
-      border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
-      background: color-mix(in oklch, var(--bg), ${fg} 5%);
+      border-radius: 0;
+      margin-left: -1px;
+      &:first-child {
+        margin-left: 0;
+        border-top-left-radius: var(--r);
+        border-bottom-left-radius: var(--r);
+      }
+      &:last-child {
+        border-top-right-radius: var(--r);
+        border-bottom-right-radius: var(--r);
+      }
       &.selected { background: var(--accent); color: white; border-color: transparent; }
     }
   }
-  .s-radio {
-    .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * .5 * var(--sp)); }
+  .s-select.radio {
+    .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * .5 * var(--spacing)); }
     label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; opacity: .6; &.selected { opacity: 1; } }
   }
 
   /* ── Color ── */
   .s-color-input {
     flex: 1; position: relative; display: flex; align-items: center;
-    input[type="color"] { position: absolute; left: var(--u); width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0; border: none; border-radius: var(--r); cursor: pointer; }
-    input[type="text"] { flex: 1; padding-left: calc(var(--u) * 7); }
+    input[type="color"] {
+      position: absolute; left: calc(var(--u) * 1.5 * min(var(--spacing), 1));
+      width: calc(var(--u) * 5); height: calc(var(--u) * 5);
+      padding: 0; border: none; border-radius: var(--r); cursor: pointer;
+    }
+    input[type="text"] {
+      flex: 1; padding-left: calc(var(--u) * 6 + var(--u) * 2 * min(var(--spacing), 1));
+    }
   }
   .s-swatches {
     .s-input { flex-wrap: wrap; gap: var(--u); }
@@ -201,12 +219,13 @@ export default function base({
   /* ── Textarea ── */
   .s-textarea {
     align-items: flex-start;
-    textarea { flex: 1; resize: none; overflow: hidden; }
+    textarea { flex: 1; resize: none; overflow: hidden; field-sizing: content; }
+    &.code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
   }
 
   /* ── Button (action) ── */
   .s-button button {
-    padding: calc(var(--u) * 2.5) calc(var(--u) * 4);
+    padding: calc(var(--u) * 2) calc(var(--u) * 4);
     background: var(--accent); color: white; border: none; font-weight: bolder;
     border-radius: var(--r);
     &:hover { filter: brightness(1.1); }
@@ -223,7 +242,7 @@ export default function base({
   .s-folder {
     display: block; border: 0; padding: 0;
     > summary {
-      cursor: pointer; padding: calc(var(--u) * 1.5) 0;
+      cursor: pointer; padding: calc(var(--u) * 2) 0;
       list-style: none; display: flex; align-items: center;
       border-bottom: 1px solid; opacity: .8;
       &::-webkit-details-marker { display: none; }
@@ -237,8 +256,8 @@ export default function base({
     &[open] > summary::after { transform: rotate(-135deg); }
   }
   .s-content {
-    padding: calc(var(--u) * 2 * var(--sp)) 0;
-    display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--sp));
+    padding: calc(var(--u) * 2 * var(--spacing)) 0;
+    display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--spacing));
   }
 
   @media (prefers-reduced-motion: reduce) {

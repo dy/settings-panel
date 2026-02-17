@@ -46,7 +46,7 @@ export default (sig, opts = {}) => {
   const state = store(initials)
 
   for (const [key, field] of Object.entries(fields)) {
-    const factory = controls[field.type]
+    const factory = controls[field.type] || controls[field.type.split(/\s+/)[0]]
     if (!factory) { console.warn(`Unknown control type: ${field.type}`); continue }
 
     const childSig = state[_signals][key]
