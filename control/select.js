@@ -19,8 +19,8 @@ const templates = {
   buttons: `
     <button
       :each="opt in options"
-      :class="{ selected: opt.value == value }"
-      :onclick="() => set(opt.value)"
+      :class="{ selected: multiple ? (value || []).includes(opt.value) : opt.value == value }"
+      :onclick="(e) => { e.preventDefault(); toggle(opt.value) }"
       :text="opt.label"
     ></button>
   `
@@ -30,15 +30,24 @@ const normalizeOptions = opts =>
   (opts || []).map(o => typeof o === 'string' ? { value: o, label: o } : o)
 
 export default (sig, opts = {}) => {
-  const { variant = 'dropdown', options: rawOptions = [], ...rest } = opts
+  const { variant = 'dropdown', multiple = false, options: rawOptions = [], ...rest } = opts
   const options = normalizeOptions(rawOptions)
   const radioName = `s-${Math.random().toString(36).slice(2)}`
+
+  const toggle = v => {
+    if (!multiple) { sig.value = v; return }
+    const arr = [...(sig.value || [])]
+    const i = arr.indexOf(v)
+    i < 0 ? arr.push(v) : arr.splice(i, 1)
+    sig.value = arr
+  }
 
   return control(sig, {
     ...rest,
     type: `select ${variant}`,
     template: templates[variant] || templates.dropdown,
     value: sig, set: v => { sig.value = v },
+    multiple, toggle,
     options, radioName
   })
 }

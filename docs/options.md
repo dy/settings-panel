@@ -131,10 +131,9 @@ const state = settings({
   volume: 0.8,
   quality: ['low', 'medium', 'high'],
   color: '#ff6600',
-  advanced: {
-    debug: false,
-    rate: { value: 1, min: 0, max: 10, step: 0.1 },
-  },
+  advanced: { type: 'folder', label: 'Advanced' },
+  'advanced.debug': false,
+  'advanced.rate': { value: 1, min: 0, max: 10, step: 0.1 },
 }, {
   title: 'Audio',
   theme: soft({ lightness: 0.13, accent: 210 }),
@@ -144,6 +143,7 @@ const state = settings({
 })
 
 state.volume = 0.5  // UI updates
+state.debug          // flat access (not state.advanced.debug)
 ```
 
 

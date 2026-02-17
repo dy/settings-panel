@@ -12,14 +12,15 @@
   * [x] tweets best practices
   * [ ] depth
   * [x] buttons
-  * [ ] texture
-    * [ ] grain: texture that can be animated
+  * [ ] grid
+  * [ ] grain: texture that can be animated
   * [x] font
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
-
-## [ ] v1.1
-
+* [ ] close / fold button
+* [ ] title
+* [ ] animations
+* [ ] better weight control (slider weight)
 * [ ] Theme: Figma
 * [ ] Theme: Neu
 * [ ] Theme: Studio (figma, control-panel, mo)
@@ -31,7 +32,7 @@
 * [ ] demo with showcase and self-customization
 * [ ] research opening strategies
 * [ ] `help` property for tooltip
-* [ ] `disabled` param
+* [x] `disabled` param
 
 ## Cases
 

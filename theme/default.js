@@ -55,8 +55,7 @@ export default function base({
   accent = resolveAccent(accent, shade)
 
   const u = Number.isFinite(rest.unit) ? rest.unit : round(lerp(3, 5, clamp(size, 0, 1)))
-  const fontSize = round(u * 3.25)
-  const lh = 4 * u
+  const fontSize = round(u * 3.5)
   const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
   const dark = L < .6
@@ -69,16 +68,17 @@ export default function base({
   --u: ${u}px;
   --spacing: ${spacing};
   --r: ${r}px;
+  --lh: calc(var(--u) * 4);
 
-  display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--spacing));
+  display: flex; flex-direction: column; gap: calc(var(--u) * (0.5 + 1 * var(--spacing)));
   background-color: var(--bg);
   color-scheme: ${dark ? 'dark' : 'light'};
   color: color-mix(in oklch, var(--bg), ${fg} 85%);
   accent-color: var(--accent);
-  padding: calc(var(--u) * 4 * var(--spacing));
+  padding: calc(var(--u) * (1 + 2 * var(--spacing)));
   border-radius: var(--r);
   font: ${round(weight)} ${fontSize}px system-ui, -apple-system, sans-serif;
-  line-height: ${lh}px;
+  line-height: var(--lh);
   min-width: calc(var(--u) * 60);
   -webkit-text-size-adjust: none;${dark ? `
   -webkit-font-smoothing: antialiased;` : ''}
@@ -87,21 +87,29 @@ export default function base({
 
   /* ── Control row ── */
   .s-control {
-    display: flex; align-items: baseline;
-    min-height: calc(var(--u) * 6 * min(var(--spacing), 1));
-    gap: calc(var(--u) * 2 * var(--spacing));
+    display: flex; align-items: baseline; gap: calc(var(--u) * 4);
     margin: 0; padding: 0; border: 0;
     &[hidden] { display: none; }
   }
-  .s-label-group { flex: 0 0 auto; width: calc(var(--u) * 20); display: flex; flex-direction: column; gap: 2px; line-height: ${fontSize + 1}px; }
+  .s-label-group { flex: 0 0 auto;
+    min-width: 8ch; width: 25%; max-width: 20ch; display: flex; flex-direction: column; gap: var(--u); line-height: ${fontSize + 1}px;
+  }
   .s-hint { font-size: smaller; opacity: .6; }
-  .s-input { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: calc(var(--u) * 2 * var(--spacing)); }
+  .s-input {
+    flex: 1; min-width: 0;
+    display: flex; gap: calc(var(--u) * (2));
+    margin: 0; padding: 0; border: 0; min-inline-size: 0;
+  }
+
+  .s-control:has(.s-input:disabled) {
+    opacity: .5;
+    .s-input { pointer-events: none; }
+  }
 
   /* ── Input base ── */
   input[type="text"], input[type="number"], textarea, select {
     width: 0; min-width: 0;
-    min-height: calc(var(--u) * 8 * min(var(--spacing), 1));
-    padding: calc(var(--u) * 2 * min(var(--spacing), 1));
+    padding: calc(var(--u) * (0.5 + 1 * var(--spacing)));
     font: inherit;
     color: inherit;
   }
@@ -116,7 +124,7 @@ export default function base({
   /* ── Boolean ── */
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] { width: ${lh}px; height: ${lh}px; margin: 0; cursor: pointer; }
+    input[type="checkbox"] { width: var(--lh); height: var(--lh); margin: 0; cursor: pointer; }
   }
 
   /* ── Number ── */
@@ -138,9 +146,10 @@ export default function base({
 
   /* ── Slider ── */
   .s-slider {
-    padding: calc(var(--u) * 2 * min(var(--spacing), 1)) 0;
+    align-items: center;
+    padding:  calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
     .s-input { flex-direction: row; }
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: ${lh}px; }
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
     .s-track { flex: 1; position: relative; display: flex; align-items: center; }
     input[type="range"] {
       width: 100%; margin: 0;
@@ -169,7 +178,6 @@ export default function base({
   /* ── Select ── */
   .s-select select { flex: 1; cursor: pointer; }
   .s-select.buttons {
-    flex-wrap: wrap;
     .s-input { gap: 0; }
     button {
       padding: var(--u) calc(var(--u) * 2.5);
@@ -196,9 +204,11 @@ export default function base({
   .s-color-input {
     flex: 1; position: relative; display: flex; align-items: center;
     input[type="color"] {
-      position: absolute; left: calc(var(--u) * 1.5 * min(var(--spacing), 1));
+      position: absolute;
+      left: calc(var(--u) * (0.5 + 1 * var(--spacing)) - var(--u) * .5);
       width: calc(var(--u) * 5); height: calc(var(--u) * 5);
-      padding: 0; border: none; border-radius: var(--r); cursor: pointer;
+      padding: 0; border: none;
+      cursor: pointer;
     }
     input[type="text"] {
       flex: 1; padding-left: calc(var(--u) * 6 + var(--u) * 2 * min(var(--spacing), 1));

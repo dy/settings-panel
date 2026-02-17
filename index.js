@@ -3,7 +3,8 @@
  * Controls designed for purpose that feel right.
  */
 
-import { signal, effect } from 'sprae'
+import { effect } from 'sprae'
+import store, { _signals } from 'sprae/store'
 import base from './theme/default.js'
 
 // Import control factories
@@ -20,14 +21,13 @@ import button from './control/button.js'
 export { boolean, number, slider, select, color, folder, text, textarea, button }
 export * from './signals.js'
 
-// Control registry
+// Control registry (folder excluded — it's a visual container, not a control)
 const controls = {
   boolean,
   number,
   slider,
   select,
   color,
-  folder,
   text,
   textarea,
   button,
@@ -65,43 +65,67 @@ export default function settings(schema, options = {}) {
   panel.className = 's-panel'
   if (collapsed) panel.classList.add('s-collapsed')
 
-  // ── Persistence: merge saved state into schema before building controls ──
-  const storeKey = persist === true ? 'settings-panel' : persist
-  let saved
-  if (storeKey) {
-    try { saved = JSON.parse(localStorage.getItem(storeKey)) } catch {}
-  }
-
-  const mergeDefaults = (schema, saved) => {
-    if (!saved) return schema
-    const out = {}
-    for (const [k, def] of Object.entries(schema)) {
-      const sv = saved[k]
-      if (!(k in saved) || sv == null) { out[k] = def; continue }
-      if (def && typeof def === 'object' && !Array.isArray(def) && def.children) {
-        out[k] = { ...def, children: mergeDefaults(def.children, sv) }
-      } else if (def && typeof def === 'object' && !Array.isArray(def) && 'value' in def) {
-        out[k] = { ...def, value: sv }
-      } else if (typeof def !== 'object' && typeof def === typeof sv) {
-        out[k] = sv
+  // ── Parse flat schema: groups + fields ──
+  const entries = []
+  for (const [key, def] of Object.entries(schema)) {
+    const dot = key.indexOf('.')
+    if (dot > 0) {
+      // Grouped field: 'params.shade' → group 'params', key 'shade'
+      const group = key.slice(0, dot)
+      const shortKey = key.slice(dot + 1)
+      entries.push({ shortKey, group, field: infer(shortKey, def) })
+    } else {
+      const inferred = infer(key, def)
+      if (inferred.type === 'folder') {
+        entries.push({ shortKey: key, isGroup: true, field: inferred })
       } else {
-        out[k] = def
+        entries.push({ shortKey: key, field: inferred })
       }
     }
-    return out
   }
 
-  const resolvedSchema = mergeDefaults(schema, saved)
+  // ── Flat store from all non-group entries ──
+  const initials = {}
+  for (const e of entries) {
+    if (!e.isGroup) initials[e.shortKey] = e.field.value ?? null
+  }
 
-  // Root folder builds all controls
-  const sig = signal(null)
-  const root = folder(sig, {
-    children: resolvedSchema,
-    controls,
-    container: panel,
-    collapsed: false,
-    label: ''
-  })
+  // Merge persisted state
+  const storeKey = persist === true ? 'settings-panel' : persist
+  if (storeKey) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey))
+      if (saved) for (const k of Object.keys(initials)) {
+        if (k in saved && saved[k] != null) initials[k] = saved[k]
+      }
+    } catch {}
+  }
+
+  const state = store(initials)
+
+  // ── Build DOM in schema order ──
+  const groupEls = {}
+  const disposers = []
+
+  for (const e of entries) {
+    if (e.isGroup) {
+      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, container: panel })
+      groupEls[e.shortKey] = f
+      disposers.push(f[Symbol.dispose])
+      continue
+    }
+
+    const factory = controls[e.field.type] || controls[e.field.type.split(/\s+/)[0]]
+    if (!factory) { console.warn(`Unknown control type: ${e.field.type}`); continue }
+
+    const target = e.group ? groupEls[e.group]?.content : panel
+    const decorated = factory(state[_signals][e.shortKey], {
+      ...e.field,
+      container: target || panel
+    })
+    if (decorated.el) decorated.el.dataset.key = e.shortKey
+    disposers.push(decorated[Symbol.dispose])
+  }
 
   // Mount panel
   const target = typeof container === 'string'
@@ -109,11 +133,7 @@ export default function settings(schema, options = {}) {
     : container
   target?.appendChild(panel)
 
-  const state = root.value
-
-  // Read all reactive keys recursively (use inside effect to subscribe to entire tree)
-  const touch = (obj) => { for (const k of Object.keys(obj)) { const v = obj[k]; if (v && typeof v === 'object' && !Array.isArray(v)) touch(v) } }
-
+  // ── Persistence ──
   let stopPersist
   if (storeKey) {
     let ready = false
@@ -125,13 +145,14 @@ export default function settings(schema, options = {}) {
     })
   }
 
-  // Wire onchange
+  // ── Onchange ──
   let stopOnchange
   if (onchange) {
     let ready = false
     queueMicrotask(() => { ready = true })
     stopOnchange = effect(() => {
-      touch(state)
+      // Touch all keys to subscribe
+      for (const k of Object.keys(state)) state[k]
       if (!ready) return
       onchange(state)
     })
@@ -140,7 +161,7 @@ export default function settings(schema, options = {}) {
   state[Symbol.dispose] = () => {
     stopPersist?.()
     stopOnchange?.()
-    root[Symbol.dispose]()
+    disposers.forEach(d => d?.())
     panel.remove()
     style?.remove()
   }
@@ -210,20 +231,9 @@ export function infer(key, def) {
       return { type: 'slider', min: def.min ?? 0, max: def.max ?? 100, value: def.value ?? def.min ?? 0, label: key, ...def }
     }
 
-    if (def.children) {
-      return { type: 'folder', label: key, ...def }
-    }
-
     if ('value' in def) {
       const inferred = infer(key, def.value)
       return { ...inferred, ...def, label: def.label || key }
-    }
-
-    const hasNestedControls = Object.values(def).some(
-      v => v != null && (typeof v === 'object' || typeof v === 'boolean' || typeof v === 'number' || typeof v === 'function')
-    )
-    if (hasNestedControls) {
-      return { type: 'folder', children: def, label: key }
     }
   }
 

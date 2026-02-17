@@ -988,12 +988,11 @@ settings({
   onClick: () => {},
   reset: () => state.reset(),
 
-  // OBJECT → folder (recursive)
-  transform: {
-    x: 0,
-    y: 0,
-    scale: 1,
-  },
+  // FOLDER → dot-notation grouping
+  transform: { type: 'folder' },
+  'transform.x': 0,
+  'transform.y': 0,
+  'transform.scale': 1,
 })
 ```
 
@@ -1057,15 +1056,17 @@ data: '{"a": 1}',    // → text:code (language: json)
 
 **Objects:**
 ```js
-// Plain object → folder
-{
-  position: { x: 0, y: 0 },  // → folder "position" with x, y controls
-}
-
 // Object with `value` or `type` key → explicit control config
 {
   volume: { value: 0.5, min: 0, max: 1, step: 0.01 },
   // → slider with explicit params
+}
+
+// Folders use dot-notation, not nested objects
+{
+  position: { type: 'folder', label: 'Position' },
+  'position.x': 0,
+  'position.y': 0,
 }
 ```
 
@@ -1171,34 +1172,38 @@ settings({
 })
 ```
 
-### Nested Folders
+### Folders (dot-notation)
+
+Groups use dot-notation keys. Data stays flat.
 
 ```js
 settings({
-  // Auto-folder from object
-  transform: {
-    position: { x: 0, y: 0 },
-    rotation: 0,
-    scale: 1,
-  },
+  // Define the group
+  transform: { type: 'folder', label: 'Transform' },
+
+  // Dot-prefixed keys go into the group
+  'transform.x': 0,
+  'transform.y': 0,
+  'transform.rotation': { type: 'slider', value: 0, min: 0, max: 360 },
+  'transform.scale': 1,
+
   // Creates:
   // └─ Transform (folder)
-  //    ├─ Position (folder)
-  //    │  ├─ X (number)
-  //    │  └─ Y (number)
-  //    ├─ Rotation (slider)
-  //    └─ Scale (number)
+  //    ├─ x (number)
+  //    ├─ y (number)
+  //    ├─ rotation (slider)
+  //    └─ scale (number)
 
-  // Explicit folder with options
-  appearance: {
-    type: 'folder',
-    collapsed: true,
-    children: {
-      color: '#ff0000',
-      opacity: 0.8,
-    },
-  },
+  // Collapsed folder
+  appearance: { type: 'folder', label: 'Appearance', collapsed: true },
+  'appearance.color': '#ff0000',
+  'appearance.opacity': 0.8,
 })
+
+// State is flat:
+state.x           // not state.transform.x
+state.rotation
+state.color
 ```
 
 ### Inference Priority
@@ -1260,7 +1265,7 @@ settings.inference = {
 - Array of 2-4 numbers → vector
 - Array of strings → select (first is value)
 - Function → button
-- Object → folder (recursive)
+- Object with `type`/`value` → explicit control config
 
 
 ## Coverage Matrix
@@ -2294,7 +2299,6 @@ function computed(fn) {
 **Rebuild required** (expensive):
 - Options change → rebuild dropdown list
 - Type changes → replace entire control
-- Children change → rebuild folder contents
 
 ```js
 // Smart rebuild with keyed diffing

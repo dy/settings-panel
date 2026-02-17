@@ -35,7 +35,7 @@ state.volume = 0.5  // UI updates
 | `select` | `{ options: [] }` | Dropdown, buttons, radio |
 | `slider` | `{ min, max }` | Continuous range |
 | `button` | `() => {}` | Action trigger |
-| `folder` | `{ nested }` | Collapsible group |
+| `folder` | `'group.key'` dot-notation | Collapsible group |
 
 ```js
 settings({

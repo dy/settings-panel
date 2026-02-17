@@ -1,4 +1,4 @@
-import test, { is, ok } from 'tst'
+import test, { is } from 'tst'
 import { infer } from '../index.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -212,12 +212,6 @@ test('object: max only → slider (default min)', () => {
   is(r.max, 50)
 })
 
-test('object: children → folder', () => {
-  const r = infer('grp', { children: { x: 0, y: 0 } })
-  is(r.type, 'folder')
-  is(r.children.x, 0)
-})
-
 test('object: value → infer from value + merge', () => {
   const r = infer('op', { value: 0.5, step: 0.1 })
   is(r.type, 'slider')
@@ -227,21 +221,6 @@ test('object: value → infer from value + merge', () => {
 test('object: value + label → use provided label', () => {
   const r = infer('x', { value: 0.5, label: 'Opacity' })
   is(r.label, 'Opacity')
-})
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NESTED OBJECTS → FOLDER
-// ─────────────────────────────────────────────────────────────────────────────
-
-test('nested: object with numbers → folder', () => {
-  const r = infer('transform', { x: 0, y: 0, scale: 1 })
-  is(r.type, 'folder')
-  ok(r.children)
-})
-
-test('nested: object with booleans → folder', () => {
-  const r = infer('flags', { a: true, b: false })
-  is(r.type, 'folder')
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

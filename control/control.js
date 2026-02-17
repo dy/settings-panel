@@ -11,9 +11,7 @@ import sprae from 'sprae'
  */
 export default function control(sig, opts) {
   const {
-    type = 'text', template, container, label = '', hint = '', title = '', dispose,
-    // Build context (passed by folder, not used by leaf controls)
-    controls, children,
+    type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose,
     ...state
   } = opts
 
@@ -28,14 +26,14 @@ export default function control(sig, opts) {
         <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
         <span class="s-hint" :text="hint" :hidden="!hint"></span>
       </span>
-      <span class="s-input"></span>
+      <fieldset class="s-input" :disabled="disabled"></fieldset>
     </label>`
   wrapper.querySelector('.s-input').innerHTML = template
 
   const el = wrapper.firstElementChild
   if (label) el.dataset.name = label
 
-  sprae(wrapper, { ...state, label, hint, title })
+  sprae(wrapper, { ...state, label, hint, title, disabled })
 
   // Mount if container provided
   if (container) {

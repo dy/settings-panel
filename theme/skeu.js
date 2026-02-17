@@ -9,17 +9,18 @@ import base, { parseColor, resolveAccent, lerp, clamp } from './default.js'
 
 const { min, max, round, ceil } = Math
 
-const TEX = {
-  flat: 'none',
-  dots: (c, a, u) => { const s = 2 * u, h = s / 2, r = u * .15; return `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${h}' cy='${h}' r='${r}' fill='rgba(${c},${a})'/%3E%3C/svg%3E")` },
-  crosses: (c, a, u) => { const s = 4 * u, h = s / 2, q = u; return `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${h} ${q}v${s - 2 * q}M${q} ${h}h${s - 2 * q}' stroke='rgba(${c},${a})' stroke-width='${u * .15}'/%3E%3C/svg%3E")` },
+// Grid patterns: dots 2u (secondary), lines 4u (medium), crosses 8u (primary)
+const GRID = {
+  dots: (c, a, u) => { const s = 2 * u, h = s / 2; return { url: `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${h}' cy='${h}' r='${u * .15}' fill='rgba(${c},${a})'/%3E%3C/svg%3E")`, off: -h } },
+  lines: (c, a, u) => { const s = 4 * u; return { url: `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h${s}M0 0v${s}' stroke='rgba(${c},${a})' stroke-width='${u * .15}'/%3E%3C/svg%3E")`, off: 0 } },
+  crosses: (c, a, u) => { const s = 8 * u, h = s / 2, arm = u; return { url: `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${h} ${h - arm}v${arm * 2}M${h - arm} ${h}h${arm * 2}' stroke='rgba(${c},${a})' stroke-width='${u * .15}'/%3E%3C/svg%3E")`, off: -h } },
 }
 
 export default function skeu({
   shade = '#f5f4f2',
   accent,
   contrast = .5,
-  texture = 'flat',
+  grid = [],
   spacing = 1,
   size = 0.5,
   weight = 400,
@@ -50,20 +51,13 @@ export default function skeu({
   // Shadow helper (depth-dependent)
   const sh = (y, bl, a) => `0 ${y}px ${bl}px ${$(0.108, surfaceC + 0.1, surfaceH, a)}`
 
-  // Texture (data URI, must stay JS)
-  const texFn = TEX[texture]
-  const tex = !texFn || texFn === 'none' ? 'none'
-    : texFn(dark ? '255,255,255' : '0,0,0', dark ? '.04' : '.05', u)
-  const texOff = tex !== 'none' ? `${-(texture === 'dots' ? 2 : 4) * u / 2}px` : '0'
-
-  const inputH = 8 * u
-
-  // Roundness: 0–1 normalized → px, max depends on spacing
-  const maxR = round(14 + 12 * spacing)
-  const r = round(roundness * maxR)
-
-  const thumbSize = r ? 4 * u : (4 / 1.128) * u
-  const thumbR = r ? thumbSize / 2 : 0
+  // Grid layers (combinable background-image stack)
+  const gridList = Array.isArray(grid) ? grid : (grid && grid !== 'none' ? [grid] : [])
+  const gc = dark ? '255,255,255' : '0,0,0', ga = dark ? '.04' : '.05'
+  const gridLayers = gridList.map(g => GRID[g]?.(gc, ga, u)).filter(Boolean)
+  const bgImgs = [...(relief ? ['var(--convex)'] : []), ...gridLayers.map(l => l.url)]
+  const bgBlends = [...(relief ? ['overlay'] : []), ...gridLayers.map(() => 'normal')]
+  const bgPos = [...(relief ? ['0 0'] : []), ...gridLayers.map(l => `${l.off}px ${l.off}px`)]
 
   const w = clamp((weight + 100) / 400, 1, 4)
 
@@ -84,13 +78,14 @@ export default function skeu({
     '--text': dark ? 'var(--text-dark)' : 'var(--text-light)',
     '--text-dim': $(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast))),
     '--text-accent': `color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.5, accentH)} 85%)`,
+    '--weight': `${weight / 1000}`,
     '--w': `${w}px`,
     '--u': `${u}px`,
     '--spacing': spacing,
-    '--r': `${r}px`,
-    '--ri': `${r / 2 > inputH / 4 ? inputH / 2 : r / 2}px`,
-    '--rb': r / 2 > inputH / 4 ? '999px' : `var(--ri)`,
-    '--thumb': `${thumbSize}px`,
+    '--roundness': roundness,
+    '--r': `calc(var(--u) * var(--roundness) * (2 + 2 * var(--spacing)))`,
+    '--ri': roundness > .75 ? `var(--r)` : `calc(var(--r) / 2)`,
+    '--thumb': `calc(var(--u) * ${roundness > .75 ? 4 : 2})`
   }
 
   const varBlock = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join('\n  ')
@@ -117,7 +112,7 @@ export default function skeu({
     ${raise(1)}
     outline: none;
     border: none;
-    border-radius: var(--rb);
+    border-radius: var(--ri);
     color: var(--text-accent); cursor: pointer;
     font: inherit;
     font-weight: bolder;
@@ -129,11 +124,13 @@ export default function skeu({
 
   // Thumb fragment (shared between webkit/moz)
   const thumb = `
-      width: var(--thumb); height: var(--thumb);
-      ${raise(1)}
-      background-color: var(--text-dark);
-      border: none; border-radius: ${thumbR}px;
-      cursor: grab; z-index: 1; position: relative;`
+  height: calc(var(--u) * 4);
+  width: var(--thumb);
+  ${raise(1)}
+  background-color: var(--text-dark);
+  border: none;
+  border-radius: ${!roundness ? `0` : roundness <= .5 ? 'calc(var(--u) / 2)' : '999px'};
+  cursor: grab; z-index: 1; position: relative;`
 
   // ── Base layer (structural + default visuals) ──
   const baseCSS = base({ shade, spacing, size, weight, accent: resolvedAccent, roundness })
@@ -143,9 +140,9 @@ export default function skeu({
   ${varBlock}
   color: var(--text);
   ${raise(depth)}
-  background-image: ${relief ? `var(--convex), ` : ''}${tex};
-  background-blend-mode: ${relief ? 'overlay, ' : ''}normal;
-  background-position: ${relief ? '0 0, ' : ''}${texOff} ${texOff};
+  background-image: ${bgImgs.length ? bgImgs.join(', ') : 'none'};
+  background-blend-mode: ${bgBlends.length ? bgBlends.join(', ') : 'normal'};
+  background-position: ${bgPos.length ? bgPos.join(', ') : '0 0'};
   text-shadow: 0 calc(${dark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${dark ? `--bl` : `--bh`});
   position: relative;
   isolation: isolate;
@@ -206,11 +203,11 @@ export default function skeu({
   /* ── Slider (custom appearance) ── */
   .s-slider {
     input[type="range"] {
-      height: 0.6em;
       ${raise(-depth)}
       --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
       background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--input) var(--fill)));
       border: none; border-radius: var(--ri);
+      height: calc(var(--w) * 2);
       -webkit-appearance: none;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
@@ -222,7 +219,9 @@ export default function skeu({
     }
     .s-marks { display: flex; }
     .s-mark {
-      position: absolute; width: ${ceil(w * 2) / 2}px; height: 100%; top: 50%;
+      position: absolute;
+      width: ${ceil(w * 2) / 2}px;
+      height: 100%; top: 50%;
       background: linear-gradient(var(--bh), var(--bh)) var(--bg);
       transform: translate(-50%, -50%);
       &.active { background: linear-gradient(var(--bh), var(--bh)) var(--bg); }
@@ -235,17 +234,21 @@ export default function skeu({
   }
 
   /* ── Select (custom arrow) ── */
-  .s-select select {
-    appearance: none;
-    background-image: var(--concave), linear-gradient(45deg, transparent 50%, var(--text-dim) 50%), linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
-    background-position: 0 0, calc(100% - 14px) 50%, calc(100% - 10px) 50%;
-    background-size: 100% 100%, 4px 4px, 4px 4px;
-    background-repeat: no-repeat;
-    padding-right: 26px;
+  .s-select select { appearance: none; }
+  .s-select.dropdown .s-input {
+    position: relative;
+    &::after {
+      content: ''; position: absolute; right: calc(var(--u) * 2.5); top: 50%;
+      width: calc(var(--u) * 1.5); height: calc(var(--u) * 1.5);
+      border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim);
+      transform: translateY(-75%) rotate(45deg); pointer-events: none;
+    }
   }
   .s-select.buttons button {
     ${btn()}
     color: var(--text);
+    font-weight: inherit;
+    font-size: smaller;
     margin-left: 0;
     border-radius: 0;
     &:first-child { border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
@@ -260,12 +263,12 @@ export default function skeu({
   .s-color-input {
     input[type="color"] { background: transparent; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--r); }
+    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
   }
   .s-swatches button {
     ${btn()}
     box-shadow: inset 0 0 0 var(--w) var(--bl);
-    border-radius: var(--r);
+    border-radius: var(--ri);
     &.selected { border: 1px solid var(--text); box-shadow: 0 0 0 2px var(--bg); }
   }
 
