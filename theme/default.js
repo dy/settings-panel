@@ -85,11 +85,12 @@ export default function base({
 
   &, *, *::before, *::after { box-sizing: border-box; }
 
+  *[hidden] { display: none!important; }
+
   /* ── Control row ── */
   .s-control {
     display: flex; align-items: baseline; gap: calc(var(--u) * 4);
     margin: 0; padding: 0; border: 0;
-    &[hidden] { display: none; }
   }
   .s-label-group { flex: 0 0 auto;
     min-width: 8ch; width: 25%; max-width: 20ch; display: flex; flex-direction: column; gap: var(--u); line-height: ${fontSize + 1}px;
@@ -178,6 +179,8 @@ export default function base({
   /* ── Select ── */
   .s-select select { flex: 1; cursor: pointer; }
   .s-select.buttons {
+    align-items: center;
+    padding: calc(var(--u) * (-0.5 + var(--spacing))) 0;
     .s-input { gap: 0; }
     button {
       padding: var(--u) calc(var(--u) * 2.5);

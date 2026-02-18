@@ -207,7 +207,7 @@ export default function skeu({
       --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
       background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--input) var(--fill)));
       border: none; border-radius: var(--ri);
-      height: calc(var(--w) * 2);
+      height: calc(var(--u) * 1.5);
       -webkit-appearance: none;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
