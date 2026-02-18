@@ -378,6 +378,41 @@ test('select: buttons variant', () => {
   cleanup(ctrl, c)
 })
 
+test('select: multi-select buttons toggle', async () => {
+  const c = mount()
+  const s = signal([])
+  const ctrl = select(s, { variant: 'buttons', multiple: true, options: ['a', 'b', 'c'], container: c })
+  const btns = ctrl.el.querySelectorAll('button')
+  is(btns.length, 3)
+  const tick = () => new Promise(r => queueMicrotask(r))
+
+  // Click 'a' → ['a']
+  await tick()
+  btns[0].dispatchEvent(new Event('click'))
+  await tick()
+  is(JSON.stringify(s.value), '["a"]')
+  ok(btns[0].classList.contains('selected'), 'a selected after click')
+
+  // Click 'b' → ['a', 'b']
+  btns[1].dispatchEvent(new Event('click'))
+  await tick()
+  is(JSON.stringify(s.value), '["a","b"]')
+  ok(btns[0].classList.contains('selected'), 'a still selected')
+  ok(btns[1].classList.contains('selected'), 'b selected after click')
+
+  // Click 'a' again → ['b'] (deselect)
+  btns[0].dispatchEvent(new Event('click'))
+  await tick()
+  await tick()
+  await tick()
+  is(JSON.stringify(s.value), '["b"]')
+  ok(!btns[0].classList.contains('selected'), 'a deselected after second click')
+  ok(btns[1].classList.contains('selected'), 'b still selected')
+
+  cleanup(ctrl, c)
+})
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // COLOR
 // ─────────────────────────────────────────────────────────────────────────────

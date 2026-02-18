@@ -54,8 +54,8 @@ export default function base({
 } = {}) {
   accent = resolveAccent(accent, shade)
 
-  const u = Number.isFinite(rest.unit) ? rest.unit : round(lerp(3, 5, clamp(size, 0, 1)))
-  const fontSize = round(u * 3.5)
+  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp(size, 0, 1))
+  const fontSize = u * 3.5
   const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
   const dark = L < .6
@@ -79,7 +79,9 @@ export default function base({
   border-radius: var(--r);
   font: ${round(weight)} ${fontSize}px system-ui, -apple-system, sans-serif;
   line-height: var(--lh);
-  min-width: calc(var(--u) * 60);
+  min-width: 28ch;
+  resize: horizontal; overflow: hidden;
+  max-width: calc(var(--u) * 100);
   -webkit-text-size-adjust: none;${dark ? `
   -webkit-font-smoothing: antialiased;` : ''}
 
@@ -132,8 +134,10 @@ export default function base({
   .s-number input[type="number"] { width: calc(var(--u) * 20); text-align: right; }
 
   /* ── Secondary button base ── */
-  .s-step, .s-select.buttons button {
+  .s-step, .s-select.buttons button, .s-button.secondary button {
     border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
+  }
+  .s-step, .s-select.buttons button {
     background: color-mix(in oklch, var(--bg), ${fg} 5%);
     &:active:not(:disabled) { background: color-mix(in oklch, var(--bg), ${fg} 10%); }
   }
@@ -195,7 +199,6 @@ export default function base({
         border-top-right-radius: var(--r);
         border-bottom-right-radius: var(--r);
       }
-      &.selected { background: var(--accent); color: white; border-color: transparent; }
     }
   }
   .s-select.radio {
@@ -232,23 +235,26 @@ export default function base({
   /* ── Textarea ── */
   .s-textarea {
     align-items: flex-start;
-    textarea { flex: 1; resize: none; overflow: hidden; field-sizing: content; }
+    textarea { flex: 1; resize: none; overflow: auto; field-sizing: content; max-height: calc(var(--lh) * 6); }
     &.code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
   }
 
   /* ── Button (action) ── */
   .s-button button {
     padding: calc(var(--u) * 2) calc(var(--u) * 4);
-    background: var(--accent); color: white; border: none; font-weight: bolder;
+    background: var(--accent); color: white; border: none;
     border-radius: var(--r);
     &:hover { filter: brightness(1.1); }
     &:active { filter: brightness(.9); }
     &:disabled { opacity: .35; cursor: not-allowed; }
   }
   .s-button.secondary button {
-    background: transparent; border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); color: inherit;
-    border-radius: var(--r);
+    background: transparent; color: inherit;
     &:hover { color: var(--accent); border-color: var(--accent); filter: none; }
+  }
+  .s-select.buttons button.selected,
+  .s-button.secondary button.selected {
+    background: var(--accent); color: white; border-color: transparent;
   }
 
   /* ── Folder ── */

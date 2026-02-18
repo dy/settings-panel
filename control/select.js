@@ -12,7 +12,7 @@ const templates = {
   `,
   radio: `
     <label :each="opt in options" :class="{ selected: opt.value == value }">
-      <input type="radio" :name="radioName" :value="opt.value" :checked="opt.value == value" :onchange="() => set(opt.value)" />
+      <input type="radio" :name="radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
       <span :text="opt.label"></span>
     </label>
   `,
@@ -20,7 +20,7 @@ const templates = {
     <button
       :each="opt in options"
       :class="{ selected: multiple ? (value || []).includes(opt.value) : opt.value == value }"
-      :onclick="(e) => { e.preventDefault(); toggle(opt.value) }"
+      :onclick="toggle(opt.value)"
       :text="opt.label"
     ></button>
   `
@@ -30,9 +30,9 @@ const normalizeOptions = opts =>
   (opts || []).map(o => typeof o === 'string' ? { value: o, label: o } : o)
 
 export default (sig, opts = {}) => {
-  const { variant = 'dropdown', multiple = false, options: rawOptions = [], ...rest } = opts
-  const options = normalizeOptions(rawOptions)
+  let { variant = 'dropdown', multiple = false, options = [], ...rest } = opts
   const radioName = `s-${Math.random().toString(36).slice(2)}`
+  options = normalizeOptions(options)
 
   const toggle = v => {
     if (!multiple) { sig.value = v; return }

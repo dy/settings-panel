@@ -1,22 +1,24 @@
 ## [ ] MVP
 
-* [ ] Theme: default (size calibrator)
+* [x] Theme: default (size calibrator)
   * [x] width bug
   * [x] inverse color logic
   * [x] disable inactive axes
   * [x] centralize
-  * [ ] size/spacing: should be well-done, not hardcoded
-    * [ ] unit axis?
+  * [x] size/spacing: should be well-done, not hardcoded
   * [x] log ticks: should match datalist properly
+  * [ ] on par with skeu: swap is flawless
 * [ ] Theme: Skeu
   * [x] tweets best practices
   * [ ] depth
   * [x] buttons
-  * [ ] grid
+  * [x] grid
   * [ ] grain: texture that can be animated
   * [x] font
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
+* [ ] pasting code must update axis values in JSON
+* [ ] make slider native option sync (defines form of slider) - need to load properly
 * [ ] close / fold button
 * [ ] title
 * [ ] animations
