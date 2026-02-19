@@ -61,6 +61,8 @@ export default function base({
   const dark = L < .6
   const fg = dark ? 'white' : 'black'
   const border = dark ? 'white' : 'black'
+  const stroke = max(1, weight / 400)
+  const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   return `.s-panel {
   --bg: ${shade};
@@ -69,6 +71,7 @@ export default function base({
   --spacing: ${spacing};
   --r: ${r}px;
   --lh: calc(var(--u) * 4);
+  --padding: calc(var(--u) * (0.5 + 1 * var(--spacing)));
 
   display: flex; flex-direction: column;
   background-color: var(--bg);
@@ -90,15 +93,17 @@ export default function base({
 
   > summary {
     cursor: pointer; list-style: none; display: flex; align-items: center;
-    font-weight: bold; font-size: larger;
+    font-weight: ${min(round(weight) + 300, 900)}; font-size: larger;
     &::-webkit-details-marker { display: none; }
     &::after {
-      content: ''; width: 8px; height: 8px; margin-left: auto; flex-shrink: 0;
-      border-right: 2px solid; border-bottom: 2px solid;
-      transform: rotate(45deg); transition: transform 140ms;
+      content: ''; width: 16px; height: 16px; margin-left: auto; flex-shrink: 0;
+      background: currentColor;
+      -webkit-mask: ${chevron} center / contain no-repeat;
+      mask: ${chevron} center / contain no-repeat;
+      transition: transform 140ms;
     }
   }
-  &[open] > summary::after { transform: rotate(-135deg); }
+  &[open] > summary::after { transform: rotate(-180deg); }
   &:is(details) {
     display: block;
     interpolate-size: allow-keywords;
@@ -114,7 +119,7 @@ export default function base({
   }
   .s-panel-content {
     display: flex; flex-direction: column;
-    gap: calc(var(--u) * (0.5 + 1 * var(--spacing)));
+    gap: var(--padding);
   }
   &:is(details) > .s-panel-content {
     padding-top: calc(var(--u) * (1 + 2 * var(--spacing)));
@@ -143,7 +148,7 @@ export default function base({
   /* ── Input base ── */
   input[type="text"], input[type="number"], textarea, select {
     width: 0; min-width: 0;
-    padding: calc(var(--u) * (0.5 + 1 * var(--spacing)));
+    padding: var(--padding);
     font: inherit;
     color: inherit;
   }
@@ -183,12 +188,15 @@ export default function base({
   /* ── Slider ── */
   .s-slider {
     align-items: center;
-    padding:  calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
     .s-input { flex-direction: row; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
-    .s-track { flex: 1; position: relative; display: flex; align-items: center; }
+    .s-track {
+      flex: 1; position: relative; display: flex; align-items: center;
+      height: calc(var(--u) * 4);
+      margin:  calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
+    }
     input[type="range"] {
-      width: 100%; margin: 0;
+      width: 100%;
       cursor: pointer;
     }
     .s-marks, .s-mark-labels {
@@ -204,10 +212,14 @@ export default function base({
       opacity: .5;
       &.active { opacity: 1; color: var(--accent); }
     }
-    .s-value {
-      min-width: 4ch;
-      font-size: smaller; text-align: right;
-      opacity: .6;
+    .s-readout {
+      align-self: center;
+      min-width: 5ch;
+      font-size: smaller;
+    }
+    input.s-readout {
+      padding-left: calc(var(--u) * (0.5 + 0.5 * var(--spacing)));
+      padding-right: calc(var(--u) * (0.5 + 0.5 * var(--spacing)));
     }
   }
 
@@ -300,13 +312,15 @@ export default function base({
       border-bottom: 1px solid; opacity: .8;
       &::-webkit-details-marker { display: none; }
       &::after {
-        content: ''; width: 7px; height: 7px; margin-left: auto; flex-shrink: 0;
-        border-right: 1px solid; border-bottom: 1px solid;
-        transform: rotate(45deg); transition: transform 140ms;
+        content: ''; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; flex-shrink: 0;
+        background: currentColor;
+        -webkit-mask: ${chevron} center / contain no-repeat;
+        mask: ${chevron} center / contain no-repeat;
+        transition: transform 140ms;
       }
     }
     &[open] > summary { border-bottom: none; }
-    &[open] > summary::after { transform: rotate(-135deg); }
+    &[open] > summary::after { transform: rotate(-180deg); }
   }
   .s-content {
     padding: calc(var(--u) * 2 * var(--spacing)) 0;

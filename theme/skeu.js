@@ -7,7 +7,7 @@
 
 import base, { parseColor, resolveAccent, lerp, clamp } from './default.js'
 
-const { min, max, round, ceil } = Math
+const { min, max, round } = Math
 
 // Grid patterns: dots 2u (secondary), lines 4u (medium), crosses 8u (primary)
 const GRID = {
@@ -27,6 +27,7 @@ export default function skeu({
   depth = .4,
   roundness = 0.5,
   relief = 0,
+  bevel: bevelOpt = 2,
   unit,
 } = {}) {
 
@@ -63,21 +64,21 @@ export default function skeu({
   const bgBlends = [...(relief ? ['overlay'] : []), ...gridLayers.map(() => 'normal')]
   const bgPos = [...(relief ? ['0 0'] : []), ...gridLayers.map(l => `${l.off}px ${l.off}px`)]
 
-  const w = clamp((weight + 100) / 400, 1, 4)
+  const bevel = bevelOpt
+  const stroke = max(1, weight / 400)
+  const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   // ── Surface mixin ──
   // raise(d, bg) — d<0 sunken, d>0 raised, 0 flat
   const raise = (d, bg = d < 0 ? 'var(--input)' : 'var(--bg)') => {
-    if (!d) return `background-color: ${bg};`
     const relf = d < 0 ? 'var(--concave)' : 'var(--convex)'
     return `background-color: ${bg};
-    background-image: ${relf};
-    background-blend-mode: overlay, normal;
-    outline: var(--w) solid ${d < 0 ? 'var(--bh)' : 'var(--bl)'};
+    ${d ? `background-image: ${relf}; background-blend-mode: overlay, normal;` : ''}
+    outline: var(--bevel) solid ${d < 0 ? 'var(--bh)' : 'var(--bl)'};
     ${d < 0 ?
-        `box-shadow: inset 0 0 0 var(--w) var(--bl), inset 0 var(--w) var(--bl), 0 var(--w) 0 0 var(--bh);`
+        `box-shadow: inset 0 0 0 var(--bevel) var(--bl), inset 0 var(--bevel) var(--bl), 0 var(--bevel) 0 0 var(--bh);`
         :
-        `box-shadow: inset 0 var(--w) var(--bh), inset 0 0 0 var(--w) var(--bh), 0 var(--w) 0 0 var(--bl)${shadow(depth)};`
+        `box-shadow: inset 0 var(--bevel) var(--bh), inset 0 0 0 var(--bevel) var(--bh), 0 var(--bevel) 0 0 var(--bl)${shadow(depth)};`
       }`
   }
 
@@ -93,7 +94,7 @@ export default function skeu({
     color: var(${isDark ? '--text-dark' : '--text-light'});
     cursor: pointer;
     font: inherit;
-    text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${isDark ? '--bl' : '--bh'});
+    text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${isDark ? '--bl' : '--bh'});
     transition: background 140ms, color 140ms, box-shadow 140ms, filter 140ms;
     &:hover { filter: brightness(1.05); }
     &:active { filter: brightness(.95); }
@@ -101,7 +102,7 @@ export default function skeu({
     &.selected, &[aria-pressed="true"] {
       ${raise(-1, 'var(--accent)')}
       color: var(${accentDark ? '--text-dark' : '--text-light'});
-      text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${accentDark ? '--bl' : '--bh'});
+      text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${accentDark ? '--bl' : '--bh'});
     }`
   }
 
@@ -121,7 +122,7 @@ export default function skeu({
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
   --bg: ${$(surfaceL)};
-  --input: ${$(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
+  --input: ${$(surfaceL - 0.027 - lerp(.0, 0.054, depth), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
   --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
   --focus: ${$(accentL, accentC, accentH, 0.35)};
   --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
@@ -129,17 +130,17 @@ export default function skeu({
   --convex: linear-gradient(${$(1, surfaceC, surfaceH, 0.15 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)});
   --concave: linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.15 * relief)});
   --text-light: ${$(lerp(.32, .12, contrast))};
-  --text-dark: ${$(max(surfaceL, accentL, lerp(.9, .97, contrast)))};
+  --text-dark: ${$(max(surfaceL, accentL, lerp(.9, 1, contrast)))};
   --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
   --text-dim: ${$(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast)))};
   --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.95, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
   --weight: ${weight / 1000};
-  --w: ${w}px;
+  --bevel: ${bevel}px;
   --u: ${u}px;
   --spacing: ${spacing};
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 3);
-  --ri: calc(var(--r) / 1.5);
+  --ri: calc(var(--u) * (-1.5 + var(--roundness) * 3));
   --thumb: calc(var(--u) * ${roundness >= 1 ? 4 : 2});
 
   color: var(--text);
@@ -147,7 +148,7 @@ export default function skeu({
   background-image: ${bgImgs.length ? bgImgs.join(', ') : 'none'};
   background-blend-mode: ${bgBlends.length ? bgBlends.join(', ') : 'normal'};
   background-position: ${bgPos.length ? bgPos.join(', ') : '0 0'};
-  text-shadow: 0 calc(${dark ? -1 : 1} * min(1.5px, var(--w))) 0 var(${dark ? `--bl` : `--bh`});
+  text-shadow: 0 calc(${dark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${dark ? `--bl` : `--bh`});
   position: relative;
   isolation: isolate;
 
@@ -223,7 +224,7 @@ export default function skeu({
     .s-marks { display: flex; }
     .s-mark {
       position: absolute;
-      width: ${ceil(w * 2) / 2}px;
+      width: calc(0.33 * var(--u));
 
       height: calc(var(--u) * 1.5); top: 50%;
       background: linear-gradient(var(--bh), var(--bh)) var(--bg);
@@ -234,7 +235,9 @@ export default function skeu({
       color: var(--text-dim); opacity: 1;
       &.active { color: var(--accent); }
     }
-    .s-value { color: var(--text-dim); opacity: 1; }
+    .s-readout {
+      color: var(--text-dim); opacity: 1;
+    }
   }
 
   /* ── Select (custom arrow) ── */
@@ -242,10 +245,12 @@ export default function skeu({
   .s-select.dropdown .s-input {
     position: relative;
     &::after {
-      content: ''; position: absolute; right: calc(var(--u) * 2.5); top: 50%;
-      width: calc(var(--u) * 1.5); height: calc(var(--u) * 1.5);
-      border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim);
-      transform: translateY(-75%) rotate(45deg); pointer-events: none;
+      content: ''; position: absolute; right: var(--padding); top: 50%;
+      width: calc(var(--u) * 4); height: calc(var(--u) * 4);
+      background: var(--text-dim);
+      -webkit-mask: ${chevron} center / contain no-repeat;
+      mask: ${chevron} center / contain no-repeat;
+      transform: translateY(-50%); pointer-events: none;
     }
   }
   .s-select.buttons button {
@@ -265,11 +270,11 @@ export default function skeu({
   .s-color-input {
     input[type="color"] { background: transparent; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: var(--w) solid var(--bh); border-radius: var(--ri); }
+    input[type="color"]::-webkit-color-swatch { border: var(--bevel) solid var(--bh); border-radius: var(--ri); }
   }
   .s-swatches button {
     ${btn(surfaceL, surfaceC, surfaceH)}
-    box-shadow: inset 0 0 0 var(--w) var(--bl);
+    box-shadow: inset 0 0 0 var(--bevel) var(--bl);
     border-radius: var(--ri);
     &.selected { border: 1px solid var(--text); box-shadow: 0 0 0 2px var(--bg); }
   }
@@ -286,17 +291,15 @@ export default function skeu({
   /* ── Panel title ── */
   > summary {
     color: var(--text);
-    &::after { border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim); }
+    &::after { background: var(--text-dim); }
   }
 
   /* ── Folder ── */
   .s-folder > summary {
     color: var(--text);
-    border-bottom: var(--w) solid var(--bl); box-shadow: 0 var(--w) 0 0 var(--bh);
+    border-bottom: var(--bevel) solid var(--bl); box-shadow: 0 var(--bevel) 0 0 var(--bh);
     opacity: 1;
-    &::after {
-      border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim);
-    }
+    &::after { background: var(--text-dim); }
   }
   .s-folder[open] > summary { box-shadow: none; }
 }`

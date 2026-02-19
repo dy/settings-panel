@@ -11,6 +11,8 @@
  *   snap - snap to marks during drag: false (default), true if step provided, or number (% threshold)
  *   track - CSS gradient for custom track background
  *   haptic - vibrate on mark crossings during drag: true (10ms tick) or ms duration
+ *   readout - value display: true (default), false (hidden), 'input' (editable),
+ *            or (value) → string for custom display
  *   unit - suffix appended to displayed value (e.g. 'px', '%', 'ms')
  *   format - (value) → string, overrides default auto-precision display
  */
@@ -25,7 +27,8 @@ const template = `
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
   </span>
-  <span class="s-value" :text="format(actual)"></span>
+  <span class="s-readout" :if="showReadout" :text="readoutText(actual)"></span>
+  <input type="text" inputmode="decimal" class="s-readout" :if="readout === 'input'" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" />
 `
 
 const defaultFormat = v => v >= 1000 ? v.toFixed(0) : v >= 100 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3)
@@ -44,7 +47,7 @@ const makeCurve = (opt) => {
 }
 
 export default (sig, opts = {}) => {
-  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
+  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, readout = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
 
   // Curve (maps normalized [0,1] non-linearly)
   const curve = makeCurve(curveOpt)
@@ -187,14 +190,31 @@ export default (sig, opts = {}) => {
     if (final !== raw) value.value = toDisplay(final)
   }
 
+  const setActual = e => {
+    const v = parseFloat(e.target.value)
+    if (Number.isFinite(v)) sig.value = clean(Math.min(max, Math.max(min, v)))
+  }
+
+  const stepKey = e => {
+    const v = parseFloat(e.target.value)
+    if (!Number.isFinite(v)) return
+    const s = (step || (max - min) / 100) * (e.shiftKey ? 10 : e.altKey ? 0.1 : 1)
+    sig.value = clean(Math.min(max, Math.max(min, e.key === 'ArrowUp' || e.key === 'ArrowRight' ? v + s : v - s)))
+  }
+
+  // Readout: true → span, 'input' → editable, fn → custom span, false → hidden
+  const readoutFn = typeof readout === 'function' ? readout : null
+  const showReadout = readout === true || readoutFn
+  const readoutText = readoutFn || format
+
   const listId = `s-${Math.random().toString(36).slice(2)}`
   const nativeTicks = signal(nativeTicksOpt ?? false)
 
   const result = control(sig, {
     ...rest,
     type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, track, listId, nativeTicks,
-    dMin, dMax, dStep, set, grab, release,
-    format
+    dMin, dMax, dStep, set, setActual, stepKey, grab, release,
+    readout, showReadout, readoutText, format
   })
 
   // Auto-detect: native ticks only if theme keeps appearance:auto
