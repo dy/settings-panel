@@ -214,12 +214,10 @@ export default function base({
     }
     .s-readout {
       align-self: center;
-      min-width: 5ch;
+      min-width: calc(4ch + var(--padding));
       font-size: smaller;
-    }
-    input.s-readout {
-      padding-left: calc(var(--u) * (0.5 + 0.5 * var(--spacing)));
-      padding-right: calc(var(--u) * (0.5 + 0.5 * var(--spacing)));
+      padding-left: var(--padding);
+      padding-right: 0;
     }
   }
 
