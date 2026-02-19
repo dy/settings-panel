@@ -48,6 +48,7 @@ export default function settings(schema, options = {}) {
   const {
     container = document.body,
     theme = base,
+    title,
     collapsed = false,
     persist = false,
     onchange = options.onChange || options.onchange
@@ -60,10 +61,18 @@ export default function settings(schema, options = {}) {
     document.head.appendChild(style)
   }
 
-  // Create panel container
-  const panel = document.createElement('div')
+  // Create panel container (foldable <details> when title provided)
+  const panel = document.createElement(title ? 'details' : 'div')
   panel.className = 's-panel'
-  if (collapsed) panel.classList.add('s-collapsed')
+  if (title) {
+    if (!collapsed) panel.open = true
+    const summary = document.createElement('summary')
+    summary.textContent = title
+    panel.appendChild(summary)
+  }
+  const body = document.createElement('div')
+  body.className = 's-panel-content'
+  panel.appendChild(body)
 
   // ── Parse flat schema: groups + fields ──
   const entries = []
@@ -109,7 +118,7 @@ export default function settings(schema, options = {}) {
 
   for (const e of entries) {
     if (e.isGroup) {
-      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, container: panel })
+      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, container: body })
       groupEls[e.shortKey] = f
       disposers.push(f[Symbol.dispose])
       continue
@@ -118,10 +127,10 @@ export default function settings(schema, options = {}) {
     const factory = controls[e.field.type] || controls[e.field.type.split(/\s+/)[0]]
     if (!factory) { console.warn(`Unknown control type: ${e.field.type}`); continue }
 
-    const target = e.group ? groupEls[e.group]?.content : panel
+    const target = e.group ? groupEls[e.group]?.content : body
     const decorated = factory(state[_signals][e.shortKey], {
       ...e.field,
-      container: target || panel
+      container: target || body
     })
     if (decorated.el) decorated.el.dataset.key = e.shortKey
     disposers.push(decorated[Symbol.dispose])

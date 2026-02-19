@@ -10,17 +10,17 @@
   * [ ] on par with skeu: swap is flawless
 * [ ] Theme: Skeu
   * [x] tweets best practices
-  * [ ] depth
+  * [x] depth
   * [x] buttons
   * [x] grid
-  * [ ] grain: texture that can be animated
   * [x] font
+  * [ ] grain: texture that can be animated
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
 * [ ] pasting code must update axis values in JSON
 * [ ] make slider native option sync (defines form of slider) - need to load properly
-* [ ] close / fold button
-* [ ] title
+* [x] close / fold button
+* [x] title
 * [ ] animations
 * [ ] better weight control (slider weight)
 * [ ] Theme: Figma

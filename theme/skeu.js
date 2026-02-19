@@ -65,35 +65,6 @@ export default function skeu({
 
   const w = clamp((weight + 100) / 400, 1, 4)
 
-  // ── CSS variable block ──
-  // Bevel: --bh (high) + --bl (low) — inputs use bh outside/bl inside (concave),
-  // buttons swap them: bl outside/bh inside (convex).
-  const vars = {
-    '--bg': $(surfaceL),
-    '--input': $(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief)),
-    '--accent': `color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%)`,
-    '--focus': $(accentL, accentC, accentH, 0.35),
-    '--bh': $(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1)),
-    '--bl': $(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1)),
-    '--convex': `linear-gradient(${$(1, surfaceC, surfaceH, 0.15 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)})`,
-    '--concave': `linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.15 * relief)})`,
-    '--text-light': $(lerp(.32, .12, contrast)),
-    '--text-dark': $(max(surfaceL, accentL, lerp(.78, .97, contrast))),
-    '--text': dark ? 'var(--text-dark)' : 'var(--text-light)',
-    '--text-dim': $(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast))),
-    '--text-accent': `color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.95, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%)`,
-    '--weight': `${weight / 1000}`,
-    '--w': `${w}px`,
-    '--u': `${u}px`,
-    '--spacing': spacing,
-    '--roundness': roundness,
-    '--r': `calc(var(--u) * var(--roundness) * (2 + 2 * var(--spacing)))`,
-    '--ri': roundness > .75 ? `var(--r)` : `calc(var(--r) / 2)`,
-    '--thumb': `calc(var(--u) * ${roundness > .75 ? 4 : 2})`
-  }
-
-  const varBlock = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join('\n  ')
-
   // ── Surface mixin ──
   // raise(d, bg) — d<0 sunken, d>0 raised, 0 flat
   const raise = (d, bg = d < 0 ? 'var(--input)' : 'var(--bg)') => {
@@ -149,7 +120,28 @@ export default function skeu({
 
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
-  ${varBlock}
+  --bg: ${$(surfaceL)};
+  --input: ${$(surfaceL - 0.054 - lerp(.027, 0.064, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
+  --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
+  --focus: ${$(accentL, accentC, accentH, 0.35)};
+  --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
+  --bl: ${$(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1))};
+  --convex: linear-gradient(${$(1, surfaceC, surfaceH, 0.15 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)});
+  --concave: linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.15 * relief)});
+  --text-light: ${$(lerp(.32, .12, contrast))};
+  --text-dark: ${$(max(surfaceL, accentL, lerp(.9, .97, contrast)))};
+  --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
+  --text-dim: ${$(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast)))};
+  --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.95, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
+  --weight: ${weight / 1000};
+  --w: ${w}px;
+  --u: ${u}px;
+  --spacing: ${spacing};
+  --roundness: ${roundness};
+  --r: calc(var(--u) * var(--roundness) * 3);
+  --ri: calc(var(--r) / 1.5);
+  --thumb: calc(var(--u) * ${roundness >= 1 ? 4 : 2});
+
   color: var(--text);
   ${raise(depth)}
   background-image: ${bgImgs.length ? bgImgs.join(', ') : 'none'};
@@ -289,6 +281,12 @@ export default function skeu({
   }
   .s-button.secondary button {
     ${btn(surfaceL, surfaceC, surfaceH)}
+  }
+
+  /* ── Panel title ── */
+  > summary {
+    color: var(--text);
+    &::after { border-right: var(--w) solid var(--text-dim); border-bottom: var(--w) solid var(--text-dim); }
   }
 
   /* ── Folder ── */

@@ -70,7 +70,7 @@ export default function base({
   --r: ${r}px;
   --lh: calc(var(--u) * 4);
 
-  display: flex; flex-direction: column; gap: calc(var(--u) * (0.5 + 1 * var(--spacing)));
+  display: flex; flex-direction: column;
   background-color: var(--bg);
   color-scheme: ${dark ? 'dark' : 'light'};
   color: color-mix(in oklch, var(--bg), ${fg} 85%);
@@ -80,7 +80,6 @@ export default function base({
   font: ${round(weight)} ${fontSize}px system-ui, -apple-system, sans-serif;
   line-height: var(--lh);
   min-width: 28ch;
-  resize: horizontal; overflow: hidden;
   max-width: calc(var(--u) * 100);
   -webkit-text-size-adjust: none;${dark ? `
   -webkit-font-smoothing: antialiased;` : ''}
@@ -88,6 +87,38 @@ export default function base({
   &, *, *::before, *::after { box-sizing: border-box; }
 
   *[hidden] { display: none!important; }
+
+  > summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center;
+    font-weight: bold; font-size: larger;
+    &::-webkit-details-marker { display: none; }
+    &::after {
+      content: ''; width: 8px; height: 8px; margin-left: auto; flex-shrink: 0;
+      border-right: 2px solid; border-bottom: 2px solid;
+      transform: rotate(45deg); transition: transform 140ms;
+    }
+  }
+  &[open] > summary::after { transform: rotate(-135deg); }
+  &:is(details) {
+    display: block;
+    interpolate-size: allow-keywords;
+    &::details-content {
+      content-visibility: visible;
+      height: 0; overflow: clip; overflow-clip-margin: 6px; opacity: 0;
+      transition: height 200ms 80ms, opacity 80ms;
+    }
+    &[open]::details-content {
+      height: auto; opacity: 1;
+      transition: height 200ms, opacity 150ms 150ms;
+    }
+  }
+  .s-panel-content {
+    display: flex; flex-direction: column;
+    gap: calc(var(--u) * (0.5 + 1 * var(--spacing)));
+  }
+  &:is(details) > .s-panel-content {
+    padding-top: calc(var(--u) * (1 + 2 * var(--spacing)));
+  }
 
   /* ── Control row ── */
   .s-control {
@@ -235,7 +266,10 @@ export default function base({
   /* ── Textarea ── */
   .s-textarea {
     align-items: flex-start;
-    textarea { flex: 1; resize: none; overflow: auto; field-sizing: content; max-height: calc(var(--lh) * 6); }
+    textarea {
+      flex: 1; resize: none; overflow: auto; field-sizing: content; min-height: calc(var(--lh) * 4);
+      resize: both;
+    }
     &.code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
   }
 

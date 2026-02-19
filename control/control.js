@@ -22,7 +22,7 @@ export default function control(sig, opts) {
   const wrapper = document.createElement('div')
 
   wrapper.innerHTML = `<div class="${classes}">
-      <span class="s-label-group" :hidden="!label && !hint">
+      <span class="s-label-group" :hidden="label === false && !hint">
         <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
         <span class="s-hint" :text="hint" :hidden="!hint"></span>
       </span>
