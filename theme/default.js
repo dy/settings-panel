@@ -99,7 +99,7 @@ export default function base({
   > summary {
     cursor: pointer;
     &::after {
-      content: ''; width: 16px; height: 16px; margin-left: auto; flex-shrink: 0;
+      content: ''; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; flex-shrink: 0;
       background: currentColor;
       -webkit-mask: ${chevron} center / contain no-repeat;
       mask: ${chevron} center / contain no-repeat;
