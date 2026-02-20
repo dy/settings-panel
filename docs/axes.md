@@ -1,193 +1,127 @@
-# Theme Axes
+# Theme axes
 
 Theme = function(axes) → CSS string.
-Every theme receives the same 11 axes. Each interprets them through its own physics.
+Every theme receives the same axes. Each interprets them differently.
 
 
-## Color — the palette
+## Color
 
-### 1. `lightness`
+### `shade`
 
-**How dark or bright.** The L channel — the single biggest visual shift.
+The background color. Hex or oklch. Everything else derives from it.
 
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Pitch dark. Terminal at night. | Dim. Muted workspace. | Bright. White page, dark ink. |
-
-0–1. Default: `0.97`.
-Below 0.5 is dark mode (light text on dark background).
+Dark shades (L < 0.5) flip the panel to dark mode — light text, dark surfaces.
+Default: `'#f5f4f2'`.
 
 
-### 2. `accent`
+### `accent`
 
-**The signature color.** CSS color for interactive and brand elements.
+The interactive/brand color. CSS color string, or a number 0–1 to derive from shade's hue with boosted chroma.
 
-Accepts any CSS color, or a number 0–1 to derive from shade:
-- `accent: '#5588cc'` — blue
-- `accent: '#ff6600'` — orange
-- `accent: 'oklch(.6 .2 310)'` — purple
-- `accent: 0.6` — shade hue at lightness 0.6, chroma ≥ 0.15
+- `'#5588cc'` — blue
+- `'#ff6600'` — orange
+- `'oklch(.6 .2 310)'` — purple
+- `0.6` — shade's hue at lightness 0.6, chroma ≥ 0.15
 
 Default: `'#2563eb'`.
 
-Number accent uses shade's hue with boosted chroma — harmonious
-with the background. The theme computes the right lightness and
-chroma for the accent based on lightness/contrast axes.
+
+### `contrast`
+
+Luminance spread between roles (bg → surface → dim → text).
+
+0 = subtle, everything close together. 1 = stark, high-accessibility ratios.
+Below 0.3 may fail WCAG.
+Default: `0.5`. Range 0–1.
 
 
-### 3. `contrast`
+## Shape
 
-**The drama between light and dark.** Luminance ratio between roles
-(bg → surface → dim → text).
+### `spacing`
 
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Whispered. Airy. Subtle. | Clear. Readable. | Stark. Dramatic. High-accessibility. |
+Padding, gaps, margins. How much air between elements.
 
-0–1. Default: `0.5`.
-Below 0.3 may fail WCAG — themes can enforce a floor.
+0.5 = tight. 1 = comfortable. 2 = generous.
+Default: `1`. Range 0.5–2.
 
 
-## Shape — space and geometry
+### `size`
 
-### 4. `spacing`
+Overall scale — type size, control dimensions, layout grid unit.
 
-**How much air.** Padding, gaps, and margins between elements.
-
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Tight. Small type. Compact. | Balanced. Comfortable. | Airy. Large type. Room to breathe. |
-
-0–1. Default: `0.5`.
+Orthogonal to spacing: size scales elements, spacing scales the gaps.
+Default: `0.5`. Range 0–1.
 
 
-### 5. `size`
+### `roundness`
 
-**The scale.** Overall size of type, controls, and the layout grid unit.
-
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Compact. Small type. Dense controls. | Balanced. Comfortable. | Large. Prominent. Spacious controls. |
-
-0–1. Default: `0.5`.
-Orthogonal to spacing — size scales elements, spacing scales the air between them.
+Corner radius. 0 = sharp rectangles. 1 = gentle curves. 2 = pills.
+Default: `0.5`. Range 0–2.
 
 
-### 6. `roundness`
+## Surface
 
-**The geometry.** Corner radius from sharp to pill.
+### `depth`
 
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Angular. Crisp. Decisive. | Gentle. Approachable. | Soft. Rounded. Friendly. |
+How much things lift off the surface. Same value, different physics per theme:
 
-0–1. Default: `0.5`.
-Constraints: terminal forces 0, retro forces 0.
-
-
-## Surface — physical feel
-
-### 7. `depth`
-
-**The elevation.** How much things lift off the surface.
-Same value, different physics per theme:
-
-| Theme | depth 0.8 |
-|-------|-----------|
-| soft | diffuse shadow, gentle lift |
-| swiss | nothing — flatness is the statement |
-| brutal | 5px 5px 0 black, hard offset |
-| glass | backdrop-filter: blur(20px) |
-| neu | ±6px paired light/dark shadows |
+| Theme | depth at 0.8 |
+|-------|-------------|
 | skeu | directional shadow, physical weight |
-| retro | bevel border intensifies |
+| glass | backdrop-filter: blur(20px) |
+| brutal | 5px 5px 0 black, hard offset |
+| neu | ±6px paired light/dark shadows |
 
-0–1. Default: `0.4`.
-This is where themes diverge most — depth reveals the structural soul.
-
-
-### 9. `relief`
-
-**The surface curvature.** Apparent 3D shape of controls via lighting gradient.
-Buttons are convex (highlight top, shadow bottom). Inputs are concave (shadow top, highlight bottom).
-Direction is semantic — the axis controls intensity only.
-
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Flat. Digital. Clean. | Subtle roll. Tactile. | Full pillow/inset. Skeuomorphic. |
-
-0–1. Default: `0`.
-Classic toolkits call this `relief` (Tk: raised/sunken, GTK: shadow-type, Win32: edge style).
+This is where themes diverge most.
+Default: `0.4`. Range 0–1.
 
 
-### 10. `weight`
+### `weight`
 
-**The heaviness.** Stroke width, border thickness, font-weight.
+Font weight and icon stroke thickness. Affects title, labels, chevrons.
 
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Hairline. Delicate. Whispered. | Balanced. Clear. | Chunky. Bold. Assertive. |
-
-0–1. Default: `0.5`.
+100 = thin. 400 = normal. 900 = black.
+Default: `400`. Range 100–900.
 
 
-## Character — personality
+### `relief`
 
-### 11. `texture`
+Surface curvature — convex buttons (highlight top, shadow bottom), concave inputs (shadow top, highlight bottom). The axis controls intensity, direction is semantic.
 
-**The surface.** Pattern overlaid on backgrounds.
+0 = flat digital surfaces. 1 = full pillow/inset, skeuomorphic.
+Classic toolkits call this relief (Tk: raised/sunken, GTK: shadow-type, Win32: edge style).
+Default: `0`. Range 0–1.
 
-| Preset | Character |
-|--------|-----------|
-| `flat` | Clean. Nothing. |
-| `dots` | Subtle circle grid. Halftone. |
-| `crosses` | + marks. Graph paper. |
-| `grid` | Fine lines. Technical. |
-| `paper` | Noise grain. Organic. |
 
+### `bevel`
+
+Structural edge width in pixels. Outlines, box-shadow borders, separator lines. Independent of weight — this is about pixel-level edge definition, not typographic heaviness.
+
+Default: `2`. Range 0–4. Skeu-specific.
+
+
+## Character
+
+### `texture` (planned)
+
+Pattern overlaid on backgrounds: flat, dots, crosses, grid, paper.
 Default: `flat`.
-Orthogonal to depth — you can have flat+dots or deep+dots.
 
 
-### 12. `font`
+### `font` (planned)
 
-**The voice.** Typographic family that sets the tone.
-
-| Value | Character | Families |
-|-------|-----------|----------|
-| `geometric` | Clean, constructed, modern | Inter, DM Sans, Geist |
-| `humanist` | Warm, friendly, readable | Source Sans, Fira Sans |
-| `mono` | Technical, dense, precise | JetBrains Mono, Fira Code |
-| `serif` | Classic, editorial, timeless | Georgia, Libre Baskerville |
-
+Typographic family: geometric, humanist, mono, serif.
 Default: `geometric`.
-Theme constraints: terminal forces `mono`, classic defaults `serif`.
 
 
 ## Time
 
-### 13. `motion`
+### `motion` (planned)
 
-**The energy.** Duration and intensity of transitions and animations.
-Theme chooses the curve (ease, linear, spring). User chooses the speed.
-
-| 0 | 0.5 | 1 |
-|---|-----|---|
-| Instant. No animation. Reduced motion. | Smooth. Responsive. | Expressive. Playful. Bouncy. |
-
-0–1. Default: `0.5`.
+Duration and intensity of transitions. Theme picks the curve, user picks the speed.
+0 = instant, no animation. 1 = expressive, bouncy.
 Respects `prefers-reduced-motion: reduce` → clamps to 0.
-
-Same value, different character per theme:
-
-| Theme | motion 0.7 |
-|-------|------------|
-| soft | 200ms ease-out |
-| terminal | 50ms linear (always snappy) |
-| brutal | 120ms linear (no cushion) |
-| glass | 250ms spring |
-| neu | 180ms ease-in-out |
-| skeu | 300ms with inertia |
+Default: `0.5`. Range 0–1.
 
 
 ---
@@ -195,110 +129,46 @@ Same value, different character per theme:
 
 ## Summary
 
-| # | Axis | Type | Range | One word |
-|---|------|------|-------|----------|
-| 1 | `lightness` | 0–1 | dark ↔ bright | luminance |
-| 2 | `accent` | color | CSS color | identity |
-| 3 | `contrast` | 0–1 | subtle ↔ stark | drama |
-| 4 | `spacing` | 0–1 | tight ↔ airy | space |
-| 5 | `size` | 0–1 | compact ↔ large | scale |
-| 6 | `roundness` | 0–1 | sharp ↔ pill | geometry |
-| 7 | `depth` | 0–1 | flat ↔ dramatic | elevation |
-| 8 | `weight` | 0–1 | hairline ↔ chunky | heaviness |
-| 9 | `relief` | 0–1 | flat ↔ pillowy | curvature |
-| 10 | `texture` | preset | flat / dots / crosses / grid / paper | surface |
-| 11 | `font` | select | geometric / humanist / mono / serif | voice |
-| 12 | `motion` | 0–1 | instant ↔ expressive | energy |
+| Axis | Range | Default | What it does |
+|------|-------|---------|-------------|
+| shade | hex/oklch | #f5f4f2 | background color, dark/light mode |
+| accent | color or 0–1 | #2563eb | interactive/brand hue |
+| contrast | 0–1 | 0.5 | luminance spread between roles |
+| spacing | 0.5–2 | 1 | air between elements |
+| size | 0–1 | 0.5 | element and type scale |
+| roundness | 0–2 | 0.5 | corner radius |
+| depth | 0–1 | 0.4 | shadow/elevation |
+| weight | 100–900 | 400 | font weight, stroke thickness |
+| relief | 0–1 | 0 | surface curvature (convex/concave) |
+| bevel | 0–4 | 2 | structural edge width (px) |
 
-| Group | Axes | What it controls |
-|-------|------|-----------------|
-| **Color** | lightness, accent, contrast | The palette |
-| **Shape** | spacing, size, roundness | Space, scale, and geometry |
-| **Surface** | depth, weight, relief | Physical feel |
-| **Character** | texture, font | Personality |
-| **Time** | motion | Energy |
+| Group | Axes |
+|-------|------|
+| Color | shade, accent, contrast |
+| Shape | spacing, size, roundness |
+| Surface | depth, weight, relief, bevel |
+| Character | texture, font |
+| Time | motion |
 
 
 ## Orthogonality
 
-Every axis moves one thing no other axis touches:
+Each axis moves one thing:
 
-- lightness ≠ contrast — lightness sets luminance level, contrast sets spread between roles
-- accent ≠ contrast — accent = hue/identity, contrast = luminance ratios
-- spacing ≠ size — spacing = air between, size = scale of elements
-- spacing ≠ weight — spacing = space between, weight = thickness of
-- depth ≠ weight — depth = shadow/elevation, weight = stroke/border
-- texture ≠ depth — texture = pattern, depth = z-layering
-- motion ≠ anything spatial — only axis that controls time
-- font ≠ weight — font = family/voice, weight = thickness
+- shade ≠ contrast — shade sets luminance level, contrast sets spread between roles
+- accent ≠ contrast — accent is hue/identity, contrast is luminance ratios
+- spacing ≠ size — spacing is air between, size is scale of elements
+- depth ≠ weight — depth is shadow/elevation, weight is stroke/border
+- weight ≠ bevel — weight is typographic (font, icons), bevel is structural (edges, outlines)
+- relief ≠ depth — relief is surface curvature (convex/concave), depth is z-elevation
 
 
-## Palette derivation
-
-All color roles computed from the 5 color axes:
-
-```
-lightness    →  luminance level (bg, surface, text, dim)
-accent       →  interactive hue (highest chroma)
-temperature  →  neutral hue offset (shifts bg/surface/text/border)
-saturation   →  chroma scaling (proportional, accent stays loudest)
-contrast     →  lightness step between roles
-```
-
-Color roles are outputs, not inputs:
-
-| Role | Derived from |
-|------|-------------|
-| bg | lightness · level + temperature · hue + saturation · chroma |
-| surface | slightly elevated from bg |
-| text | opposite end of lightness + contrast |
-| dim | midpoint, reduced contrast |
-| border | between surface and text, low chroma |
-| accent | accent hue + saturation · chroma + lightness-appropriate L |
-| input | slightly recessed from surface |
-| track | recessed from bg |
-| danger | hue ~25 (red), L/C from lightness + saturation |
-| warning | hue ~85 (yellow), L/C from lightness + saturation |
-| success | hue ~145 (green), L/C from lightness + saturation |
-| info | hue ~240 (blue), L/C from lightness + saturation |
-
-Semantic colors are fixed hue positions. L and C computed from the same
-axes as everything else — they automatically match the palette.
-
-
-## Theme × Axis interaction
-
-| Theme | Constrains | Emphasizes | Signature move |
-|-------|-----------|------------|----------------|
-| **soft** | — | depth, roundness | diffuse shadow |
-| **swiss** | depth → 0 | weight, spacing | typographic hierarchy |
-| **classic** | font → serif | contrast | rule lines, print margins |
-| **terminal** | roundness → 0, font → mono, motion → low | spacing → low | semantic color only |
-| **industrial** | — | weight, accent | labels as decoration |
-| **brutal** | — | weight, depth | hard offset shadow |
-| **glass** | — | depth, roundness, motion | backdrop-filter blur |
-| **neu** | roundness ≥ 0.6 | depth | paired shadows |
-| **skeu** | — | depth, texture, motion | realistic materials |
-| **retro** | roundness → 0, motion → low | depth, weight | bevel borders |
-
-
-## What's NOT an axis
+## What's not an axis
 
 | Rejected | Why |
 |----------|-----|
-| border style | Defined BY theme (bevel, functional, paired) |
-| shadow model | Defined BY theme (hard, soft, paired, blur) |
-| light direction | Only skeu needs it — theme-specific |
-| layout/width | Responsive concern, not visual style |
-| type scale | Folds into size — compact = smaller type, large = bigger |
-
-
-## UI grouping
-
-| Group | Axes | Visibility |
-|-------|------|------------|
-| Color | lightness, accent, contrast | always (lightness, accent); collapsible (contrast) |
-| Shape | spacing, size, roundness | always |
-| Surface | depth, weight | collapsible |
-| Character | texture, font | collapsible |
-| Time | motion | collapsible |
+| border style | defined by theme (bevel, functional, paired) |
+| shadow model | defined by theme (hard, soft, paired, blur) |
+| light direction | only skeu needs it — theme-specific |
+| layout/width | responsive concern, not visual style |
+| type scale | folds into size |

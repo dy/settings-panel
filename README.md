@@ -1,13 +1,8 @@
 # settings-panel
 
-Controls designed for purpose that _feel right_.
+Settings panel for tweaking apps, demos or tests. Pass values, get controls.
 
-- **Data-first** — pass values, get a reactive panel. No boilerplate.
-- **Domain knowledge** — log slider *is* logarithmic. Color picker *understands* perceptual space.
-- **11 axes** — lightness, accent, contrast, spacing, size, roundness, depth, weight, texture, font, motion.
-- **10 themes** — soft, swiss, classic, terminal, industrial, brutal, glass, neu, skeu, retro. Each with its own physics.
-
-<!-- [demo](https://dy.github.io/settings-panel/) -->
+[demo](https://dy.github.io/settings-panel/)
 
 ```js
 import settings from 'settings-panel'
@@ -26,16 +21,19 @@ state.volume = 0.5  // UI updates
 
 ## [Controls](docs/controls.md)
 
-| Type | Inferred from | Domain knowledge |
-|------|---------------|------------------|
-| `boolean` | `true`, `false` | Toggle switch |
-| `number` | `123`, `0.5` | Linear/log scales, step, constraints |
-| `text` | `'string'` | Single/multi-line |
-| `color` | `'#hex'`, `'rgb()'` | Perceptual color spaces |
-| `select` | `{ options: [] }` | Dropdown, buttons, radio |
-| `slider` | `{ min, max }` | Continuous range |
-| `button` | `() => {}` | Action trigger |
-| `folder` | `'group.key'` dot-notation | Collapsible group |
+Types are inferred from values.
+
+| Type | Inferred from |
+|------|---------------|
+| `boolean` | `true`, `false` |
+| `number` | `123` |
+| `slider` | `0.5` (normalized 0-1), or `{ min, max }` |
+| `text` | `'hello'` |
+| `textarea` | `'line one\nline two'` (multiline) |
+| `color` | `'#hex'`, `'rgb()'`, `'hsl()'` |
+| `select` | `['a', 'b', 'c']` or `{ options: [] }` |
+| `button` | `() => {}` |
+| `folder` | `'group.key'` dot-notation |
 
 ```js
 settings({
@@ -45,54 +43,43 @@ settings({
 
   // Explicit
   frequency: { type: 'slider', min: 20, max: 20000, scale: 'log' },
-  palette: { type: 'color', format: 'hsl' }
+  palette: { type: 'color', variant: 'swatches' }
 })
 ```
 
 
-## [Themes](docs/themes.md)
+## Themes
 
-| Theme | Soul |
-|-------|------|
-| `swiss` | No shadows. Typography carries all hierarchy. |
-| `classic` | Serif. Rule lines. Print margins. Centuries of wisdom. |
-| `terminal` | Monospace. Zero radius. Max density. Every pixel earns it. |
-| `industrial` | Exposed structure. The label IS the decoration. |
-| `brutal` | Hard offset shadows. Thick borders. No apology. |
-| `glass` | Backdrop blur. Transparency. Thin light borders. |
-| `neu` | Paired shadows. Same-color surface. Soft extrusion. |
-| `skeu` | Real textures. Directional lighting. Physical affordances. |
-| `retro` | Bevel borders. System colors. 1995. |
+Two themes today: `default` (browser baseline) and `skeu` (tactile, textured).
 
 ```js
 import settings from 'settings-panel'
 import skeu from 'settings-panel/theme/skeu'
 
-settings(controls, {
-  theme: skeu({ shade: 0.13, accent: '#8855cc', spacing: 0.3 })
+settings(schema, {
+  theme: skeu({ shade: '#1a1a1a', accent: '#8855cc', spacing: 0.3 })
 })
 ```
 
-[Theme axes](docs/axes.md): shade, accent, contrast, spacing, size, roundness, depth, weight, texture, font, motion — each theme interprets through its own physics.
+Themes are functions: axes in, CSS out. Default axes: shade, accent, spacing, size, weight, roundness. Skeu adds: contrast, depth, relief, bevel, grid. See [axes](docs/axes.md).
 
 
 ## [Options](docs/options.md)
 
 ```js
-settings(controls, {
+settings(schema, {
   container: '#app',
   title: 'Settings',
-  theme: soft({ shade: '#abc' }),
+  theme: skeu({ shade: '#2a2a2a' }),
   collapsed: false,
   persist: 'my-app',
-  key: 'h',
   onChange: (state) => console.log(state)
 })
 ```
 
 ## [Signals](docs/signals.md)
 
-State is signals store. Subscribe via `effect`, pass signals as values or themes, swap implementation via `use()`.
+State is a signals store. Subscribe via `effect`, swap signal implementation via `use()`.
 
 ```js
 import settings, { effect } from 'settings-panel'
@@ -112,6 +99,6 @@ use(signals)
 
 ## Alternatives
 
-<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [lil-gui](https://github.com/georgealways/lil-gui) · [dat.gui](https://github.com/dataarts/dat.gui)</sup>
+<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [lil-gui](https://github.com/georgealways/lil-gui) · [dat.gui](https://github.com/dataarts/dat.gui) · [control-panel](https://github.com/freeman-lab/control-panel) · [oui](https://github.com/wearekuva/oui)</sup>
 
 <p align=center><a href="https://github.com/krsnzd/license/">ॐ</a></p>
