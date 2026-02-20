@@ -6,7 +6,7 @@ import control from './control.js'
 
 const templates = {
   dropdown: `
-    <select :value="value" :onchange="e => set(e.target.value)">
+    <select :id="label || null" :value="value" :onchange="e => set(e.target.value)">
       <option :each="opt in options" :value="opt.value" :selected="opt.value == value" :text="opt.label"></option>
     </select>
   `,

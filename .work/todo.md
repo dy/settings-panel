@@ -24,7 +24,7 @@
 * [x] make slider native option sync (defines form of slider) - need to load properly
 * [x] close / fold button
 * [x] title
-* [ ] animations
+* [x] animations
 * [x] better weight control (slider weight)
 
 * [ ] Themes

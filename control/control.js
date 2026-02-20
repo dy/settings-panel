@@ -22,10 +22,10 @@ export default function control(sig, opts) {
   const wrapper = document.createElement('div')
 
   wrapper.innerHTML = `<div class="${classes}">
-      <span class="s-label-group" :hidden="label === false && !hint">
+      <label class="s-label-group" :for="label || null" :hidden="label === false && !hint">
         <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
         <span class="s-hint" :text="hint" :hidden="!hint"></span>
-      </span>
+      </label>
       <fieldset class="s-input" :disabled="disabled"></fieldset>
     </div>`
   wrapper.querySelector('.s-input').innerHTML = template

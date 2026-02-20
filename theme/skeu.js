@@ -236,7 +236,7 @@ export default function skeu({
     .s-marks { display: flex; }
     .s-mark {
       position: absolute;
-      width: calc(0.33 * var(--u));
+      width: 2px;
 
       height: calc(var(--u) * 1.5); top: 50%;
       background: linear-gradient(var(--bh), var(--bh)) var(--bg);

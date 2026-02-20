@@ -4,7 +4,7 @@
 
 import control from './control.js'
 
-const tpl = `<textarea :value="value" :placeholder="placeholder" :readonly="readonly"></textarea>`
+const tpl = `<textarea :id="label || null" :value="value" :placeholder="placeholder" :readonly="readonly"></textarea>`
 
 export default (sig, opts = {}) => {
   const { placeholder = '', readonly = false, rows = 3, variant, ...rest } = opts

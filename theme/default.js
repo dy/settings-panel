@@ -80,7 +80,9 @@ export default function base({
   accent-color: var(--accent);
   padding: calc(var(--u) * (1 + 2 * var(--spacing)));
   border-radius: var(--r);
-  font: ${round(weight)} ${fontSize}px system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: ${weight};
+  font-size: ${fontSize}px;
   line-height: var(--lh);
   min-width: 28ch;
   max-width: calc(var(--u) * 100);
@@ -166,11 +168,31 @@ export default function base({
   /* ── Boolean ── */
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] {
-      width: var(--lh); height: var(--lh);
+    label { display: flex; cursor: pointer; }
+    input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .s-track {
+      width: calc(var(--u) * 10); height: calc(var(--u) * 5);
       margin: calc(var(--u) * var(--spacing)) 0;
-      cursor: pointer;
+      background: color-mix(in oklch, var(--bg), ${fg} 20%);
+      border: 1px solid color-mix(in oklch, var(--bg), ${border} 15%);
+      border-radius: 999px;
+      position: relative; cursor: pointer;
+      transition: background-color 200ms;
+      &::after {
+        content: ''; position: absolute;
+        width: calc(var(--u) * 4); height: calc(var(--u) * 4);
+        background: ${dark ? '#fff' : '#fff'};
+        border-radius: 50%;
+        top: calc(var(--u) * .5); left: calc(var(--u) * .5);
+        transition: transform 200ms;
+        box-shadow: 0 1px 2px color-mix(in oklch, ${fg}, transparent 75%);
+      }
     }
+    &:has(input:checked) .s-track {
+      background: var(--accent); border-color: var(--accent);
+      &::after { transform: translateX(calc(var(--u) * 5)); }
+    }
+    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
 
   /* ── Number ── */
@@ -335,8 +357,10 @@ export default function base({
     display: flex; flex-direction: column; gap: calc(var(--u) * 2 * var(--spacing));
   }
 
+  /*
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0ms !important; }
   }
+  */
 }`
 }

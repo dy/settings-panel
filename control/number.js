@@ -6,7 +6,7 @@ import control from './control.js'
 
 const template = `
   <button class="s-step s-dec" :onclick="dec" :disabled="value <= min">−</button>
-  <input type="number" :value="value" :min="min" :max="max" :step="step" :oninput="e => set(+e.target.value)" />
+  <input type="number" :id="label || null" :value="value" :min="min" :max="max" :step="step" :oninput="e => set(+e.target.value)" />
   <button class="s-step s-inc" :onclick="inc" :disabled="value >= max">+</button>
 `
 

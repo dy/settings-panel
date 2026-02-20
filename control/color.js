@@ -7,7 +7,7 @@ import control from './control.js'
 const templates = {
   picker: `
     <span class="s-color-input">
-      <input type="color" :value="value" :oninput="e => set(e.target.value)" />
+      <input type="color" :id="label || null" :value="value" :oninput="e => set(e.target.value)" />
       <input type="text" :value="value" :oninput="e => set(e.target.value)" spellcheck="false" />
     </span>
   `,
