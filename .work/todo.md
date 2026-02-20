@@ -18,6 +18,8 @@
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
 
+* [ ] showcase page
+
 * [ ] pasting code must update axis values in JSON
 * [ ] make slider native option sync (defines form of slider) - need to load properly
 * [x] close / fold button
@@ -42,8 +44,8 @@
 * [ ] README: "10 themes" → only default + skeu exist
 * [ ] README: "11 axes" → actual params are shade/accent/spacing/size/weight/roundness + skeu adds contrast/depth/relief/grid
 * [ ] README: theme table lists 8 nonexistent themes (soft, swiss, classic, terminal, industrial, brutal, glass, retro)
-* [ ] README: `import soft from 'settings-panel/theme/soft'` → soft doesn't exist
-* [ ] README: `lightness: 0.13` → param is `shade` (hex color), not `lightness` (0-1)
+* [x] README: `import soft from 'settings-panel/theme/soft'` → soft doesn't exist
+* [x] README: `lightness: 0.13` → param is `shade` (hex color), not `lightness` (0-1)
 * [ ] README: `key: 'h'` option → not implemented
 * [ ] README: `color format: 'hsl'` → not implemented
 * [ ] README: `0.5` listed under number inference → actually infers as slider

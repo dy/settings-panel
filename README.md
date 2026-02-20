@@ -54,7 +54,6 @@ settings({
 
 | Theme | Soul |
 |-------|------|
-| `soft` | Gentle shadows, generous radius. The safe default. |
 | `swiss` | No shadows. Typography carries all hierarchy. |
 | `classic` | Serif. Rule lines. Print margins. Centuries of wisdom. |
 | `terminal` | Monospace. Zero radius. Max density. Every pixel earns it. |
@@ -67,14 +66,14 @@ settings({
 
 ```js
 import settings from 'settings-panel'
-import soft from 'settings-panel/theme/soft'
+import skeu from 'settings-panel/theme/skeu'
 
 settings(controls, {
-  theme: soft({ lightness: 0.13, accent: '#8855cc', spacing: 0.3 })
+  theme: skeu({ shade: 0.13, accent: '#8855cc', spacing: 0.3 })
 })
 ```
 
-[Theme axes](docs/axes.md): lightness, accent, contrast, spacing, size, roundness, depth, weight, texture, font, motion — each theme interprets through its own physics.
+[Theme axes](docs/axes.md): shade, accent, contrast, spacing, size, roundness, depth, weight, texture, font, motion — each theme interprets through its own physics.
 
 
 ## [Options](docs/options.md)
@@ -83,7 +82,7 @@ settings(controls, {
 settings(controls, {
   container: '#app',
   title: 'Settings',
-  theme: soft({ lightness: 0.13 }),
+  theme: soft({ shade: '#abc' }),
   collapsed: false,
   persist: 'my-app',
   key: 'h',
