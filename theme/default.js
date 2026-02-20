@@ -301,7 +301,7 @@ export default function base({
     padding: calc(var(--u) * 2) calc(var(--u) * 4);
     background: var(--accent); color: white; border: none;
     border-radius: var(--r);
-    transition: all 140ms;
+    transition: background-color 140ms, filter 140ms;
     &:hover { filter: brightness(1.2); }
     &:active { filter: brightness(.95); }
     &:disabled { opacity: .35; cursor: not-allowed; }

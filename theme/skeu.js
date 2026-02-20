@@ -97,7 +97,7 @@ export default function skeu({
     text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${isDark ? '--bl' : '--bh'});
     filter: brightness(1);
     transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms;
-    &:hover { filter: brightness(1.1); color: var(${isDark ? '--text-dark' : '--text-light'}); }
+    &:hover { filter: brightness(1.2); color: var(${isDark ? '--text-dark' : '--text-light'}); }
     &:active { filter: brightness(.95); box-shadow: inset 0 var(--bevel) var(--bh), inset 0 0 0 var(--bevel) var(--bh), 0 var(--bevel) 0 0 var(--bl); }
     &:disabled { opacity: .35; cursor: not-allowed; }
     &.selected, &[aria-pressed="true"] {
