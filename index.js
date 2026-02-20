@@ -49,7 +49,7 @@ export default function settings(schema, options = {}) {
     container = document.body,
     theme = base,
     title,
-    collapsed = false,
+    collapsed,
     persist = false,
     onchange = options.onChange || options.onchange
   } = options
@@ -59,14 +59,16 @@ export default function settings(schema, options = {}) {
   const style = theme ? document.createElement('style') : null
   if (style) document.head.appendChild(style)
 
-  // Create panel container (foldable <details> when title provided)
-  const panel = document.createElement(title ? 'details' : 'div')
+  // Create panel container (foldable <details> when collapsed is boolean)
+  const foldable = title && typeof collapsed === 'boolean'
+  const panel = document.createElement(foldable ? 'details' : 'div')
   panel.className = 's-panel'
   if (title) {
-    if (!collapsed) panel.open = true
-    const summary = document.createElement('summary')
-    summary.textContent = title
-    panel.appendChild(summary)
+    if (foldable) { if (!collapsed) panel.open = true }
+    const heading = document.createElement(foldable ? 'summary' : 'div')
+    heading.className = foldable ? '' : 's-panel-title'
+    heading.textContent = title
+    panel.appendChild(heading)
   }
   const body = document.createElement('div')
   body.className = 's-panel-content'

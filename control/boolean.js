@@ -5,8 +5,10 @@
 import control from './control.js'
 
 const template = `
-  <input type="checkbox" :checked="value" :onchange="e => set(e.target.checked)" />
-  <span class="s-track"></span>
+  <label>
+    <input type="checkbox" :checked="value" :onchange="e => set(e.target.checked)" />
+    <span class="s-track"></span>
+  </label>
 `
 
 export default (sig, opts = {}) => {

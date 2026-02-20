@@ -47,7 +47,7 @@ export default function skeu({
   const { L: accentL, C: accentC, H: accentH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
-  const u = Number.isFinite(unit) ? unit : lerp(3, 5, clamp((size - 0.5) / 1.5, 0, 1))
+  const u = Number.isFinite(unit) ? unit : lerp(3, 5, clamp(size / 2, 0, 1))
 
   // Layered shadow — exponential y/blur, negative spread
   const sc = $(0.108, min(surfaceC + 0.1, 0.27), surfaceH, dark ? .15 : .12)
@@ -73,7 +73,7 @@ export default function skeu({
   const raise = (d, bg = d < 0 ? 'var(--sunken)' : 'var(--bg)') => {
     const relf = d < 0 ? 'var(--concave)' : 'var(--convex)'
     return `background-color: ${bg};
-    ${d ? `background-image: ${relf}; background-blend-mode: overlay, normal;` : ''}
+    ${d ? `background-image: ${relf};` : ''}
     outline: var(--bevel) solid ${d < 0 ? 'var(--bh)' : 'var(--bl)'};
     ${d < 0 ?
         `box-shadow: inset 0 0 0 var(--bevel) var(--bl), inset 0 var(--bevel) var(--bl), 0 var(--bevel) 0 0 var(--bh);`
@@ -95,14 +95,14 @@ export default function skeu({
     cursor: pointer;
     font: inherit;
     text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${isDark ? '--bl' : '--bh'});
-    transition: background 140ms, color 140ms, box-shadow 140ms, filter 140ms;
-    &:hover { filter: brightness(1.2); color: var(${isDark ? '--text-dark' : '--text-light'}); }
-    &:active { filter: brightness(.95); }
+    filter: brightness(1);
+    transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms;
+    &:hover { filter: brightness(1.1); color: var(${isDark ? '--text-dark' : '--text-light'}); }
+    &:active { filter: brightness(.95); box-shadow: inset 0 var(--bevel) var(--bh), inset 0 0 0 var(--bevel) var(--bh), 0 var(--bevel) 0 0 var(--bl); }
     &:disabled { opacity: .35; cursor: not-allowed; }
     &.selected, &[aria-pressed="true"] {
       --bh: ${$(1, min(accentC * 1.08, 1 - accentL), accentH, clamp(contrast * lerp(.1, .2, accentL), 0, 1))};
       ${raise(-1, 'var(--accent)')}
-      outline: none;
       color: var(${accentDark ? '--text-dark' : '--text-light'});
       text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${accentDark ? '--bl' : '--bh'});
     }
@@ -125,8 +125,8 @@ export default function skeu({
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
   --bg: ${$(surfaceL)};
-  --sunken: ${$(surfaceL - lerp(.108, 0.1728, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
-  --raised: ${$(min(1, surfaceL + lerp(0.054, 0.1728, contrast)), surfaceC, surfaceH)};
+  --sunken: ${$(max(0.16, surfaceL - lerp(.027, 0.04, contrast)), surfaceC * 1.08, surfaceH)};
+  --raised: ${$(min(1, surfaceL + lerp(0.054, 0.108, contrast)), surfaceC, surfaceH)};
   --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
   --focus: ${$(accentL, accentC, accentH, 0.35)};
   --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
@@ -137,14 +137,14 @@ export default function skeu({
   --text-dark: ${$(max(surfaceL, accentL, lerp(.9, 1, contrast)))};
   --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
   --text-dim: ${$(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast)))};
-  --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.95, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
+  --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
   --weight: ${weight / 1000};
   --bevel: ${bevel}px;
   --u: ${u}px;
   --spacing: ${spacing};
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 3);
-  --ri: calc(var(--u) * (-1.5 + var(--roundness) * 3));
+  --ri: calc(var(--u) * max(var(--roundness), -1.5 + var(--roundness) * 3));
   --thumb: calc(var(--u) * ${roundness >= 1 ? 4 : 2});
 
   color: var(--text);
@@ -173,20 +173,22 @@ export default function skeu({
 
   /* ── Boolean (custom toggle) ── */
   .s-boolean {
-    input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+    label { display: flex; cursor: pointer; }
+    input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track {
       width: calc(var(--u) * 10); height: calc(var(--u) * 5);
+      margin: calc(var(--u) * var(--spacing)) 0;
       ${raise(-1)}
       border: none; border-radius: 999px;
       position: relative; cursor: pointer;
-      transition: background 140ms;
+      transition: background-color 140ms, box-shadow 140ms, outline-color 140ms;
       &::after {
         content: ''; position: absolute;
         width: calc(var(--u) * 4); height: calc(var(--u) * 4);
         ${raise(max(depth, .3), thumbBg)}
         border: none; border-radius: 50%;
         top: calc(var(--u) * .5); left: calc(var(--u) * .5);
-        transition: transform 140ms;
+        transition: transform 140ms, box-shadow 140ms;
       }
     }
     &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -204,7 +206,7 @@ export default function skeu({
   /* ── Step buttons ── */
   .s-step {
     ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
-    border-radius: var(--r);
+    border-radius: var(--ri);
   }
 
   /* ── Slider (custom appearance) ── */
@@ -266,14 +268,18 @@ export default function skeu({
       transform: translateY(-50%); pointer-events: none;
     }
   }
-  .s-select.buttons button {
-    ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
-    font-weight: inherit;
-    font-size: smaller;
-    margin-left: 0;
-    border-radius: 0;
-    &:first-child { border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
-    &:last-child { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
+
+  .s-select.buttons {
+    .s-input { gap: var(--bevel); }
+    button {
+      ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
+      font-weight: inherit;
+      font-size: smaller;
+      margin-left: 0;
+      border-radius: 0;
+      &:first-child { border-top-left-radius: var(--ri); border-bottom-left-radius: var(--ri); }
+      &:last-child { border-top-right-radius: var(--ri); border-bottom-right-radius: var(--ri); }
+    }
   }
   .s-select.radio {
     label { color: var(--text-dim); opacity: 1; &.selected { color: var(--text); opacity: 1; } }
@@ -301,10 +307,8 @@ export default function skeu({
   }
 
   /* ── Panel title ── */
-  > summary {
-    color: var(--text);
-    &::after { background: var(--text-dim); }
-  }
+  > summary, > .s-panel-title { color: var(--text); }
+  > summary::after { background: var(--text-dim); }
 
   /* ── Folder ── */
   .s-folder > summary {

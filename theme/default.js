@@ -54,7 +54,7 @@ export default function base({
 } = {}) {
   accent = resolveAccent(accent, shade)
 
-  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp((size - 0.5) / 1.5, 0, 1))
+  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp((size) / 2, 0, 1))
   const fontSize = u * 3.5
   const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
@@ -91,10 +91,13 @@ export default function base({
 
   *[hidden] { display: none!important; }
 
-  > summary {
-    cursor: pointer; list-style: none; display: flex; align-items: center;
+  > summary, > .s-panel-title {
+    list-style: none; display: flex; align-items: center;
     font-weight: ${min(round(weight) + 300, 900)}; font-size: larger;
     &::-webkit-details-marker { display: none; }
+  }
+  > summary {
+    cursor: pointer;
     &::after {
       content: ''; width: 16px; height: 16px; margin-left: auto; flex-shrink: 0;
       background: currentColor;
@@ -121,7 +124,7 @@ export default function base({
     display: flex; flex-direction: column;
     gap: var(--padding);
   }
-  &:is(details) > .s-panel-content {
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
     padding-top: calc(var(--u) * (1 + 2 * var(--spacing)));
   }
 
@@ -163,7 +166,11 @@ export default function base({
   /* ── Boolean ── */
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] { width: var(--lh); height: var(--lh); margin: 0; cursor: pointer; }
+    input[type="checkbox"] {
+      width: var(--lh); height: var(--lh);
+      margin: calc(var(--u) * var(--spacing)) 0;
+      cursor: pointer;
+    }
   }
 
   /* ── Number ── */
@@ -171,11 +178,11 @@ export default function base({
 
   /* ── Secondary button base ── */
   .s-step, .s-select.buttons button, .s-button.secondary button, .s-button button.secondary {
+    background-color: color-mix(in oklch, var(--bg), ${fg} 5%);
     border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
-  }
-  .s-step, .s-select.buttons button {
-    background: color-mix(in oklch, var(--bg), ${fg} 5%);
-    &:active:not(:disabled) { background: color-mix(in oklch, var(--bg), ${fg} 10%); }
+    transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms, border-color 140ms;
+    &:hover { filter: brightness(1.2); }
+    &:active { filter: brightness(.95); }
   }
 
   /* ── Step buttons ── */
@@ -294,13 +301,10 @@ export default function base({
     padding: calc(var(--u) * 2) calc(var(--u) * 4);
     background: var(--accent); color: white; border: none;
     border-radius: var(--r);
-    &:hover { filter: brightness(1.1); }
-    &:active { filter: brightness(.9); }
+    transition: all 140ms;
+    &:hover { filter: brightness(1.2); }
+    &:active { filter: brightness(.95); }
     &:disabled { opacity: .35; cursor: not-allowed; }
-  }
-  .s-button.secondary button, .s-button button.secondary {
-    background: transparent; color: inherit;
-    &:hover { color: var(--accent); border-color: var(--accent); filter: none; }
   }
   .s-select.buttons button.selected,
   .s-button.secondary button.selected, .s-button button.secondary.selected {

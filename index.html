@@ -63,7 +63,9 @@
       const randHex = () => '#' + Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('')
 
       const schema = {
+        foldable: false,
         theme: { type: 'select', options: ['default', 'skeu'], value: 'skeu' },
+
         'params.shade': '#f7f7f7',
         'params.accent': '#2967fa',
         'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 50, marks: true, snap: true },
@@ -74,8 +76,8 @@
         'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
         'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
         'params.size': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
-
         'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+
         code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
         actions: { type: 'button', label: '', variant: 'group', buttons: {
           'Random': { variant: 'secondary', onclick: () => randomize() },
@@ -84,19 +86,22 @@
       }
 
       let state
-      let curTheme
+      let curTheme, curFoldable
 
       function create() {
+        const foldable = state?.foldable ?? false
         state?.[Symbol.dispose]()
         state = settings(schema, {
           title: 'Settings',
+          collapsed: foldable ? false : undefined,
           container: '#panel',
           theme: (s) => themes[s.theme](getParams(s)),
           persist: 'settings-panel',
           onchange(s) {
             s.code = JSON.stringify(getParams(s), null, 2)
-            if (s.theme !== curTheme) {
+            if (s.theme !== curTheme || s.foldable !== curFoldable) {
               curTheme = s.theme
+              curFoldable = s.foldable
               requestAnimationFrame(create)
               return
             }
@@ -104,6 +109,7 @@
           }
         })
         curTheme = state.theme
+        curFoldable = state.foldable
         state.code = JSON.stringify(getParams(state), null, 2)
         syncBg()
         syncAxes(curTheme)
@@ -136,7 +142,7 @@
         const supported = axes[theme]
         const panel = document.querySelector('.s-panel')
         if (!panel) return
-        for (const el of panel.children) {
+        for (const el of panel.querySelectorAll('[data-key]')) {
           const key = el.dataset.key
           if (!paramKeys.includes(key)) continue
           const input = el.querySelector('.s-input')
