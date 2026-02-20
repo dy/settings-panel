@@ -7,7 +7,7 @@
   * [x] centralize
   * [x] size/spacing: should be well-done, not hardcoded
   * [x] log ticks: should match datalist properly
-  * [ ] on par with skeu: swap is flawless
+  * [x] on par with skeu: swap is flawless
 * [ ] Theme: Skeu
   * [x] tweets best practices
   * [x] depth
@@ -18,14 +18,14 @@
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
 
-* [ ] showcase page
+* [ ] demo showcase page
 
 * [ ] pasting code must update axis values in JSON
-* [ ] make slider native option sync (defines form of slider) - need to load properly
+* [x] make slider native option sync (defines form of slider) - need to load properly
 * [x] close / fold button
 * [x] title
 * [ ] animations
-* [ ] better weight control (slider weight)
+* [x] better weight control (slider weight)
 * [ ] Theme: Figma
 * [ ] Theme: Neu
 * [ ] Theme: Studio (figma, control-panel, mo)
@@ -34,8 +34,8 @@
 * [ ] Theme: Brutal: Raw, harsh, exposed structure, anti-polish
 * [ ] ~12 core high-quality controls
   * [ ] make sure they properly update state
-* [ ] demo with showcase and self-customization
-* [ ] research opening strategies
+* [x] demo of self-customization
+* [ ] research opening menu strategies
 * [ ] `help` property for tooltip
 * [x] `disabled` param
 
@@ -63,11 +63,9 @@
 * [ ] dat.gui+
 * [ ] Apples
 * [ ] refactoring.ui
-* [ ]
 
 ## Ideas
 
-* [ ] contrast = roundness contrast as well? (rounded button, square shape)
 * [ ] breath: pulse on focused controls, shadow oscillation on hover
 * [ ] spring?: sliders overshoot
 * [ ] reflected light?

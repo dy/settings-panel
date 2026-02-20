@@ -11,8 +11,8 @@
  *   snap - snap to marks during drag: false (default), true if step provided, or number (% threshold)
  *   track - CSS gradient for custom track background
  *   haptic - vibrate on mark crossings during drag: true (10ms tick) or ms duration
- *   readout - value display: true (default), false (hidden), 'input' (editable),
- *            or (value) → string for custom display
+ *   readout - value display: true/'input' (editable, default), 'readonly' (text),
+ *            'tooltip' (above thumb), (value) → string (custom text), false/null (hidden)
  *   unit - suffix appended to displayed value (e.g. 'px', '%', 'ms')
  *   format - (value) → string, overrides default auto-precision display
  */
@@ -26,9 +26,10 @@ const template = `
     <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
+    <span class="s-tooltip" :if="showTooltip" :style="'left:' + progress + '%'" :text="readoutText(actual)"></span>
   </span>
-  <span class="s-readout" :if="showReadout" :text="readoutText(actual)"></span>
-  <input type="text" inputmode="decimal" class="s-readout" :if="readout === 'input'" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" />
+  <span class="s-readout" :if="showReadonly" :text="readoutText(actual)"></span>
+  <input type="text" inputmode="decimal" class="s-readout" :if="showInput" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" />
 `
 
 const defaultFormat = v => v >= 1000 ? v.toFixed(0) : v >= 100 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3)
@@ -202,9 +203,11 @@ export default (sig, opts = {}) => {
     sig.value = clean(Math.min(max, Math.max(min, e.key === 'ArrowUp' || e.key === 'ArrowRight' ? v + s : v - s)))
   }
 
-  // Readout: true → span, 'input' → editable, fn → custom span, false → hidden
+  // Readout: true/'input' → editable, 'readonly' → span, 'tooltip' → above thumb, fn → custom span, false/null → hidden
   const readoutFn = typeof readout === 'function' ? readout : null
-  const showReadout = readout === true || readoutFn
+  const showInput = readout === true || readout === 'input'
+  const showReadonly = readout === 'readonly' || readoutFn
+  const showTooltip = readout === 'tooltip'
   const readoutText = readoutFn || format
 
   const listId = `s-${Math.random().toString(36).slice(2)}`
@@ -214,7 +217,7 @@ export default (sig, opts = {}) => {
     ...rest,
     type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, track, listId, nativeTicks,
     dMin, dMax, dStep, set, setActual, stepKey, grab, release,
-    readout, showReadout, readoutText, format
+    readout, showInput, showReadonly, showTooltip, readoutText, format
   })
 
   // el is now in live DOM (panel mounted before controls) — detect sync

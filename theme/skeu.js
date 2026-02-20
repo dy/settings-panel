@@ -52,7 +52,7 @@ export default function skeu({
   // Layered shadow — exponential y/blur, negative spread
   const sc = $(0.108, min(surfaceC + 0.1, 0.27), surfaceH, dark ? .15 : .12)
   const shadow = (d) => !d ? '' : ', ' + [1, 2, 4, 8, 16].map(s => {
-    const v = +(s * d * (1 + d * .5)).toFixed(1)
+    const v = +(s * d * (.3 + d * .05)).toFixed(1)
     return `0 ${v}px ${v}px ${+(-v / 3).toFixed(1)}px ${sc}`
   }).join(', ')
 
@@ -70,7 +70,7 @@ export default function skeu({
 
   // ── Surface mixin ──
   // raise(d, bg) — d<0 sunken, d>0 raised, 0 flat
-  const raise = (d, bg = d < 0 ? 'var(--input)' : 'var(--bg)') => {
+  const raise = (d, bg = d < 0 ? 'var(--sunken)' : 'var(--bg)') => {
     const relf = d < 0 ? 'var(--concave)' : 'var(--convex)'
     return `background-color: ${bg};
     ${d ? `background-image: ${relf}; background-blend-mode: overlay, normal;` : ''}
@@ -83,11 +83,11 @@ export default function skeu({
   }
 
   // Button base fragment — pass color components to derive bevel/text from any color
-  const btn = (L = accentL, C = accentC, H = accentH) => {
+  const btn = (L = accentL, C = accentC, H = accentH, bg) => {
     const isDark = L < .6
     return `
     --bh: ${$(1, min(C * 1.08, 1 - L), H, clamp(contrast * lerp(.1, .2, L), 0, 1))};
-    ${raise(max(depth, .3))}
+    ${raise(max(depth, .3), bg)}
     outline: none;
     border: none;
     border-radius: var(--ri);
@@ -96,22 +96,25 @@ export default function skeu({
     font: inherit;
     text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${isDark ? '--bl' : '--bh'});
     transition: background 140ms, color 140ms, box-shadow 140ms, filter 140ms;
-    &:hover { filter: brightness(1.05); }
+    &:hover { filter: brightness(1.2); color: var(${isDark ? '--text-dark' : '--text-light'}); }
     &:active { filter: brightness(.95); }
     &:disabled { opacity: .35; cursor: not-allowed; }
     &.selected, &[aria-pressed="true"] {
+      --bh: ${$(1, min(accentC * 1.08, 1 - accentL), accentH, clamp(contrast * lerp(.1, .2, accentL), 0, 1))};
       ${raise(-1, 'var(--accent)')}
+      outline: none;
       color: var(${accentDark ? '--text-dark' : '--text-light'});
       text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${accentDark ? '--bl' : '--bh'});
-    }`
+    }
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 1; }`
   }
 
   // Thumb fragment (shared between webkit/moz)
+  const thumbBg = dark ? 'var(--text-dark)' : 'var(--raised)'
   const thumb = `
   height: calc(var(--u) * 4);
   width: var(--thumb);
-  ${raise(max(depth, .3))}
-  background-color: var(--text-dark);
+  ${raise(max(depth, .3), thumbBg)}
   border: none;
   border-radius: ${!roundness ? `0` : roundness <= .5 ? 'calc(var(--u) / 2)' : '999px'};
   cursor: grab; z-index: 1; position: relative;`
@@ -122,7 +125,8 @@ export default function skeu({
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
   --bg: ${$(surfaceL)};
-  --input: ${$(surfaceL - 0.027 - lerp(.0, 0.054, depth), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
+  --sunken: ${$(surfaceL - lerp(.108, 0.1728, contrast), surfaceC * 1.08, surfaceH, lerp(0.25, 0.15, relief))};
+  --raised: ${$(min(1, surfaceL + lerp(0.054, 0.1728, contrast)), surfaceC, surfaceH)};
   --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
   --focus: ${$(accentL, accentC, accentH, 0.35)};
   --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
@@ -162,11 +166,10 @@ export default function skeu({
     ${raise(-1)}
     border: none; border-radius: var(--ri);
     color: var(--text);
-    transition: border-color 140ms, box-shadow 140ms;
+    transition: outline-color 140ms;
     &::placeholder { color: var(--text-dim); opacity: .6; }
-    &:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
-  button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus); }
 
   /* ── Boolean (custom toggle) ── */
   .s-boolean {
@@ -180,12 +183,13 @@ export default function skeu({
       &::after {
         content: ''; position: absolute;
         width: calc(var(--u) * 4); height: calc(var(--u) * 4);
-        ${raise(max(depth, .3))}
+        ${raise(max(depth, .3), thumbBg)}
         border: none; border-radius: 50%;
         top: calc(var(--u) * .5); left: calc(var(--u) * .5);
         transition: transform 140ms;
       }
     }
+    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
     &:has(input:checked) .s-track {
       background-color: var(--accent);
       &::after { transform: translateX(calc(var(--u) * 5)); box-shadow: 0 0 0 2px var(--bh); }
@@ -199,7 +203,7 @@ export default function skeu({
 
   /* ── Step buttons ── */
   .s-step {
-    ${btn(surfaceL, surfaceC, surfaceH)}
+    ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
     border-radius: var(--r);
   }
 
@@ -208,7 +212,7 @@ export default function skeu({
     input[type="range"] {
       ${raise(-1)}
       --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
-      background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--input) var(--fill)));
+      background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--sunken) var(--fill)));
       border: none; border-radius: var(--ri);
       height: calc(var(--u) * 1.5);
       overflow: visible;
@@ -216,6 +220,11 @@ export default function skeu({
       -webkit-appearance: none;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }
+      &:hover::-webkit-slider-thumb { filter: brightness(1.2); }
+      &:hover::-moz-range-thumb { filter: brightness(1.2); }
+      &:active::-webkit-slider-thumb { filter: brightness(.95); cursor: grabbing; }
+      &:active::-moz-range-thumb { filter: brightness(.95); cursor: grabbing; }
+      &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       &::-webkit-slider-container { appearance: none; }
     }
     datalist { display: none; }
@@ -239,6 +248,9 @@ export default function skeu({
     .s-readout {
       color: var(--text-dim); opacity: 1;
     }
+    .s-tooltip {
+      color: var(--text-dim); opacity: 1;
+    }
   }
 
   /* ── Select (custom arrow) ── */
@@ -255,7 +267,7 @@ export default function skeu({
     }
   }
   .s-select.buttons button {
-    ${btn(surfaceL, surfaceC, surfaceH)}
+    ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
     font-weight: inherit;
     font-size: smaller;
     margin-left: 0;
@@ -269,7 +281,7 @@ export default function skeu({
 
   /* ── Color ── */
   .s-color-input {
-    input[type="color"] { background: transparent; }
+    input[type="color"] { background: transparent; &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: var(--bevel) solid var(--bh); border-radius: var(--ri); }
   }
@@ -282,11 +294,10 @@ export default function skeu({
 
   /* ── Button (action) ── */
   .s-button button {
-    ${btn()}
-    background-color: var(--accent);
+    ${btn(accentL, accentC, accentH, 'var(--accent)')}
   }
-  .s-button.secondary button {
-    ${btn(surfaceL, surfaceC, surfaceH)}
+  .s-button.secondary button, .s-button button.secondary {
+    ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
   }
 
   /* ── Panel title ── */

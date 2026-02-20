@@ -170,7 +170,7 @@ export default function base({
   .s-number input[type="number"] { width: calc(var(--u) * 20); text-align: right; }
 
   /* ── Secondary button base ── */
-  .s-step, .s-select.buttons button, .s-button.secondary button {
+  .s-step, .s-select.buttons button, .s-button.secondary button, .s-button button.secondary {
     border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
   }
   .s-step, .s-select.buttons button {
@@ -218,6 +218,12 @@ export default function base({
       font-size: smaller;
       padding-left: var(--padding);
       padding-right: 0;
+    }
+    .s-tooltip {
+      position: absolute; top: 0;
+      transform: translate(-50%, calc(-100% - var(--u)));
+      font-size: smaller; white-space: nowrap;
+      pointer-events: none;
     }
   }
 
@@ -292,12 +298,12 @@ export default function base({
     &:active { filter: brightness(.9); }
     &:disabled { opacity: .35; cursor: not-allowed; }
   }
-  .s-button.secondary button {
+  .s-button.secondary button, .s-button button.secondary {
     background: transparent; color: inherit;
     &:hover { color: var(--accent); border-color: var(--accent); filter: none; }
   }
   .s-select.buttons button.selected,
-  .s-button.secondary button.selected {
+  .s-button.secondary button.selected, .s-button button.secondary.selected {
     background: var(--accent); color: white; border-color: transparent;
   }
 
