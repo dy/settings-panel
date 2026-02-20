@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>settings-panel</title>
+    <!-- <script type="importmap">
+    {
+      "imports": {
+        "sprae": "https://esm.sh/sprae@12",
+        "sprae/store": "https://esm.sh/sprae@12/store"
+      }
+    }
+    </script> -->
+    <script type="importmap">
+    {
+      "imports": {
+        "sprae": "../node_modules/sprae/sprae.js",
+        "sprae/store": "../node_modules/sprae/store.js"
+      }
+    }
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui;
+        /* Derive from panel's --bg, darken by 0.1 L */
+        background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="panel"></div>
+
+    <script type="module">
+      import settings from '../index.js'
+      import base from '../theme/default.js'
+      import skeu from '../theme/skeu.js'
+
+      const themes = { default: base, skeu }
+      const axes = {
+        default: ['shade', 'accent', 'spacing', 'size', 'weight', 'roundness'],
+        skeu: ['shade', 'accent', 'spacing', 'size', 'weight', 'roundness', 'contrast', 'depth', 'relief', 'bevel', 'grid'],
+      }
+
+      // Param keys (derived from schema prefix)
+      const paramKeys = ['shade', 'accent', 'weight', 'contrast', 'relief', 'depth', 'roundness', 'spacing', 'size', 'bevel', 'grid']
+      const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
+
+      const schema = {
+        // Theme
+        theme: { type: 'select', options: ['default', 'skeu'], value: 'default' },
+
+        // Theme params
+        // params: { type: 'folder', label: 'Params' },
+        'params.shade': '#f7f7f7',
+        'params.accent': '#2967fa',
+        'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 10, marks: true, snap: true, readout: 'input' },
+        'params.contrast': { type: 'slider', value: 0.1, min: 0, max: 1, step: 0.01, marks: true, curve: 2 },
+        'params.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
+        'params.relief': { type: 'slider', value: 0, min: 0, max: 1, step: 0.01 },
+        'params.depth': { type: 'slider', value: 0.5, min: 0, max: 2, step: 0.01 },
+        'params.roundness': { type: 'slider', value: 0.5, min: 0, max: 2, marks: true, step: 0.25 },
+        'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
+        'params.size': { type: 'slider', value: 0.5, min: 0, max: 1, marks: [0, 0.5, 1], step: 0.1, snap: true },
+        'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+
+        // Export
+        code: { type: 'textarea code', label: '', value: '', readonly: true },
+        copy: { type: 'button', label: '', text: 'Copy Theme', onClick: () => navigator.clipboard.writeText(state?.code) }
+      }
+
+      let state, curTheme
+      const style = document.head.appendChild(document.createElement('style'))
+
+      function create() {
+        state?.[Symbol.dispose]()
+        state = settings(schema, {
+          title: 'Settings',
+          container: '#panel',
+          theme: false,
+          persist: true,
+          onchange: (s) => {
+            const params = getParams(s)
+            s.code = JSON.stringify(params, null, 2)
+            if (s.theme !== curTheme) {
+              curTheme = s.theme
+              queueMicrotask(create)
+            } else {
+              style.textContent = themes[curTheme](params)
+            }
+            syncBg()
+          }
+        })
+        curTheme = state.theme
+        style.textContent = themes[curTheme](getParams(state))
+        syncBg()
+        syncAxes(curTheme)
+      }
+
+      function syncBg() {
+        const el = document.querySelector('.s-panel')
+        if (!el) return
+        const bg = getComputedStyle(el).getPropertyValue('--bg')
+        if (bg) document.documentElement.style.setProperty('--bg', bg)
+      }
+
+      function syncAxes(theme) {
+        const supported = axes[theme]
+        const panel = document.querySelector('.s-panel')
+        if (!panel) return
+        for (const el of panel.children) {
+          const key = el.dataset.key
+          if (!paramKeys.includes(key)) continue
+          const off = supported ? !supported.includes(key) : false
+          const input = el.querySelector('.s-input')
+          if (input) input.disabled = off
+        }
+      }
+
+      create()
+    </script>
+  </body>
+
+</html>
