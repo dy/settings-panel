@@ -5,3 +5,7 @@ demo
 *.png
 *.md
 images
+instances
+img
+gh-pages
+*.html

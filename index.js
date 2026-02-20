@@ -1,462 +1,250 @@
 /**
- * @module settings-panel
+ * settings-panel
+ * Controls designed for purpose that feel right.
  */
-'use strict';
 
-const Emitter = require('events').EventEmitter;
-const inherits = require('inherits');
-const extend = require('just-extend');
-const css = require('dom-css');
-const uid = require('get-uid');
-const fs = require('fs');
-const insertCss = require('insert-styles');
-const isPlainObject = require('is-plain-obj');
-const format = require('param-case');
-const px = require('add-px-to-style');
-const scopeCss = require('scope-css');
+import { effect } from 'sprae'
+import store, { _signals } from 'sprae/store'
+import base from './theme/default.js'
 
-module.exports = Panel
+// Import control factories
+import boolean from './control/boolean.js'
+import number from './control/number.js'
+import slider from './control/slider.js'
+import select from './control/select.js'
+import color from './control/color.js'
+import folder from './control/folder.js'
+import text from './control/text.js'
+import textarea from './control/textarea.js'
+import button from './control/button.js'
 
+export { boolean, number, slider, select, color, folder, text, textarea, button }
+export * from './signals.js'
 
-insertCss(fs.readFileSync(__dirname + '/index.css', 'utf-8'));
-
-
-/**
- * @constructor
- */
-function Panel (items, opts) {
-	if (!(this instanceof Panel)) return new Panel(items, opts)
-
-	extend(this, opts);
-
-	//ensure container
-	if (this.container === undefined) this.container = document.body || document.documentElement;
-
-	this.container.classList.add('settings-panel-container');
-
-	//create element
-	if (!this.id) this.id = uid();
-	this.element = document.createElement('div')
-	this.element.className = 'settings-panel settings-panel-' + this.id;
-	if (this.className) this.element.className += ' ' + this.className;
-
-	//create title
-	if (this.title) {
-		this.titleEl = this.element.appendChild(document.createElement('h2'));
-		this.titleEl.className = 'settings-panel-title';
-	}
-
-	//create collapse button
-	if (this.collapsible && this.title) {
-		// this.collapseEl = this.element.appendChild(document.createElement('div'));
-		// this.collapseEl.className = 'settings-panel-collapse';
-		this.element.classList.add('settings-panel--collapsible');
-		this.titleEl.addEventListener('click', () => {
-			if (this.collapsed) {
-				this.collapsed = false;
-				this.element.classList.remove('settings-panel--collapsed');
-			}
-			else {
-				this.collapsed = true;
-				this.element.classList.add('settings-panel--collapsed');
-			}
-		});
-	}
-
-	//state is values of items
-	this.state = {};
-
-	//items is all items settings
-	this.items = {};
-
-	//create fields
-	this.set(items);
-
-	if (this.container) {
-		this.container.appendChild(this.element)
-	}
-
-	//create theme style
-	this.update();
+// Control registry (folder excluded — it's a visual container, not a control)
+const controls = {
+  boolean,
+  number,
+  slider,
+  select,
+  color,
+  text,
+  textarea,
+  button,
 }
 
-inherits(Panel, Emitter);
-
-
 /**
- * Set item value/options
+ * Register a control type
  */
-Panel.prototype.set = function (name, value) {
-	//handle list of properties
-	if (Array.isArray(name)) {
-		let items = name;
-		items.forEach((item) => {
-			this.set(item.id || item.label, item);
-		});
-
-		return this;
-	}
-
-	//handle plain object
-	if (isPlainObject(name)) {
-		let items = name;
-		let list = [];
-		for (let key in items) {
-			if (!isPlainObject(items[key])) {
-				items[key] = {value: items[key]};
-			}
-			if (items[key].id == null) items[key].id = key;
-			list.push(items[key]);
-		}
-		list = list.sort((a, b) => (a.order||0) - (b.order||0));
-
-		return this.set(list);
-	}
-
-	//format name
-	name = name || '';
-	name = name.replace(/\-/g,'dash-');
-	name = format(name);
-
-	if (name) {
-		var item = this.items[name];
-		if (!item) item = this.items[name] = { id: name, panel: this };
-	}
-	//noname items should not be saved in state
-	else {
-		var item = {id: null, panel: this};
-	}
-
-	var initialValue = item.value;
-	var isBefore = item.before;
-	var isAfter = item.after;
-
-	if (isPlainObject(value)) {
-		item = extend(item, value);
-	}
-	else {
-		//ignore nothing-changed set
-		if (value === item.value && value !== undefined) return this;
-		item.value = value;
-	}
-
-	if (item.value === undefined) item.value = item.default;
-
-	if (name) this.state[name] = item.value;
-
-	//define label via name
-	if (item.label === undefined && item.id) {
-		item.label = item.id;
-	}
-
-	//detect type
-	if (!item.type) {
-		if (item.value && Array.isArray(item.value)) {
-			if (typeof item.value[0] === 'string') {
-				item.type = 'checkbox';
-			}
-			else {
-				item.type = 'interval'
-			}
-		} else if (item.scale || item.max || item.steps || item.step || typeof item.value === 'number') {
-			item.type = 'range'
-		} else if (item.options) {
-			if (Array.isArray(item.options) && item.options.join('').length < 90 ) {
-				item.type = 'switch'
-			}
-			else {
-				item.type = 'select'
-			}
-		} else if (item.format) {
-			item.type = 'color'
-		} else if (typeof item.value === 'boolean') {
-			item.type = 'checkbox'
-		} else if (item.content != null) {
-			item.type = 'raw'
-		} else {
-			if (item.value && (item.value.length > 140 || /\n/.test(item.value))) {
-				item.type = 'textarea'
-			}
-			else {
-				item.type = 'text'
-			}
-		}
-	}
-
-	var field, fieldId;
-
-	if (item.id != null) {
-		fieldId = 'settings-panel-field-' + item.id;
-		field = this.element.querySelector('#' + fieldId);
-	}
-
-	//create field container
-	if (!field) {
-		field = document.createElement('div');
-		if (fieldId != null) field.id = fieldId;
-		this.element.appendChild(field);
-		item.field = field;
-	}
-	else {
-		//clean previous before/after
-		if (isBefore) {
-			this.element.removeChild(field.prevSibling);
-		}
-		if (isAfter) {
-			this.element.removeChild(field.nextSibling);
-		}
-	}
-
-	field.className = 'settings-panel-field settings-panel-field--' + item.type;
-
-	if (item.orientation) field.className += ' settings-panel-orientation-' + item.orientation;
-
-	if (item.className) field.className += ' ' + item.className;
-
-	if (item.style) {
-		if (isPlainObject(item.style)) {
-			css(field, item.style);
-		}
-		else if (typeof item.style === 'string') {
-			field.style.cssText = item.style;
-		}
-	}
-	else if (item.style !== undefined) {
-		field.style = null;
-	}
-
-	if (item.hidden) {
-		field.setAttribute('hidden', true);
-	}
-	else {
-		field.removeAttribute('hidden');
-	}
-
-	//createe container for the input
-	let inputContainer = field.querySelector('.settings-panel-input');
-
-	if (!inputContainer) {
-		inputContainer = document.createElement('div');
-		inputContainer.className = 'settings-panel-input';
-		item.container = inputContainer;
-		field.appendChild(inputContainer);
-	}
-
-	if (item.disabled) field.className += ' settings-panel-field--disabled';
-
-	let components = this.components;
-	let component = item.component;
-
-	if (!component) {
-		item.component = component = (components[item.type] || components.text)(item);
-
-		if (component.on) {
-			component.on('init', (data) => {
-				item.value = data
-				if (item.id) this.state[item.id] = item.value;
-				let state = extend({}, this.state);
-
-				item.init && item.init(data, state)
-				this.emit('init', item.id, data, state)
-				item.change && item.change(data, state)
-				this.emit('change', item.id, data, state)
-			});
-
-			component.on('input', (data) => {
-				item.value = data
-				if (item.id) this.state[item.id] = item.value;
-				let state = extend({}, this.state);
-
-				item.input && item.input(data, state)
-				this.emit('input', item.id, data, state)
-				item.change && item.change(data, state)
-				this.emit('change', item.id, data, state)
-			});
-
-			component.on('action', () => {
-				let state = extend({}, this.state);
-				item.action && item.action(state);
-			});
-
-			component.on('change', (data) => {
-				item.value = data
-				if (item.id) this.state[item.id] = item.value;
-				let state = extend({}, this.state);
-
-				item.change && item.change(data, state)
-				this.emit('change', item.id, data, state)
-			});
-		}
-	}
-	else {
-		component.update(item);
-	}
-
-	//create field label
-	if (component.label !== false && (item.label || item.label === '')) {
-		let label = field.querySelector('.settings-panel-label');
-		if (!label) {
-			label = document.createElement('label')
-			label.className = 'settings-panel-label';
-			field.insertBefore(label, inputContainer);
-		}
-
-		label.htmlFor = item.id;
-		label.innerHTML = item.label;
-		label.title = item.title || item.label;
-	}
-
-	//handle after and before
-	// if (item.before) {
-	// 	let before = item.before;
-	// 	if (before instanceof Function) {
-	// 		before = item.before.call(item, component);
-	// 	}
-	// 	if (before instanceof HTMLElement) {
-	// 		this.element.insertBefore(before, field);
-	// 	}
-	// 	else {
-	// 		field.insertAdjacentHTML('beforebegin', before);
-	// 	}
-	// }
-	// if (item.after) {
-	// 	let after = item.after;
-	// 	if (after instanceof Function) {
-	// 		after = item.after.call(item, component);
-	// 	}
-	// 	if (after instanceof HTMLElement) {
-	// 		this.element.insertBefore(after, field.nextSibling);
-	// 	}
-	// 	else {
-	// 		field.insertAdjacentHTML('afterend', after);
-	// 	}
-	// }
-
-	//emit change
-	if (initialValue !== item.value) {
-		this.emit('change', item.id, item.value, this.state)
-	}
-
-	return this;
+export function register(type, factory) {
+  controls[type] = factory
+  return factory
 }
 
-
 /**
- * Return property value or a list
+ * Create settings panel
  */
-Panel.prototype.get = function (name) {
-	if (name == null) return this.state;
-	return this.state[name];
+export default function settings(schema, options = {}) {
+  const {
+    container = document.body,
+    theme = base,
+    title,
+    collapsed = false,
+    persist = false,
+    onchange = options.onChange || options.onchange
+  } = options
+
+  // Inject theme CSS
+  const style = theme ? document.createElement('style') : null
+  if (style) {
+    style.textContent = typeof theme === 'function' ? theme() : theme
+    document.head.appendChild(style)
+  }
+
+  // Create panel container (foldable <details> when title provided)
+  const panel = document.createElement(title ? 'details' : 'div')
+  panel.className = 's-panel'
+  if (title) {
+    if (!collapsed) panel.open = true
+    const summary = document.createElement('summary')
+    summary.textContent = title
+    panel.appendChild(summary)
+  }
+  const body = document.createElement('div')
+  body.className = 's-panel-content'
+  panel.appendChild(body)
+
+  // ── Parse flat schema: groups + fields ──
+  const entries = []
+  for (const [key, def] of Object.entries(schema)) {
+    const dot = key.indexOf('.')
+    if (dot > 0) {
+      // Grouped field: 'params.shade' → group 'params', key 'shade'
+      const group = key.slice(0, dot)
+      const shortKey = key.slice(dot + 1)
+      entries.push({ shortKey, group, field: infer(shortKey, def) })
+    } else {
+      const inferred = infer(key, def)
+      if (inferred.type === 'folder') {
+        entries.push({ shortKey: key, isGroup: true, field: inferred })
+      } else {
+        entries.push({ shortKey: key, field: inferred })
+      }
+    }
+  }
+
+  // ── Flat store from all non-group entries ──
+  const initials = {}
+  for (const e of entries) {
+    if (!e.isGroup) initials[e.shortKey] = e.field.value ?? null
+  }
+
+  // Merge persisted state
+  const storeKey = persist === true ? 'settings-panel' : persist
+  if (storeKey) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey))
+      if (saved) for (const k of Object.keys(initials)) {
+        if (k in saved && saved[k] != null) initials[k] = saved[k]
+      }
+    } catch {}
+  }
+
+  const state = store(initials)
+
+  // ── Build DOM in schema order ──
+  const groupEls = {}
+  const disposers = []
+
+  for (const e of entries) {
+    if (e.isGroup) {
+      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, container: body })
+      groupEls[e.shortKey] = f
+      disposers.push(f[Symbol.dispose])
+      continue
+    }
+
+    const factory = controls[e.field.type] || controls[e.field.type.split(/\s+/)[0]]
+    if (!factory) { console.warn(`Unknown control type: ${e.field.type}`); continue }
+
+    const target = e.group ? groupEls[e.group]?.content : body
+    const decorated = factory(state[_signals][e.shortKey], {
+      ...e.field,
+      container: target || body
+    })
+    if (decorated.el) decorated.el.dataset.key = e.shortKey
+    disposers.push(decorated[Symbol.dispose])
+  }
+
+  // Mount panel
+  const target = typeof container === 'string'
+    ? document.querySelector(container)
+    : container
+  target?.appendChild(panel)
+
+  // ── Persistence ──
+  let stopPersist
+  if (storeKey) {
+    let ready = false
+    queueMicrotask(() => { ready = true })
+    stopPersist = effect(() => {
+      const json = JSON.stringify(state)
+      if (!ready) return
+      localStorage.setItem(storeKey, json)
+    })
+  }
+
+  // ── Onchange ──
+  let stopOnchange
+  if (onchange) {
+    let ready = false
+    queueMicrotask(() => { ready = true })
+    stopOnchange = effect(() => {
+      // Touch all keys to subscribe
+      for (const k of Object.keys(state)) state[k]
+      if (!ready) return
+      onchange(state)
+    })
+  }
+
+  state[Symbol.dispose] = () => {
+    stopPersist?.()
+    stopOnchange?.()
+    disposers.forEach(d => d?.())
+    panel.remove()
+    style?.remove()
+  }
+
+  return state
 }
 
+// Type inference
 
-/**
- * Update theme
- */
-Panel.prototype.update = function (opts) {
-	extend(this, opts);
+const isColor = (v) => typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)
+const isRgb = (v) => typeof v === 'string' && /^rgba?\(/i.test(v)
+const isHsl = (v) => typeof v === 'string' && /^hsla?\(/i.test(v)
+const isMultiline = (v) => typeof v === 'string' && v.includes('\n')
+const isNormalized = (v) => typeof v === 'number' && v >= 0 && v <= 1 && v % 1 !== 0
 
-	//FIXME: decide whether we have to reset these params
-	// if (opts && opts.theme) {
-	// 	if (opts.theme.fontSize) this.fontSize = opts.theme.fontSize;
-	// 	if (opts.theme.inputHeight) this.inputHeight = opts.theme.inputHeight;
-	// 	if (opts.theme.fontFamily) this.fontFamily = opts.theme.fontFamily;
-	// 	if (opts.theme.labelWidth) this.labelWidth = opts.theme.labelWidth;
-	// 	if (opts.theme.palette) this.palette = opts.theme.palette;
-	// }
+export function infer(key, def) {
+  if (def && typeof def === 'object' && def.type) {
+    return { label: key, ...def }
+  }
 
-	//update title, if any
-	if (this.titleEl) this.titleEl.innerHTML = this.title;
+  if (typeof def === 'boolean') {
+    return { type: 'boolean', value: def, label: key }
+  }
 
-	//update orientation
-	this.element.classList.remove('settings-panel-orientation-top');
-	this.element.classList.remove('settings-panel-orientation-bottom');
-	this.element.classList.remove('settings-panel-orientation-left');
-	this.element.classList.remove('settings-panel-orientation-right');
-	this.element.classList.add('settings-panel-orientation-' + this.orientation);
+  if (typeof def === 'number') {
+    if (isNormalized(def)) {
+      return { type: 'slider', value: def, min: 0, max: 1, step: 0.01, label: key }
+    }
+    return { type: 'number', value: def, label: key }
+  }
 
-	//apply style
-	let cssStr = '';
-	if (this.theme instanceof Function) {
-		cssStr = this.theme.call(this, this);
-	}
-	else if (typeof this.theme === 'string') {
-		cssStr = this.theme;
-	}
+  if (typeof def === 'string') {
+    if (isColor(def) || isRgb(def) || isHsl(def)) {
+      return { type: 'color', value: def, label: key }
+    }
+    if (isMultiline(def)) {
+      return { type: 'textarea', value: def, label: key }
+    }
+    return { type: 'text', value: def, label: key }
+  }
 
-	//append extra css
-	if (this.css) {
-		if (this.css instanceof Function) {
-			cssStr += this.css.call(this, this);
-		}
-		else if (typeof this.css === 'string') {
-			cssStr += this.css;
-		}
-	}
+  if (typeof def === 'function') {
+    return { type: 'button', onClick: def, label: key }
+  }
 
-	//scope each rule
-	cssStr = scopeCss(cssStr || '', '.settings-panel-' + this.id) || '';
+  if (def && typeof def === 'object') {
+    if (Array.isArray(def)) {
+      if (def.length === 0) {
+        return { type: 'text', value: '', label: key }
+      }
+      if (def.length >= 2 && def.length <= 4 && def.every(v => typeof v === 'number')) {
+        return { type: 'vector', value: def, dimensions: def.length, label: key }
+      }
+      if (def.every(v => typeof v === 'string' || (v && typeof v === 'object' && 'value' in v))) {
+        return { type: 'select', options: def, value: typeof def[0] === 'string' ? def[0] : def[0]?.value, label: key }
+      }
+      return { type: 'text', value: JSON.stringify(def), label: key }
+    }
 
-	insertCss(cssStr.trim(), {
-		id: this.id
-	});
+    if (def.options) {
+      const firstOpt = Array.isArray(def.options) ? def.options[0] : Object.values(def.options)[0]
+      const firstVal = typeof firstOpt === 'string' ? firstOpt : firstOpt?.value
+      return { type: 'select', value: def.value ?? firstVal, label: key, ...def }
+    }
 
-	if (this.style) {
-		if (isPlainObject(this.style)) {
-			css(this.element, this.style);
-		}
-		else if (typeof this.style === 'string') {
-			this.element.style.cssText = this.style;
-		}
-	}
-	else if (this.style !== undefined) {
-		this.element.style = null;
-	}
+    if ('min' in def || 'max' in def) {
+      return { type: 'slider', min: def.min ?? 0, max: def.max ?? 100, value: def.value ?? def.min ?? 0, label: key, ...def }
+    }
 
-	return this;
+    if ('value' in def) {
+      const inferred = infer(key, def.value)
+      return { ...inferred, ...def, label: def.label || key }
+    }
+  }
+
+  return { type: 'text', value: String(def ?? ''), label: key }
 }
-
-//instance theme
-Panel.prototype.theme = require('./theme/none');
-
-/**
- * Registered components
- */
-Panel.prototype.components = {
-	range: require('./src/range'),
-
-	button: require('./src/button'),
-	text: require('./src/text'),
-	textarea: require('./src/textarea'),
-
-	checkbox: require('./src/checkbox'),
-	toggle: require('./src/checkbox'),
-
-	switch: require('./src/switch'),
-
-	color: require('./src/color'),
-
-	interval: require('./src/interval'),
-	multirange: require('./src/interval'),
-
-	custom: require('./src/custom'),
-	raw: require('./src/custom'),
-
-	select: require('./src/select')
-};
-
-
-/**
- * Additional class name
- */
-Panel.prototype.className;
-
-
-/**
- * Additional visual setup
- */
-Panel.prototype.orientation = 'left';
-
-
-/** Display collapse button */
-Panel.prototype.collapsible = false;
