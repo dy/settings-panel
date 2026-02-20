@@ -783,7 +783,7 @@ interface ButtonParams {
   icon?: string | Signal<string>
 
   // Style
-  variant?: 'default' | 'primary' | 'danger' | 'ghost'
+  variant?: 'default' | 'primary' | 'secondary' | 'danger' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
 
   // State

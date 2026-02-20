@@ -2,7 +2,7 @@
 
 Settings panel for tweaking apps, demos or tests. Pass values, get controls.
 
-[demo](https://dy.github.io/settings-panel/)
+[![preview](preview.png)](https://dy.github.io/settings-panel/)
 
 ```js
 import settings from 'settings-panel'
@@ -99,6 +99,6 @@ use(signals)
 
 ## Alternatives
 
-<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [lil-gui](https://github.com/georgealways/lil-gui) · [dat.gui](https://github.com/dataarts/dat.gui) · [control-panel](https://github.com/freeman-lab/control-panel) · [oui](https://github.com/wearekuva/oui)</sup>
+<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [lil-gui](https://github.com/georgealways/lil-gui) · [uil](https://github.com/lo-th/uil) · [dat.gui](https://github.com/dataarts/dat.gui) · [control-panel](https://github.com/freeman-lab/control-panel) · [oui](https://github.com/wearekuva/oui)</sup>
 
 <p align=center><a href="https://github.com/krsnzd/license/">ॐ</a></p>

@@ -217,11 +217,11 @@ export default (sig, opts = {}) => {
     readout, showReadout, readoutText, format
   })
 
-  // Auto-detect: native ticks only if theme keeps appearance:auto
-  if (nativeTicksOpt == null) requestAnimationFrame(() => {
+  // el is now in live DOM (panel mounted before controls) — detect sync
+  if (nativeTicksOpt == null) {
     const inp = result.el.querySelector('input[type=range]')
     if (inp) nativeTicks.value = getComputedStyle(inp).appearance !== 'none'
-  })
+  }
 
   return result
 }

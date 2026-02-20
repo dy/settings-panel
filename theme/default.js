@@ -46,7 +46,7 @@ export function parseColor(color) {
 export default function base({
   shade = '#f5f4f2',
   spacing = 1,
-  size = 0.5,
+  size = 1,
   weight = 400,
   accent = '#2563eb',
   roundness = 0.5,
@@ -54,7 +54,7 @@ export default function base({
 } = {}) {
   accent = resolveAccent(accent, shade)
 
-  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp(size, 0, 1))
+  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp((size - 0.5) / 1.5, 0, 1))
   const fontSize = u * 3.5
   const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
@@ -109,7 +109,7 @@ export default function base({
     interpolate-size: allow-keywords;
     &::details-content {
       content-visibility: visible;
-      height: 0; overflow: clip; overflow-clip-margin: 6px; opacity: 0;
+      height: 0; overflow: clip; overflow-clip-margin: 1.5rem; opacity: 0;
       transition: height 200ms 80ms, opacity 80ms;
     }
     &[open]::details-content {

@@ -55,11 +55,9 @@ export default function settings(schema, options = {}) {
   } = options
 
   // Inject theme CSS
+  const themeIsFunc = typeof theme === 'function'
   const style = theme ? document.createElement('style') : null
-  if (style) {
-    style.textContent = typeof theme === 'function' ? theme() : theme
-    document.head.appendChild(style)
-  }
+  if (style) document.head.appendChild(style)
 
   // Create panel container (foldable <details> when title provided)
   const panel = document.createElement(title ? 'details' : 'div')
@@ -112,6 +110,15 @@ export default function settings(schema, options = {}) {
 
   const state = store(initials)
 
+  // Apply theme CSS (after state resolved, before controls — so getComputedStyle works)
+  if (style) style.textContent = themeIsFunc ? theme(state) : theme
+
+  // ── Mount panel before controls (so getComputedStyle works during creation) ──
+  const target = typeof container === 'string'
+    ? document.querySelector(container)
+    : container
+  target?.appendChild(panel)
+
   // ── Build DOM in schema order ──
   const groupEls = {}
   const disposers = []
@@ -136,11 +143,11 @@ export default function settings(schema, options = {}) {
     disposers.push(decorated[Symbol.dispose])
   }
 
-  // Mount panel
-  const target = typeof container === 'string'
-    ? document.querySelector(container)
-    : container
-  target?.appendChild(panel)
+  // ── Reactive theme update ──
+  let stopTheme
+  if (style && themeIsFunc) {
+    stopTheme = effect(() => { style.textContent = theme(state) })
+  }
 
   // ── Persistence ──
   let stopPersist
@@ -168,6 +175,7 @@ export default function settings(schema, options = {}) {
   }
 
   state[Symbol.dispose] = () => {
+    stopTheme?.()
     stopPersist?.()
     stopOnchange?.()
     disposers.forEach(d => d?.())
@@ -243,6 +251,12 @@ export function infer(key, def) {
     if ('value' in def) {
       const inferred = infer(key, def.value)
       return { ...inferred, ...def, label: def.label || key }
+    }
+
+    // Dict of functions → button group: { Save: fn, Reset: fn }
+    const vals = Object.values(def)
+    if (vals.length && vals.every(v => typeof v === 'function')) {
+      return { type: 'button', buttons: def, label: key }
     }
   }
 

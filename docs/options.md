@@ -11,7 +11,7 @@ const state = settings(schema, options?)
 |--------|------|---------|---------|
 | `container` | `string \| Element` | `document.body` | Mount target (selector or element) |
 | `title` | `string` | `'Settings'` | Panel header text |
-| `theme` | `string \| function \| Signal` | `'soft'` | Visual style |
+| `theme` | `string \| (state) → CSS \| false` | `base` | Visual style |
 | `collapsed` | `boolean \| Signal` | `false` | Fold state |
 | `persist` | `boolean \| string` | `false` | Save/restore values via localStorage |
 | `key` | `string` | — | Keyboard shortcut to toggle panel |
@@ -20,25 +20,25 @@ const state = settings(schema, options?)
 
 ### `theme`
 
+CSS injection for the panel. Applied before controls are created (so `getComputedStyle` works during init).
+
 ```js
-// Name → built-in with default axes
-theme: 'soft'
-theme: 'brutal'
+// Built-in default theme
+import base from 'settings-panel/theme/default'
+theme: base()
 
-// Function call → custom axes
-import { soft } from 'settings-panel/theme'
-theme: soft({ lightness: 0.13, accent: 280 })
+// Static CSS string
+theme: '.s-panel { background: #111; }'
 
-// Signal → live re-theming
-const t = signal(soft())
-settings(schema, { theme: t })
-t.value = soft({ lightness: 0.13 })  // panel re-themes
+// Reactive function: receives resolved state (with persisted values merged),
+// re-called automatically on any state change.
+// Panel manages the <style> element — no external style juggling needed.
+import skeu from 'settings-panel/theme/skeu'
+theme: (state) => skeu({ shade: state.shade, accent: state.accent })
 
-// Raw object (advanced)
-theme: { '.s-panel': { background: '#111' } }
+// Disable — manage your own <style> externally
+theme: false
 ```
-
-See [axes.md](axes.md) for theme axes.
 
 
 ### `collapsed`
@@ -125,7 +125,7 @@ Mount it where you want, toggle it how you want.
 
 ```js
 import settings from 'settings-panel'
-import { soft } from 'settings-panel/theme'
+import soft from 'settings-panel/theme/default'
 
 const state = settings({
   volume: 0.8,
@@ -157,4 +157,4 @@ state.debug          // flat access (not state.advanced.debug)
 | `animation` | Theme concern | Theme handles it; respects `prefers-reduced-motion` |
 | `visible` | Redundant | `collapsed` to fold, `dispose()` to remove, CSS to hide |
 | `draggable` | Niche | Future concern, not core |
-| `retheme()` | State = values only | Pass theme as signal instead |
+| `retheme()` | State = values only | Pass `theme: (state) => css` — reactive by design |

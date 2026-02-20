@@ -53,59 +53,76 @@
         skeu: ['shade', 'accent', 'spacing', 'size', 'weight', 'roundness', 'contrast', 'depth', 'relief', 'bevel', 'grid'],
       }
 
-      // Param keys (derived from schema prefix)
       const paramKeys = ['shade', 'accent', 'weight', 'contrast', 'relief', 'depth', 'roundness', 'spacing', 'size', 'bevel', 'grid']
       const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
 
-      const schema = {
-        // Theme
-        theme: { type: 'select', options: ['default', 'skeu'], value: 'skeu' },
+      const rand = (lo, hi, step = 0) => {
+        const v = lo + Math.random() * (hi - lo)
+        return step ? Math.round(v / step) * step : v
+      }
+      const randHex = () => '#' + Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('')
 
-        // Theme params
-        // params: { type: 'folder', label: 'Params' },
+      const schema = {
+        theme: { type: 'select', options: ['default', 'skeu'], value: 'skeu' },
         'params.shade': '#f7f7f7',
         'params.accent': '#2967fa',
         'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 10, marks: true, snap: true, readout: 'input' },
         'params.contrast': { type: 'slider', value: 0.25, min: 0, max: 1, step: 0.01, marks: true, curve: 2 },
         'params.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
         'params.relief': { type: 'slider', value: 0.1, min: 0, max: 1, step: 0.01 },
-        'params.depth': { type: 'slider', value: 0.5, min: 0, max: 2, step: 0.01 },
+        'params.depth': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
         'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
         'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
-        'params.size': { type: 'slider', value: 0.5, min: 0, max: 1, marks: [0, 0.5, 1], step: 0.1, snap: true },
-        'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+        'params.size': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
 
-        // Export
-        code: { type: 'textarea code', label: '', value: '', readonly: true },
-        copy: { type: 'button', label: '', text: 'Copy Theme', onClick: () => navigator.clipboard.writeText(state?.code) }
+        'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+        code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
+        actions: { type: 'button', label: '', variant: 'group', buttons: {
+          'Randomize': () => randomize(),
+          'Copy': () => navigator.clipboard.writeText(state?.code)
+        }}
       }
 
-      let state, curTheme
-      const style = document.head.appendChild(document.createElement('style'))
+      let state
+      let curTheme
 
       function create() {
         state?.[Symbol.dispose]()
         state = settings(schema, {
           title: 'Settings',
           container: '#panel',
-          theme: false,
-          persist: true,
-          onchange: (s) => {
-            const params = getParams(s)
-            s.code = JSON.stringify(params, null, 2)
+          theme: (s) => themes[s.theme](getParams(s)),
+          persist: 'settings-panel',
+          onchange(s) {
+            s.code = JSON.stringify(getParams(s), null, 2)
             if (s.theme !== curTheme) {
               curTheme = s.theme
-              queueMicrotask(create)
-            } else {
-              style.textContent = themes[curTheme](params)
+              requestAnimationFrame(create)
+              return
             }
             syncBg()
           }
         })
         curTheme = state.theme
-        style.textContent = themes[curTheme](getParams(state))
+        state.code = JSON.stringify(getParams(state), null, 2)
         syncBg()
         syncAxes(curTheme)
+      }
+
+      create()
+
+      function randomize() {
+        if (!state) return
+        state.shade = randHex()
+        state.accent = randHex()
+        state.weight = rand(100, 900, 100)
+        state.contrast = rand(0, 1, 0.01)
+        state.bevel = rand(0, 2, 0.1)
+        state.relief = rand(0, 1, 0.01)
+        state.depth = rand(0, 2, 0.01)
+        state.roundness = rand(0, 2, 0.25)
+        state.spacing = rand(0.5, 2, 0.25)
+        state.size = rand(0.5, 2, 0.25)
       }
 
       function syncBg() {
@@ -122,13 +139,10 @@
         for (const el of panel.children) {
           const key = el.dataset.key
           if (!paramKeys.includes(key)) continue
-          const off = supported ? !supported.includes(key) : false
           const input = el.querySelector('.s-input')
-          if (input) input.disabled = off
+          if (input) input.disabled = supported ? !supported.includes(key) : false
         }
       }
-
-      create()
     </script>
   </body>
 

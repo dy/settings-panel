@@ -22,7 +22,7 @@ export default function skeu({
   contrast = .5,
   grid = [],
   spacing = 1,
-  size = 0.5,
+  size = 1,
   weight = 400,
   depth = .4,
   roundness = 0.5,
@@ -47,12 +47,12 @@ export default function skeu({
   const { L: accentL, C: accentC, H: accentH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
-  const u = Number.isFinite(unit) ? unit : lerp(3, 5, clamp(size, 0, 1))
+  const u = Number.isFinite(unit) ? unit : lerp(3, 5, clamp((size - 0.5) / 1.5, 0, 1))
 
   // Layered shadow — exponential y/blur, negative spread
-  const sc = $(0.108, min(surfaceC + 0.1, 0.27), surfaceH, dark ? .07 : .05)
+  const sc = $(0.108, min(surfaceC + 0.1, 0.27), surfaceH, dark ? .15 : .12)
   const shadow = (d) => !d ? '' : ', ' + [1, 2, 4, 8, 16].map(s => {
-    const v = +(s * d * (1 + d)).toFixed(1)
+    const v = +(s * d * (1 + d * .5)).toFixed(1)
     return `0 ${v}px ${v}px ${+(-v / 3).toFixed(1)}px ${sc}`
   }).join(', ')
 
@@ -212,6 +212,7 @@ export default function skeu({
       border: none; border-radius: var(--ri);
       height: calc(var(--u) * 1.5);
       overflow: visible;
+      appearance: none;
       -webkit-appearance: none;
       &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
       &::-moz-range-thumb { ${thumb} }

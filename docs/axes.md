@@ -50,7 +50,7 @@ Default: `1`. Range 0.5–2.
 Overall scale — type size, control dimensions, layout grid unit.
 
 Orthogonal to spacing: size scales elements, spacing scales the gaps.
-Default: `0.5`. Range 0–1.
+Default: `1`. Range 0.5–2.
 
 
 ### `roundness`
