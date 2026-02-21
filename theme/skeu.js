@@ -19,16 +19,12 @@ const GRID = {
 export default function skeu({
   shade = '#f5f4f2',
   accent,
-  contrast = .5,
   grid = [],
   spacing = 1,
-  size = 1,
   weight = 400,
-  depth = .4,
+  depth = 1,
   roundness = 0.5,
-  relief = 0,
-  bevel: bevelOpt = 2,
-  unit,
+  bevel: bevelOpt = 1
 } = {}) {
 
   const isFunc = typeof shade === 'function'
@@ -47,8 +43,6 @@ export default function skeu({
   const { L: accentL, C: accentC, H: accentH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .72 : .58, C: min(surfaceC, 0.27), H: surfaceH }
   const accentDark = accentL < .6
 
-  const u = Number.isFinite(unit) ? unit : lerp(3, 5, clamp(size / 2, 0, 1))
-
   // Layered shadow — exponential y/blur, negative spread
   const sc = $(0.108, min(surfaceC + 0.1, 0.27), surfaceH, dark ? .15 : .12)
   const shadow = (d) => !d ? '' : ', ' + [1, 2, 4, 8, 16].map(s => {
@@ -56,15 +50,19 @@ export default function skeu({
     return `0 ${v}px ${v}px ${+(-v / 3).toFixed(1)}px ${sc}`
   }).join(', ')
 
+  // Merged bevel: 0..1 fades contrast only (width=1px), 1..2 extends both
+  const bevelPx = bevelOpt <= 1 ? 1 : lerp(1, 2, bevelOpt - 1)
+  const contrast = bevelOpt <= 1 ? bevelOpt * 0.5 : lerp(0.5, 1, bevelOpt - 1)
+  // Merged depth: drives shadow elevation + surface relief in parallel
+  const relief = depth / 2
+
   // Grid layers (combinable background-image stack)
   const gridList = Array.isArray(grid) ? grid : (grid && grid !== 'none' ? [grid] : [])
   const gc = dark ? '255,255,255' : '0,0,0', ga = dark ? '.04' : '.05'
-  const gridLayers = gridList.map(g => GRID[g]?.(gc, ga, u)).filter(Boolean)
+  const gridLayers = gridList.map(g => GRID[g]?.(gc, ga, 4)).filter(Boolean)
   const bgImgs = [...(relief ? ['var(--convex)'] : []), ...gridLayers.map(l => l.url)]
   const bgBlends = [...(relief ? ['overlay'] : []), ...gridLayers.map(() => 'normal')]
   const bgPos = [...(relief ? ['0 0'] : []), ...gridLayers.map(l => `${l.off}px ${l.off}px`)]
-
-  const bevel = bevelOpt
   const stroke = max(1, weight / 400)
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
@@ -120,7 +118,7 @@ export default function skeu({
   cursor: grab; z-index: 1; position: relative;`
 
   // ── Base layer (structural + default visuals) ──
-  const baseCSS = base({ shade, spacing, size, weight, accent: resolvedAccent, roundness })
+  const baseCSS = base({ shade, spacing, weight, accent: resolvedAccent, roundness })
 
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
@@ -139,10 +137,7 @@ export default function skeu({
   --text-dim: ${$(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast)))};
   --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
   --weight: ${weight / 1000};
-  --bevel: ${bevel}px;
-  --u: ${u}px;
-  --spacing: ${spacing};
-  --roundness: ${roundness};
+  --bevel: ${bevelPx}px;
   --r: calc(var(--u) * var(--roundness) * 3);
   --ri: calc(var(--u) * max(var(--roundness), -1.5 + var(--roundness) * 3));
   --thumb: calc(var(--u) * ${roundness >= 1 ? 4 : 2});

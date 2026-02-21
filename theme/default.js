@@ -46,17 +46,12 @@ export function parseColor(color) {
 export default function base({
   shade = '#f5f4f2',
   spacing = 1,
-  size = 1,
   weight = 400,
   accent = '#2563eb',
-  roundness = 0.5,
-  ...rest
+  roundness = 1
 } = {}) {
   accent = resolveAccent(accent, shade)
 
-  const u = Number.isFinite(rest.unit) ? rest.unit : lerp(3, 5, clamp((size) / 2, 0, 1))
-  const fontSize = u * 3.5
-  const r = round(lerp(0, 3, roundness) * u)
   const { L } = parseColor(shade)
   const dark = L < .6
   const fg = dark ? 'white' : 'black'
@@ -67,10 +62,11 @@ export default function base({
   return `.s-panel {
   --bg: ${shade};
   --accent: ${accent};
-  --u: ${u}px;
-  --spacing: ${spacing};
-  --r: ${r}px;
+  --u: 0.25rem;
   --lh: calc(var(--u) * 4);
+  --spacing: ${spacing};
+  --roundness: ${roundness};
+  --r: calc(var(--u) * var(--roundness));
   --padding: calc(var(--u) * (0.5 + 1 * var(--spacing)));
 
   display: flex; flex-direction: column;
@@ -82,10 +78,10 @@ export default function base({
   border-radius: var(--r);
   font-family: system-ui, -apple-system, sans-serif;
   font-weight: ${weight};
-  font-size: ${fontSize}px;
+  font-size: inherit;
   line-height: var(--lh);
-  min-width: 28ch;
-  max-width: calc(var(--u) * 100);
+  min-width: 27ch;
+  max-width: calc(var(--u) * 108);
   -webkit-text-size-adjust: none;${dark ? `
   -webkit-font-smoothing: antialiased;` : ''}
 
@@ -136,7 +132,7 @@ export default function base({
     margin: 0; padding: 0; border: 0;
   }
   .s-label-group { flex: 0 0 auto;
-    min-width: 8ch; width: 25%; max-width: 20ch; display: flex; flex-direction: column; gap: var(--u); line-height: ${fontSize + 1}px;
+    min-width: 8ch; width: 25%; max-width: 20ch; display: flex; flex-direction: column; gap: var(--u); line-height: calc(var(--u) * 4);
   }
   .s-hint { font-size: smaller; opacity: .6; }
   .s-input {
@@ -263,7 +259,7 @@ export default function base({
     padding: calc(var(--u) * (-0.5 + var(--spacing))) 0;
     .s-input { gap: 0; }
     button {
-      padding: var(--u) calc(var(--u) * 2.5);
+      padding: calc(var(--padding) * .5) var(--padding);
       border-radius: 0;
       margin-left: -1px;
       &:first-child {
@@ -320,7 +316,7 @@ export default function base({
 
   /* ── Button (action) ── */
   .s-button button {
-    padding: calc(var(--u) * 2) calc(var(--u) * 4);
+    padding: var(--padding) calc(var(--padding) * 2);
     background: var(--accent); color: white; border: none;
     border-radius: var(--r);
     transition: background-color 140ms, filter 140ms;
