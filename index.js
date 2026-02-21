@@ -54,32 +54,11 @@ export default function settings(schema, options = {}) {
     onchange = options.onChange || options.onchange
   } = options
 
-  // Inject theme CSS
-  const themeIsFunc = typeof theme === 'function'
-  const style = theme ? document.createElement('style') : null
-  if (style) document.head.appendChild(style)
-
-  // Create panel container (foldable <details> when collapsed is boolean)
-  const foldable = title && typeof collapsed === 'boolean'
-  const panel = document.createElement(foldable ? 'details' : 'div')
-  panel.className = 's-panel'
-  if (title) {
-    if (foldable) { if (!collapsed) panel.open = true }
-    const heading = document.createElement(foldable ? 'summary' : 'div')
-    heading.className = foldable ? '' : 's-panel-title'
-    heading.textContent = title
-    panel.appendChild(heading)
-  }
-  const body = document.createElement('div')
-  body.className = 's-panel-content'
-  panel.appendChild(body)
-
   // ── Parse flat schema: groups + fields ──
   const entries = []
   for (const [key, def] of Object.entries(schema)) {
     const dot = key.indexOf('.')
     if (dot > 0) {
-      // Grouped field: 'params.shade' → group 'params', key 'shade'
       const group = key.slice(0, dot)
       const shortKey = key.slice(dot + 1)
       entries.push({ shortKey, group, field: infer(shortKey, def) })
@@ -111,6 +90,27 @@ export default function settings(schema, options = {}) {
   }
 
   const state = store(initials)
+
+  // Inject theme CSS
+  const themeIsFunc = typeof theme === 'function'
+  const style = theme ? document.createElement('style') : null
+  if (style) document.head.appendChild(style)
+
+  // Create panel container (collapsed can be boolean or function of initials)
+  const resolved = typeof collapsed === 'function' ? collapsed(initials) : collapsed
+  const foldable = title && typeof resolved === 'boolean'
+  const panel = document.createElement(foldable ? 'details' : 'div')
+  panel.className = 's-panel'
+  if (title) {
+    if (foldable) { if (!resolved) panel.open = true }
+    const heading = document.createElement(foldable ? 'summary' : 'div')
+    heading.className = foldable ? '' : 's-panel-title'
+    heading.textContent = title
+    panel.appendChild(heading)
+  }
+  const body = document.createElement('div')
+  body.className = 's-panel-content'
+  panel.appendChild(body)
 
   // Apply theme CSS (after state resolved, before controls — so getComputedStyle works)
   if (style) style.textContent = themeIsFunc ? theme(state) : theme

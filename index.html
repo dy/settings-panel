@@ -89,11 +89,10 @@
       let curTheme, curFoldable
 
       function create() {
-        const foldable = state?.foldable ?? false
         state?.[Symbol.dispose]()
         state = settings(schema, {
           title: 'Settings',
-          collapsed: foldable ? false : undefined,
+          collapsed: (s) => s.foldable ? false : undefined,
           container: '#panel',
           theme: (s) => themes[s.theme](getParams(s)),
           persist: 'settings-panel',
