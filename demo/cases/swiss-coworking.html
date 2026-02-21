@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiss — Coworking</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@12",
+      "sprae/store": "https://esm.sh/sprae@12/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #555;
+      padding: 2rem;
+      font-size: 14px;
+    }
+    #panel {
+      width: min(100%, 340px);
+    }
+    .s-panel-title + .s-subtitle {
+      font-family: 'Playfair Display', 'Georgia', serif;
+      font-style: italic;
+      font-size: .6875rem;
+      text-align: center;
+      color: rgba(255,255,255,.5);
+      padding: 0 1rem .5rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import swiss from '../../theme/swiss.js'
+
+    settings({
+      'company': { type: 'text', value: 'Acme Co.', label: 'Company' },
+      'name': { type: 'text', value: 'John Smith', label: 'Name' },
+      'email': { type: 'text', value: 'john@example.com', label: 'Email' },
+      'phone': { type: 'text', value: '555-555-5555', label: 'Phone' },
+      'desks': { type: 'number', value: 1, min: 1, max: 50, label: 'Number of Desks Needed' },
+      'founder': {
+        type: 'select', variant: 'buttons',
+        value: 'Yes',
+        options: ['No', 'Yes'],
+        label: 'Startup Founder?'
+      },
+      'needs': {
+        type: 'select', variant: 'buttons', multiple: true,
+        value: ['myself'],
+        options: [
+          { value: 'startup', label: 'A Space For My Startup' },
+          { value: 'myself', label: 'A Space For Myself' },
+          { value: 'membership', label: 'General Membership' },
+          { value: 'events', label: 'A Space For Events' },
+        ],
+        label: 'Check All That Apply'
+      },
+      'submit': { type: 'button', label: false, text: 'Send My Info', onClick: () => {} },
+    }, {
+      container: '#panel',
+      theme: () => swiss({ shade: '#4a4a4a', weight: 700 }),
+      title: 'Be in Cahoots',
+    })
+
+    // Inject subtitle after title
+    const title = document.querySelector('.s-panel-title')
+    if (title) {
+      const sub = document.createElement('div')
+      sub.className = 's-subtitle'
+      sub.textContent = 'Send us some info about yourself to get started.'
+      title.after(sub)
+    }
+  </script>
+</body>
+</html>

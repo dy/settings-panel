@@ -18,6 +18,20 @@
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
 
+* [ ] gallery
+  * [ ] swiss
+  * [ ] control-panel
+  * [ ] tweakpane
+  * [ ] leva
+  * [ ] skeu examples
+  * [ ]
+  * [ ] oui
+  * [ ] controlkit
+  * [ ] uil
+  * [ ] customize theme link
+
+* [ ] icons
+* [x] rem units
 * [ ] demo showcase page
 
 * [ ] pasting code must update axis values in JSON
