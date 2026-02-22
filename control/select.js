@@ -25,7 +25,7 @@ const templates = {
     ></button>
   `,
   checkboxes: `
-    <label :each="opt in options">
+    <label :each="opt in options" :style="opt.style || null">
       <input type="checkbox" :checked="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
       <span class="s-track"></span>
       <span :text="opt.label"></span>
@@ -34,7 +34,7 @@ const templates = {
 }
 
 const normalizeOptions = opts =>
-  (opts || []).map(o => typeof o === 'string' ? { value: o, label: o } : o)
+  (opts || []).map(o => typeof o === 'string' ? { value: o, label: o } : { label: o.value, ...o })
 
 export default (sig, opts = {}) => {
   let { variant = 'dropdown', multiple = false, options = [], ...rest } = opts

@@ -11,7 +11,7 @@ import sprae from 'sprae'
  */
 export default function control(sig, opts) {
   const {
-    type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose,
+    type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose, style,
     ...state
   } = opts
 
@@ -32,6 +32,7 @@ export default function control(sig, opts) {
 
   const el = wrapper.firstElementChild
   if (label) el.dataset.name = label
+  if (style) el.setAttribute('style', style)
 
   sprae(wrapper, { ...state, label, hint, title, disabled })
 

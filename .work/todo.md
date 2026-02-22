@@ -8,19 +8,25 @@
   * [x] size/spacing: should be well-done, not hardcoded
   * [x] log ticks: should match datalist properly
   * [x] on par with skeu: swap is flawless
-* [ ] Theme: Skeu
+* [x] Theme: Skeu
   * [x] tweets best practices
   * [x] depth
   * [x] buttons
   * [x] grid
   * [x] font
+* [ ] Axes
   * [ ] grain: texture that can be animated
   * [ ] calibrate & test: jhey, examples from screenshots
   * [ ] sound?: gentle ticks on slider ticks - can be customized (clock ticks, macos ticks etc)
+  * [ ] intensity of interaction (hover, active etc)
+  * [ ] breath: pulse on focused controls, shadow oscillation on hover
+
+* [ ] icons
 
 * [ ] gallery
+  * [ ] figma
   * [ ] swiss
-  * [ ] control-panel
+  * [x] control-panel
   * [ ] tweakpane
   * [ ] leva
   * [ ] skeu examples
@@ -31,11 +37,14 @@
   * [ ] daytime switch
   * [ ] customize theme link
 
-* [ ] icons
-* [x] rem units
-* [ ] demo showcase page
+* [ ] demo
+  * [ ] serialize params in qs
+  * [ ] persist parameter should select either local, session or query, or false
+  * [ ] it should be done via signal (future nadi)
+  * [ ] pasting code must update axis values in JSON
 
-* [ ] pasting code must update axis values in JSON
+* [ ] eventually we need to make any options/params support signals
+* [x] rem units
 * [x] make slider native option sync (defines form of slider) - need to load properly
 * [x] close / fold button
 * [x] title
@@ -43,11 +52,9 @@
 * [x] better weight control (slider weight)
 
 * [ ] Themes
-  * [ ] Theme: Figma
   * [ ] Theme: Neu
   * [ ] Theme: Studio (figma, control-panel, mo)
   * [ ] Theme: Aurora: Mesh gradients, flowing soft color blobs
-  * [ ] Theme: Flat/Material: no depth, solid colors, geometry + material: elevations
   * [ ] Theme: Brutal: Raw, harsh, exposed structure, anti-polish
 
 * [ ] ~12 core high-quality controls
@@ -85,7 +92,6 @@
 
 ## Ideas
 
-* [ ] breath: pulse on focused controls, shadow oscillation on hover
 * [ ] spring?: sliders overshoot
 * [ ] reflected light?
 * [ ] canonical internal structure (form)

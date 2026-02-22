@@ -1,0 +1,733 @@
+/**
+ * Settings Panel Theme CSS
+ * Styles all s-* control elements
+ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Params (adjustable) */
+  --roundness: 0.15;
+  --density: 0.5;
+  --contrast: 0.5;
+  --weight: 0.5;
+
+  /* Derived spacing */
+  --space-unit: calc(6px + var(--density) * 8px);
+  --space-xs: calc(var(--space-unit) * 0.5);
+  --space-sm: calc(var(--space-unit) * 1);
+  --space-md: calc(var(--space-unit) * 1.5);
+  --space-lg: calc(var(--space-unit) * 2.5);
+
+  /* Derived radius */
+  --radius-sm: calc(var(--roundness) * 6px);
+  --radius-md: calc(var(--roundness) * 12px);
+  --radius-lg: calc(var(--roundness) * 20px);
+  --radius-full: calc(var(--roundness) * 999px);
+
+  /* Derived weight */
+  --border-width: calc(1px + var(--weight) * 1px);
+  --font-weight: calc(400 + var(--weight) * 200);
+
+  /* Typography */
+  --font-geometric: 'DM Sans', system-ui, sans-serif;
+  --font-humanist: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: var(--font-geometric);
+
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+
+  /* Animation */
+  --duration: 150ms;
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Colors (set by mode) */
+  --bg: hsl(220 15% 95%);
+  --surface: hsl(220 20% 99%);
+  --surface-2: hsl(220 15% 93%);
+  --text: hsl(220 15% 15%);
+  --dim: hsl(220 10% 55%);
+  --border: hsl(220 12% 85%);
+  --accent: hsl(220 85% 55%);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+html {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--duration) var(--easing), color var(--duration) var(--easing);
+}
+
+body {
+  min-height: 100vh;
+  padding: var(--space-lg);
+}
+
+/* ============================================
+   DEMO LAYOUT
+   ============================================ */
+
+.demo {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.demo-header {
+  margin-bottom: var(--space-lg);
+}
+
+.demo-header h1 {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: var(--space-xs);
+}
+
+.demo-header p {
+  color: var(--dim);
+  font-size: var(--text-sm);
+}
+
+.demo-config {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.config-row > label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  min-width: 60px;
+  color: var(--dim);
+}
+
+.config-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.config-buttons button {
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--dim);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.config-buttons button:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.config-buttons button.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.demo-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.panel h2 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dim);
+  margin-bottom: var(--space-xs);
+}
+
+/* ============================================
+   CONTROL BASE
+   ============================================ */
+
+.s-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: var(--text-sm);
+  transition: all var(--duration) var(--easing);
+}
+
+.s-label {
+  color: var(--text);
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.s-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* ============================================
+   SLIDER
+   ============================================ */
+
+.s-slider .s-input {
+  position: relative;
+}
+
+.s-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: calc(4px + var(--density) * 4px);
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
+  outline: none;
+  cursor: pointer;
+  transition: height var(--duration) var(--easing);
+}
+
+.s-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(14px + var(--density) * 4px);
+  height: calc(14px + var(--density) * 4px);
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 2px 6px hsla(0 0% 0% / 0.15);
+  transition: transform var(--duration) var(--easing);
+}
+
+.s-slider input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.s-slider input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.s-slider input[type="range"]::-moz-range-thumb {
+  width: calc(14px + var(--density) * 4px);
+  height: calc(14px + var(--density) * 4px);
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  cursor: grab;
+}
+
+.s-slider .s-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+  min-width: 4ch;
+  text-align: right;
+}
+
+/* ============================================
+   NUMBER
+   ============================================ */
+
+.s-number .s-input {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.s-number input[type="number"] {
+  flex: 1;
+  width: 60px;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.s-number input[type="number"]::-webkit-inner-spin-button,
+.s-number input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.s-number .s-step {
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.s-number .s-step:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--surface);
+}
+
+.s-number .s-step:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   BOOLEAN (Toggle)
+   ============================================ */
+
+.s-boolean .s-input {
+  position: relative;
+  justify-content: flex-end;
+}
+
+.s-boolean input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.s-toggle {
+  width: calc(36px + var(--density) * 8px);
+  height: calc(20px + var(--density) * 4px);
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--duration) var(--easing);
+}
+
+.s-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(16px + var(--density) * 4px);
+  height: calc(16px + var(--density) * 4px);
+  background: var(--dim);
+  border-radius: 50%;
+  transition: transform var(--duration) var(--easing), background var(--duration) var(--easing);
+}
+
+.s-boolean.checked .s-toggle {
+  background: var(--accent);
+}
+
+.s-boolean.checked .s-toggle::after {
+  background: white;
+  transform: translateX(calc(16px + var(--density) * 4px));
+}
+
+/* ============================================
+   SELECT (Dropdown)
+   ============================================ */
+
+.s-dropdown .s-input select {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  padding-right: calc(var(--space-sm) + 20px);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-sm) center;
+  transition: border-color var(--duration) var(--easing);
+}
+
+.s-dropdown .s-input select:hover,
+.s-dropdown .s-input select:focus {
+  border-color: var(--accent);
+}
+
+/* ============================================
+   SELECT (Radio)
+   ============================================ */
+
+.s-radio {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.s-radio .s-label {
+  margin-bottom: var(--space-xs);
+}
+
+.s-radio .s-input {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.s-radio .s-input label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--dim);
+  transition: color var(--duration) var(--easing);
+}
+
+.s-radio .s-input label:hover {
+  color: var(--text);
+}
+
+.s-radio .s-input label.selected {
+  color: var(--accent);
+}
+
+.s-radio .s-input input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.s-radio .s-input input[type="radio"]:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+
+/* ============================================
+   SELECT (Buttons / Segmented)
+   ============================================ */
+
+.s-buttons .s-input {
+  display: flex;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.s-buttons .s-input button {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--dim);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.s-buttons .s-input button:hover {
+  color: var(--text);
+}
+
+.s-buttons .s-input button.selected {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px hsla(0 0% 0% / 0.1);
+}
+
+/* ============================================
+   TEXT
+   ============================================ */
+
+.s-text .s-input input,
+.s-textarea .s-input textarea {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--duration) var(--easing);
+}
+
+.s-text .s-input input:hover,
+.s-text .s-input input:focus,
+.s-textarea .s-input textarea:hover,
+.s-textarea .s-input textarea:focus {
+  border-color: var(--accent);
+}
+
+.s-textarea {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.s-textarea .s-label {
+  margin-bottom: var(--space-xs);
+}
+
+.s-textarea .s-input {
+  width: 100%;
+}
+
+.s-textarea .s-input textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* ============================================
+   COLOR
+   ============================================ */
+
+.s-color.s-picker .s-input {
+  position: relative;
+}
+
+.s-color.s-picker .s-input input[type="color"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.s-color.s-picker .s-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px hsla(0 0% 0% / 0.1);
+}
+
+.s-color.s-picker .s-hex {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--dim);
+}
+
+.s-color.s-swatches {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.s-color.s-swatches .s-label {
+  margin-bottom: var(--space-xs);
+}
+
+.s-color.s-swatches .s-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.s-color.s-swatches .s-input button {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.s-color.s-swatches .s-input button:hover {
+  transform: scale(1.1);
+}
+
+.s-color.s-swatches .s-input button.selected {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* ============================================
+   BUTTON
+   ============================================ */
+
+.s-button .s-input button {
+  padding: var(--space-xs) var(--space-md);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--accent);
+  background: transparent;
+  border: var(--border-width) solid var(--accent);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration) var(--easing);
+}
+
+.s-button .s-input button:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.s-button .s-input button:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   THEME: SWISS
+   ============================================ */
+
+[data-theme="swiss"] {
+  --font-body: var(--font-geometric);
+}
+
+/* ============================================
+   THEME: TERMINAL
+   ============================================ */
+
+[data-theme="terminal"] {
+  --font-body: var(--font-mono);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 2px;
+  --radius-full: 0;
+}
+
+[data-theme="terminal"] .s-slider input[type="range"]::-webkit-slider-thumb {
+  border-radius: 2px;
+}
+
+[data-theme="terminal"] .s-toggle {
+  border-radius: 2px;
+}
+
+[data-theme="terminal"] .s-toggle::after {
+  border-radius: 1px;
+}
+
+/* ============================================
+   THEME: DIGITAL
+   ============================================ */
+
+[data-theme="digital"] {
+  --font-body: var(--font-mono);
+}
+
+[data-theme="digital"] .s-slider input[type="range"] {
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-2) 100%);
+}
+
+[data-theme="digital"] .s-value,
+[data-theme="digital"] .s-number input {
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   THEME: ANALOG
+   ============================================ */
+
+[data-theme="analog"] {
+  --font-body: var(--font-humanist);
+}
+
+[data-theme="analog"] .panel {
+  box-shadow:
+    0 4px 12px hsla(0 0% 0% / 0.15),
+    inset 0 1px 0 hsla(0 0% 100% / 0.1);
+}
+
+[data-theme="analog"] .s-slider input[type="range"]::-webkit-slider-thumb {
+  box-shadow:
+    0 2px 4px hsla(0 0% 0% / 0.3),
+    inset 0 1px 0 hsla(0 0% 100% / 0.3);
+}
+
+/* ============================================
+   THEME: MORPHISM
+   ============================================ */
+
+[data-theme="morphism"] {
+  --font-body: var(--font-geometric);
+}
+
+[data-theme="morphism"] .panel {
+  box-shadow:
+    8px 8px 16px hsla(0 0% 0% / 0.1),
+    -4px -4px 12px hsla(0 0% 100% / 0.5),
+    inset 0 0 0 1px hsla(0 0% 100% / 0.2);
+  border-color: transparent;
+}
+
+[data-theme="morphism"] .s-slider input[type="range"] {
+  box-shadow:
+    inset 2px 2px 4px hsla(0 0% 0% / 0.1),
+    inset -1px -1px 2px hsla(0 0% 100% / 0.3);
+}
+
+[data-theme="morphism"] .s-toggle {
+  box-shadow:
+    inset 2px 2px 4px hsla(0 0% 0% / 0.1),
+    inset -1px -1px 2px hsla(0 0% 100% / 0.3);
+}
+
+[data-theme="morphism"] .s-buttons .s-input {
+  box-shadow:
+    inset 2px 2px 4px hsla(0 0% 0% / 0.08),
+    inset -1px -1px 2px hsla(0 0% 100% / 0.2);
+}
+
+[data-theme="morphism"] .s-buttons .s-input button.selected {
+  box-shadow:
+    2px 2px 4px hsla(0 0% 0% / 0.1),
+    -1px -1px 2px hsla(0 0% 100% / 0.5);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
+  .demo-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .config-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

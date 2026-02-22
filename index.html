@@ -49,11 +49,11 @@
 
       const themes = { default: base, skeu }
       const axes = {
-        default: ['shade', 'accent', 'spacing', 'size', 'weight', 'roundness'],
-        skeu: ['shade', 'accent', 'spacing', 'size', 'weight', 'roundness', 'contrast', 'depth', 'relief', 'bevel', 'grid'],
+        default: ['shade', 'accent', 'spacing', 'weight', 'roundness'],
+        skeu: ['shade', 'accent', 'spacing', 'weight', 'roundness', 'bevel', 'depth', 'grid'],
       }
 
-      const paramKeys = ['shade', 'accent', 'weight', 'contrast', 'relief', 'depth', 'roundness', 'spacing', 'size', 'bevel', 'grid']
+      const paramKeys = ['shade', 'accent', 'weight', 'depth', 'roundness', 'spacing', 'bevel', 'grid']
       const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
 
       const rand = (lo, hi, step = 0) => {
@@ -69,13 +69,10 @@
         'params.shade': '#f7f7f7',
         'params.accent': '#2967fa',
         'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 50, marks: true, snap: true },
-        'params.contrast': { type: 'slider', value: 0.25, min: 0, max: 1, step: 0.01, marks: true, curve: 2 },
         'params.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
-        'params.relief': { type: 'slider', value: 0.1, min: 0, max: 1, step: 0.01 },
         'params.depth': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
         'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
         'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
-        'params.size': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
         'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
 
         code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
@@ -121,13 +118,10 @@
         state.shade = randHex()
         state.accent = randHex()
         state.weight = rand(100, 900, 100)
-        state.contrast = rand(0, 1, 0.01)
         state.bevel = rand(0, 2, 0.1)
-        state.relief = rand(0, 1, 0.01)
-        state.depth = rand(0, 2, 0.01)
+        state.depth = rand(0, 2, 0.1)
         state.roundness = rand(0, 2, 0.25)
         state.spacing = rand(0.5, 2, 0.25)
-        state.size = rand(0.5, 2, 0.25)
       }
 
       function syncBg() {

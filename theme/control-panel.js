@@ -33,371 +33,179 @@ export default function controlPanel({
 
   const overrides = `.s-panel {
   --bg: ${bg1};
+  --bg2: ${bg2};
+  --bg2h: ${bg2h};
+  --fg: ${fg1};
+  --text: ${text1};
+  --dim: ${text2};
   --accent: ${resolved};
-  --r: 0px;
-  --ri: 0px;
-  --roundness: 0;
+  --r: 0px; --roundness: 0;
   --padding: calc(var(--u) * 1);
 
   font-family: 'Hack', 'Fira Code', 'Source Code Pro', ui-monospace, monospace;
-  font-size: 11px;
-  line-height: 20px;
-  color: ${text1};
-  border-radius: 0;
-  padding: 14px;
-  min-width: 0;
+  font-size: 11px; line-height: 20px; color: var(--text);
+  border-radius: 0; padding: 14px; min-width: 0;
 
-  /* ── Title: uppercase, dimmed, centered ── */
+  /* ── Title ── */
   > summary, > .s-panel-title {
-    font-size: 11px;
-    font-weight: normal;
-    color: ${text2};
-    text-transform: uppercase;
-    text-align: center;
-    justify-content: center;
-    height: 20px;
-    line-height: 20px;
-    padding: 0;
-    margin-bottom: 4px;
-    border-bottom: none;
+    font-size: 11px; font-weight: normal; color: var(--dim);
+    text-transform: uppercase; text-align: center; justify-content: center;
+    height: 20px; line-height: 20px; padding: 0; margin-bottom: 4px; border-bottom: none;
     &::after { display: none; }
   }
+  .s-panel-content { gap: .333em; padding: 0; }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
-  .s-panel-content {
-    gap: .333em;
-    padding: 0;
-  }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
-    padding-top: 0;
-  }
-
-  /* ── Control row: 25px min-height ── */
-  .s-control {
-    display: flex;
-    align-items: baseline;
-    gap: .333em;
-    padding: 0;
-    position: relative;
-  }
-
-  /* ── Label: 36% width, text1 color ── */
-  .s-label-group {
-    min-width: 0;
-    width: 36%;
-    max-width: none;
-    flex: 0 0 36%;
-    padding: 0;
-    line-height: 1.1;
-    height: auto;
-  }
-  .s-label {
-    color: ${text1};
-    font-size: 11px;
-    overflow-wrap: break-word;
-  }
-
-  /* ── Input ── */
-  .s-input {
-    flex: 1;
-    min-width: 0;
-    gap: 0;
-    align-items: center;
-  }
+  /* ── Layout ── */
+  .s-control { display: flex; align-items: baseline; gap: .333em; padding: 0; position: relative; }
+  .s-label-group { min-width: 0; width: 36%; max-width: none; flex: 0 0 36%; padding: 0; line-height: 1.1; height: auto; }
+  .s-label { font-size: 11px; overflow-wrap: break-word; }
+  .s-input { flex: 1; min-width: 0; gap: 0; align-items: center; }
 
   /* ── Text inputs ── */
   input[type="text"], input[type="number"], textarea, select {
-    background: ${bg2};
-    border: none;
-    border-radius: 0;
-    outline: none;
-    color: ${text1};
-    font-family: inherit;
-    font-size: 11px;
-    padding: 0 5px;
-    height: 20px;
-    line-height: 20px;
-    &::placeholder { color: ${fg1}; }
-    &:hover { background: ${bg2h}; }
-    &:focus { background: ${bg2h}; outline: none; }
-    &:focus-visible { outline: none; }
+    background: var(--bg2);
+    border: none; border-radius: 0; outline: none;
+    color: var(--dim); font-family: inherit; font-size: 11px;
+    padding: 0 5px; height: 20px; line-height: 20px;
+    &::placeholder { color: var(--fg); }
+    &:hover { background-color: var(--bg2h); }
+    &:focus { background-color: var(--bg2h); outline: none; }
+    &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
   }
 
-  /* ── Slider: track fills remaining, readout 30px ── */
+  /* ── Slider ── */
   .s-slider {
     align-items: center;
     .s-input { gap: .25rem; }
-    .s-track {
-      margin: 0;
-      height: 20px;
-      flex: 1;
-    }
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 20px;
-      background: ${bg2};
-      border-radius: 0;
-      outline: none;
-      cursor: ew-resize;
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 10px;
-        height: 20px;
-        background: ${fg1};
-        border-radius: 0;
-        cursor: ew-resize;
-        border: none;
-      }
-      &::-moz-range-thumb {
-        width: 10px;
-        height: 20px;
-        background: ${fg1};
-        border-radius: 0;
-        cursor: ew-resize;
-        border: none;
-      }
-      &::-webkit-slider-runnable-track {
-        height: 20px;
-        border-radius: 0;
-      }
-      &::-moz-range-track {
-        height: 20px;
-        background: ${bg2};
-        border-radius: 0;
-        border: none;
-      }
-    }
     .s-readout {
-      color: ${text2};
-      font-size: 11px;
-      height: 20px;
-      line-height: 20px;
-      width: 30px;
-      min-width: 30px;
-      flex: 0 0 30px;
-      text-align: left;
-      padding: 0 4px;
-      overflow: hidden;
-    }
-    .s-readout:is(input) {
-      border: none;
-      border-radius: 0;
+      color: var(--dim); font-size: 11px;
+      height: 20px; line-height: 20px;
+      width: 30px; min-width: 30px; flex: 0 0 30px;
+      text-align: left; padding: 0 4px; overflow: hidden;
     }
   }
-
-  /* ── Slider multiple: dual-thumb interval ── */
+  .s-slider:not(.multiple) {
+    .s-track { margin: 0; height: 20px; flex: 1; }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 20px;
+      background: var(--bg2); border-radius: 0; outline: none; cursor: ew-resize;
+      &:hover { background-color: var(--bg2h); }
+      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+      &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+      &::-webkit-slider-runnable-track { height: 20px; border-radius: 0; }
+      &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
+    }
+  }
   .s-slider.multiple {
-    align-items: center;
-    .s-input { gap: .25rem; }
     .s-interval-track {
-      flex: 1;
-      height: 20px;
-      margin: 0;
-      background: ${bg2};
+      flex: 1; height: 20px; margin: 0;
+      background: var(--bg2);
       background-image: linear-gradient(to right,
-        transparent var(--low), ${fg1} var(--low),
-        ${fg1} var(--high), transparent var(--high));
+        transparent var(--low), var(--fg) var(--low),
+        var(--fg) var(--high), transparent var(--high));
+      &:hover { background-color: var(--bg2h); }
     }
     .s-interval-track input[type="range"] {
       height: 20px;
-      &::-webkit-slider-thumb {
-        width: 10px; height: 20px;
-        background: ${text2};
-        border-radius: 0; border: none;
-      }
-      &::-moz-range-thumb {
-        width: 10px; height: 20px;
-        background: ${text2};
-        border-radius: 0; border: none;
-      }
-    }
-    .s-readout {
-      color: ${text2};
-      font-size: 11px;
-      height: 20px;
-      line-height: 20px;
-      width: 30px;
-      min-width: 30px;
-      flex: 0 0 30px;
-      text-align: left;
-      padding: 0 4px;
-      overflow: hidden;
+      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+      &::-webkit-slider-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
+      &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
     }
   }
 
-  /* ── Boolean: 18px square checkbox ── */
-  .s-boolean {
-    .s-input { align-self: center; }
-    .s-track {
-      width: 18px; height: 18px;
-      border-radius: 0;
-      background: ${bg2};
-      border: none;
-      position: relative;
-      margin: 1px 0;
-      &::after {
-        content: '';
-        position: absolute;
-        width: 10px; height: 10px;
-        border-radius: 0;
-        top: 4px; left: 4px;
-        background: transparent;
-        box-shadow: none;
-        transition: background 140ms;
-      }
-    }
-    &:has(input:checked) .s-track {
-      background: ${bg2};
-      border: none;
-      &::after {
-        background: ${fg1};
-        transform: none;
-      }
-    }
-    &:has(input:focus-visible) .s-track {
-      outline: 1px solid ${fg1};
+  /* ── Checkbox track (checkbox variant + checkboxes shared) ── */
+  .s-boolean.checkbox .s-track, .s-select.checkboxes .s-track {
+    width: 18px; height: 18px;
+    border-radius: 0; border: none; box-shadow: none;
+    background: var(--bg2); position: relative;
+    &::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px; border-radius: 0;
+      top: 4px; left: 4px;
+      background: transparent; box-shadow: none; transition: background 140ms;
     }
   }
+  .s-boolean.checkbox .s-track { margin: 1px 0; }
+  .s-select.checkboxes .s-track { display: inline-block; flex-shrink: 0; margin-right: 8px; vertical-align: -4px; }
 
-  /* ── Select dropdown: full width, dual-triangle arrows ── */
+  /* ── Checkbox: checked, hover, focus ── */
+  .s-boolean.checkbox:has(input:checked) .s-track { background: var(--bg2); border: none; }
+  .s-boolean.checkbox:has(input:checked) .s-track::after,
+  .s-select.checkboxes label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
+  .s-boolean.checkbox label:hover .s-track,
+  .s-select.checkboxes label:hover .s-track { background-color: var(--bg2h); }
+  .s-boolean.checkbox:has(input:focus-visible) .s-track,
+  .s-select.checkboxes label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
+
+  /* ── Boolean ── */
+  .s-boolean.checkbox { align-items: center; .s-input { align-self: center; } }
+
+  /* ── Select dropdown ── */
   .s-select select {
-    flex: 1;
-    width: 100%;
-    -webkit-appearance: none;
-    appearance: none;
-    background: ${bg2};
+    flex: 1; width: 100%;
+    -webkit-appearance: none; appearance: none;
     background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${fg1}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    border: none;
-    border-radius: 0;
-    color: ${text2};
-    height: 20px;
-    font-family: inherit;
-    font-size: 11px;
-    padding: 0 16px 0 5px;
-    cursor: pointer;
-    &:hover { background-color: ${bg2h}; }
-    &:focus, &:active { background-color: ${bg2h}; }
-    &:focus-visible { outline: none; }
-    option { background: ${bg1}; color: ${text1}; }
+    background-repeat: no-repeat; background-position: right 4px center;
+    padding: 0 16px 0 5px; cursor: pointer;
+    option { background: var(--bg); color: var(--text); }
   }
 
-  /* ── Select checkboxes (multibox): reuse boolean .s-track pattern ── */
+  /* ── Select checkboxes ── */
   .s-select.checkboxes {
-    min-height: auto;
-    padding: 0;
-    align-items: baseline;
+    min-height: auto; padding: 0;
     .s-input {
-      align-self: center;
-      gap: 0;
-      flex-wrap: wrap;
+      align-self: center; gap: 0; flex-wrap: wrap;
       label {
-        display: inline-flex;
-        align-items: center;
-        color: ${text2};
-        font-size: 11px;
-        margin-right: 8px;
-        cursor: pointer;
+        display: inline-flex; align-items: center;
+        color: var(--dim); font-size: 11px; margin-right: 8px; cursor: pointer;
         input { position: absolute; opacity: 0; width: 0; height: 0; }
-        .s-track {
-          display: inline-block;
-          width: 18px; height: 18px;
-          border-radius: 0;
-          background: ${bg2};
-          border: none;
-          position: relative;
-          margin-right: 8px;
-          flex-shrink: 0;
-          vertical-align: -4px;
-          &::after {
-            content: '';
-            position: absolute;
-            width: 10px; height: 10px;
-            border-radius: 0;
-            top: 4px; left: 4px;
-            background: transparent;
-            transition: background 140ms;
-          }
-        }
-        &:has(input:checked) .s-track::after {
-          background: ${fg1};
-        }
       }
     }
   }
 
   /* ── Color ── */
   .s-color-input {
-    input[type="text"] {
-      font-family: inherit;
-      font-size: 11px;
-      margin-left: calc(30px + 0.25rem);
-    }
+    input[type="text"] { font-family: inherit; font-size: 11px; margin-left: calc(30px + 0.25rem); }
     input[type="color"] {
-      -webkit-appearance: none;
-      appearance: none;
-      border: none;
-      border-radius: 0;
-      width: 30px;
-      height: 20px;
-      padding: 0;
-      cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      border: none; border-radius: 0; width: 30px; height: 20px; padding: 0; cursor: pointer;
+      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
       &::-webkit-color-swatch-wrapper { padding: 0; }
       &::-webkit-color-swatch { border: none; border-radius: 0; }
       &::-moz-color-swatch { border: none; border-radius: 0; }
     }
   }
 
-  /* ── Button: flat, full-width, inverted on active ── */
+  /* ── Button ── */
   .s-button {
     .s-input { flex: 1; }
     button {
-      width: 100%;
-      background: ${bg2};
-      border: none;
-      border-radius: 0;
-      color: ${text2};
-      font-family: inherit;
-      font-size: 11px;
-      padding: 0 10px;
-      height: 20px;
-      cursor: pointer;
-      filter: none;
-      &:hover { background: ${bg2h}; color: ${text2}; filter: none; }
-      &:active { background: ${text2}; color: ${bg2}; filter: none; }
+      width: 100%; background: var(--bg2); border: none; border-radius: 0;
+      color: var(--dim); font-family: inherit; font-size: 11px;
+      padding: 0 10px; height: 20px; cursor: pointer;
+      &:hover { background: var(--bg2h); filter: none; }
+      &:active { background: var(--dim); color: var(--bg2); filter: none; }
+      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
     }
   }
 
   /* ── Number ── */
-  .s-number {
-    input[type="number"] {
-      width: 60px;
-      text-align: left;
-    }
-    .s-step { display: none; }
-  }
+  .s-number { input[type="number"] { width: 60px; text-align: left; } .s-step { display: none; } }
 
   /* ── Text ── */
-  .s-text input[type="text"] {
-    flex: 1;
-  }
+  .s-text input[type="text"] { flex: 1; }
 
   /* ── Folder ── */
   .s-folder {
     > summary {
-      font-size: 11px;
-      font-weight: ${weight};
-      color: ${text2};
-      padding: 4px 0;
-      border-bottom: none;
-      opacity: 1;
+      font-size: 11px; font-weight: ${weight}; color: var(--dim);
+      padding: 4px 0; border-bottom: none; opacity: 1;
       &::after { display: none; }
     }
-    .s-content {
-      gap: 0;
-    }
+    .s-content { gap: 0; }
   }
 }`
 

@@ -10,7 +10,6 @@
  *           false (default), true (at step positions), 'ends', 'center',
  *           [values] (ticks only), {value: 'label'} (ticks + labels)
  *   snap - snap to marks during drag: false (default), true if step provided, or number (% threshold)
- *   track - CSS gradient for custom track background
  *   haptic - vibrate on mark crossings during drag: true (10ms tick) or ms duration
  *   readout - value display: true/'input' (editable, default), 'readonly' (text),
  *            'tooltip' (above thumb), (value) → string (custom text), false/null (hidden)
@@ -23,18 +22,18 @@ import { signal, effect, computed } from '../signals.js'
 
 const multipleTemplate = `
   <span class="s-readout s-readout-lo" :if="showReadonly" :text="fmtLow"></span>
-  <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onfocus="e => e.target.select()" />
+  <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onkeydown.arrow.prevent="stepKeyLow" :onfocus="e => e.target.select()" />
   <span class="s-interval-track" :style="'--low:' + lowPct + '%;--high:' + highPct + '%'">
     <input type="range" class="s-interval-lo" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
     <input type="range" class="s-interval-hi" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
   </span>
   <span class="s-readout s-readout-hi" :if="showReadonly" :text="fmtHigh"></span>
-  <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onfocus="e => e.target.select()" />
+  <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onkeydown.arrow.prevent="stepKeyHigh" :onfocus="e => e.target.select()" />
 `
 
 const template = `
   <span class="s-track">
-    <input type="range" :id="label || null" :list="nativeTicks ? listId : null" :style="track ? '--track:' + track : '--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
+    <input type="range" :id="label || null" :list="nativeTicks ? listId : null" :style="'--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
     <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
@@ -89,26 +88,28 @@ export default (sig, opts = {}) => {
     const fmtLow = computed(() => readoutText(low.value))
     const fmtHigh = computed(() => readoutText(high.value))
 
-    const setLowActual = e => {
-      const v = parseFloat(e.target.value)
-      if (Number.isFinite(v)) setLow(Math.min(max, Math.max(min, v)))
-    }
-    const setHighActual = e => {
-      const v = parseFloat(e.target.value)
-      if (Number.isFinite(v)) setHigh(Math.min(max, Math.max(min, v)))
-    }
+    const clampVal = v => Math.min(max, Math.max(min, v))
+    const stepSize = e => step * (e.shiftKey ? 10 : e.altKey ? 0.1 : 1)
+    const isUp = e => e.key === 'ArrowUp' || e.key === 'ArrowRight'
+    const makeActual = fn => e => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) fn(clampVal(v)) }
+    const makeStepKey = fn => e => { const v = parseFloat(e.target.value); if (!Number.isFinite(v)) return; fn(clampVal(v + (isUp(e) ? 1 : -1) * stepSize(e))) }
+
+    const setLowActual = makeActual(setLow)
+    const setHighActual = makeActual(setHigh)
+    const stepKeyLow = makeStepKey(setLow)
+    const stepKeyHigh = makeStepKey(setHigh)
 
     return control(sig, {
       ...rest,
       type: 'slider multiple',
       template: multipleTemplate, dispose,
       low, high, lowPct, highPct, min, max, step,
-      setLow, setHigh, setLowActual, setHighActual,
+      setLow, setHigh, setLowActual, setHighActual, stepKeyLow, stepKeyHigh,
       showInput, showReadonly, fmtLow, fmtHigh
     })
   }
 
-  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, readout = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
+  const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, haptic = true, readout = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
 
   // Curve (maps normalized [0,1] non-linearly)
   const curve = makeCurve(curveOpt)
@@ -275,7 +276,7 @@ export default (sig, opts = {}) => {
 
   const result = control(sig, {
     ...rest,
-    type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, track, listId, nativeTicks,
+    type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, listId, nativeTicks,
     dMin, dMax, dStep, set, setActual, stepKey, grab, release,
     readout, showInput, showReadonly, showTooltip, readoutText, format
   })

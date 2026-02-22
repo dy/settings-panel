@@ -59,7 +59,7 @@ export default function base({
   const stroke = max(1, weight / 400)
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
-  return `.s-panel {
+  return `@layer s-base {\n.s-panel {
   --bg: ${shade};
   --accent: ${accent};
   --u: 0.25rem;
@@ -161,11 +161,15 @@ export default function base({
   button { font: inherit; cursor: pointer; }
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
 
-  /* ── Boolean ── */
+  /* ── Boolean (shared) ── */
   .s-boolean {
     align-items: center;
     label { display: flex; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+  }
+  /* ── Boolean toggle variant ── */
+  .s-boolean.toggle {
     .s-track {
       width: calc(var(--u) * 10); height: calc(var(--u) * 5);
       margin: calc(var(--u) * var(--spacing)) 0;
@@ -188,7 +192,6 @@ export default function base({
       background: var(--accent); border-color: var(--accent);
       &::after { transform: translateX(calc(var(--u) * 5)); }
     }
-    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
 
   /* ── Number ── */
@@ -396,5 +399,5 @@ export default function base({
     *, *::before, *::after { transition-duration: 0ms !important; }
   }
   */
-}`
+}\n}`
 }
