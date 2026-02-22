@@ -23,6 +23,13 @@ const templates = {
       :onclick="toggle(opt.value)"
       :text="opt.label"
     ></button>
+  `,
+  checkboxes: `
+    <label :each="opt in options">
+      <input type="checkbox" :checked="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
+      <span class="s-track"></span>
+      <span :text="opt.label"></span>
+    </label>
   `
 }
 

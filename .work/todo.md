@@ -24,10 +24,11 @@
   * [ ] tweakpane
   * [ ] leva
   * [ ] skeu examples
-  * [ ]
   * [ ] oui
   * [ ] controlkit
   * [ ] uil
+  * [ ] settings-panel v1
+  * [ ] daytime switch
   * [ ] customize theme link
 
 * [ ] icons

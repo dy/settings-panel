@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Panel</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@12",
+      "sprae/store": "https://esm.sh/sprae@12/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a1a;
+      padding: 2rem;
+      font-size: 11px;
+    }
+    #panel {
+      width: min(100%, 300px);
+    }
+  </style>
+</head>
+<body style="background: rgb(150, 150, 150);">
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import controlPanel from '../../theme/control-panel.js'
+
+    settings({
+      'range slider': { type: 'slider', value: 20, min: 0, max: 100, step: 1, label: 'range slider' },
+      'stepped slider': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, label: 'stepped slider' },
+      'interval': { type: 'slider', multiple: true, value: [25, 50], min: 0, max: 100, step: 1, label: 'interval' },
+      'text': { type: 'text', value: 'my setting', label: 'text' },
+      'checkbox': { type: 'boolean', value: true, label: 'checkbox' },
+      'color rgb': { type: 'color', value: '#64c864', label: 'color rgb' },
+      'color hex': { type: 'color', value: '#30b2ba', label: 'color hex' },
+      'gimme an alert': { type: 'button', text: 'gimme an alert', label: '', onClick: () => alert('hello!') },
+      'selection': { type: 'select', options: ['option 1', 'option 2'], value: 'option 1', label: 'selection' },
+      'multiple checkboxes': {
+        type: 'select', variant: 'checkboxes', multiple: true,
+        value: ['box1', 'box2'],
+        options: ['box1', 'box2'],
+        label: 'multiple checkboxes'
+      },
+    }, {
+      container: '#panel',
+      theme: () => controlPanel(),
+      title: 'example panel 2',
+    })
+  </script>
+</body>
+</html>

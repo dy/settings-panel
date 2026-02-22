@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings Panel — Gallery</title>
+  <script type="importmap">
+  { "imports": { "sprae": "https://esm.sh/sprae@12" } }
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; }
 
@@ -67,45 +70,28 @@
 </head>
 <body>
 
-<div class="gallery" id="gallery"></div>
+<div class="gallery" id="gallery">
+  <div class="cell" :each="c in cases">
+    <div class="cell-label" :text="c.label"></div>
+    <iframe :if="c.src" :src="c.src"></iframe>
+    <div :if="!c.src" class="cell-placeholder" :text="c.label + ' — not yet'"></div>
+  </div>
+</div>
 
-<script>
-  const cases = [
+<script type="module">
+  import sprae from 'sprae'
+
+  sprae(gallery, { cases: [
     { label: 'swiss — coworking', src: 'cases/swiss-coworking.html' },
-    { label: 'oui' },
     { label: 'control-panel', src: 'cases/control-panel.html' },
+    { label: 'dat.gui' },
+    { label: 'leva' },
     { label: 'controlkit' },
     { label: 'uil' },
-    { label: 'leva' },
+    { label: 'oui' },
     { label: 'tweakpane' },
     { label: 'figma' },
-    { label: 'dat.gui' },
-  ]
-
-  const gallery = document.getElementById('gallery')
-
-  for (const c of cases) {
-    const cell = document.createElement('div')
-    cell.className = 'cell'
-
-    const label = document.createElement('div')
-    label.className = 'cell-label'
-    label.textContent = c.label
-    cell.appendChild(label)
-
-    if (c.src) {
-      const iframe = document.createElement('iframe')
-      iframe.src = c.src
-      cell.appendChild(iframe)
-    } else {
-      const ph = document.createElement('div')
-      ph.className = 'cell-placeholder'
-      ph.textContent = `${c.label} — not yet`
-      cell.appendChild(ph)
-    }
-
-    gallery.appendChild(cell)
-  }
+  ]})
 </script>
 
 </body>

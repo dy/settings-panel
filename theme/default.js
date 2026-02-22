@@ -252,6 +252,45 @@ export default function base({
     }
   }
 
+  /* ── Slider multiple (dual-thumb interval) ── */
+  .s-slider.multiple {
+    align-items: center;
+    .s-interval-track {
+      flex: 1; position: relative; display: flex; align-items: center;
+      height: calc(var(--u) * 4);
+      margin: calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
+      background: color-mix(in oklch, var(--bg), ${fg} 15%);
+      background-image: linear-gradient(to right,
+        transparent var(--low), var(--accent) var(--low),
+        var(--accent) var(--high), transparent var(--high));
+    }
+    .s-interval-track input[type="range"] {
+      position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+      -webkit-appearance: none; appearance: none;
+      background: transparent; pointer-events: none; cursor: ew-resize;
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: calc(var(--u) * 2); height: calc(var(--u) * 4);
+        background: color-mix(in oklch, var(--bg), ${fg} 50%);
+        pointer-events: all; cursor: ew-resize;
+      }
+      &::-moz-range-thumb {
+        width: calc(var(--u) * 2); height: calc(var(--u) * 4);
+        background: color-mix(in oklch, var(--bg), ${fg} 50%);
+        border: none; border-radius: 0;
+        pointer-events: all; cursor: ew-resize;
+      }
+      &::-webkit-slider-runnable-track { height: 100%; }
+      &::-moz-range-track { height: 100%; background: transparent; border: none; }
+    }
+    .s-readout {
+      align-self: center;
+      min-width: calc(8ch + var(--padding));
+      font-size: smaller;
+      padding-left: var(--padding);
+    }
+  }
+
   /* ── Select ── */
   .s-select select { flex: 1; cursor: pointer; }
   .s-select.buttons {
@@ -283,13 +322,12 @@ export default function base({
     flex: 1; position: relative; display: flex; align-items: center;
     input[type="color"] {
       position: absolute;
-      left: calc(var(--u) * (0.5 + 1 * var(--spacing)) - var(--u) * .5);
       width: calc(var(--u) * 5); height: calc(var(--u) * 5);
       padding: 0; border: none;
       cursor: pointer;
     }
     input[type="text"] {
-      flex: 1; padding-left: calc(var(--u) * 6 + var(--u) * 2 * min(var(--spacing), 1));
+      flex: 1;
     }
   }
   .s-swatches {

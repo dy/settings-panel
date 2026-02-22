@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 
 const cases = [
   { name: 'swiss-coworking', path: '/demo/cases/swiss-coworking.html' },
+  { name: 'control-panel', path: '/demo/cases/control-panel.html' },
 ]
 
 for (const { name, path } of cases) {

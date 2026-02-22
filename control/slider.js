@@ -1,9 +1,10 @@
 /**
- * Slider control - linear, log, discrete
+ * Slider control - linear, log, discrete, multiple (interval)
  *
  * Options:
  *   min, max - range bounds
  *   step - increment: number | number[] (array = discrete values with snap)
+ *   multiple - true for dual-thumb interval mode (value: [low, high])
  *   scale - 'linear' | 'log'
  *   marks - visual indicators on track:
  *           false (default), true (at step positions), 'ends', 'center',
@@ -19,6 +20,17 @@
 
 import control from './control.js'
 import { signal, effect, computed } from '../signals.js'
+
+const multipleTemplate = `
+  <span class="s-readout s-readout-lo" :if="showReadonly" :text="fmtLow"></span>
+  <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onfocus="e => e.target.select()" />
+  <span class="s-interval-track" :style="'--low:' + lowPct + '%;--high:' + highPct + '%'">
+    <input type="range" class="s-interval-lo" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
+    <input type="range" class="s-interval-hi" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
+  </span>
+  <span class="s-readout s-readout-hi" :if="showReadonly" :text="fmtHigh"></span>
+  <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onfocus="e => e.target.select()" />
+`
 
 const template = `
   <span class="s-track">
@@ -48,6 +60,54 @@ const makeCurve = (opt) => {
 }
 
 export default (sig, opts = {}) => {
+  if (opts.multiple) {
+    const { min = 0, max = 100, step = 1, readout = true, format: fmt, unit = '', ...rest } = opts
+
+    const low = signal(Array.isArray(sig.value) ? sig.value[0] : min)
+    const high = signal(Array.isArray(sig.value) ? sig.value[1] : max)
+
+    const dispose = effect(() => {
+      const v = sig.value
+      if (Array.isArray(v)) { low.value = v[0]; high.value = v[1] }
+    })
+
+    const range = max - min
+    const lowPct = computed(() => +((low.value - min) / range * 100).toFixed(1))
+    const highPct = computed(() => +((high.value - min) / range * 100).toFixed(1))
+
+    const setLow = v => { sig.value = [Math.min(v, high.value), high.value] }
+    const setHigh = v => { sig.value = [low.value, Math.max(v, low.value)] }
+
+    const prec = step < 1 ? (String(step).split('.')[1] || '').length : 0
+    const format = fmt || (v => v.toFixed(prec) + unit)
+
+    // Same readout options as single slider
+    const readoutFn = typeof readout === 'function' ? readout : null
+    const showInput = readout === true || readout === 'input'
+    const showReadonly = readout === 'readonly' || !!readoutFn
+    const readoutText = readoutFn || format
+    const fmtLow = computed(() => readoutText(low.value))
+    const fmtHigh = computed(() => readoutText(high.value))
+
+    const setLowActual = e => {
+      const v = parseFloat(e.target.value)
+      if (Number.isFinite(v)) setLow(Math.min(max, Math.max(min, v)))
+    }
+    const setHighActual = e => {
+      const v = parseFloat(e.target.value)
+      if (Number.isFinite(v)) setHigh(Math.min(max, Math.max(min, v)))
+    }
+
+    return control(sig, {
+      ...rest,
+      type: 'slider multiple',
+      template: multipleTemplate, dispose,
+      low, high, lowPct, highPct, min, max, step,
+      setLow, setHigh, setLowActual, setHighActual,
+      showInput, showReadonly, fmtLow, fmtHigh
+    })
+  }
+
   const { min = 0, max = 1, step: stepOpt = 0.01, scale = 'linear', curve: curveOpt, marks: marksOpt, snap: snapOpt, track, haptic = true, readout = true, unit = '', format: fmt, nativeTicks: nativeTicksOpt, ...rest } = opts
 
   // Curve (maps normalized [0,1] non-linearly)
