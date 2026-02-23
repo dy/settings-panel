@@ -24,8 +24,8 @@ const multipleTemplate = `
   <span class="s-readout s-readout-lo" :if="showReadonly" :text="fmtLow"></span>
   <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onkeydown.arrow.prevent="stepKeyLow" :onfocus="e => e.target.select()" />
   <span class="s-interval-track" :style="'--low:' + lowPct + '%;--high:' + highPct + '%'">
-    <input type="range" class="s-interval-lo" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
-    <input type="range" class="s-interval-hi" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
+    <input type="range" class="s-interval-lo" :name="label ? label+'-lo' : null" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
+    <input type="range" class="s-interval-hi" :name="label ? label+'-hi' : null" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
   </span>
   <span class="s-readout s-readout-hi" :if="showReadonly" :text="fmtHigh"></span>
   <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onkeydown.arrow.prevent="stepKeyHigh" :onfocus="e => e.target.select()" />
@@ -33,7 +33,7 @@ const multipleTemplate = `
 
 const template = `
   <span class="s-track">
-    <input type="range" :id="label || null" :list="nativeTicks ? listId : null" :style="'--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
+    <input type="range" :id="label || null" :name="label || null" :list="nativeTicks ? listId : null" :style="'--p:' + progress" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
     <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>

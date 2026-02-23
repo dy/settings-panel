@@ -62,19 +62,19 @@ export default function base({
   return `@layer s-base {\n.s-panel {
   --bg: ${shade};
   --accent: ${accent};
-  --u: 0.25rem;
+  --u: 4px;
   --lh: calc(var(--u) * 4);
   --spacing: ${spacing};
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness));
-  --padding: calc(var(--u) * (0.5 + 1 * var(--spacing)));
+  --padding: calc(var(--u) * (0.5 + var(--spacing)));
 
   display: flex; flex-direction: column;
   background-color: var(--bg);
   color-scheme: ${dark ? 'dark' : 'light'};
-  color: color-mix(in oklch, var(--bg), ${fg} 85%);
+  color: color-mix(in oklab, var(--bg), ${fg} 85%);
   accent-color: var(--accent);
-  padding: calc(var(--u) * (1 + 2 * var(--spacing)));
+  padding: calc(var(--u) * (2 + 3 * var(--spacing)));
   border-radius: var(--r);
   font-family: system-ui, -apple-system, sans-serif;
   font-weight: ${weight};
@@ -110,7 +110,7 @@ export default function base({
     interpolate-size: allow-keywords;
     &::details-content {
       content-visibility: visible;
-      height: 0; overflow: clip; overflow-clip-margin: 1.5rem; opacity: 0;
+      height: 0; overflow: clip; overflow-clip-margin: 12px; opacity: 0;
       transition: height 200ms 80ms, opacity 80ms;
     }
     &[open]::details-content {
@@ -150,7 +150,11 @@ export default function base({
     font: inherit;
     color: inherit;
   }
+  input[type="text"], input[type="number"], select {
+    height: calc(1lh + var(--padding) * 2);
+  }
   select {
+    padding: 0;
     padding-right: calc(var(--u) * 6 * min(var(--spacing), 1));
     cursor: pointer;
     option { font-family: system-ui, -apple-system, sans-serif; }
@@ -163,31 +167,37 @@ export default function base({
     align-items: center;
     .s-input { display: flex; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
-  }
-  /* ── Boolean toggle variant ── */
-  .s-boolean.toggle {
-    .s-track {
-      width: calc(var(--u) * 10); height: calc(var(--u) * 5);
-      margin: calc(var(--u) * var(--spacing)) 0;
-      background: color-mix(in oklch, var(--bg), ${fg} 20%);
-      border: 1px solid color-mix(in oklch, var(--bg), ${border} 15%);
-      border-radius: 999px;
-      position: relative; cursor: pointer;
-      transition: background-color 200ms;
-      &::after {
-        content: ''; position: absolute;
-        width: calc(var(--u) * 4); height: calc(var(--u) * 4);
-        background: ${dark ? '#fff' : '#fff'};
-        border-radius: 50%;
-        top: calc(var(--u) * .5); left: calc(var(--u) * .5);
-        transition: transform 200ms;
-        box-shadow: 0 1px 2px color-mix(in oklch, ${fg}, transparent 75%);
-      }
+    &:has(input:focus-visible) .s-track {
+      outline: 2px solid var(--accent); outline-offset: 2px;
     }
-    &:has(input:checked) .s-track {
-      background: var(--accent); border-color: var(--accent);
-      &::after { transform: translateX(calc(var(--u) * 5)); }
+    /* ── Boolean toggle variant ── */
+    &.toggle {
+      .s-track {
+        width: calc(var(--u) * (8 + var(--spacing) * 2));
+        height: calc(var(--u) * 4 + var(--padding));
+        background: color-mix(in oklab, var(--bg), ${fg} 20%);
+        border: 1px solid color-mix(in oklab, var(--bg), ${border} 15%);
+        border-radius: 999px;
+        position: relative; cursor: pointer;
+        transition: background-color 200ms;
+        margin: calc(var(--padding) / 2) 0;
+        &::after {
+          content: '';
+          display: block;
+          position: absolute;
+          width: calc(var(--u) * 4); height: calc(var(--u) * 4);
+          margin: auto calc(var(--padding) / 2);
+          inset: 0;
+          background: ${dark ? '#fff' : '#fff'};
+          border-radius: 50%;
+          transition: transform 200ms;
+          box-shadow: 0 1px 2px color-mix(in oklab, ${fg}, transparent 75%);
+        }
+      }
+      &:has(input:checked) .s-track {
+        background: var(--accent); border-color: var(--accent);
+        &::after { right: 0; left: auto; }
+      }
     }
   }
 
@@ -196,8 +206,9 @@ export default function base({
 
   /* ── Secondary button base ── */
   .s-step, .s-select.buttons button, .s-button.secondary button, .s-button button.secondary {
-    background-color: color-mix(in oklch, var(--bg), ${fg} 5%);
-    border: 1px solid color-mix(in oklch, var(--bg), ${border} 20%); border-radius: var(--r);
+    background-color: color-mix(in oklab, var(--bg), ${fg} 5%);
+    border: 1px solid color-mix(in oklab, var(--bg), ${border} 20%); border-radius: var(--r);
+    color: inherit;
     transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms, border-color 140ms;
     &:hover { filter: brightness(1.2); }
     &:active { filter: brightness(.95); }
@@ -259,7 +270,7 @@ export default function base({
       flex: 1; position: relative; display: flex; align-items: center;
       height: calc(var(--u) * 4);
       margin: calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
-      background: color-mix(in oklch, var(--bg), ${fg} 15%);
+      background: color-mix(in oklab, var(--bg), ${fg} 15%);
       background-image: linear-gradient(to right,
         transparent var(--low), var(--accent) var(--low),
         var(--accent) var(--high), transparent var(--high));
@@ -271,12 +282,12 @@ export default function base({
       &::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: calc(var(--u) * 2); height: calc(var(--u) * 4);
-        background: color-mix(in oklch, var(--bg), ${fg} 50%);
+        background: color-mix(in oklab, var(--bg), ${fg} 50%);
         pointer-events: all; cursor: ew-resize;
       }
       &::-moz-range-thumb {
         width: calc(var(--u) * 2); height: calc(var(--u) * 4);
-        background: color-mix(in oklch, var(--bg), ${fg} 50%);
+        background: color-mix(in oklab, var(--bg), ${fg} 50%);
         border: none; border-radius: 0;
         pointer-events: all; cursor: ew-resize;
       }
@@ -295,12 +306,14 @@ export default function base({
   .s-select select { flex: 1; cursor: pointer; }
   .s-select.buttons {
     align-items: center;
-    padding: calc(var(--u) * (-0.5 + var(--spacing))) 0;
-    .s-input { gap: 0; }
+    .s-input {
+      gap: 0;
+    }
     button {
-      padding: calc(var(--padding) * .5) var(--padding);
+      padding: var(--padding) calc(var(--padding));
       border-radius: 0;
       margin-left: -1px;
+      font-size: smaller;
       &:first-child {
         margin-left: 0;
         border-top-left-radius: var(--r);
@@ -336,7 +349,7 @@ export default function base({
     .s-input { flex-wrap: wrap; gap: var(--u); }
     button {
       width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0;
-      border: 1px solid color-mix(in oklch, var(--bg), ${border} 15%); border-radius: var(--r);
+      border: 1px solid color-mix(in oklab, var(--bg), ${border} 15%); border-radius: var(--r);
       &.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
     }
   }
@@ -360,18 +373,18 @@ export default function base({
   }
 
   /* ── Button (action) ── */
+  .s-button button,
+  .s-select.buttons button.selected,
+  .s-button.secondary button.selected, .s-button button.secondary.selected {
+    background: var(--accent); color: white; border-color: transparent;
+  }
   .s-button button {
-    padding: var(--padding) calc(var(--padding) * 2);
-    background: var(--accent); color: white; border: none;
-    border-radius: var(--r);
+    padding: calc(var(--u) * (1 + var(--spacing))) calc(var(--padding) * 2);
+    border: none; border-radius: var(--r);
     transition: background-color 140ms, filter 140ms;
     &:hover { filter: brightness(1.2); }
     &:active { filter: brightness(.95); }
     &:disabled { opacity: .35; cursor: not-allowed; }
-  }
-  .s-select.buttons button.selected,
-  .s-button.secondary button.selected, .s-button button.secondary.selected {
-    background: var(--accent); color: white; border-color: transparent;
   }
 
   /* ── Folder ── */

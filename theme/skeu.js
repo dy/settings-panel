@@ -165,31 +165,30 @@ export default function skeu({
     &::placeholder { color: var(--text-dim); opacity: .6; }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
+  select {
+    padding: var(--padding);
+  }
 
   /* ── Boolean (custom toggle) ── */
   .s-boolean {
     label { display: flex; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track {
-      width: calc(var(--u) * 10); height: calc(var(--u) * 5);
-      margin: calc(var(--u) * var(--spacing)) 0;
       ${raise(-1)}
       border: none; border-radius: 999px;
       position: relative; cursor: pointer;
       transition: background-color 140ms, box-shadow 140ms, outline-color 140ms;
       &::after {
-        content: ''; position: absolute;
-        width: calc(var(--u) * 4); height: calc(var(--u) * 4);
+        content: '';
         ${raise(max(depth, .3), thumbBg)}
         border: none; border-radius: 50%;
-        top: calc(var(--u) * .5); left: calc(var(--u) * .5);
         transition: transform 140ms, box-shadow 140ms;
       }
     }
     &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
     &:has(input:checked) .s-track {
       background-color: var(--accent);
-      &::after { transform: translateX(calc(var(--u) * 5)); box-shadow: 0 0 0 2px var(--bh); }
+      &::after { box-shadow: 0 0 0 2px var(--bh); }
     }
   }
 

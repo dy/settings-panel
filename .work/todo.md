@@ -14,8 +14,9 @@
   * [x] buttons
   * [x] grid
   * [x] font
-  * [ ] fix vertical rhythm
-  * [ ] snapshot test
+  * [x] fix vertical rhythm
+  * [ ] interval slider
+  * [ ] snapshot test - fix nicely
 * [ ] Theme: control
   * [x] fix switch
   * [x] trimmed input values
@@ -28,6 +29,7 @@
   * [ ] intensity of interaction (hover, active etc)
   * [ ] breath: pulse on focused controls, shadow oscillation on hover
 
+* [ ] complete components test for snapshots
 * [ ] icons
 
 * [ ] gallery
@@ -59,10 +61,11 @@
 * [x] better weight control (slider weight)
 
 * [ ] Themes
-  * [ ] Theme: Neu
-  * [ ] Theme: Studio (figma, control-panel, mo)
-  * [ ] Theme: Aurora: Mesh gradients, flowing soft color blobs
-  * [ ] Theme: Brutal: Raw, harsh, exposed structure, anti-polish
+  * [ ] Neu
+  * [ ] Figma
+  * [ ] Studio
+  * [ ] Aurora: Mesh gradients, flowing soft color blobs
+  * [ ] Brutal: Raw, harsh, exposed structure, anti-polish
 
 * [ ] ~12 core high-quality controls
   * [ ] make sure they properly update state
@@ -104,3 +107,5 @@
 * [ ] canonical internal structure (form)
   * [ ] produced HTML/theme can be used for generic forms design
   * [ ] minimal base.css generator for websites
+* [ ] export
+  * [ ] design tokens, see https://github.com/TrySound/engramma

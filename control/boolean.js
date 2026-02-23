@@ -5,7 +5,7 @@
 import control from './control.js'
 
 const template = `
-  <input type="checkbox" :id="label || null" :checked="value" :onchange="e => set(e.target.checked)" />
+  <input type="checkbox" :id="label || null" :name="label || null" :checked="value" :onchange="e => set(e.target.checked)" />
   <span class="s-track"></span>
 `
 

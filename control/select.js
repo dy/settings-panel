@@ -6,13 +6,13 @@ import control from './control.js'
 
 const templates = {
   dropdown: `
-    <select :id="label || null" :value="value" :onchange="e => set(e.target.value)">
+    <select :id="label || null" :name="label || null" :value="value" :onchange="e => set(e.target.value)">
       <option :each="opt in options" :value="opt.value" :selected="opt.value == value" :text="opt.label"></option>
     </select>
   `,
   radio: `
     <label :each="opt in options" :class="{ selected: opt.value == value }">
-      <input type="radio" :name="radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
+      <input type="radio" :name="label || radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
       <span :text="opt.label"></span>
     </label>
   `,
@@ -26,7 +26,7 @@ const templates = {
   `,
   checkboxes: `
     <label :each="opt in options" :style="opt.style || null">
-      <input type="checkbox" :checked="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
+      <input type="checkbox" :name="label || null" :checked="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
       <span class="s-track"></span>
       <span :text="opt.label"></span>
     </label>

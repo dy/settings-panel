@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skeu</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@12",
+      "sprae/store": "https://esm.sh/sprae@12/store"
+    }
+  }
+  </script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ccc;
+      padding: 2rem;
+      font-size: 13px;
+    }
+    #panel {
+      width: min(100%, 300px);
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import skeu from '../../theme/skeu.js'
+
+    settings({
+      'range slider': { type: 'slider', value: 20, min: 0, max: 100, step: 1, label: 'range slider' },
+      'stepped slider': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, label: 'stepped slider' },
+      'interval': { type: 'slider', multiple: true, value: [25, 50], min: 0, max: 100, step: 1, label: 'interval' },
+      'text': { type: 'text', value: 'my setting', label: 'text' },
+      'toggle': { type: 'boolean', variant: 'toggle', value: true, label: 'toggle' },
+      'checkbox': { type: 'boolean', variant: 'checkbox', value: true, label: 'checkbox' },
+      'color': { type: 'color', value: '#64c864', label: 'color' },
+      'action': { type: 'button', text: 'action', label: '' },
+      'selection': { type: 'select', options: ['option 1', 'option 2'], value: 'option 1', label: 'selection' },
+      'buttons': { type: 'select', variant: 'buttons', options: ['A', 'B', 'C'], value: 'B', label: 'buttons' },
+    }, {
+      container: '#panel',
+      theme: () => skeu(),
+      title: 'skeu panel',
+    })
+  </script>
+</body>
+</html>

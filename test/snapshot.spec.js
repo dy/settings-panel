@@ -4,6 +4,7 @@ const cases = [
   { name: 'swiss-coworking', path: '/demo/cases/swiss-coworking.html' },
   { name: 'control-panel', path: '/demo/cases/control-panel.html' },
   { name: 'control-panel-light', path: '/demo/cases/control-panel.html#shade=ebebeb' },
+  { name: 'skeu', path: '/demo/cases/skeu.html' },
 ]
 
 test.describe('interval slider readout keyboard', () => {

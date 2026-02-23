@@ -129,20 +129,20 @@ export default function controlPanel({
     .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
     &:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
-  }
-  .s-boolean.checkbox {
-    .s-track {
-      width: 18px; height: 18px; margin: 1px 0;
-      &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: transparent; box-shadow: none; transition: background 140ms; }
+    &.checkbox {
+      .s-track {
+        width: 18px; height: 18px; margin: 1px 0;
+        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: transparent; box-shadow: none; transition: background 140ms; }
+      }
+      &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
     }
-    &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
-  }
-  .s-boolean.toggle {
-    .s-track {
-      width: 35px; height: 18px; margin: 1px 0;
-      &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
+    &.toggle {
+      .s-track {
+        width: 35px; height: 18px; margin: 1px 0;
+        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 1px; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
+      }
+      &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
     }
-    &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
   }
 
   /* ── Select ── */
