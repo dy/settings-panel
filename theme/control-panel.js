@@ -48,7 +48,7 @@ export default function controlPanel({
 
   /* ── Title ── */
   > summary, > .s-panel-title {
-    font-size: 11px; font-weight: normal; color: var(--dim);
+    font-size: 11px; font-weight: ${weight}; color: var(--dim);
     text-transform: uppercase; text-align: center; justify-content: center;
     height: 20px; line-height: 20px; padding: 0; margin-bottom: 4px; border-bottom: none;
     &::after { display: none; }

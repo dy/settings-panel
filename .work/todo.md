@@ -20,6 +20,7 @@
   * [x] fix switch
   * [x] trimmed input values
   * [ ] introduce 5px unit
+  * [ ] axes
 * [ ] Axes
   * [ ] grain: texture that can be animated
   * [ ] calibrate & test: jhey, examples from screenshots
