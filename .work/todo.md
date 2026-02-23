@@ -14,6 +14,12 @@
   * [x] buttons
   * [x] grid
   * [x] font
+  * [ ] fix vertical rhythm
+  * [ ] snapshot test
+* [ ] Theme: control
+  * [x] fix switch
+  * [x] trimmed input values
+  * [ ] introduce 5px unit
 * [ ] Axes
   * [ ] grain: texture that can be animated
   * [ ] calibrate & test: jhey, examples from screenshots

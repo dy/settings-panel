@@ -77,7 +77,7 @@ test('slider: format with unit', () => {
   const s = signal(50)
   const ctrl = slider(s, { min: 0, max: 100, step: 1, unit: 'px', container: c })
   const val = ctrl.el.querySelector('.s-readout')
-  is(val.textContent, '50px')
+  is(val.value, '50px')
   cleanup(ctrl, c)
 })
 
@@ -86,7 +86,7 @@ test('slider: custom format', () => {
   const s = signal(0.5)
   const ctrl = slider(s, { min: 0, max: 1, step: 0.01, format: v => (v * 100 | 0) + '%', container: c })
   const val = ctrl.el.querySelector('.s-readout')
-  is(val.textContent, '50%')
+  is(val.value, '50%')
   cleanup(ctrl, c)
 })
 

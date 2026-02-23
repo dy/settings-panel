@@ -11,7 +11,7 @@ import sprae from 'sprae'
  */
 export default function control(sig, opts) {
   const {
-    type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose, style,
+    type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose, style, inputTag = 'div',
     ...state
   } = opts
 
@@ -23,10 +23,10 @@ export default function control(sig, opts) {
 
   wrapper.innerHTML = `<div class="${classes}">
       <label class="s-label-group" :for="label || null" :hidden="label === false && !hint">
-        <span class="s-label" :text="label" :hidden="!label" :title="title"></span>
-        <span class="s-hint" :text="hint" :hidden="!hint"></span>
+        <span class="s-label" :text="label" :hidden="!label" :title="title || null"></span>
+        <span class="s-hint" :if="hint" :text="hint"></span>
       </label>
-      <fieldset class="s-input" :disabled="disabled"></fieldset>
+      <${inputTag} class="s-input" :inert="disabled"></${inputTag}>
     </div>`
   wrapper.querySelector('.s-input').innerHTML = template
 

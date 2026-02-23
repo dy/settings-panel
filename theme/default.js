@@ -85,7 +85,7 @@ export default function base({
   -webkit-text-size-adjust: none;${dark ? `
   -webkit-font-smoothing: antialiased;` : ''}
 
-  &, *, *::before, *::after { box-sizing: border-box; }
+  &, *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
   *[hidden] { display: none!important; }
 
@@ -141,10 +141,7 @@ export default function base({
     margin: 0; padding: 0; border: 0; min-inline-size: 0;
   }
 
-  .s-control:has(.s-input:disabled) {
-    opacity: .5;
-    .s-input { pointer-events: none; }
-  }
+  .s-control:has(.s-input[inert]) { opacity: .5; }
 
   /* ── Input base ── */
   input[type="text"], input[type="number"], textarea, select {
@@ -164,7 +161,7 @@ export default function base({
   /* ── Boolean (shared) ── */
   .s-boolean {
     align-items: center;
-    label { display: flex; cursor: pointer; }
+    .s-input { display: flex; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
@@ -328,9 +325,11 @@ export default function base({
       width: calc(var(--u) * 5); height: calc(var(--u) * 5);
       padding: 0; border: none;
       cursor: pointer;
+      left: calc(var(--u) * (0.5 + 1 * var(--spacing)));
     }
     input[type="text"] {
       flex: 1;
+      padding-left: calc(var(--u) * 6 + var(--u) * 2 * var(--spacing));
     }
   }
   .s-swatches {
@@ -349,8 +348,13 @@ export default function base({
   .s-textarea {
     align-items: flex-start;
     textarea {
-      flex: 1; resize: none; overflow: auto; field-sizing: content; min-height: calc(var(--lh) * 4);
-      resize: both;
+      flex: 1; resize: both; field-sizing: content;
+      white-space: nowrap; overflow: auto;
+      min-height: calc(var(--lh) * 3); max-height: 50vh;
+      scrollbar-width: thin; scrollbar-color: color-mix(in srgb, currentColor 40%, transparent) transparent;
+      &::-webkit-scrollbar { width: 4px; height: 4px; }
+      &::-webkit-scrollbar-track { background: transparent; }
+      &::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 40%, transparent); border-radius: 2px; }
     }
     &.code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
   }

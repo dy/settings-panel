@@ -16,3 +16,4 @@ export default (sig, opts = {}) => {
 
   return result
 }
+

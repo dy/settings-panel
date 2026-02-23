@@ -53,125 +53,143 @@ export default function controlPanel({
     height: 20px; line-height: 20px; padding: 0; margin-bottom: 4px; border-bottom: none;
     &::after { display: none; }
   }
-  .s-panel-content { gap: .333em; padding: 0; }
+  .s-panel-content { gap: 5px; padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
   /* ── Layout ── */
-  .s-control { display: flex; align-items: baseline; gap: .333em; padding: 0; position: relative; }
+  .s-control { display: flex; align-items: baseline; gap: 5px; padding: 0; position: relative; }
   .s-label-group { min-width: 0; width: 36%; max-width: none; flex: 0 0 36%; padding: 0; line-height: 1.1; height: auto; }
   .s-label { font-size: 11px; overflow-wrap: break-word; }
-  .s-input { flex: 1; min-width: 0; gap: 0; align-items: center; }
+  .s-input { flex: 1; min-width: 0; gap: 5px; align-items: center; }
 
-  /* ── Text inputs ── */
+  /* ── Interactive elements ── */
   input[type="text"], input[type="number"], textarea, select {
     background: var(--bg2);
     border: none; border-radius: 0; outline: none;
     color: var(--dim); font-family: inherit; font-size: 11px;
-    padding: 0 5px; height: 20px; line-height: 20px;
+    padding: 0 5px; height: 20px; line-height: 15px;
     &::placeholder { color: var(--fg); }
     &:hover { background-color: var(--bg2h); }
     &:focus { background-color: var(--bg2h); outline: none; }
+    &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+  }
+  .s-textarea textarea { height: auto; padding-block: 2px; &::-webkit-scrollbar-thumb { border-radius: 0; } }
+  button {
+    background: var(--bg2); border: none; border-radius: 0;
+    color: var(--dim); font-family: inherit; font-size: 11px;
+    height: 20px; cursor: pointer;
+    &:hover { background: var(--bg2h); filter: none; }
+    &:active { background: var(--dim); color: var(--bg2); filter: none; }
     &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
   }
 
   /* ── Slider ── */
   .s-slider {
     align-items: center;
-    .s-input { gap: .25rem; }
     .s-readout {
       color: var(--dim); font-size: 11px;
       height: 20px; line-height: 20px;
-      width: 30px; min-width: 30px; flex: 0 0 30px;
+      width: 35px; min-width: 35px; flex: 0 0 35px;
       text-align: left; padding: 0 4px; overflow: hidden;
     }
-  }
-  .s-slider:not(.multiple) {
-    .s-track { margin: 0; height: 20px; flex: 1; }
-    input[type="range"] {
-      -webkit-appearance: none; appearance: none;
-      width: 100%; height: 20px;
-      background: var(--bg2); border-radius: 0; outline: none; cursor: ew-resize;
-      &:hover { background-color: var(--bg2h); }
-      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
-      &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
-      &::-webkit-slider-runnable-track { height: 20px; border-radius: 0; }
-      &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
+    &:not(.multiple) {
+      .s-track { margin: 0; height: 20px; flex: 1; }
+      input[type="range"] {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 20px;
+        background: var(--bg2); border-radius: 0; outline: none; cursor: ew-resize;
+        &:hover { background-color: var(--bg2h); }
+        &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+        &::-webkit-slider-runnable-track { height: 20px; border-radius: 0; }
+        &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
+      }
     }
-  }
-  .s-slider.multiple {
-    .s-interval-track {
+    &.multiple .s-interval-track {
       flex: 1; height: 20px; margin: 0;
       background: var(--bg2);
       background-image: linear-gradient(to right,
         transparent var(--low), var(--fg) var(--low),
         var(--fg) var(--high), transparent var(--high));
       &:hover { background-color: var(--bg2h); }
-    }
-    .s-interval-track input[type="range"] {
-      height: 20px;
-      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-      &::-webkit-slider-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
-      &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
-    }
-  }
-
-  /* ── Checkbox track (checkbox variant + checkboxes shared) ── */
-  .s-boolean.checkbox .s-track, .s-select.checkboxes .s-track {
-    width: 18px; height: 18px;
-    border-radius: 0; border: none; box-shadow: none;
-    background: var(--bg2); position: relative;
-    &::after {
-      content: ''; position: absolute;
-      width: 10px; height: 10px; border-radius: 0;
-      top: 4px; left: 4px;
-      background: transparent; box-shadow: none; transition: background 140ms;
-    }
-  }
-  .s-boolean.checkbox .s-track { margin: 1px 0; }
-  .s-select.checkboxes .s-track { display: inline-block; flex-shrink: 0; margin-right: 8px; vertical-align: -4px; }
-
-  /* ── Checkbox: checked, hover, focus ── */
-  .s-boolean.checkbox:has(input:checked) .s-track { background: var(--bg2); border: none; }
-  .s-boolean.checkbox:has(input:checked) .s-track::after,
-  .s-select.checkboxes label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
-  .s-boolean.checkbox label:hover .s-track,
-  .s-select.checkboxes label:hover .s-track { background-color: var(--bg2h); }
-  .s-boolean.checkbox:has(input:focus-visible) .s-track,
-  .s-select.checkboxes label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
-
-  /* ── Boolean ── */
-  .s-boolean.checkbox { align-items: center; .s-input { align-self: center; } }
-
-  /* ── Select dropdown ── */
-  .s-select select {
-    flex: 1; width: 100%;
-    -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${fg1}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
-    background-repeat: no-repeat; background-position: right 4px center;
-    padding: 0 16px 0 5px; cursor: pointer;
-    option { background: var(--bg); color: var(--text); }
-  }
-
-  /* ── Select checkboxes ── */
-  .s-select.checkboxes {
-    min-height: auto; padding: 0;
-    .s-input {
-      align-self: center; gap: 0; flex-wrap: wrap;
-      label {
-        display: inline-flex; align-items: center;
-        color: var(--dim); font-size: 11px; margin-right: 8px; cursor: pointer;
-        input { position: absolute; opacity: 0; width: 0; height: 0; }
+      input[type="range"] {
+        height: 20px;
+        &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+        &::-webkit-slider-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
       }
     }
   }
 
+  /* ── Boolean ── */
+  .s-boolean {
+    align-items: center;
+    .s-input { align-self: center; }
+    .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
+    .s-input:hover .s-track { background-color: var(--bg2h); }
+    &:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
+  }
+  .s-boolean.checkbox {
+    .s-track {
+      width: 18px; height: 18px; margin: 1px 0;
+      &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: transparent; box-shadow: none; transition: background 140ms; }
+    }
+    &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
+  }
+  .s-boolean.toggle {
+    .s-track {
+      width: 35px; height: 18px; margin: 1px 0;
+      &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
+    }
+    &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
+  }
+
+  /* ── Select ── */
+  .s-select {
+    select {
+      flex: 1; width: 100%;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${fg1}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
+      background-repeat: no-repeat; background-position: right 4px center;
+      padding: 0 16px 0 5px; cursor: pointer;
+      option { background: var(--bg); color: var(--text); }
+    }
+    &.checkboxes {
+      min-height: auto; padding: 0;
+      .s-track {
+        width: 18px; height: 18px;
+        border-radius: 0; border: none; box-shadow: none;
+        background: var(--bg2); position: relative;
+        display: inline-block; flex-shrink: 0; margin-right: 8px; vertical-align: -4px;
+        &::after {
+          content: ''; position: absolute;
+          width: 10px; height: 10px; border-radius: 0;
+          top: 4px; left: 4px;
+          background: transparent; box-shadow: none; transition: background 140ms;
+        }
+      }
+      .s-input {
+        align-self: center; gap: 0; flex-wrap: wrap;
+        label {
+          display: inline-flex; align-items: center;
+          color: var(--dim); font-size: 11px; margin-right: 8px; cursor: pointer;
+          input { position: absolute; opacity: 0; width: 0; height: 0; }
+        }
+      }
+      label:hover .s-track { background-color: var(--bg2h); }
+      label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
+      label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
+    }
+    &.buttons button { padding: 0 5px; &.selected { background: var(--dim); color: var(--bg2); } }
+  }
+
   /* ── Color ── */
   .s-color-input {
-    input[type="text"] { font-family: inherit; font-size: 11px; margin-left: calc(30px + 0.25rem); }
+    input[type="text"] { font-family: inherit; font-size: 11px; margin-left: calc(35px + 5px); }
     input[type="color"] {
       -webkit-appearance: none; appearance: none;
-      border: none; border-radius: 0; width: 30px; height: 20px; padding: 0; cursor: pointer;
+      border: none; border-radius: 0; width: 35px; height: 20px; padding: 0; left: 0; cursor: pointer;
       &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
       &::-webkit-color-swatch-wrapper { padding: 0; }
       &::-webkit-color-swatch { border: none; border-radius: 0; }
@@ -182,14 +200,7 @@ export default function controlPanel({
   /* ── Button ── */
   .s-button {
     .s-input { flex: 1; }
-    button {
-      width: 100%; background: var(--bg2); border: none; border-radius: 0;
-      color: var(--dim); font-family: inherit; font-size: 11px;
-      padding: 0 10px; height: 20px; cursor: pointer;
-      &:hover { background: var(--bg2h); filter: none; }
-      &:active { background: var(--dim); color: var(--bg2); filter: none; }
-      &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-    }
+    button { width: 100%; padding: 0 10px; }
   }
 
   /* ── Number ── */

@@ -46,8 +46,9 @@
       import settings from './index.js'
       import base from './theme/default.js'
       import skeu from './theme/skeu.js'
+      import control from './theme/control-panel.js'
 
-      const themes = { default: base, skeu }
+      const themes = { default: base, skeu, control }
       const axes = {
         default: ['shade', 'accent', 'spacing', 'weight', 'roundness'],
         skeu: ['shade', 'accent', 'spacing', 'weight', 'roundness', 'bevel', 'depth', 'grid'],
@@ -64,7 +65,7 @@
 
       const schema = {
         foldable: false,
-        theme: { type: 'select', options: ['default', 'skeu'], value: 'skeu' },
+        theme: { type: 'select', options: Object.keys(themes), value: 'skeu' },
 
         'params.shade': '#f7f7f7',
         'params.accent': '#2967fa',
