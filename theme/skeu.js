@@ -23,7 +23,7 @@ export default function skeu({
   spacing = 1,
   weight = 400,
   depth = 1,
-  roundness = 0.5,
+  roundness = 1,
   bevel: bevelOpt = 1
 } = {}) {
 
@@ -65,6 +65,7 @@ export default function skeu({
   const bgPos = [...(relief ? ['0 0'] : []), ...gridLayers.map(l => `${l.off}px ${l.off}px`)]
   const stroke = max(1, weight / 400)
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,6 5,9 9.5,3' fill='none' stroke='%23000' stroke-width='${max(1.5, stroke * 1.5)}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   // ── Surface mixin ──
   // raise(d, bg) — d<0 sunken, d>0 raised, 0 flat
@@ -190,6 +191,27 @@ export default function skeu({
       background-color: var(--accent);
       &::after { box-shadow: 0 0 0 2px var(--bh); }
     }
+    &.toggle:has(input:checked) .s-track::after {
+      left: 0; right: 0;
+      transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--padding)));
+    }
+    &.checkbox {
+      .s-track {
+        border-radius: var(--ri);
+        width: calc(var(--u) * 4 + var(--padding)); height: calc(var(--u) * 4 + var(--padding));
+        margin: calc(var(--padding) / 2) 0;
+        &::after {
+          content: ''; position: absolute; inset: 15%;
+          background: var(${accentDark ? '--text-dark' : '--text-light'});
+          background-image: none;
+          -webkit-mask: ${check} center / contain no-repeat;
+          mask: ${check} center / contain no-repeat;
+          border-radius: 0; outline: none; box-shadow: none;
+          opacity: 0; transition: opacity 140ms;
+        }
+      }
+      &:has(input:checked) .s-track::after { opacity: 1; }
+    }
   }
 
   /* ── Number ── */
@@ -207,7 +229,7 @@ export default function skeu({
   .s-slider {
     input[type="range"] {
       ${raise(-1)}
-      --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0) / 100);
+      --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0%) / 100%);
       background-image: var(--concave), var(--track, linear-gradient(to right, var(--accent) var(--fill), var(--sunken) var(--fill)));
       border: none; border-radius: var(--ri);
       height: calc(var(--u) * 1.5);
@@ -241,11 +263,26 @@ export default function skeu({
       color: var(--text-dim); opacity: 1;
       &.active { color: var(--accent); }
     }
-    .s-readout {
-      color: var(--text-dim); opacity: 1;
-    }
+    .s-readout { color: var(--text-dim); opacity: 1; }
+    input[type="text"].s-readout { padding: var(--padding); font-size: inherit; }
     .s-tooltip {
       color: var(--text-dim); opacity: 1;
+    }
+    &.multiple .s-interval-track {
+      height: calc(var(--u) * 4);
+      input[type="range"] {
+        --low-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--low, 0%) / 100%);
+        --high-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--high, 100%) / 100%);
+        background-image: var(--concave), linear-gradient(to right,
+          var(--sunken) var(--low-fill), var(--accent) var(--low-fill),
+          var(--accent) var(--high-fill), var(--sunken) var(--high-fill));
+        background-color: transparent;
+        height: calc(var(--u) * 1.5);
+        &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
+        &::-moz-range-thumb { ${thumb} }
+        &:hover::-webkit-slider-thumb { filter: brightness(1.2); }
+        &:hover::-moz-range-thumb { filter: brightness(1.2); }
+      }
     }
   }
 
@@ -267,6 +304,7 @@ export default function skeu({
     .s-input { gap: var(--bevel); }
     button {
       ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
+      flex: 1;
       font-weight: inherit;
       font-size: smaller;
       margin-left: 0;
@@ -295,6 +333,7 @@ export default function skeu({
   /* ── Button (action) ── */
   .s-button button {
     ${btn(accentL, accentC, accentH, 'var(--accent)')}
+    width: 100%;
   }
   .s-button.secondary button, .s-button button.secondary {
     ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}

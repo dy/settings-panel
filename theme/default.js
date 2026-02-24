@@ -110,7 +110,7 @@ export default function base({
     interpolate-size: allow-keywords;
     &::details-content {
       content-visibility: visible;
-      height: 0; overflow: clip; overflow-clip-margin: 12px; opacity: 0;
+      height: 0; opacity: 0;
       transition: height 200ms 80ms, opacity 80ms;
     }
     &[open]::details-content {
@@ -154,8 +154,8 @@ export default function base({
     height: calc(1lh + var(--padding) * 2);
   }
   select {
-    padding: 0;
-    padding-right: calc(var(--u) * 6 * min(var(--spacing), 1));
+    padding-top: 0;
+    padding-bottom: 0;
     cursor: pointer;
     option { font-family: system-ui, -apple-system, sans-serif; }
   }
@@ -270,40 +270,29 @@ export default function base({
       flex: 1; position: relative; display: flex; align-items: center;
       height: calc(var(--u) * 4);
       margin: calc(var(--u) * (0.5 + 1 * var(--spacing))) 0;
-      background: color-mix(in oklab, var(--bg), ${fg} 15%);
-      background-image: linear-gradient(to right,
-        transparent var(--low), var(--accent) var(--low),
-        var(--accent) var(--high), transparent var(--high));
-    }
-    .s-interval-track input[type="range"] {
-      position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-      -webkit-appearance: none; appearance: none;
-      background: transparent; pointer-events: none; cursor: ew-resize;
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: calc(var(--u) * 2); height: calc(var(--u) * 4);
-        background: color-mix(in oklab, var(--bg), ${fg} 50%);
-        pointer-events: all; cursor: ew-resize;
+
+      input[type="range"] {
+        position: absolute; width: 100%; height: 100%; top: 0; left: 0; bottom: 0; margin: auto 0;
+        -webkit-appearance: none; appearance: none;
+        background: transparent; pointer-events: none; cursor: ew-resize;
+        &::-webkit-slider-thumb {
+          pointer-events: all; cursor: ew-resize;
+        }
+        &::-moz-range-thumb {
+          pointer-events: all; cursor: ew-resize;
+        }
       }
-      &::-moz-range-thumb {
-        width: calc(var(--u) * 2); height: calc(var(--u) * 4);
-        background: color-mix(in oklab, var(--bg), ${fg} 50%);
-        border: none; border-radius: 0;
-        pointer-events: all; cursor: ew-resize;
-      }
-      &::-webkit-slider-runnable-track { height: 100%; }
-      &::-moz-range-track { height: 100%; background: transparent; border: none; }
     }
     .s-readout {
       align-self: center;
-      min-width: calc(8ch + var(--padding));
+      min-width: calc(4ch + var(--padding));
       font-size: smaller;
       padding-left: var(--padding);
     }
   }
 
   /* ── Select ── */
-  .s-select select { flex: 1; cursor: pointer; }
+  .s-select select { flex: 1; max-width: auto; cursor: pointer; }
   .s-select.buttons {
     align-items: center;
     .s-input {

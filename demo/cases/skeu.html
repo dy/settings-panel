@@ -13,8 +13,9 @@
   }
   </script>
   <style>
+    html { height: 100%; overflow: hidden; }
     body {
-      min-height: 100vh;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -23,7 +24,7 @@
       font-size: 13px;
     }
     #panel {
-      width: min(100%, 300px);
+      width: min(100%, 360px);
     }
   </style>
 </head>
@@ -46,8 +47,8 @@
       'buttons': { type: 'select', variant: 'buttons', options: ['A', 'B', 'C'], value: 'B', label: 'buttons' },
     }, {
       container: '#panel',
-      theme: () => skeu(),
-      title: 'skeu panel',
+      theme: skeu,
+      title: 'Skeumorph',
     })
   </script>
 </body>

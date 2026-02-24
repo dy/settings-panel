@@ -50,11 +50,11 @@ export default function controlPanel({
   > summary, > .s-panel-title {
     font-size: 11px; font-weight: ${weight}; color: var(--dim);
     text-transform: uppercase; text-align: center; justify-content: center;
-    height: 20px; line-height: 20px; padding: 0; margin-bottom: 4px; border-bottom: none;
+    height: 20px; line-height: 20px; padding: 0; border-bottom: none;
     &::after { display: none; }
   }
-  .s-panel-content { gap: 5px; padding: 0; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
+  .s-panel-content { gap: 5px; padding: 0;  }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 8px; }
 
   /* ── Layout ── */
   .s-control { display: flex; align-items: baseline; gap: 5px; padding: 0; position: relative; }
@@ -73,7 +73,17 @@ export default function controlPanel({
     &:focus { background-color: var(--bg2h); outline: none; }
     &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
   }
-  .s-textarea textarea { height: auto; padding-block: 2px; &::-webkit-scrollbar-thumb { border-radius: 0; } }
+  .s-textarea textarea {
+    height: auto;
+    padding-block: 2px;
+    &::-webkit-scrollbar { width: 8px; height: 8px; }
+    &::-webkit-scrollbar-track { background: var(--bg2); }
+    &::-webkit-scrollbar-thumb {
+      background: var(--fg);
+      border-radius: 0;
+      border: 2px solid var(--bg2);
+    }
+  }
   button {
     background: var(--bg2); border: none; border-radius: 0;
     color: var(--dim); font-family: inherit; font-size: 11px;
@@ -100,9 +110,9 @@ export default function controlPanel({
         background: var(--bg2); border-radius: 0; outline: none; cursor: ew-resize;
         &:hover { background-color: var(--bg2h); }
         &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; }
         &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
-        &::-webkit-slider-runnable-track { height: 20px; border-radius: 0; }
+        &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: 20px; border-radius: 0; box-shadow: none; }
         &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
       }
     }
@@ -114,10 +124,14 @@ export default function controlPanel({
         var(--fg) var(--high), transparent var(--high));
       &:hover { background-color: var(--bg2h); }
       input[type="range"] {
+        -webkit-appearance: none; appearance: none;
+        background: transparent;
         height: 20px;
         &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-        &::-webkit-slider-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; box-shadow: none; }
         &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
+        &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; background: transparent; box-shadow: none; }
+
       }
     }
   }
@@ -139,7 +153,7 @@ export default function controlPanel({
     &.toggle {
       .s-track {
         width: 35px; height: 18px; margin: 1px 0;
-        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 1px; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
+        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 0; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
       }
       &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
     }
