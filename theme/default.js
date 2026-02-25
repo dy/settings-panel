@@ -128,7 +128,7 @@ export default function base({
 
   /* ── Control row ── */
   .s-control {
-    display: flex; align-items: baseline; gap: calc(var(--u) * 4);
+    display: flex; align-items: baseline; gap: var(--padding);
     margin: 0; padding: 0; border: 0;
   }
   .s-label-group { flex: 0 0 auto;
@@ -137,7 +137,7 @@ export default function base({
   .s-hint { font-size: smaller; opacity: .6; }
   .s-input {
     flex: 1; min-width: 0;
-    display: flex; gap: calc(var(--u) * (2));
+    display: flex; gap: var(--padding);
     margin: 0; padding: 0; border: 0; min-inline-size: 0;
   }
 

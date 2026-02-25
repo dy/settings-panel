@@ -119,9 +119,6 @@ export default function controlPanel({
     &.multiple .s-interval-track {
       flex: 1; height: 20px; margin: 0;
       background: var(--bg2);
-      background-image: linear-gradient(to right,
-        transparent var(--low), var(--fg) var(--low),
-        var(--fg) var(--high), transparent var(--high));
       &:hover { background-color: var(--bg2h); }
       input[type="range"] {
         -webkit-appearance: none; appearance: none;

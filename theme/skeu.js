@@ -130,8 +130,8 @@ export default function skeu({
   --focus: ${$(accentL, accentC, accentH, 0.35)};
   --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
   --bl: ${$(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1))};
-  --convex: linear-gradient(${$(1, surfaceC, surfaceH, 0.15 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)});
-  --concave: linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.15 * relief)});
+  --convex: linear-gradient(${$(1, surfaceC, surfaceH, 0.1 * relief)}, transparent 50%, transparent 51%, ${$(0.108, surfaceC, surfaceH, 0.1 * relief)});
+  --concave: linear-gradient(${$(0.108, surfaceC, surfaceH, 0.1 * relief)}, transparent 49%, transparent 50%, ${$(1, surfaceC, surfaceH, 0.1 * relief)});
   --text-light: ${$(lerp(.32, .12, contrast))};
   --text-dark: ${$(max(surfaceL, accentL, lerp(.9, 1, contrast)))};
   --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
