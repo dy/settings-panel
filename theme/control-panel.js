@@ -137,22 +137,33 @@ export default function controlPanel({
   .s-boolean {
     align-items: center;
     .s-input { align-self: center; }
+    input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
     &:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
     &.checkbox {
       .s-track {
+        display: block;
         width: 18px; height: 18px; margin: 1px 0;
         &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 4px; background: transparent; box-shadow: none; transition: background 140ms; }
       }
       &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
     }
-    &.toggle {
+    &.switch {
       .s-track {
         width: 35px; height: 18px; margin: 1px 0;
-        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 0; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
+        &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
       }
       &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
+    }
+    &.toggle {
+      .s-track {
+        width: auto; height: 20px; margin: 0;
+        padding: 0 5px;
+        display: flex; align-items: center; justify-content: center;
+        &::after { font-size: 11px; background: none; box-shadow: none; position: static; width: auto; height: auto; border-radius: 0; }
+      }
+      &:has(input:checked) .s-track { background: var(--dim); color: var(--bg2); }
     }
   }
 
@@ -168,11 +179,12 @@ export default function controlPanel({
     }
     &.checkboxes {
       min-height: auto; padding: 0;
+      input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track {
         width: 18px; height: 18px;
         border-radius: 0; border: none; box-shadow: none;
         background: var(--bg2); position: relative;
-        display: inline-block; flex-shrink: 0; margin-right: 8px; vertical-align: -4px;
+        display: inline-block; flex-shrink: 0;
         &::after {
           content: ''; position: absolute;
           width: 10px; height: 10px; border-radius: 0;
@@ -181,18 +193,17 @@ export default function controlPanel({
         }
       }
       .s-input {
-        align-self: center; gap: 0; flex-wrap: wrap;
+        align-self: center; gap: 0; flex-direction: row; flex-wrap: wrap;
         label {
-          display: inline-flex; align-items: center;
+          display: inline-flex; align-items: center; gap: 4px;
           color: var(--dim); font-size: 11px; margin-right: 8px; cursor: pointer;
-          input { position: absolute; opacity: 0; width: 0; height: 0; }
         }
       }
       label:hover .s-track { background-color: var(--bg2h); }
       label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
       label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
     }
-    &.buttons button { padding: 0 5px; &.selected { background: var(--dim); color: var(--bg2); } }
+    &.segmented button { padding: 0 5px; &.selected { background: var(--dim); color: var(--bg2); } }
   }
 
   /* ── Color ── */

@@ -1,13 +1,11 @@
 /**
- * Number control - numeric input with stepper
+ * Number control - numeric input
  */
 
 import control from './control.js'
 
 const template = `
-  <button class="s-step s-dec" :onclick="dec" :disabled="value <= min">−</button>
   <input type="number" :id="label || null" :name="label || null" :value="value" :min="min" :max="max" :step="step" :oninput="e => set(+e.target.value)" />
-  <button class="s-step s-inc" :onclick="inc" :disabled="value >= max">+</button>
 `
 
 export default (sig, opts = {}) => {
@@ -17,8 +15,6 @@ export default (sig, opts = {}) => {
   return control(sig, {
     ...rest,
     type: 'number', template, value: sig, min, max, step,
-    set: v => { sig.value = clamp(v) },
-    inc: () => { sig.value = clamp(sig.value + step) },
-    dec: () => { sig.value = clamp(sig.value - step) }
+    set: v => { sig.value = clamp(v) }
   })
 }

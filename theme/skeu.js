@@ -191,9 +191,30 @@ export default function skeu({
       background-color: var(--accent);
       &::after { box-shadow: 0 0 0 2px var(--bh); }
     }
-    &.toggle:has(input:checked) .s-track::after {
+    &.switch:has(input:checked) .s-track::after {
       left: 0; right: 0;
       transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--padding)));
+    }
+    &.toggle {
+      .s-track {
+        ${raise(-1)}
+        border: none; border-radius: var(--ri);
+        width: auto; height: auto;
+        margin: 0;
+        &::after {
+          content: 'Off';
+          position: static; display: flex; align-items: center; justify-content: center;
+          width: auto; height: auto;
+          background: none; background-image: none;
+          border-radius: 0; outline: none; box-shadow: none;
+          font-size: smaller;
+        }
+      }
+      &:has(input:checked) .s-track {
+        ${raise(max(depth, .3), 'var(--accent)')}
+        color: var(${accentDark ? '--text-dark' : '--text-light'});
+        &::after { content: 'On'; }
+      }
     }
     &.checkbox {
       .s-track {
@@ -270,6 +291,7 @@ export default function skeu({
     }
     &.multiple .s-interval-track {
       height: calc(var(--u) * 4);
+      background: none;
       input[type="range"] {
         --low-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--low, 0%) / 100%);
         --high-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--high, 100%) / 100%);
@@ -300,7 +322,7 @@ export default function skeu({
     }
   }
 
-  .s-select.buttons {
+  .s-select.segmented {
     .s-input { gap: var(--bevel); }
     button {
       ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}

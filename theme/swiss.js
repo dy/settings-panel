@@ -29,7 +29,7 @@ export default function swiss({
   const baseCSS = base({ shade, spacing, weight, accent: resolved, roundness })
 
   const overrides = `.s-panel {
-  --bg: ${shade};
+  --bg: transparent;
   --accent: ${resolved};
   --rule: ${rule};
   --rule-bold: ${ruleBold};
@@ -116,8 +116,8 @@ export default function swiss({
     box-shadow: none;
     padding: 0;
     font-family: ${valueFont};
-    font-style: italic;
-    font-size: 1.05em;
+    font-size: 1.08rem;
+    font-weight: ${weight};
     color: inherit;
     &::placeholder { color: var(--dim); }
     &:focus { outline: none; }
@@ -126,8 +126,15 @@ export default function swiss({
 
   /* ── Number: native spinner, no ± buttons ── */
   .s-number {
+    .s-label-group {
+      width: auto;
+      flex-grow: 1;
+      max-width: none;
+    }
+    .s-input {
+    }
     input[type="number"] {
-      width: calc(var(--u) * 14);
+      width: calc(var(--u) * 12);
       text-align: right;
       font-style: normal;
       font-weight: ${weight};
@@ -135,7 +142,7 @@ export default function swiss({
     .s-step { display: none; }
   }
 
-  /* ── Boolean toggle: flat pill ── */
+  /* ── Boolean switch: flat pill ── */
   .s-boolean {
     .s-track {
       background: transparent;
@@ -174,7 +181,7 @@ export default function swiss({
     cursor: pointer;
     &:focus-visible { outline: none; border-color: var(--accent); }
   }
-  .s-select.buttons {
+  .s-select.segmented {
     padding: 0;
     .s-input { gap: 0; }
     button {
@@ -201,9 +208,13 @@ export default function swiss({
         border-color: var(--accent);
       }
     }
+    .s-input {
+      padding: 0;
+    }
     /* 3+ options → vertical checkbox-like stack */
     .s-input:has(button:nth-child(3)) {
       flex-direction: column;
+      align-items: stretch;
       button {
         margin-left: 0;
         margin-top: -1px;

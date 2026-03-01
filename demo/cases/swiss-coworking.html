@@ -53,13 +53,13 @@
       'phone': { type: 'text', value: '555-555-5555', label: 'Phone' },
       'desks': { type: 'number', value: 1, min: 1, max: 50, label: 'Number of Desks Needed' },
       'founder': {
-        type: 'select', variant: 'buttons',
+        type: 'select', variant: 'segmented',
         value: 'Yes',
         options: ['No', 'Yes'],
         label: 'Startup Founder?'
       },
       'needs': {
-        type: 'select', variant: 'buttons', multiple: true,
+        type: 'select', variant: 'checkboxes', multiple: true,
         value: ['myself'],
         options: [
           { value: 'startup', label: 'A Space For My Startup' },
@@ -72,7 +72,7 @@
       'submit': { type: 'button', label: false, text: 'Send My Info', onClick: () => {} },
     }, {
       container: '#panel',
-      theme: () => swiss({ shade: '#4a4a4a', weight: 700 }),
+      theme: swiss,
       title: 'Be in Cahoots',
     })
 

@@ -56,18 +56,17 @@ True/false state.
 
 | Subtype | Visual | Best for |
 |---------|--------|----------|
+| `switch` | ●───○ | Settings, on/off states (default) |
 | `checkbox` | ☑ / ☐ | Forms, multiple options |
-| `toggle` | ●───○ | Settings, on/off states |
-| `switch` | ON/OFF | Labeled binary choice |
-| `button` | [Press] | Momentary or toggle action |
+| `toggle` | [Off] / [On] | Labeled binary button |
 
 ### Params
 
 ```ts
 interface BooleanParams {
-  type?: 'checkbox' | 'toggle' | 'switch' | 'button'
+  type?: 'checkbox' | 'switch' | 'toggle'
   label?: string
-  labels?: [string, string]  // [off, on] for switch type
+  labels?: [string, string]  // [off, on] for toggle type
   disabled?: boolean
 }
 ```
@@ -359,7 +358,6 @@ Choice from predefined options.
 |---------|--------|----------|
 | `dropdown` | [Option ▼] | Many options, compact |
 | `radio` | ○ A ○ B ● C | Few options, always visible |
-| `buttons` | [A][B][C] | Actions or modes |
 | `segmented` | [A│B│C] | Mutually exclusive modes |
 | `search` | [🔍 Type...] | Many options, filterable |
 | `multi` | [Tag][Tag][+] | Multiple selections |
@@ -369,7 +367,7 @@ Choice from predefined options.
 
 ```ts
 interface SelectParams {
-  type?: 'dropdown' | 'radio' | 'buttons' | 'segmented' | 'search' | 'multi' | 'chips'
+  type?: 'dropdown' | 'radio' | 'segmented' | 'search' | 'multi' | 'chips'
   options: Array<string | { label: string, value: any, icon?: string, disabled?: boolean }>
 
   // For search

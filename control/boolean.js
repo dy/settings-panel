@@ -10,6 +10,6 @@ const template = `
 `
 
 export default (sig, opts = {}) => {
-  const { variant = 'toggle', ...rest } = opts
+  const { variant = 'switch', ...rest } = opts
   return control(sig, { ...rest, type: `boolean ${variant}`, template, inputTag: 'label', value: sig, set: v => { sig.value = v } })
 }

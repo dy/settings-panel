@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Panel — Controls</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "sprae": "https://esm.sh/sprae@12",
+        "sprae/store": "https://esm.sh/sprae@12/store"
+      }
+    }
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        font-family: system-ui;
+        background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
+        padding: 2rem;
+      }
+
+      #panel {
+        width: min(100%, 360px);
+      }
+
+      .s-stub {
+        display: block;
+        padding: 6px 8px;
+        border: 1px dashed color-mix(in oklab, currentColor 25%, transparent);
+        border-radius: 4px;
+        opacity: .4;
+        font-size: .8em;
+        font-style: italic;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="panel"></div>
+
+    <script type="module">
+      import settings, { register } from '../index.js'
+      import base from '../theme/default.js'
+      import control from '../control/control.js'
+
+      // ── Stub factory for planned control types ──
+      for (const t of ['knob', 'vector', 'font', 'file', 'graph', 'curve', 'custom', 'separator', 'info']) {
+        register(t, (sig, opts) => {
+          const tpl = `<span class="s-stub" :text="stubLabel"></span>`
+          return control(sig, { ...opts, template: tpl, stubLabel: '⬚ ' + t + ' — planned' })
+        })
+      }
+
+      const log = (...a) => console.log('[controls]', ...a)
+
+      const state = settings({
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Inferred defaults — no explicit type
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        name: 'Bloop',
+        count: 7,
+        volume: 0.75,
+        active: true,
+        tint: '#4488cc',
+        species: ['Cat', 'Dog', 'Parrot', 'Fish'],
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Boolean
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        bool: { type: 'folder', collapsed: true, label: 'Boolean', name: 'controls' },
+
+        'bool.notifications': { type: 'boolean', variant: 'switch', value: true, label: 'Switch (pill)' },
+        'bool.agreed': { type: 'boolean', variant: 'checkbox', value: false, label: 'Checkbox' },
+        'bool.darkMode': { type: 'boolean', variant: 'toggle', value: true, label: 'Toggle (button)' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Number
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        num: { type: 'folder', collapsed: true, label: 'Number', name: 'controls' },
+
+        'num.quantity': { type: 'number', value: 42, label: 'Basic' },
+        'num.rating': { type: 'number', value: 7, min: 0, max: 10, step: 1, label: 'Bounded (0–10)' },
+        'num.price': { type: 'number', value: 9.99, min: 0, step: 0.01, label: 'Float (0.01 step)' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Slider
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        sl: { type: 'folder', collapsed: true, label: 'Slider', name: 'controls' },
+
+        'sl.brightness': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Linear' },
+        'sl.masterOpacity': { type: 'slider', value: 0.8, min: 0, max: 1, step: 0.01, label: 'Normalized (0–1)' },
+        'sl.gridSnap': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, marks: true, label: 'Stepped + marks' },
+        'sl.temperature': { type: 'slider', value: 50, min: 0, max: 100, step: 1, marks: { 0: 'Cold', 25: 'Cool', 50: 'Warm', 75: 'Hot', 100: 'Boil' }, label: 'Labeled marks' },
+        'sl.snapPoints': { type: 'slider', value: 50, min: 0, max: 100, step: [0, 25, 50, 75, 100], marks: true, label: 'Discrete snap' },
+        'sl.frequency': { type: 'slider', value: 440, min: 20, max: 20000, scale: 'log', unit: ' Hz', label: 'Logarithmic' },
+        'sl.tempRange': { type: 'slider', multiple: true, value: [18, 24], min: -10, max: 50, step: 1, unit: '°', label: 'Range (interval)' },
+        'sl.level': { type: 'slider', value: 66, min: 0, max: 100, step: 1, readout: 'readonly', label: 'Readonly readout' },
+        'sl.gain': { type: 'slider', value: 33, min: 0, max: 100, step: 1, readout: 'tooltip', label: 'Tooltip readout' },
+        'sl.completion': { type: 'slider', value: 72, min: 0, max: 100, step: 1, readout: v => Math.round(v) + '%', label: 'Custom format' },
+        'sl.acceleration': { type: 'slider', value: 0.3, min: 0, max: 1, step: 0.01, curve: 2, label: 'Exp curve (power 2)' },
+        'sl.deceleration': { type: 'slider', value: 0.7, min: 0, max: 1, step: 0.01, curve: 0.5, label: 'Log curve (power 0.5)' },
+        'sl.noReadout': { type: 'slider', value: 50, min: 0, max: 100, step: 1, readout: false, label: 'No readout' },
+        'sl.marksEnds': { type: 'slider', value: 50, min: 0, max: 100, step: 1, marks: 'ends', label: 'Marks: ends only' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Select
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        sel: { type: 'folder', collapsed: true, label: 'Select', name: 'controls' },
+
+        'sel.category': { type: 'select', variant: 'dropdown', options: ['Bug', 'Feature', 'Docs', 'Chore'], value: 'Feature', label: 'Dropdown' },
+        'sel.alignment': { type: 'select', variant: 'radio', options: ['Left', 'Center', 'Right'], value: 'Left', label: 'Radio' },
+        'sel.mode': { type: 'select', variant: 'segmented', options: ['Light', 'Dark', 'Auto'], value: 'Auto', label: 'Segmented' },
+        'sel.features': {
+          type: 'select', variant: 'checkboxes', multiple: true,
+          options: ['Bold', 'Italic', 'Underline', 'Strike'], value: ['Bold'], label: 'Checkboxes (multi)'
+        },
+        'sel.colored': {
+          type: 'select', variant: 'checkboxes', multiple: true,
+          options: [
+            { value: 'x', label: 'X', style: '--s-color:#e35' },
+            { value: 'y', label: 'Y', style: '--s-color:#3a3' },
+            { value: 'z', label: 'Z', style: '--s-color:#38e' },
+          ],
+          value: ['x'], label: 'Colored checkboxes'
+        },
+        'sel.priority': { type: 'select', variant: 'segmented', options: ['Low', 'Mid', 'High'], value: 'Mid', label: 'Segmented', hint: 'planned variant' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Color
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        clr: { type: 'folder', collapsed: true, label: 'Color', name: 'controls' },
+
+        'clr.foreground': { type: 'color', variant: 'picker', value: '#e35050', label: 'Picker' },
+        'clr.background': { type: 'color', variant: 'picker', value: '#2a4a6b', label: 'Picker (dark)' },
+        'clr.palette': { type: 'color', variant: 'swatches', value: '#0080ff', label: 'Swatches (default)' },
+        'clr.custom': {
+          type: 'color', variant: 'swatches', value: '#ff6600',
+          colors: ['#ff6600', '#ff0066', '#6600ff', '#0066ff', '#00ff66', '#66ff00'],
+          label: 'Swatches (custom)'
+        },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Text
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        txt: { type: 'folder', collapsed: true, label: 'Text', name: 'controls' },
+
+        'txt.label': { type: 'text', value: 'Hello world', label: 'Basic' },
+        'txt.search': { type: 'text', value: '', placeholder: 'Search…', label: 'Placeholder' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Textarea
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        ta: { type: 'folder', collapsed: true, label: 'Textarea', name: 'controls' },
+
+        'ta.notes': { type: 'textarea', value: 'Multi-line\ntext area\ninput', label: 'Basic' },
+        'ta.snippet': { type: 'textarea', variant: 'code', value: 'const x = 42\nreturn x * 2', label: 'Code' },
+        'ta.output': { type: 'textarea', value: 'Read-only content.\nCannot be edited.', readonly: true, label: 'Readonly' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Button
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        btn: { type: 'folder', collapsed: true, label: 'Button', name: 'controls' },
+
+        'btn.run': { type: 'button', text: 'Run', onClick: () => log('clicked'), label: 'Action' },
+        'btn.ops': {
+          type: 'button', variant: 'group', label: 'Group', buttons: {
+            Save: () => log('save'),
+            Reset: { variant: 'secondary', onclick: () => log('reset') },
+          }
+        },
+        'btn.upload': { type: 'button', text: 'Upload', onClick: () => new Promise(r => setTimeout(r, 1500)), label: 'Async (loading)' },
+        'btn.infer': { Run: () => log('inferred btn group'), Clear: () => log('cleared') },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Field options
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        field: { type: 'folder', collapsed: true, label: 'Field Options', name: 'controls' },
+
+        'field.basic': { type: 'text', value: 'Just a label', label: 'Label' },
+        'field.hinted': { type: 'text', value: 'With hint below', label: 'Label', hint: 'Extra context for the field' },
+        'field.titled': { type: 'text', value: 'Hover the label', label: 'Tooltip', title: 'This appears as a native browser tooltip on hover' },
+        'field.placed': { type: 'text', value: '', placeholder: 'Type something…', label: 'Placeholder' },
+        'field.off': { type: 'text', value: 'Cannot edit', label: 'Disabled', disabled: true },
+        'field.noLabel': { type: 'text', value: 'Full-width input', label: false },
+        'field.hintOnly': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Slider', hint: 'Hints work on any control' },
+        'field.disabledToggle': { type: 'boolean', variant: 'switch', value: true, label: 'Disabled', disabled: true },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ⬚ Planned controls
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        planned: { type: 'folder', collapsed: true, label: '⬚ Planned Controls', name: 'controls' },
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section (non-collapsible)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        sect: { type: 'folder', variant: 'section', label: 'Section (always open)' },
+
+        'sect.info': { type: 'text', value: 'Sections are non-collapsible headings', label: 'Note' },
+        'sect.dial': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Control' },
+
+        'planned.dial': { type: 'knob', value: 0.5, label: 'Knob — rotary' },
+        'planned.xy': { type: 'vector', value: [0, 0], label: 'Vector — XY pad' },
+        'planned.typeface': { type: 'font', value: 'Inter', label: 'Font — family picker' },
+        'planned.attachment': { type: 'file', value: null, label: 'File — upload / drop' },
+        'planned.signal': { type: 'graph', value: 0, label: 'Graph — meter / waveform' },
+        'planned.easing': { type: 'curve', value: [0.4, 0, 0.2, 1], label: 'Curve — bezier / ADSR' },
+        'planned.widget': { type: 'custom', value: null, label: 'Custom — escape hatch' },
+        'planned.divider': { type: 'separator', value: null, label: 'Separator' },
+        'planned.help': { type: 'info', value: null, label: 'Info — read-only text' },
+      }, {
+        container: '#panel',
+        theme: base,
+        title: 'Controls',
+        onChange: s => log('state', JSON.parse(JSON.stringify(s))),
+      })
+
+      // Sync body background with panel --bg
+      const el = document.querySelector('.s-panel')
+      if (el) {
+        const bg = getComputedStyle(el).getPropertyValue('--bg')
+        if (bg) document.documentElement.style.setProperty('--bg', bg)
+      }
+    </script>
+  </body>
+
+</html>

@@ -16,7 +16,7 @@ const templates = {
       <span :text="opt.label"></span>
     </label>
   `,
-  buttons: `
+  segmented: `
     <button
       :each="opt in options"
       :class="{ selected: multiple ? (value || []).includes(opt.value) : opt.value == value }"

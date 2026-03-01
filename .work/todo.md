@@ -1,5 +1,7 @@
 ## [ ] MVP
 
+* [ ] try converting themes to css with design tokens
+
 * [x] Theme: default (size calibrator)
   * [x] width bug
   * [x] inverse color logic
@@ -22,6 +24,7 @@
   * [x] trimmed input values
   * [ ] introduce 5px unit
   * [ ] axes
+
 * [ ] Axes
   * [ ] grain: texture that can be animated
   * [ ] calibrate & test: jhey, examples from screenshots
@@ -45,6 +48,10 @@
   * [ ] settings-panel v1
   * [ ] daytime switch
   * [ ] customize theme link
+  * [ ] Figma
+  * [ ] dat.gui+
+  * [ ] Apples
+  * [ ] refactoring.ui
 
 * [ ] demo
   * [ ] serialize params in qs
@@ -70,7 +77,7 @@
 * [ ] ~12 core high-quality controls
   * [ ] make sure they properly update state
 * [x] demo of self-customization
-* [ ] research opening menu strategies
+* [ ] opening menu/placement strategies
 * [ ] `help` property for tooltip
 * [x] `disabled` param
 * draggable
@@ -92,20 +99,20 @@
   * [ ] docs/axes.md: lists 12 axes, README says 11, neither matches implementation
   * [ ] docs/controls.md: research doc with aspirational controls (knob, vector, font, file, graph, curve, etc) — move to .work/ or .planning/
 
-
-## Cases
-
-* [ ] Figma
-* [ ] dat.gui+
-* [ ] Apples
-* [ ] refactoring.ui
-
 ## Ideas
 
-* [ ] spring?: sliders overshoot
-* [ ] reflected light?
-* [ ] canonical internal structure (form)
-  * [ ] produced HTML/theme can be used for generic forms design
-  * [ ] minimal base.css generator for websites
-* [ ] export
-  * [ ] design tokens, see https://github.com/TrySound/engramma
+  * [ ] spring?: sliders overshoot
+  * [ ] reflected light?
+  * [ ] canonical internal structure (form)
+    * [ ] produced HTML/theme can be used for generic forms design
+    * [ ] minimal base.css generator for websites
+  * [ ] export
+    * [ ] design tokens, see https://github.com/TrySound/engramma
+    * [ ] bootstrap.css, normalize.css?
+
+## Future
+
+  * [ ] UI themer (not just settings)
+  * [ ] buttons generator
+  * [ ] svg generators
+  * [ ] any design element generators

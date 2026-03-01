@@ -127,7 +127,7 @@ export default function settings(schema, options = {}) {
 
   for (const e of entries) {
     if (e.isGroup) {
-      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, container: body })
+      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, name: e.field.name, variant: e.field.variant, container: body })
       groupEls[e.shortKey] = f
       disposers.push(f[Symbol.dispose])
       continue

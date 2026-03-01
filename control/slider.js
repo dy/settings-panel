@@ -37,7 +37,7 @@ const template = `
     <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{active: m.pct <= progress}" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{active: l.pct <= progress}" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
-    <span class="s-tooltip" :if="showTooltip" :style="'left: var(--p)'" :text="readoutText(actual)"></span>
+    <span class="s-tooltip" :if="showTooltip" :style="'left:' + progress + '%'" :text="readoutText(actual)"></span>
   </span>
   <span class="s-readout" :if="showReadonly" :text="readoutText(actual)"></span>
   <input type="text" inputmode="decimal" class="s-readout" :if="showInput" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" />
