@@ -74,7 +74,7 @@
         'params.depth': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
         'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
         'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
-        'params.grid': { type: 'select', variant: 'buttons', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+        'params.grid': { type: 'select', variant: 'segmented', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
 
         code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
         actions: { type: 'button', label: '', variant: 'group', buttons: {
@@ -92,7 +92,7 @@
           title: 'Settings',
           collapsed: (s) => s.foldable ? false : undefined,
           container: '#panel',
-          theme: (s) => themes[s.theme](getParams(s)),
+          theme: (s) => { const t = themes[s.theme]; return typeof t === 'function' ? t(getParams(s)) : t },
           persist: 'settings-panel',
           onchange(s) {
             s.code = JSON.stringify(getParams(s), null, 2)

@@ -1,15 +1,16 @@
 /**
  * Default theme — browser baseline
+ * FEATURE: theme — base layer for all themes
  *
- * default(axes?) → CSS string
- * Also exports shared utilities for other themes.
+ * Static CSS string with design tokens.
+ * Override themes concatenate + set CSS variables.
+ * Utilities (parseColor, resolveAccent, lerp, clamp) stay for override themes.
  */
 
-const { round, min, max } = Math
+const { min, max } = Math
 export const lerp = (a, b, t) => a + (b - a) * t
 export const clamp = (v, lo, hi) => min(hi, max(lo, v))
 
-// Resolve accent: number 0..1 → oklch derived from shade hue, string → passthrough
 export const resolveAccent = (accent, shade) => {
   if (typeof accent !== 'number') return accent
   const { C, H } = parseColor(shade)
@@ -43,50 +44,37 @@ export function parseColor(color) {
   return { L: 0.97, C: 0.01, H: 60 }
 }
 
-export default function base({
-  shade = '#f5f4f2',
-  spacing = 1,
-  weight = 400,
-  accent = '#2563eb',
-  roundness = 1
-} = {}) {
-  accent = resolveAccent(accent, shade)
+const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
-  const { L } = parseColor(shade)
-  const dark = L < .6
-  const fg = dark ? 'white' : 'black'
-  const border = dark ? 'white' : 'black'
-  const stroke = max(1, weight / 400)
-  const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
-
-  return `@layer s-base {\n.s-panel {
+export default `@layer s-base {\n.s-panel {
 
   /* ── Variables ── */
-  --bg: ${shade};
-  --accent: ${accent};
+  --bg: #f5f4f2;
+  --accent: #2563eb;
   --u: 4px;
   --lh: calc(var(--u) * 4);
-  --spacing: ${spacing};
-  --roundness: ${roundness};
+  --spacing: 1;
+  --roundness: 1;
+  --weight: 400;
   --r: calc(var(--u) * var(--roundness));
   --padding: calc(var(--u) * (0.5 + var(--spacing)));
 
   /* ── Panel ── */
   display: flex; flex-direction: column;
   background-color: var(--bg);
-  color-scheme: ${dark ? 'dark' : 'light'};
-  color: color-mix(in oklab, var(--bg), ${fg} 85%);
+  color-scheme: light;
+  color: color-mix(in oklab, var(--bg), light-dark(black, white) 85%);
   accent-color: var(--accent);
   padding: calc(var(--u) * (2 + 3 * var(--spacing)));
   border-radius: var(--r);
   font-family: system-ui, -apple-system, sans-serif;
-  font-weight: ${weight};
+  font-weight: var(--weight);
   font-size: inherit;
   line-height: var(--lh);
   min-width: 27ch;
   max-width: calc(var(--u) * 108);
-  -webkit-text-size-adjust: none;${dark ? `
-  -webkit-font-smoothing: antialiased;` : ''}
+  -webkit-text-size-adjust: none;
+  -webkit-font-smoothing: antialiased;
 
   &, *, *::before, *::after { box-sizing: border-box; margin: 0; }
   *[hidden] { display: none!important; }
@@ -94,7 +82,7 @@ export default function base({
   /* ── Panel header ── */
   > summary, > .s-panel-title {
     list-style: none; display: flex; align-items: center;
-    font-weight: ${min(round(weight) + 300, 900)}; font-size: larger;
+    font-weight: calc(var(--weight) + 300); font-size: larger;
     &::-webkit-details-marker { display: none; }
   }
   > summary {
@@ -138,7 +126,7 @@ export default function base({
   }
   .s-label-group {
     flex: 0 0 auto;
-    min-width: 8ch; width: 25%; max-width: 20ch;
+    min-width: 8ch; width: var(--label-w, 25%); max-width: 20ch;
     display: flex; flex-direction: column; gap: var(--u);
     line-height: calc(var(--u) * 4);
   }
@@ -149,8 +137,8 @@ export default function base({
     width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5);
     font-size: 10px; font-weight: 600; line-height: 1;
     border-radius: 50%;
-    border: 1px solid color-mix(in oklab, var(--bg), ${border} 30%);
-    color: color-mix(in oklab, var(--bg), ${fg} 50%);
+    border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 30%);
+    color: color-mix(in oklab, var(--bg), light-dark(black, white) 50%);
     cursor: help; flex-shrink: 0;
     &:hover + .s-title-text { opacity: 1; visibility: visible; transform: translateY(0); }
   }
@@ -159,8 +147,8 @@ export default function base({
     margin-top: var(--u);
     padding: calc(var(--u) * 1.5);
     font-size: smaller; line-height: 1.3;
-    background: color-mix(in oklab, var(--bg), ${fg} 85%);
-    color: ${dark ? 'black' : 'white'};
+    background: color-mix(in oklab, var(--bg), light-dark(black, white) 85%);
+    color: light-dark(white, black);
     border-radius: var(--r);
     white-space: normal; width: max-content; max-width: 30ch;
     pointer-events: none; z-index: 10;
@@ -212,8 +200,8 @@ export default function base({
       .s-track {
         width: calc(var(--u) * (8 + var(--spacing) * 2));
         height: calc(var(--u) * 4 + var(--padding));
-        background: color-mix(in oklab, var(--bg), ${fg} 20%);
-        border: 1px solid color-mix(in oklab, var(--bg), ${border} 15%);
+        background: color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
+        border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 15%);
         border-radius: 999px;
         position: relative; cursor: pointer;
         transition: background-color 200ms;
@@ -227,7 +215,7 @@ export default function base({
           background: #fff;
           border-radius: 50%;
           transition: transform 200ms;
-          box-shadow: 0 1px 2px color-mix(in oklab, ${fg}, transparent 75%);
+          box-shadow: 0 1px 2px color-mix(in oklab, light-dark(black, white), transparent 75%);
         }
       }
       &:has(input:checked) .s-track {
@@ -240,8 +228,8 @@ export default function base({
     &.toggle {
       .s-track {
         padding: var(--padding) calc(var(--padding) * 2);
-        background-color: color-mix(in oklab, var(--bg), ${fg} 5%);
-        border: 1px solid color-mix(in oklab, var(--bg), ${border} 20%);
+        background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
+        border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
         border-radius: var(--r);
         cursor: pointer;
         transition: background-color 140ms, color 140ms, border-color 140ms;
@@ -270,7 +258,20 @@ export default function base({
 
   /* ═══ Number ═══ */
   .s-number {
-    input[type="number"] { flex: 1; text-align: right; }
+    input[type="number"] {
+      flex: 1; text-align: right;
+      -moz-appearance: textfield;
+      &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    }
+    .s-step {
+      display: flex; flex-direction: column; gap: 1px;
+      button {
+        display: flex; align-items: center; justify-content: center;
+        background: none; border: none; padding: 0 calc(var(--u) * 1);
+        color: inherit; opacity: .5; cursor: pointer; font-size: .625em; line-height: 1;
+        &:hover { opacity: 1; }
+      }
+    }
   }
 
   /* ═══ Slider ═══ */
@@ -312,8 +313,8 @@ export default function base({
       transform: translateX(-50%);
       font-size: smaller; white-space: nowrap;
       pointer-events: none;
-      background: color-mix(in oklab, var(--bg), ${fg} 85%);
-      color: ${dark ? 'black' : 'white'};
+      background: color-mix(in oklab, var(--bg), light-dark(black, white) 85%);
+      color: light-dark(white, black);
       padding: 2px 6px;
       border-radius: var(--r);
       margin-bottom: var(--u);
@@ -367,8 +368,8 @@ export default function base({
       button {
         flex: 1;
         padding: var(--padding);
-        background-color: color-mix(in oklab, var(--bg), ${fg} 5%);
-        border: 1px solid color-mix(in oklab, var(--bg), ${border} 20%);
+        background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
+        border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
         border-radius: 0; margin-left: -1px;
         color: inherit; font-size: smaller;
         transition: background-color 140ms, color 140ms, filter 140ms, border-color 140ms;
@@ -386,9 +387,6 @@ export default function base({
       label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
       .s-track { display: none; }
     }
-
-    /* ── segmented ── */
-    &.segmented { }
   }
 
   /* ═══ Color ═══ */
@@ -414,7 +412,7 @@ export default function base({
       .s-input { flex-wrap: wrap; gap: var(--u); }
       button {
         width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0;
-        border: 1px solid color-mix(in oklab, var(--bg), ${border} 15%); border-radius: var(--r);
+        border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 15%); border-radius: var(--r);
         &.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
       }
     }
@@ -459,8 +457,8 @@ export default function base({
 
     /* ── secondary ── */
     &.secondary button, button.secondary {
-      background-color: color-mix(in oklab, var(--bg), ${fg} 5%);
-      border: 1px solid color-mix(in oklab, var(--bg), ${border} 20%);
+      background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
+      border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
       color: inherit;
       &:hover { filter: brightness(1.2); }
       &:active { filter: brightness(.95); }
@@ -502,4 +500,3 @@ export default function base({
   }
 
 }\n}`
-}

@@ -5,7 +5,7 @@
  * skeu(axes?) → CSS string
  */
 
-import base, { parseColor, resolveAccent, lerp, clamp } from './default.js'
+import baseCSS, { parseColor, resolveAccent, lerp, clamp } from './default.js'
 
 const { min, max, round } = Math
 
@@ -119,14 +119,16 @@ export default function skeu({
   cursor: grab; z-index: 1; position: relative;`
 
   // ── Base layer (structural + default visuals) ──
-  const baseCSS = base({ shade, spacing, weight, accent: resolvedAccent, roundness })
-
   // ── Skeu visual overrides (cascade wins: same specificity, later declaration) ──
   const overrides = `.s-panel {
   --bg: ${$(surfaceL)};
+  --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
+  --spacing: ${spacing};
+  --roundness: ${roundness};
+  --weight: ${weight};
+  color-scheme: ${dark ? 'dark' : 'light'};
   --sunken: ${$(max(0.16, surfaceL - lerp(.027, 0.04, contrast)), surfaceC * 1.08, surfaceH)};
   --raised: ${$(min(1, surfaceL + lerp(0.054, 0.108, contrast)), surfaceC, surfaceH)};
-  --accent: color-mix(in oklab, var(--bg), ${$(accentL, accentC, accentH)} 85%);
   --focus: ${$(accentL, accentC, accentH, 0.35)};
   --bh: ${$(1, min(surfaceC * 1.08, 1 - surfaceL), surfaceH, clamp(contrast * lerp(.1, .2, surfaceL), 0, 1))};
   --bl: ${$(min(0.108, surfaceL), min(surfaceC * 4, 0.27, surfaceL / 2), surfaceH, clamp(contrast * lerp(.5, .1, surfaceL), 0, 1))};
@@ -137,7 +139,6 @@ export default function skeu({
   --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
   --text-dim: ${$(dark ? max(surfaceL + .25, lerp(.48, .65, contrast)) : min(surfaceL - .25, lerp(.58, .42, contrast)))};
   --text-accent: color-mix(in oklab, var(--text-dark), ${$(accentDark ? lerp(.9, 1, contrast) : lerp(.32, .12, contrast), accentC * 0.25, accentH)} 85%);
-  --weight: ${weight / 1000};
   --bevel: ${bevelPx}px;
   --r: calc(var(--u) * var(--roundness) * 3);
   --ri: calc(var(--u) * max(var(--roundness), -1.5 + var(--roundness) * 3));

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiss — Coworking</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@12",
+      "sprae/store": "https://esm.sh/sprae@12/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=Libre+Bodoni:ital,wght@0,400;0,500;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Work+Sans:wght@400;500;600;700&family=Cormorant:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #555;
+      padding: 2rem;
+      font-size: 14px;
+    }
+    #panel {
+      width: min(100%, 340px);
+    }
+    #fonts {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      font: 13px/1 system-ui;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    #fonts select {
+      background: #333;
+      color: #fff;
+      border: 1px solid #666;
+      padding: .35rem .5rem;
+      border-radius: 3px;
+      font: inherit;
+    }
+    .s-panel-title + .s-subtitle {
+      font-style: italic;
+      font-size: .6875rem;
+      text-align: center;
+      color: rgba(255,255,255,.5);
+      padding: 0 1rem .5rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <label id="fonts">
+    Font pair
+    <select id="font-select">
+      <option value="dm">DM Sans / DM Serif Display</option>
+      <option value="inter">Inter / Libre Bodoni</option>
+      <option value="plex">IBM Plex Sans / IBM Plex Serif</option>
+      <option value="work">Work Sans / Cormorant</option>
+      <option value="montserrat">Montserrat / Playfair Display</option>
+    </select>
+  </label>
+  <script type="module">
+    import settings from '../../index.js'
+    import swiss from '../../theme/swiss.js'
+
+    const fonts = {
+      dm:         [`'Oswald', 'Arial Narrow', sans-serif`, `'DM Sans', 'Helvetica', sans-serif`, `'DM Serif Display', 'Georgia', serif`],
+      inter:      [`'Oswald', 'Arial Narrow', sans-serif`, `'Inter', 'Helvetica', sans-serif`, `'Libre Bodoni', 'Georgia', serif`],
+      plex:       [`'IBM Plex Sans Condensed', sans-serif`, `'IBM Plex Sans', sans-serif`, `'IBM Plex Serif', 'Georgia', serif`],
+      work:       [`'Oswald', 'Arial Narrow', sans-serif`, `'Work Sans', 'Helvetica', sans-serif`, `'Cormorant', 'Georgia', serif`],
+      montserrat: [`'Oswald', 'Arial Narrow', sans-serif`, `'Montserrat', 'Helvetica', sans-serif`, `'Playfair Display', 'Georgia', serif`],
+    }
+
+    const schema = {
+      'company': { type: 'text', value: 'Acme Co.', label: 'Company' },
+      'name': { type: 'text', value: 'John Smith', label: 'Name' },
+      'email': { type: 'text', value: 'john@example.com', label: 'Email' },
+      'phone': { type: 'text', value: '555-555-5555', label: 'Phone' },
+      'desks': { type: 'number', value: 1, min: 1, max: 50, label: 'Number of Desks Needed', style: '--label-w: 80%' },
+      'founder': {
+        type: 'select', variant: 'segmented',
+        value: 'Yes',
+        options: ['No', 'Yes'],
+        label: 'Startup Founder?',
+        style: '--label-w: 80%'
+      },
+      'needs': {
+        type: 'select', variant: 'checkboxes', multiple: true,
+        value: ['myself'],
+        options: [
+          { value: 'startup', label: 'A Space For My Startup' },
+          { value: 'myself', label: 'A Space For Myself' },
+          { value: 'membership', label: 'General Membership' },
+          { value: 'events', label: 'A Space For Events' },
+        ],
+        label: 'Check All That Apply'
+      },
+      'submit': { type: 'button', label: false, text: 'Send My Info', onClick: () => {} },
+    }
+
+    const container = document.getElementById('panel')
+    let panel
+
+    function create(key = 'dm') {
+      panel?.[Symbol.dispose]()
+      const [titleFont, labelFont, valueFont] = fonts[key]
+      panel = settings(schema, {
+        container,
+        theme: () => swiss({ titleFont, labelFont, valueFont }),
+        title: 'Be in Cahoots',
+      })
+      const title = container.querySelector('.s-panel-title')
+      if (title) {
+        const sub = document.createElement('div')
+        sub.className = 's-subtitle'
+        sub.style.fontFamily = valueFont
+        sub.textContent = 'Send us some info about yourself to get started.'
+        title.after(sub)
+      }
+    }
+
+    create()
+
+    document.getElementById('font-select').onchange = e => create(e.target.value)
+  </script>
+</body>
+</html>

@@ -5,7 +5,7 @@
  * swiss(axes?) → CSS string
  */
 
-import base, { parseColor, resolveAccent, clamp } from './default.js'
+import baseCSS, { parseColor, resolveAccent, clamp } from './default.js'
 
 const { min, max, round } = Math
 
@@ -14,7 +14,10 @@ export default function swiss({
   accent = '#ffffff',
   spacing = 1,
   weight = 700,
-  roundness = 0
+  roundness = 0,
+  titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
+  labelFont = `'DM Sans', 'Helvetica', sans-serif`,
+  valueFont = `'DM Serif Display', 'Georgia', serif`
 } = {}) {
   const resolved = resolveAccent(accent, shade)
   const { L } = parseColor(shade)
@@ -23,20 +26,19 @@ export default function swiss({
   const rule = dark ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.12)'
   const ruleBold = dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.25)'
   const dim = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.45)'
-  const labelFont = `'Oswald', 'Arial Narrow', sans-serif`
-  const valueFont = `'Playfair Display', 'Georgia', serif`
-
-  const baseCSS = base({ shade, spacing, weight, accent: resolved, roundness })
 
   const overrides = `.s-panel {
   --bg: transparent;
   --accent: ${resolved};
+  --spacing: ${spacing};
+  --weight: ${weight};
+  --roundness: 0;
+  color-scheme: ${dark ? 'dark' : 'light'};
   --rule: ${rule};
   --rule-bold: ${ruleBold};
   --dim: ${dim};
   --r: 0px;
   --ri: 0px;
-  --roundness: 0;
   --pad-x: calc(var(--u) * 3.5);
   --pad-y: calc(var(--u) * 1.75);
   --gap-x: calc(var(--u) * 2);
@@ -47,9 +49,9 @@ export default function swiss({
   border-radius: 0;
   padding: 0;
 
-  /* ── Title ── */
+  /* ── Panel header ── */
   > summary, > .s-panel-title {
-    font-family: ${labelFont};
+    font-family: ${titleFont};
     font-weight: 600;
     font-style: normal;
     text-transform: uppercase;
@@ -84,7 +86,7 @@ export default function swiss({
 
   /* ── Label: left cell with vertical rule ── */
   .s-label-group {
-    min-width: 10ch; width: 35%; max-width: 24ch;
+    min-width: 10ch; width: var(--label-w, 35%); max-width: 24ch;
     padding: var(--pad-y) var(--gap-x) var(--pad-y) var(--pad-x);
     border-right: 1px solid var(--rule);
     display: flex;
@@ -124,25 +126,24 @@ export default function swiss({
     &:focus-visible { outline: none; }
   }
 
-  /* ── Number: native spinner, no ± buttons ── */
+  /* ═══ Number ═══ */
   .s-number {
-    .s-label-group {
-      width: auto;
-      flex-grow: 1;
-      max-width: none;
-    }
-    .s-input {
-    }
     input[type="number"] {
       width: calc(var(--u) * 12);
       text-align: right;
       font-style: normal;
       font-weight: ${weight};
     }
-    .s-step { display: none; }
+    .s-step {
+      border-left: 1px solid var(--rule);
+      button {
+        padding: 0 calc(var(--u) * 2);
+        font-size: .75em;
+      }
+    }
   }
 
-  /* ── Boolean switch: flat pill ── */
+  /* ═══ Boolean ═══ */
   .s-boolean {
     .s-track {
       background: transparent;
@@ -170,77 +171,114 @@ export default function swiss({
     }
   }
 
-  /* ── Select ── */
-  .s-select select {
-    background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 0;
-    box-shadow: none;
-    outline: none;
-    appearance: auto;
-    cursor: pointer;
-    &:focus-visible { outline: none; border-color: var(--accent); }
-  }
-  .s-select.segmented {
-    padding: 0;
-    .s-input { gap: 0; }
-    button {
+  /* ═══ Select ═══ */
+  .s-select {
+
+    /* ── dropdown ── */
+    select {
       background: transparent;
       border: 1px solid var(--rule);
       border-radius: 0;
       box-shadow: none;
       outline: none;
-      color: var(--dim);
-      font-family: ${labelFont};
-      font-weight: 500;
-      text-transform: none;
-      font-size: .9375em;
-      letter-spacing: .02em;
-      margin-left: -1px;
-      padding: calc(var(--u) * 1.5) calc(var(--u) * 2.5);
-      text-align: left;
-      filter: none;
-      &:first-child { margin-left: 0; }
-      &:hover { color: inherit; border-color: var(--rule-bold); filter: none; }
-      &.selected {
-        background: var(--accent);
-        color: ${dark ? '#000' : '#fff'};
-        border-color: var(--accent);
-      }
+      appearance: auto;
+      cursor: pointer;
+      &:focus-visible { outline: none; border-color: var(--accent); }
     }
-    .s-input {
+
+    /* ── segmented ── */
+    &.segmented {
       padding: 0;
-    }
-    /* 3+ options → vertical checkbox-like stack */
-    .s-input:has(button:nth-child(3)) {
-      flex-direction: column;
-      align-items: stretch;
+      .s-input { gap: 0; padding: 0; }
       button {
-        margin-left: 0;
-        margin-top: -1px;
-        font-family: ${valueFont};
-        font-style: italic;
-        font-size: .875em;
-        &:first-child { margin-top: 0; }
+        background: transparent;
+        border: none;
+        border-left: 1px solid var(--rule);
+        border-radius: 0;
+        box-shadow: none;
+        outline: none;
+        color: var(--dim);
+        font-family: ${labelFont};
+        font-weight: 500;
+        text-transform: none;
+        font-size: .9375em;
+        letter-spacing: .02em;
+        margin-left: -1px;
+        padding: calc(var(--u) * 1.5) calc(var(--u) * 2.5);
+        text-align: left;
+        filter: none;
+        &:first-child { margin-left: 0; border-left: none; }
+        &:hover { color: inherit; border-color: var(--rule-bold); filter: none; }
         &.selected {
-          background: transparent;
-          color: inherit;
-          border-color: var(--rule);
-          &::before { content: '\\2713\\2002'; }
+          background: var(--accent);
+          color: ${dark ? '#000' : '#fff'};
+          border-color: var(--accent);
+        }
+      }
+      /* 3+ options → vertical stack */
+      .s-input:has(button:nth-child(3)) {
+        flex-direction: column;
+        align-items: stretch;
+        button {
+          margin-left: 0;
+          margin-top: -1px;
+          font-family: ${valueFont};
+          font-style: italic;
+          font-size: .875em;
+          &:first-child { margin-top: 0; }
+          &.selected {
+            background: transparent;
+            color: inherit;
+            border-color: var(--rule);
+            &::before { content: '\\2713\\2002'; }
+          }
         }
       }
     }
-  }
-  .s-select.radio {
-    label {
-      font-family: ${valueFont};
-      opacity: 1;
-      color: var(--dim);
-      &.selected { color: inherit; }
+
+    /* ── checkboxes ── */
+    &.checkboxes {
+      .s-input { gap: 0; align-items: stretch; }
+      input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+      .s-track { display: none; }
+      .s-input {
+        padding: 0;
+        label {
+          display: flex; align-items: center; gap: calc(var(--u) * 1.5);
+          font-family: ${valueFont};
+          color: var(--dim);
+          cursor: pointer;
+          &:hover { border-color: var(--rule-bold); }
+          & + label { border-top: 1px solid var(--rule); }
+          &::before {
+            content: ' ';
+            width: 5ch;
+            text-align: center;
+            padding: calc(var(--u) * 1.5);
+            border-right: 1px solid var(--rule);
+          }
+          &:has(input:checked) {
+            color: inherit;
+            &::before {
+              content: '\\2713\\2002';
+            }
+          }
+        }
+      }
+    }
+
+    /* ── radio ── */
+    &.radio {
+      label {
+        font-family: ${valueFont};
+        opacity: 1;
+        color: var(--dim);
+        &.selected { color: inherit; }
+      }
     }
   }
 
-  /* ── Slider ── */
+  /* ═══ Slider ═══ */
   .s-slider {
     input[type="range"] {
       accent-color: var(--accent);
@@ -251,7 +289,7 @@ export default function swiss({
     }
   }
 
-  /* ── Button (action): full-width outlined ── */
+  /* ═══ Button ═══ */
   .s-button {
     padding: calc(var(--u) * 3) var(--pad-x) calc(var(--u) * 4);
     border-top: none;
@@ -272,18 +310,20 @@ export default function swiss({
       &:hover { background: var(--accent); color: ${dark ? '#000' : '#fff'}; border-color: var(--accent); filter: none; }
       &:active { filter: brightness(.9); }
     }
-  }
-  .s-button.secondary button, .s-button button.secondary {
-    background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 0;
-    box-shadow: none;
-    color: var(--dim);
-    &:hover { color: inherit; border-color: currentColor; background: transparent; filter: none; }
-    &.selected { background: var(--accent); color: ${dark ? '#000' : '#fff'}; border-color: var(--accent); }
+
+    /* ── secondary ── */
+    &.secondary button, button.secondary {
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      box-shadow: none;
+      color: var(--dim);
+      &:hover { color: inherit; border-color: currentColor; background: transparent; filter: none; }
+      &.selected { background: var(--accent); color: ${dark ? '#000' : '#fff'}; border-color: var(--accent); }
+    }
   }
 
-  /* ── Folder: ruled, no chevron ── */
+  /* ═══ Folder ═══ */
   .s-folder {
     > summary {
       font-family: ${labelFont};
@@ -304,10 +344,12 @@ export default function swiss({
     }
   }
 
-  /* ── Color ── */
-  .s-color-input {
-    input[type="text"] { font-family: ui-monospace, monospace; font-size: .875em; }
-    input[type="color"] { border: 1px solid var(--rule); border-radius: 0; }
+  /* ═══ Color ═══ */
+  .s-color {
+    .s-color-input {
+      input[type="text"] { font-family: ui-monospace, monospace; font-size: .875em; }
+      input[type="color"] { border: 1px solid var(--rule); border-radius: 0; }
+    }
   }
 }`
 

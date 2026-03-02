@@ -8,7 +8,7 @@
  * Exact values from themes.js + component CSS + layout JS.
  */
 
-import base, { parseColor, resolveAccent, clamp } from './default.js'
+import baseCSS, { parseColor, resolveAccent, clamp } from './default.js'
 
 export default function controlPanel({
   shade = '#232323',
@@ -29,8 +29,6 @@ export default function controlPanel({
   const text1 = dark ? '#ebebeb' : '#242424' // rgba(235,235,235,.95) / rgba(36,36,36,.95)
   const text2 = dark ? '#a1a1a1' : '#575757' // rgba(161,161,161,.95) / rgba(87,87,87,.95)
 
-  const baseCSS = base({ shade, spacing, weight, accent: resolved, roundness })
-
   const overrides = `.s-panel {
   --bg: ${bg1};
   --bg2: ${bg2};
@@ -39,8 +37,11 @@ export default function controlPanel({
   --text: ${text1};
   --dim: ${text2};
   --accent: ${resolved};
+  --spacing: ${spacing};
+  --weight: ${weight};
   --r: 0px; --roundness: 0;
   --padding: calc(var(--u) * 1);
+  color-scheme: ${dark ? 'dark' : 'light'};
 
   font-family: 'Hack', 'Fira Code', 'Source Code Pro', ui-monospace, monospace;
   font-size: 11px; line-height: 20px; color: var(--text);
