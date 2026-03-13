@@ -24,6 +24,30 @@ const cleanup = (ctrl, container) => {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// LABEL ASSOCIATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('label: for attribute links to input id', () => {
+  const c = mount()
+  const s = signal(50)
+  const ctrl = slider(s, { min: 0, max: 100, label: 'volume', container: c })
+  const label = ctrl.el.querySelector('.s-label-group')
+  const input = ctrl.el.querySelector('input')
+  is(label.getAttribute('for'), 'volume')
+  is(input.id, 'volume')
+  cleanup(ctrl, c)
+})
+
+test('label: no for attribute when label is empty', () => {
+  const c = mount()
+  const s = signal(50)
+  const ctrl = slider(s, { min: 0, max: 100, container: c })
+  const label = ctrl.el.querySelector('.s-label-group')
+  is(label.getAttribute('for'), null)
+  cleanup(ctrl, c)
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
 // SLIDER: LINEAR
 // ─────────────────────────────────────────────────────────────────────────────
 

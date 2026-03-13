@@ -45,7 +45,7 @@ export default function controlPanel({
 
   font-family: 'Hack', 'Fira Code', 'Source Code Pro', ui-monospace, monospace;
   font-size: 11px; line-height: 20px; color: var(--text);
-  border-radius: 0; padding: 14px; min-width: 0;
+  border-radius: 0; padding: calc(var(--u) * (2 + 3 * var(--spacing))); min-width: 0;
 
   /* ── Title ── */
   > summary, > .s-panel-title {
@@ -54,14 +54,14 @@ export default function controlPanel({
     height: 20px; line-height: 20px; padding: 0; border-bottom: none;
     &::after { display: none; }
   }
-  .s-panel-content { gap: 5px; padding: 0;  }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 8px; }
+  .s-panel-content { gap: calc(var(--u) * (1 + var(--spacing))); padding: 0; }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(var(--u) * (1 + 2 * var(--spacing))); }
 
   /* ── Layout ── */
-  .s-control { display: flex; align-items: baseline; gap: 5px; padding: 0; position: relative; }
+  .s-control { display: flex; align-items: baseline; gap: calc(var(--u) * (1 + var(--spacing))); padding: 0; position: relative; }
   .s-label-group { min-width: 0; width: 36%; max-width: none; flex: 0 0 36%; padding: 0; line-height: 1.1; height: auto; }
   .s-label { font-size: 11px; overflow-wrap: break-word; }
-  .s-input { flex: 1; min-width: 0; gap: 5px; align-items: center; }
+  .s-input { flex: 1; min-width: 0; gap: calc(var(--u) * (1 + var(--spacing))); align-items: center; }
 
   /* ── Interactive elements ── */
   input[type="text"], input[type="number"], textarea, select {
@@ -236,7 +236,7 @@ export default function controlPanel({
   .s-folder {
     > summary {
       font-size: 11px; font-weight: ${weight}; color: var(--dim);
-      padding: 4px 0; border-bottom: none; opacity: 1;
+      padding: calc(var(--u) * var(--spacing) * 2) 0; border-bottom: none; opacity: 1;
       &::after { display: none; }
     }
     .s-content { gap: 0; }

@@ -13,7 +13,7 @@ export default function swiss({
   shade = '#4a4a4a',
   accent = '#ffffff',
   spacing = 1,
-  weight = 700,
+  weight = 500,
   roundness = 0,
   titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
   labelFont = `'DM Sans', 'Helvetica', sans-serif`,
@@ -23,9 +23,12 @@ export default function swiss({
   const { L } = parseColor(shade)
   const dark = L < .6
   const fg = dark ? 'white' : 'black'
-  const rule = dark ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.12)'
-  const ruleBold = dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.25)'
+  const rule = dark ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,.12)'
   const dim = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.45)'
+  const selectedBg = dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.15)'
+  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5L4.5 8.5L11 1.5' fill='none' stroke='${fg}' stroke-width='1.8' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
+  const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5L5 1.5L8.5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
+  const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1L5 4.5L8.5 1' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
   --bg: transparent;
@@ -35,13 +38,13 @@ export default function swiss({
   --roundness: 0;
   color-scheme: ${dark ? 'dark' : 'light'};
   --rule: ${rule};
-  --rule-bold: ${ruleBold};
   --dim: ${dim};
   --r: 0px;
   --ri: 0px;
-  --pad-x: calc(var(--u) * 3.5);
-  --pad-y: calc(var(--u) * 1.75);
+  --pad-x: calc(var(--u) * 2);
+  --pad-y: calc(var(--u) * 1.5);
   --gap-x: calc(var(--u) * 2);
+  --padding: var(--pad-y);
 
   font-family: system-ui, -apple-system, sans-serif;
   font-size: .75em;
@@ -81,12 +84,12 @@ export default function swiss({
     padding: 0;
     gap: 0;
     align-items: stretch;
-    &:last-child { border-bottom: 1px solid var(--rule); }
   }
 
   /* ── Label: left cell with vertical rule ── */
   .s-label-group {
-    min-width: 10ch; width: var(--label-w, 35%); max-width: 24ch;
+    min-width: 10ch; width: var(--label-w, 35%);
+    max-width: none;
     padding: var(--pad-y) var(--gap-x) var(--pad-y) var(--pad-x);
     border-right: 1px solid var(--rule);
     display: flex;
@@ -99,13 +102,11 @@ export default function swiss({
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .04em;
-    font-size: .875em;
     line-height: 1.3;
   }
 
   /* ── Input: right cell ── */
   .s-input {
-    padding: var(--pad-y) var(--pad-x) var(--pad-y) var(--gap-x);
     align-items: center;
   }
 
@@ -118,7 +119,7 @@ export default function swiss({
     box-shadow: none;
     padding: 0;
     font-family: ${valueFont};
-    font-size: 1.08rem;
+    font-size: 1rem;
     font-weight: ${weight};
     color: inherit;
     &::placeholder { color: var(--dim); }
@@ -130,15 +131,29 @@ export default function swiss({
   .s-number {
     input[type="number"] {
       width: calc(var(--u) * 12);
-      text-align: right;
+      text-align: left;
       font-style: normal;
       font-weight: ${weight};
     }
     .s-step {
-      border-left: 1px solid var(--rule);
       button {
-        padding: 0 calc(var(--u) * 2);
-        font-size: .75em;
+        padding: 0;
+        font-size: 0;
+        &::after {
+          content: '';
+          display: block;
+          width: calc(var(--u) * 3);
+          height: calc(var(--u) * 2);
+          background: currentColor;
+        }
+        &.s-step-up::after {
+          -webkit-mask: ${chevUp} center / contain no-repeat;
+          mask: ${chevUp} center / contain no-repeat;
+        }
+        &.s-step-down::after {
+          -webkit-mask: ${chevDown} center / contain no-repeat;
+          mask: ${chevDown} center / contain no-repeat;
+        }
       }
     }
   }
@@ -147,7 +162,7 @@ export default function swiss({
   .s-boolean {
     .s-track {
       background: transparent;
-      border: 1px solid var(--rule-bold);
+      border: 1px solid var(--rule);
       border-radius: 999px;
       box-shadow: none;
       outline: none;
@@ -198,21 +213,21 @@ export default function swiss({
         box-shadow: none;
         outline: none;
         color: var(--dim);
-        font-family: ${labelFont};
-        font-weight: 500;
+        font-family: ${valueFont};
+        font-weight: ${weight};
         text-transform: none;
-        font-size: .9375em;
+        font-size: 1rem;
         letter-spacing: .02em;
         margin-left: -1px;
-        padding: calc(var(--u) * 1.5) calc(var(--u) * 2.5);
-        text-align: left;
+        padding: var(--pad-y) calc(var(--u) * 1.5);
+        text-align: center;
         filter: none;
         &:first-child { margin-left: 0; border-left: none; }
-        &:hover { color: inherit; border-color: var(--rule-bold); filter: none; }
+        &:hover { color: inherit; border-color: var(--rule); filter: none; }
         &.selected {
-          background: var(--accent);
-          color: ${dark ? '#000' : '#fff'};
-          border-color: var(--accent);
+          background: ${selectedBg};
+          color: #fff;
+          border-color: var(--rule);
         }
       }
       /* 3+ options → vertical stack */
@@ -222,7 +237,6 @@ export default function swiss({
         button {
           margin-left: 0;
           margin-top: -1px;
-          font-family: ${valueFont};
           font-style: italic;
           font-size: .875em;
           &:first-child { margin-top: 0; }
@@ -246,21 +260,26 @@ export default function swiss({
         label {
           display: flex; align-items: center; gap: calc(var(--u) * 1.5);
           font-family: ${valueFont};
+          font-size: 1rem;
+          font-weight: ${weight};
           color: var(--dim);
           cursor: pointer;
-          &:hover { border-color: var(--rule-bold); }
+          padding: var(--pad-y) var(--gap-x) var(--pad-y) 0;
+          &:hover { border-color: var(--rule); }
           & + label { border-top: 1px solid var(--rule); }
           &::before {
-            content: ' ';
-            width: 5ch;
-            text-align: center;
-            padding: calc(var(--u) * 1.5);
+            content: '';
+            width: calc(var(--u) * 10);
+            align-self: stretch;
+            flex-shrink: 0;
+            margin: calc(var(--pad-y) * -1) 0;
+            padding: var(--pad-y) calc(var(--u) * 1.5);
             border-right: 1px solid var(--rule);
           }
           &:has(input:checked) {
             color: inherit;
             &::before {
-              content: '\\2713\\2002';
+              background: ${check} center / 14px no-repeat;
             }
           }
         }
@@ -285,29 +304,28 @@ export default function swiss({
     }
     .s-readout {
       color: var(--dim);
-      font-size: .8125em;
+      font-size: smaller;
     }
   }
 
   /* ═══ Button ═══ */
   .s-button {
     padding: calc(var(--u) * 3) var(--pad-x) calc(var(--u) * 4);
-    border-top: none;
     button {
       width: 100%;
       background: transparent;
       border: 2px solid currentColor;
       border-radius: 0;
       color: inherit;
-      font-family: ${labelFont};
+      font-family: ${titleFont};
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .08em;
+      letter-spacing: .06em;
       font-size: 1.25em;
       padding: calc(var(--u) * 3) calc(var(--u) * 5);
       box-shadow: none;
       filter: none;
-      &:hover { background: var(--accent); color: ${dark ? '#000' : '#fff'}; border-color: var(--accent); filter: none; }
+      &:hover { background: ${selectedBg}; color: ${fg}; border-color: ${selectedBg}; filter: none; }
       &:active { filter: brightness(.9); }
     }
 
@@ -319,7 +337,7 @@ export default function swiss({
       box-shadow: none;
       color: var(--dim);
       &:hover { color: inherit; border-color: currentColor; background: transparent; filter: none; }
-      &.selected { background: var(--accent); color: ${dark ? '#000' : '#fff'}; border-color: var(--accent); }
+      &.selected { background: var(--accent); color: ${fg}; border-color: var(--accent); }
     }
   }
 
@@ -331,13 +349,10 @@ export default function swiss({
       text-transform: uppercase;
       letter-spacing: .04em;
       font-size: 1em;
-      border-bottom: 2px solid var(--rule-bold);
+      border-bottom: 2px solid var(--rule);
       padding: calc(var(--u) * 2) var(--pad-x);
       opacity: 1;
       &::after { display: none; }
-    }
-    &[open] > summary {
-      border-bottom: 2px solid var(--rule-bold);
     }
     .s-content {
       gap: 0;

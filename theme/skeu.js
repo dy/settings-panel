@@ -285,8 +285,8 @@ export default function skeu({
       color: var(--text-dim); opacity: 1;
       &.active { color: var(--accent); }
     }
-    .s-readout { color: var(--text-dim); opacity: 1; }
-    input[type="text"].s-readout { padding: var(--padding); font-size: inherit; }
+    .s-readout { color: var(--text-dim); opacity: 1; font-size: smaller; }
+    input[type="text"].s-readout { padding: var(--padding); }
     .s-tooltip {
       color: var(--text-dim); opacity: 1;
     }
