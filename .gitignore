@@ -36,3 +36,4 @@ node_modules
 bundle.js
 .DS_Store
 .claude/settings.json
+/test-results

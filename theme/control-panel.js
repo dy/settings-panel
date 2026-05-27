@@ -6,7 +6,7 @@
  */
 
 import baseCSS from './base.js'
-import { parseColor, resolveAccent } from './color.js'
+import { parseColor, resolveAccent, clamp } from './color.js'
 
 export default function controlPanel({
   shade = '#232323',
@@ -16,13 +16,16 @@ export default function controlPanel({
   roundness = 0
 } = {}) {
   const resolved = resolveAccent(accent, shade)
-  const { L } = parseColor(shade)
+  const { L, C, H } = parseColor(shade)
   const dark = L < .6
   const gap = `calc(var(--u) * var(--spacing))`
 
+  const bgStep = 0.08
+  const bg2L = clamp(dark ? Math.max(L + bgStep, 0.15) : L - bgStep, 0, 1)
+  const bg2hL = clamp(bg2L + 0.02, 0, 1)
   const bg1 = shade
-  const bg2 = dark ? '#363636' : '#cccccc'
-  const bg2h = dark ? '#3a3a3a' : '#d0d0d0'
+  const bg2 = `oklch(${bg2L.toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
+  const bg2h = `oklch(${bg2hL.toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
   const fg1 = dark ? '#707070' : '#696969'
   const text1 = dark ? '#ebebeb' : '#242424'
   const text2 = dark ? '#a1a1a1' : '#575757'
