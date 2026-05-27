@@ -5,7 +5,13 @@
  * swiss(axes?) → CSS string
  */
 
-import baseCSS, { parseColor, resolveAccent } from './default.js'
+import baseCSS from './base.js'
+import { parseColor, resolveAccent } from './color.js'
+
+const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5L5 1.5L8.5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
+const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1L5 4.5L8.5 1' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
+
+const checkMark = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5L4.5 8.5L11 1.5' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
 
 export default function swiss({
   shade = '#4a4a4a',
@@ -17,50 +23,32 @@ export default function swiss({
   labelFont = `'DM Sans', 'Helvetica', sans-serif`,
   valueFont = `'DM Serif Display', 'Georgia', serif`
 } = {}) {
-  const resolved = resolveAccent(accent, shade)
   const { L } = parseColor(shade)
   const dark = L < .6
-
-  const rule = dark ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,.12)'
-  const dim = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.45)'
-  const fill = dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.07)'
-  const fillHover = dark ? 'rgba(255,255,255,.16)' : 'rgba(0,0,0,.11)'
-  const checkStroke = dark ? 'white' : 'black'
-
-  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5L4.5 8.5L11 1.5' fill='none' stroke='${checkStroke}' stroke-width='1.8' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
-  const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5L5 1.5L8.5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
-  const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1L5 4.5L8.5 1' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
   /* ── Tokens ── */
   --bg: transparent;
-  --accent: ${resolved};
+  --accent: ${resolveAccent(accent, shade)};
   --spacing: ${spacing};
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
+  --title-font: ${titleFont};
+  --label-font: ${labelFont};
+  --value-font: ${valueFont};
   color-scheme: ${dark ? 'dark' : 'light'};
+  color: light-dark(black, white);
 
-  --rule: ${rule};
-  --dim: ${dim};
-  --fill: ${fill};
-  --fill-hover: ${fillHover};
-
-  --pad: calc(var(--u) * 2 * ${spacing});
-  --padding: var(--pad);
+  --rule: light-dark(color-mix(in srgb, black 12%, transparent), white);
+  --dim: light-dark(color-mix(in srgb, black 45%, transparent), color-mix(in srgb, white 50%, transparent));
+  --fill: light-dark(color-mix(in srgb, black 7%, transparent), color-mix(in srgb, white 10%, transparent));
+  --fill-hover: light-dark(color-mix(in srgb, black 11%, transparent), color-mix(in srgb, white 16%, transparent));
+  --check-mark: ${checkMark};
+  --chev-up: ${chevUp};
+  --chev-down: ${chevDown};
+  --pad: calc(var(--u) * 2 * var(--spacing));
   --label-w: 28%;
-  --check-w: calc(var(--u) * 7);
-
-  --fs-title: 2.625rem;
-  --fs-subtitle: 0.9375rem;
-  --fs-label: 0.825rem;
-  --fs: 1rem;
-  --fs-sm: 0.875rem;
-  --fs-action: 1.2rem;
-
-  --title-pad: calc(var(--u) * 5);
-  --form-gap: calc(var(--u) * 13);
-  --cta-gap: calc(var(--u) * 14);
 
   font-family: system-ui, -apple-system, sans-serif;
   font-size: inherit;
@@ -69,20 +57,20 @@ export default function swiss({
 
   /* ── Panel header ── */
   > summary, > .s-panel-title {
-    font-family: ${titleFont};
+    font-family: var(--title-font);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: var(--fs-title);
+    font-size: 2.625rem;
     line-height: 1.1;
     text-align: center;
     display: block;
-    padding: var(--title-pad) var(--pad) calc(var(--u) * 4);
+    padding: calc(var(--u) * 5) var(--pad) calc(var(--u) * 4);
     &::after { display: none; }
 
     & + .s-subtitle {
-      font-family: ${valueFont};
+      font-family: var(--value-font);
       font-style: italic;
-      font-size: var(--fs-subtitle);
+      font-size: 0.9375rem;
       text-align: center;
       color: var(--dim);
       line-height: 1.25;
@@ -93,7 +81,7 @@ export default function swiss({
 
   .s-panel-content {
     gap: 0;
-    padding: var(--form-gap) 0 0;
+    padding: calc(var(--u) * 13) 0 0;
   }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
     padding-top: 0;
@@ -121,30 +109,40 @@ export default function swiss({
   }
 
   .s-label {
-    font-family: ${labelFont};
+    font-family: var(--label-font);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .08em;
     line-height: 1.57;
-    font-size: var(--fs-label);
+    font-size: 0.75rem;
   }
 
   .s-input {
-    align-items: center;
+    gap: 0;
+    align-items: stretch;
+    align-self: stretch;
   }
 
   /* ── Value typography (shared) ── */
   input[type="text"], input[type="number"], textarea, select, button {
-    font-family: ${valueFont};
-    font-size: var(--fs);
-    font-weight: ${weight};
+    font-family: var(--value-font);
+    font-size: 1rem;
+    font-weight: var(--weight);
     color: inherit;
     border-radius: 0;
     box-shadow: none;
     filter: none;
   }
 
-  input[type="text"], input[type="number"], textarea, select {
+  input[type="text"], textarea, select {
+    flex: 1;
+    align-self: stretch;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    appearance: none;
+    -webkit-appearance: none;
     background: transparent;
     border: none;
     outline: none;
@@ -153,21 +151,52 @@ export default function swiss({
     &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
   }
 
+  input[type="number"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: var(--pad) calc(var(--u) * 4);
+    &::placeholder { color: var(--dim); }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+    &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  }
+
   /* ── Number ── */
   .s-number {
+    .s-input {
+      gap: calc(var(--u) * 2);
+      padding-right: calc(var(--u) * 2);
+      align-items: center;
+    }
     input[type="number"] {
+      flex: none;
+      align-self: stretch;
       width: calc(var(--u) * 12);
+      min-width: calc(var(--u) * 12);
       text-align: left;
     }
     .s-step {
-      margin-right: calc(var(--u) * 3);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex: none;
+      margin-left: auto;
       button {
+        flex: none;
+        width: calc(var(--u) * 3);
+        height: calc(var(--u) * 3);
         padding: 0;
         font-size: 0;
         color: inherit;
         opacity: 1;
         background: none;
         border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         &::after {
           content: '';
           display: block;
@@ -176,12 +205,12 @@ export default function swiss({
           background: currentColor;
         }
         &.s-step-up::after {
-          -webkit-mask: ${chevUp} center / contain no-repeat;
-          mask: ${chevUp} center / contain no-repeat;
+          -webkit-mask: var(--chev-up) center / contain no-repeat;
+          mask: var(--chev-up) center / contain no-repeat;
         }
         &.s-step-down::after {
-          -webkit-mask: ${chevDown} center / contain no-repeat;
-          mask: ${chevDown} center / contain no-repeat;
+          -webkit-mask: var(--chev-down) center / contain no-repeat;
+          mask: var(--chev-down) center / contain no-repeat;
         }
       }
     }
@@ -216,7 +245,6 @@ export default function swiss({
 
     select {
       border: 1px solid var(--rule);
-      appearance: auto;
       cursor: pointer;
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
     }
@@ -269,6 +297,7 @@ export default function swiss({
 
       .s-input {
         align-self: stretch;
+        flex-direction: column;
         gap: 0;
         align-items: stretch;
         padding: 0;
@@ -277,31 +306,41 @@ export default function swiss({
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track { display: none; }
       .s-input label {
+        position: relative;
         display: flex;
         align-items: center;
         gap: calc(var(--u) * 1.5);
-        font-family: ${valueFont};
-        font-size: var(--fs-sm);
+        font-family: var(--label-font);
+        font-weight: 600;
+        font-size: 0.75rem;
+        line-height: 1.57;
+        text-transform: none;
         cursor: pointer;
         min-height: calc(var(--u) * 6.5);
         & + label { border-top: 1px solid var(--rule); }
         &::before {
           content: '';
-          width: var(--check-w);
+          width: calc(var(--u) * 7);
           align-self: stretch;
           flex-shrink: 0;
           padding: calc(var(--u) * 1.5);
           border-right: 1px solid var(--rule);
         }
         &:hover::before { background: var(--fill-hover); }
-        &:has(input:checked)::before {
-          background-color: var(--fill);
-          background-image: ${check};
-          background-position: center;
-          background-size: 14px;
-          background-repeat: no-repeat;
-        }
+        &:has(input:checked)::before { background-color: var(--fill); }
         &:has(input:checked):hover::before { background-color: var(--fill-hover); }
+        &:has(input:checked)::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: calc(var(--u) * 7);
+          background: light-dark(black, white);
+          -webkit-mask: var(--check-mark) center / 14px no-repeat;
+          mask: var(--check-mark) center / 14px no-repeat;
+          pointer-events: none;
+        }
       }
     }
 
@@ -309,7 +348,7 @@ export default function swiss({
     &.s-radio {
       .s-input { flex-direction: column; gap: 0; align-items: stretch; padding: 0; }
       .s-input label {
-        font-family: ${valueFont};
+        font-family: var(--value-font);
         padding: var(--pad) calc(var(--u) * 4);
         cursor: pointer;
         & + label { border-top: 1px solid var(--rule); }
@@ -327,22 +366,22 @@ export default function swiss({
     input[type="range"] { accent-color: var(--accent); }
     .s-readout {
       color: var(--dim);
-      font-size: var(--fs-sm);
+      font-size: 0.875rem;
     }
   }
 
   /* ── Button ── */
   .s-button {
-    padding: var(--cta-gap) 0 calc(var(--u) * 4);
+    padding: calc(var(--u) * 14) 0 calc(var(--u) * 4);
     button {
       width: 100%;
       background: var(--fill);
       border: 1px solid var(--rule);
-      font-family: ${titleFont};
+      font-family: var(--title-font);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .06em;
-      font-size: var(--fs-action);
+      font-size: 1.2rem;
       padding: calc(var(--u) * 4) calc(var(--u) * 5);
       cursor: pointer;
       &:hover { background: var(--fill-hover); }
@@ -360,11 +399,11 @@ export default function swiss({
   /* ── Folder ── */
   .s-folder {
     > summary {
-      font-family: ${labelFont};
+      font-family: var(--label-font);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .04em;
-      font-size: var(--fs-label);
+      font-size: 0.75rem;
       border-bottom: 1px solid var(--rule);
       padding: var(--pad);
       &::after { display: none; }

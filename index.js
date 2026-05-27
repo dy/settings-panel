@@ -6,6 +6,7 @@
 import { effect } from 'sprae'
 import store, { _signals } from 'sprae/store'
 import base from './theme/default.js'
+import { normalizeHex } from './theme/color.js'
 
 // Import control factories
 import boolean from './control/boolean.js'
@@ -190,7 +191,7 @@ export default function settings(schema, options = {}) {
 
 // Type inference
 
-const isColor = (v) => typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v)
+const isColor = (v) => typeof v === 'string' && /^#?[0-9a-f]{3,8}$/i.test(v.trim())
 const isRgb = (v) => typeof v === 'string' && /^rgba?\(/i.test(v)
 const isHsl = (v) => typeof v === 'string' && /^hsla?\(/i.test(v)
 const isMultiline = (v) => typeof v === 'string' && v.includes('\n')
@@ -214,7 +215,7 @@ export function infer(key, def) {
 
   if (typeof def === 'string') {
     if (isColor(def) || isRgb(def) || isHsl(def)) {
-      return { type: 'color', value: def, label: key }
+      return { type: 'color', value: isColor(def) ? normalizeHex(def) : def, label: key }
     }
     if (isMultiline(def)) {
       return { type: 'textarea', value: def, label: key }

@@ -3,6 +3,8 @@
  */
 
 import control from './control.js'
+import { effect } from 'sprae'
+import { normalizeHex } from '../theme/color.js'
 
 const templates = {
   picker: `
@@ -30,12 +32,22 @@ const defaultColors = [
 ]
 
 export default (sig, opts = {}) => {
-  const { variant = 'picker', colors = defaultColors, ...rest } = opts
+  const { variant = 'picker', colors = defaultColors, dispose, ...rest } = opts
+  const set = v => { sig.value = normalizeHex(v) }
+  const stop = effect(() => {
+    if (typeof sig.value !== 'string') return
+    const normalized = normalizeHex(sig.value)
+    if (normalized !== sig.value) sig.value = normalized
+  })
   return control(sig, {
     ...rest,
     type: `color ${variant}`,
     template: templates[variant] || templates.picker,
-    value: sig, set: v => { sig.value = v },
-    colors
+    value: sig, set,
+    colors,
+    dispose: () => {
+      stop()
+      dispose?.()
+    }
   })
 }

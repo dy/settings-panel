@@ -89,6 +89,13 @@ test('string: #rrggbb → color', () => {
 
 test('string: #rgb → color', () => {
   is(infer('c', '#fff').type, 'color')
+  is(infer('c', '#fff').value, '#ffffff')
+})
+
+test('string: bare hex → color', () => {
+  is(infer('c', 'fff').type, 'color')
+  is(infer('c', 'fff').value, '#ffffff')
+  is(infer('c', '000').value, '#000000')
 })
 
 test('string: #rrggbbaa → color', () => {

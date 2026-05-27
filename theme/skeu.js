@@ -1,11 +1,12 @@
 /**
  * Skeu theme — monotone, diffuse, tactile
  *
- * Layers on top of base theme (CSS cascade override).
+ * Default soft theme + skeu visual overrides.
  * skeu(axes?) → CSS string
  */
 
-import baseCSS, { parseColor, resolveAccent, lerp, clamp } from './default.js'
+import defaultCSS from './default.js'
+import { parseColor, resolveAccent, lerp, clamp } from './color.js'
 
 const { min, max, round } = Math
 
@@ -92,8 +93,16 @@ export default function skeu({
     border-radius: var(--ri);
     color: var(${isDark ? '--text-dark' : '--text-light'});
     cursor: pointer;
-    font: inherit;
-    text-shadow: 0 calc(${isDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${isDark ? '--bl' : '--bh'});
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1;
+    text-shadow: none;
+    padding-block: calc(var(--pad) - var(--bevel) * 0.5) calc(var(--pad) + var(--bevel) * 0.5);
+    padding-inline: calc(var(--pad) * 2);
     filter: brightness(1);
     transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms;
     &:hover { filter: brightness(1.2); color: var(${isDark ? '--text-dark' : '--text-light'}); }
@@ -103,19 +112,26 @@ export default function skeu({
       --bh: ${$(1, min(accentC * 1.08, 1 - accentL), accentH, clamp(contrast * lerp(.1, .2, accentL), 0, 1))};
       ${raise(-1, 'var(--accent)')}
       color: var(${accentDark ? '--text-dark' : '--text-light'});
-      text-shadow: 0 calc(${accentDark ? -1 : 1} * min(1.5px, var(--bevel))) 0 var(${accentDark ? '--bl' : '--bh'});
+      text-shadow: none;
     }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 1; }`
   }
 
-  // Thumb fragment (shared between webkit/moz)
+  // Thumb: equal-area square (2√π u) → circle (4u dia) as roundness 0→1
+  const THUMB_CIRCLE = 4
+  const THUMB_SQUARE = 2 * Math.sqrt(Math.PI)
+  const thumbT = clamp(roundness, 0, 1)
+  const thumbU = roundness >= 1 ? THUMB_CIRCLE : lerp(THUMB_SQUARE, THUMB_CIRCLE, thumbT)
+  const thumbR = roundness <= 0 ? '0'
+    : roundness >= 1 ? '999px'
+    : `calc(var(--u) * ${+(thumbU * thumbT / 2).toFixed(4)})`
   const thumbBg = dark ? 'var(--text-dark)' : 'var(--raised)'
   const thumb = `
-  height: calc(var(--u) * 4);
   width: var(--thumb);
+  height: var(--thumb);
   ${raise(max(depth, .3), thumbBg)}
   border: none;
-  border-radius: ${!roundness ? `0` : roundness <= .5 ? 'calc(var(--u) / 2)' : '999px'};
+  border-radius: ${thumbR};
   cursor: grab; z-index: 1; position: relative;`
 
   // ── Base layer (structural + default visuals) ──
@@ -142,7 +158,7 @@ export default function skeu({
   --bevel: ${bevelPx}px;
   --r: calc(var(--u) * var(--roundness) * 3);
   --ri: calc(var(--u) * max(var(--roundness), -1.5 + var(--roundness) * 3));
-  --thumb: calc(var(--u) * ${roundness >= 1 ? 4 : 2});
+  --thumb: calc(var(--u) * ${thumbU});
 
   color: var(--text);
   ${raise(depth)}
@@ -168,7 +184,8 @@ export default function skeu({
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
   select {
-    padding: var(--padding);
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   /* ── Boolean (custom toggle) ── */
@@ -194,7 +211,7 @@ export default function skeu({
     }
     &.s-switch:has(input:checked) .s-track::after {
       left: 0; right: 0;
-      transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--padding)));
+      transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--pad)));
     }
     &.s-toggle {
       .s-track {
@@ -220,8 +237,8 @@ export default function skeu({
     &.s-checkbox {
       .s-track {
         border-radius: var(--ri);
-        width: calc(var(--u) * 4 + var(--padding)); height: calc(var(--u) * 4 + var(--padding));
-        margin: calc(var(--padding) / 2) 0;
+        width: calc(var(--u) * 4 + var(--pad)); height: calc(var(--u) * 4 + var(--pad));
+        margin: calc(var(--pad) / 2) 0;
         &::after {
           content: ''; position: absolute; inset: 15%;
           background: var(${accentDark ? '--text-dark' : '--text-light'});
@@ -286,7 +303,7 @@ export default function skeu({
       &.s-active { color: var(--accent); }
     }
     .s-readout { color: var(--text-dim); opacity: 1; font-size: smaller; }
-    input[type="text"].s-readout { padding: var(--padding); }
+    input[type="text"].s-readout { padding: var(--pad); }
     .s-tooltip {
       color: var(--text-dim); opacity: 1;
     }
@@ -314,7 +331,7 @@ export default function skeu({
   .s-select.s-dropdown .s-input {
     position: relative;
     &::after {
-      content: ''; position: absolute; right: var(--padding); top: 50%;
+      content: ''; position: absolute; right: var(--pad); top: 50%;
       width: calc(var(--u) * 4); height: calc(var(--u) * 4);
       background: var(--text-dim);
       -webkit-mask: ${chevron} center / contain no-repeat;
@@ -332,6 +349,7 @@ export default function skeu({
       font-size: smaller;
       margin-left: 0;
       border-radius: 0;
+      padding: calc(var(--pad) - var(--bevel) * 0.5) var(--pad) calc(var(--pad) + var(--bevel) * 0.5);
       &:first-child { border-top-left-radius: var(--ri); border-bottom-left-radius: var(--ri); }
       &:last-child { border-top-right-radius: var(--ri); border-bottom-right-radius: var(--ri); }
     }
@@ -341,10 +359,65 @@ export default function skeu({
   }
 
   /* ── Color ── */
-  .s-color-input {
-    input[type="color"] { background: transparent; &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } }
-    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    input[type="color"]::-webkit-color-swatch { border: var(--bevel) solid var(--bh); border-radius: var(--ri); }
+  .s-color.s-picker .s-color-input {
+    --color-strip: calc(var(--u) * 4 + var(--pad) * 2);
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: calc(1lh + var(--pad) * 2);
+    border-radius: var(--ri);
+    overflow: hidden;
+    background-color: var(--sunken);
+    &:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input[type="color"] {
+      position: absolute;
+      inset: 0 auto 0 0;
+      z-index: 0;
+      width: var(--color-strip);
+      height: 100%;
+      min-height: 100%;
+      padding: 0;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      &:focus-visible { outline: none; }
+      &::-webkit-color-swatch-wrapper { padding: 0; height: 100%; }
+      &::-webkit-color-swatch { border: none; border-radius: 0; height: 100%; }
+      &::-moz-color-swatch { border: none; border-radius: 0; height: 100%; }
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      border-radius: inherit;
+      background-image: var(--concave);
+      outline: var(--bevel) solid var(--bh);
+      box-shadow: inset 0 0 0 var(--bevel) var(--bl), inset 0 var(--bevel) var(--bl), 0 var(--bevel) 0 0 var(--bh);
+    }
+    input[type="text"] {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: calc(100% - var(--color-strip));
+      margin-left: var(--color-strip);
+      min-height: calc(1lh + var(--pad) * 2);
+      padding: var(--pad) var(--pad-i);
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      background-image: none;
+      box-shadow: none;
+      outline: none;
+      &:focus-visible { outline: none; }
+    }
   }
   .s-swatches button {
     ${btn(surfaceL, surfaceC, surfaceH)}
@@ -357,13 +430,18 @@ export default function skeu({
   .s-button button {
     ${btn(accentL, accentC, accentH, 'var(--accent)')}
     width: 100%;
+    padding: calc(var(--u) * (1 + var(--spacing)) - var(--bevel) * 0.5) calc(var(--pad) * 2) calc(var(--u) * (1 + var(--spacing)) + var(--bevel) * 0.5);
   }
   .s-button.s-secondary button, .s-button button.s-secondary {
     ${btn(surfaceL, surfaceC, surfaceH, 'var(--raised)')}
   }
 
   /* ── Panel title ── */
-  > summary, > .s-panel-title { color: var(--text); }
+  > summary, > .s-panel-title {
+    color: var(--text);
+    font-size: 1.125em;
+    font-weight: inherit;
+  }
   > summary::after { background: var(--text-dim); }
 
   /* ── Folder ── */
@@ -376,5 +454,5 @@ export default function skeu({
   .s-folder[open] > summary { box-shadow: none; }
 }`
 
-  return baseCSS + '\n' + overrides
+  return defaultCSS + '\n' + overrides
 }

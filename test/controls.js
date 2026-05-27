@@ -453,6 +453,27 @@ test('color: renders inputs', () => {
   cleanup(ctrl, c)
 })
 
+test('color: normalizes short hex on mount', () => {
+  const c = mount()
+  const s = signal('#fff')
+  const ctrl = color(s, { container: c })
+  is(s.value, '#ffffff')
+  is(ctrl.el.querySelector('input[type=color]').value, '#ffffff')
+  is(ctrl.el.querySelector('input[type=text]').value, '#ffffff')
+  cleanup(ctrl, c)
+})
+
+test('color: normalizes input to full hex', () => {
+  const c = mount()
+  const s = signal('#ffffff')
+  const ctrl = color(s, { container: c })
+  const txt = ctrl.el.querySelector('input[type=text]')
+  txt.value = '000'
+  txt.dispatchEvent(new Event('input', { bubbles: true }))
+  is(s.value, '#000000')
+  cleanup(ctrl, c)
+})
+
 test('color: swatches variant', () => {
   const c = mount()
   const s = signal('#ff0000')
