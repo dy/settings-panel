@@ -114,7 +114,7 @@ export default function skeu({
       color: var(${accentDark ? '--text-dark' : '--text-light'});
       text-shadow: none;
     }
-    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 1; }`
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--ri); z-index: 1; }`
   }
 
   // Thumb: equal-area square (2√π u) → circle (4u dia) as roundness 0→1
@@ -181,7 +181,7 @@ export default function skeu({
     color: var(--text);
     transition: outline-color 140ms;
     &::placeholder { color: var(--text-dim); opacity: .6; }
-    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--ri); }
   }
   select {
     padding-top: 0;
@@ -202,15 +202,26 @@ export default function skeu({
         ${raise(max(depth, .3), thumbBg)}
         border: none; border-radius: 50%;
         transition: transform 140ms, box-shadow 140ms;
+        transform: translateX(0);
       }
     }
-    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+    &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--ri); }
     &:has(input:checked) .s-track {
       background-color: var(--accent);
-      &::after { box-shadow: 0 0 0 2px var(--bh); }
+    }
+    &:has(input:checked) .s-track::after {
+      box-shadow: 0 0 0 2px var(--bh);
+    }
+    &.s-switch {
+      .s-track::after {
+        position: absolute;
+        inset: 0;
+        margin: auto calc(var(--pad) / 2);
+        transition: transform 140ms, box-shadow 140ms;
+        transform: translateX(0);
+      }
     }
     &.s-switch:has(input:checked) .s-track::after {
-      left: 0; right: 0;
       transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--pad)));
     }
     &.s-toggle {
@@ -281,7 +292,7 @@ export default function skeu({
       &:hover::-moz-range-thumb { filter: brightness(1.2); }
       &:active::-webkit-slider-thumb { filter: brightness(.95); cursor: grabbing; }
       &:active::-moz-range-thumb { filter: brightness(.95); cursor: grabbing; }
-      &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--ri); }
       &::-webkit-slider-container { appearance: none; }
     }
     datalist { display: none; }
@@ -368,7 +379,7 @@ export default function skeu({
     border-radius: var(--ri);
     overflow: hidden;
     background-color: var(--sunken);
-    &:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+    &:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--ri); }
     input[type="color"] {
       position: absolute;
       inset: 0 auto 0 0;
@@ -442,16 +453,30 @@ export default function skeu({
     font-size: 1.125em;
     font-weight: inherit;
   }
-  > summary::after { background: var(--text-dim); }
+  > summary::after {
+    background: var(--text-dim);
+    -webkit-mask: ${chevron} center / contain no-repeat;
+    mask: ${chevron} center / contain no-repeat;
+    transition: transform 140ms;
+  }
+  &[open] > summary::after { transform: rotate(-180deg); }
 
   /* ── Folder ── */
   .s-folder > summary {
     color: var(--text);
     border-bottom: var(--bevel) solid var(--bl); box-shadow: 0 var(--bevel) 0 0 var(--bh);
     opacity: 1;
-    &::after { background: var(--text-dim); }
+    &::after {
+      background: var(--text-dim);
+      -webkit-mask: ${chevron} center / contain no-repeat;
+      mask: ${chevron} center / contain no-repeat;
+      transition: transform 140ms;
+    }
   }
-  .s-folder[open] > summary { box-shadow: none; }
+  .s-folder[open] > summary {
+    box-shadow: none;
+    &::after { transform: rotate(-180deg); }
+  }
 }`
 
   return defaultCSS + '\n' + overrides

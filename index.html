@@ -114,15 +114,61 @@
 
       create()
 
+      const { parseColor, toHex } = await import('./theme/color.js')
+
+      function tweenColor(from, to, t) {
+        const a = parseColor(from), b = parseColor(to)
+        let dH = b.H - a.H
+        if (dH > 180) dH -= 360; else if (dH < -180) dH += 360
+        return toHex({
+          L: a.L + (b.L - a.L) * t,
+          C: a.C + (b.C - a.C) * t,
+          H: ((a.H + dH * t) % 360 + 360) % 360,
+        })
+      }
+
+      let tweenId = 0
       function randomize() {
         if (!state) return
-        state.shade = randHex()
-        state.accent = randHex()
-        state.weight = rand(100, 900, 100)
-        state.bevel = rand(0, 2, 0.1)
-        state.depth = rand(0, 2, 0.1)
-        state.roundness = rand(0, 2, 0.25)
-        state.spacing = rand(0.5, 2, 0.25)
+        tweenId++
+        const id = tweenId
+        const dur = 600
+        const from = {
+          shade: state.shade, accent: state.accent,
+          weight: state.weight, bevel: state.bevel, depth: state.depth,
+          roundness: state.roundness, spacing: state.spacing,
+        }
+        const newShade = randHex()
+        const { L: sL, C: sC } = parseColor(newShade)
+        const newAccent = toHex({
+          L: sL < 0.5 ? rand(0.6, 0.8) : rand(0.25, 0.45),
+          C: rand(0.12, 0.25),
+          H: rand(0, 360),
+        })
+        const to = {
+          shade: newShade, accent: newAccent,
+          weight: rand(100, 900, 100), bevel: rand(0, 2, 0.1), depth: rand(0, 2, 0.1),
+          roundness: rand(0, 2, 0.25), spacing: rand(0.5, 2, 0.25),
+        }
+        const steps = { weight: 100, bevel: 0.1, depth: 0.1, roundness: 0.25, spacing: 0.25 }
+        const snap = (v, step, t) => {
+          const raw = from[v] + (to[v] - from[v]) * t
+          return +(t < 1 ? raw.toFixed(2) : (Math.round(raw / step) * step).toFixed(2))
+        }
+        const t0 = performance.now()
+        const ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2  // ease in-out quad
+        ;(function tick(now) {
+          if (id !== tweenId) return
+          const t = ease(Math.min((now - t0) / dur, 1))
+          state.shade = tweenColor(from.shade, to.shade, t)
+          state.accent = tweenColor(from.accent, to.accent, t)
+          state.weight = snap('weight', steps.weight, t)
+          state.bevel = snap('bevel', steps.bevel, t)
+          state.depth = snap('depth', steps.depth, t)
+          state.roundness = snap('roundness', steps.roundness, t)
+          state.spacing = snap('spacing', steps.spacing, t)
+          if (t < 1) requestAnimationFrame(tick)
+        })(t0)
       }
 
       function syncBg() {

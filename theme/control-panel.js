@@ -10,14 +10,14 @@ import { parseColor, resolveAccent, clamp } from './color.js'
 
 export default function controlPanel({
   shade = '#232323',
-  accent = '#5b99f5',
+  accent,
   spacing = 1,
   weight = 400,
   roundness = 0
 } = {}) {
-  const resolved = resolveAccent(accent, shade)
   const { L, C, H } = parseColor(shade)
   const dark = L < .6
+  const resolved = resolveAccent(accent, shade) || `oklch(${clamp(dark ? L + 0.22 : L - 0.22, 0, 1).toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
   const gap = `calc(var(--u) * var(--spacing))`
 
   const bgStep = 0.08
@@ -28,7 +28,8 @@ export default function controlPanel({
   const bg2h = `oklch(${bg2hL.toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
   const fg1 = dark ? '#707070' : '#696969'
   const text1 = dark ? '#ebebeb' : '#242424'
-  const text2 = dark ? '#a1a1a1' : '#575757'
+  const dimL = parseColor(text1).L + (bg2L - parseColor(text1).L) * 0.15
+  const dimColor = `oklch(${clamp(dimL, 0, 1).toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
 
   const overrides = `.s-panel {
   --u: 5px;
@@ -37,13 +38,13 @@ export default function controlPanel({
   --bg2h: ${bg2h};
   --fg: ${fg1};
   --text: ${text1};
-  --dim: ${text2};
+  --dim: color-mix(in oklab, var(--text), var(--bg2) 15%);
   --accent: ${resolved};
   --spacing: ${spacing};
   --weight: ${weight};
   --roundness: ${roundness};
   --r: 0;
-  --pad: calc(var(--u) * (2 + 1 * var(--spacing)));
+  --hover: brightness(1.08);
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background-color: var(--bg);
@@ -52,7 +53,7 @@ export default function controlPanel({
   line-height: 20px;
   color: var(--text);
   border-radius: 0;
-  padding: var(--pad);
+  padding: calc(var(--u) * (2 + 1 * var(--spacing)));
   min-width: 0;
   -webkit-font-smoothing: antialiased;
 
@@ -68,11 +69,13 @@ export default function controlPanel({
     line-height: 20px;
     padding: 0;
     &::after { display: none; }
+    cursor: pointer;
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
   }
 
   .s-panel-content { gap: ${gap}; padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
-    padding-top: var(--pad);
+    padding-top: calc(var(--u) * var(--spacing));
   }
 
   /* ── Layout ── */
@@ -101,7 +104,7 @@ export default function controlPanel({
     &::placeholder { color: var(--fg); }
     &:hover { background-color: var(--bg2h); }
     &:focus { background-color: var(--bg2h); outline: none; }
-    &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
   }
   input[type="text"], input[type="number"], select {
     padding: 0 5px;
@@ -117,7 +120,7 @@ export default function controlPanel({
     padding: 0;
     border: none;
     cursor: pointer;
-    &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
     &::-webkit-color-swatch-wrapper { padding: 0; }
     &::-webkit-color-swatch { border: none; border-radius: 0; }
     &::-moz-color-swatch { border: none; border-radius: 0; }
@@ -142,7 +145,7 @@ export default function controlPanel({
       &::-webkit-scrollbar { width: 8px; height: 8px; }
       &::-webkit-scrollbar-track { background: var(--bg2); }
       &::-webkit-scrollbar-thumb {
-        background: var(--fg);
+        background: var(--accent);
         border-radius: 0;
         border: 2px solid var(--bg2);
       }
@@ -158,9 +161,8 @@ export default function controlPanel({
     font-size: 11px;
     height: 20px;
     cursor: pointer;
-    &:hover { background: var(--bg2h); filter: none; }
-    &:active { background: var(--dim); color: var(--bg2); filter: none; }
-    &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+    &:hover { background-color: var(--bg2h); }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
   }
 
   /* ── Slider ── */
@@ -191,9 +193,9 @@ export default function controlPanel({
         outline: none;
         cursor: ew-resize;
         &:hover { background-color: var(--bg2h); }
-        &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; cursor: ew-resize; border: none; }
+        &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; &:hover { filter: var(--hover); } }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: 20px; border-radius: 0; box-shadow: none; }
         &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
       }
@@ -211,7 +213,7 @@ export default function controlPanel({
         bottom: 0;
         left: var(--low, 0%);
         width: calc(var(--high, 100%) - var(--low, 0%));
-        background: var(--fg);
+        background: var(--accent);
         pointer-events: none;
       }
       input[type="range"] {
@@ -220,11 +222,11 @@ export default function controlPanel({
         background: transparent;
         pointer-events: none;
         cursor: ew-resize;
-        &:focus-visible { outline: 1px solid var(--fg); outline-offset: 0; }
+        &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
         &::-webkit-slider-thumb { pointer-events: all; cursor: ew-resize; }
         &::-moz-range-thumb { pointer-events: all; cursor: ew-resize; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; box-shadow: none; }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--fg); border-radius: 0; border: none; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; box-shadow: none; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; &:hover { filter: var(--hover); } }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; background: transparent; box-shadow: none; }
       }
     }
@@ -233,11 +235,12 @@ export default function controlPanel({
   /* ── Boolean ── */
   .s-boolean {
     align-items: center;
-    .s-input { align-self: center; }
+    cursor: pointer;
+    .s-input { align-self: center; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
-    &:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
+    &:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 0; }
     &.s-checkbox {
       .s-track {
         display: block;
@@ -260,7 +263,7 @@ export default function controlPanel({
           transition: background 140ms;
         }
       }
-      &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
+      &:has(input:checked) .s-track::after { background: var(--s-color, var(--accent)); }
     }
     &.s-switch {
       .s-track {
@@ -279,9 +282,9 @@ export default function controlPanel({
           width: var(--thumb);
           height: var(--thumb);
           border-radius: 0;
-          background: var(--fg);
+          background: var(--accent);
           box-shadow: none;
-          transition: transform 140ms, background 140ms;
+          transition: transform 140ms, background 140ms, filter 140ms;
         }
       }
       &:has(input:checked) .s-track::after {
@@ -290,11 +293,13 @@ export default function controlPanel({
         left: calc((18px - var(--thumb)) / 2);
         right: auto;
         transform: translate(calc(35px - var(--thumb) - (18px - var(--thumb))), -50%);
-        background: var(--s-color, var(--fg));
+        background: var(--s-color, var(--accent));
       }
+      .s-input:hover .s-track::after { filter: var(--hover); }
     }
     &.s-toggle {
       .s-track {
+        cursor: pointer;
         width: auto;
         height: 20px;
         margin: 0;
@@ -315,7 +320,7 @@ export default function controlPanel({
       width: 100%;
       -webkit-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${fg1}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
+      background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${dimColor}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
       background-repeat: no-repeat;
       background-position: right 4px center;
       padding: 0 16px 0 5px;
@@ -368,10 +373,10 @@ export default function controlPanel({
         }
       }
       label:hover .s-track { background-color: var(--bg2h); }
-      label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
-      label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
+      label:has(input:checked) .s-track::after { background: var(--s-color, var(--accent)); }
+      label:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 0; }
     }
-    &.s-segmented button { padding: 0 5px; &.s-selected { background: var(--dim); color: var(--bg2); } }
+    &.s-segmented button { padding: 0 5px; &.s-selected { background-color: var(--accent); color: var(--bg); &:hover { filter: var(--hover); } } }
   }
 
   /* ── Color ── */
@@ -384,7 +389,8 @@ export default function controlPanel({
   /* ── Button ── */
   .s-button {
     .s-input { flex: 1; }
-    button { width: 100%; padding: 0 10px; }
+    button { background-color: var(--accent); color: var(--bg); width: 100%; padding: 0 10px; &:hover { filter: var(--hover); } }
+    &.s-secondary button, button.s-secondary { background-color: var(--bg2); color: var(--dim); &:hover { background-color: var(--bg2h); filter: none; } }
   }
 
   /* ── Number ── */

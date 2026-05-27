@@ -53,3 +53,21 @@ export const resolveAccent = (accent, shade) => {
   const L = clamp(accent, 0, 1)
   return `oklch(${+L.toFixed(3)} ${+max(C, 0.15).toFixed(4)} ${+H.toFixed(1)})`
 }
+
+/** Convert OKLCH {L, C, H} to #rrggbb hex string */
+export function toHex({ L, C, H }) {
+  const a_ = C * Math.cos(H * Math.PI / 180)
+  const b_ = C * Math.sin(H * Math.PI / 180)
+  // OKLab → cbrt(LMS)
+  const l_ = L + 0.3963377922 * a_ + 0.2158037587 * b_
+  const m_ = L - 0.1055613423 * a_ - 0.0638541758 * b_
+  const s_ = L - 0.0894841821 * a_ - 1.2914855380 * b_
+  // Cube to get LMS → linear sRGB
+  const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_
+  const lr = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+  const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+  const lb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+  const toSrgb = v => { v = clamp(v, 0, 1); return v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055 }
+  const h = c => Math.round(clamp(toSrgb(c), 0, 1) * 255).toString(16).padStart(2, '0')
+  return '#' + h(lr) + h(lg) + h(lb)
+}

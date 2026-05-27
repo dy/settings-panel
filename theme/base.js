@@ -38,6 +38,7 @@ export default `@layer s-base {
     &::-webkit-details-marker { display: none; }
   }
   > summary { cursor: pointer; }
+  > summary:focus-visible, .s-folder > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Collapse ── */
   &:is(details) {

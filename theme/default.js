@@ -141,26 +141,34 @@ const softCSS = `@layer s-soft {
     }
     &.s-toggle {
       .s-track {
+        position: relative;
         padding: var(--pad) calc(var(--pad) * 2);
         background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
         border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
         border-radius: var(--r);
         cursor: pointer;
-        transition: background-color 140ms, color 140ms, border-color 140ms;
         height: calc(1lh + var(--pad) * 2);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: smaller;
-        &::after { content: 'Off'; }
+        overflow: hidden;
+        &::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          background: var(--accent);
+          opacity: 0;
+          transition: opacity 140ms;
+        }
+        &::after { content: 'Off'; position: relative; transition: color 140ms; }
         &:hover { filter: brightness(1.2); }
         &:active { filter: brightness(.95); }
       }
       &:has(input:checked) .s-track {
-        background: var(--accent);
-        color: white;
         border-color: transparent;
-        &::after { content: 'On'; }
+        &::before { opacity: 1; }
+        &::after { content: 'On'; color: white; }
       }
     }
     &.s-checkbox {
