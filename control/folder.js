@@ -6,14 +6,14 @@
 import sprae, { signal } from 'sprae'
 
 const tmplManaged = `
-  <details class="s-control s-folder" :class="variant || null" :open="_open">
+  <details class="s-control s-folder" :class="variantCls || null" :open="_open">
     <summary class="s-label" :onclick="toggle" :text="label"></summary>
     <div class="s-content"></div>
   </details>
 `
 
 const tmplNative = `
-  <details class="s-control s-folder" :class="variant || null" :name="name">
+  <details class="s-control s-folder" :class="variantCls || null" :name="name">
     <summary class="s-label" :text="label"></summary>
     <div class="s-content"></div>
   </details>
@@ -25,11 +25,12 @@ export default ({ label, collapsed = false, name, variant, container }) => {
 
   wrapper.innerHTML = native ? tmplNative : tmplManaged
 
+  const variantCls = variant ? `s-${variant}` : null
   const state = native
-    ? { label, name, variant: variant || null }
+    ? { label, name, variantCls }
     : (() => {
       const _open = signal(!collapsed)
-      return { label, variant: variant || null, _open, toggle: (e) => { e.preventDefault(); _open.value = !_open.value } }
+      return { label, variantCls, _open, toggle: (e) => { e.preventDefault(); _open.value = !_open.value } }
     })()
 
   sprae(wrapper, state)

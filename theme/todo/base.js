@@ -310,7 +310,7 @@ button:focus-visible {
   border-color: var(--s-accent);
 }
 
-.s-buttons button.selected {
+.s-buttons button.s-selected {
   background: var(--s-accent);
   color: var(--s-accent-contrast);
   border-color: transparent;
@@ -330,7 +330,7 @@ button:focus-visible {
   color: var(--s-muted);
 }
 
-.s-radio label.selected {
+.s-radio label.s-selected {
   color: var(--s-fg);
 }
 
@@ -372,7 +372,7 @@ button:focus-visible {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.s-swatches button.selected {
+.s-swatches button.s-selected {
   border-color: var(--s-fg);
   box-shadow: 0 0 0 2px var(--s-panel-bg);
 }

@@ -11,7 +11,7 @@ const templates = {
     </select>
   `,
   radio: `
-    <label :each="opt in options" :class="{ selected: opt.value == value }">
+    <label :each="opt in options" :class="{ 's-selected': opt.value == value }">
       <input type="radio" :name="label || radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
       <span :text="opt.label"></span>
     </label>
@@ -19,7 +19,7 @@ const templates = {
   segmented: `
     <button
       :each="opt in options"
-      :class="{ selected: multiple ? (value || []).includes(opt.value) : opt.value == value }"
+      :class="{ 's-selected': multiple ? (value || []).includes(opt.value) : opt.value == value }"
       :onclick="toggle(opt.value)"
       :text="opt.label"
     ></button>

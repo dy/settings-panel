@@ -17,7 +17,7 @@ export default function control(sig, opts) {
 
   // Split type into base + variant classes
   const [base, ...variants] = type.split(/\s+/)
-  const classes = ['s-control', `s-${base}`, ...variants].join(' ')
+  const classes = ['s-control', `s-${base}`, ...variants.map(v => `s-${v}`)].join(' ')
 
   const wrapper = document.createElement('div')
 

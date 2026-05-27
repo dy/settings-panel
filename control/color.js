@@ -14,7 +14,7 @@ const templates = {
   swatches: `
     <button
       :each="c in colors"
-      :class="{ selected: c == value }"
+      :class="{ 's-selected': c == value }"
       :style="'background:' + c"
       :onclick="() => set(c)"
       :title="c"

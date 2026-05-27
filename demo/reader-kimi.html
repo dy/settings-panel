@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #c5c5c5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+
+        .settings-panel {
+            width: 100%;
+            max-width: 500px;
+            background: #e6e6ea;
+            border-radius: 0;
+            padding: 40px 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #999;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+            font-family: 'Roboto Slab', serif;
+        }
+
+        .close-btn {
+            background: #8a8a8a;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #777;
+        }
+
+        /* Setting Rows */
+        .setting-row {
+            display: flex;
+            align-items: center;
+            padding: 22px 0;
+            border-bottom: 1px solid #bbb;
+        }
+
+        .setting-label {
+            width: 120px;
+            font-size: 22px;
+            color: #777;
+            font-weight: 400;
+        }
+
+        .setting-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Font Row */
+        .font-value {
+            font-family: 'Roboto Slab', serif;
+            font-size: 26px;
+            color: #1a1a1a;
+        }
+
+        /* Text Size */
+        .text-size-options {
+            display: flex;
+            align-items: baseline;
+            gap: 35px;
+            width: 100%;
+            justify-content: space-around;
+        }
+
+        .size-option {
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .size-option:hover {
+            color: #666;
+        }
+
+        .size-option.active {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .size-option:nth-child(1) { font-size: 14px; }
+        .size-option:nth-child(2) { font-size: 18px; }
+        .size-option:nth-child(3) { font-size: 24px; }
+        .size-option:nth-child(4) { font-size: 30px; }
+
+        /* Align Options */
+        .align-options {
+            display: flex;
+            gap: 30px;
+        }
+
+        .align-icon {
+            width: 50px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .align-icon .line {
+            height: 4px;
+            background: #999;
+            transition: background 0.2s;
+        }
+
+        .align-icon:hover .line {
+            background: #777;
+        }
+
+        .align-icon.active .line {
+            background: #1a1a1a;
+        }
+
+        /* Left align */
+        .align-left .line:nth-child(1) { width: 100%; }
+        .align-left .line:nth-child(2) { width: 80%; }
+        .align-left .line:nth-child(3) { width: 90%; }
+        .align-left .line:nth-child(4) { width: 70%; }
+
+        /* Center align */
+        .align-center .line { width: 100%; align-self: center; }
+
+        /* Right align */
+        .align-right .line { width: 100%; align-self: flex-end; }
+
+        /* Justify align */
+        .align-justify .line { width: 100%; }
+
+        /* Line Spacing */
+        .spacing-options {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .spacing-icon {
+            width: 50px;
+            height: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            gap: 3px;
+        }
+
+        .spacing-icon .line {
+            height: 3px;
+            background: #999;
+            width: 100%;
+        }
+
+        .spacing-icon.active .line {
+            background: #1a1a1a;
+            height: 4px;
+        }
+
+        .spacing-icon.tight { gap: 2px; }
+        .spacing-icon.medium { gap: 6px; }
+        .spacing-icon.wide { gap: 10px; }
+
+        /* Indent Options */
+        .indent-options {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .indent-box {
+            width: 55px;
+            height: 55px;
+            border: 2px solid #999;
+            position: relative;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .indent-box:hover {
+            border-color: #777;
+        }
+
+        .indent-box.active {
+            border-color: #1a1a1a;
+            border-width: 3px;
+        }
+
+        .indent-box::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px solid #999;
+        }
+
+        .indent-box.active::after {
+            border-color: #1a1a1a;
+            border-width: 3px;
+        }
+
+        .indent-box.small::after { left: 4px; }
+        .indent-box.large::after { left: 12px; }
+
+        /* Contrast Slider */
+        .contrast-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .contrast-label {
+            font-size: 14px;
+            color: #888;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .slider-container {
+            flex: 1;
+            position: relative;
+            height: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-track {
+            width: 100%;
+            height: 3px;
+            background: #aaa;
+            position: relative;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: #1a1a1a;
+            width: 70%;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            left: 70%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px;
+            height: 22px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Bottom Button */
+        .bottom-section {
+            margin-top: 40px;
+            padding-top: 20px;
+        }
+
+        .ready-btn {
+            width: 100%;
+            background: #000;
+            color: white;
+            border: none;
+            padding: 28px 40px;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+
+        .ready-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="settings-panel">
+        <!-- Header -->
+        <div class="header">
+            <h1>SETTINGS</h1>
+            <button class="close-btn">CLOSE</button>
+        </div>
+
+        <!-- Font -->
+        <div class="setting-row">
+            <div class="setting-label">Font</div>
+            <div class="setting-content">
+                <span class="font-value">Roboto Slab</span>
+            </div>
+        </div>
+
+        <!-- Text Size -->
+        <div class="setting-row">
+            <div class="setting-label">Text size</div>
+            <div class="setting-content">
+                <div class="text-size-options">
+                    <span class="size-option">ABC</span>
+                    <span class="size-option">ABC</span>
+                    <span class="size-option active">ABC</span>
+                    <span class="size-option">ABC</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Align -->
+        <div class="setting-row">
+            <div class="setting-label">Align</div>
+            <div class="setting-content">
+                <div class="align-options">
+                    <div class="align-icon align-left active">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="align-icon align-center">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="align-icon align-right">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="align-icon align-justify">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Spacing -->
+        <div class="setting-row">
+            <div class="setting-label">Line spacing</div>
+            <div class="setting-content">
+                <div class="spacing-options">
+                    <div class="spacing-icon tight">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="spacing-icon medium active">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="spacing-icon wide">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indent -->
+        <div class="setting-row">
+            <div class="setting-label">Indent</div>
+            <div class="setting-content">
+                <div class="indent-options">
+                    <div class="indent-box small"></div>
+                    <div class="indent-box active"></div>
+                    <div class="indent-box large"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contrast -->
+        <div class="setting-row">
+            <div class="setting-label">Contrast</div>
+            <div class="setting-content">
+                <div class="contrast-control">
+                    <span class="contrast-label">LOW</span>
+                    <div class="slider-container">
+                        <div class="slider-track">
+                            <div class="slider-fill"></div>
+                        </div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                    <span class="contrast-label">HIGH</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Button -->
+        <div class="bottom-section">
+            <button class="ready-btn">I'm ready to come back to my book</button>
+        </div>
+    </div>
+</body>
+</html>

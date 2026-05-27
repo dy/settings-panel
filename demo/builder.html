@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings Panel — Theme Laboratory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* === PARAMS (0-1) === */
+      --density: 0.5;
+      --contrast: 0.6;
+      --depth: 0.4;
+      --temperature: 0.5;
+
+      /* === DERIVED: Spacing === */
+      --space: calc(10px + var(--density) * 10px);
+      --gap: calc(var(--space) * 0.7);
+
+      /* === DERIVED: Contrast (affects border/text clarity) === */
+      --border-a: calc(0.08 + var(--contrast) * 0.25);
+      --text-contrast: calc(0.6 + var(--contrast) * 0.4);
+
+      /* === COLORS (mode + temperature) === */
+      --temp-shift: calc((var(--temperature) - 0.5) * 30);
+      --bg: hsl(calc(220 + var(--temp-shift)) 12% 95%);
+      --surface: hsl(calc(220 + var(--temp-shift)) 10% 100%);
+      --text: hsl(calc(220 + var(--temp-shift)) 15% calc(15% + (1 - var(--text-contrast)) * 30%));
+      --dim: hsl(calc(220 + var(--temp-shift)) 8% calc(40% + (1 - var(--contrast)) * 20%));
+      --border: hsl(calc(220 + var(--temp-shift)) 10% calc(100% - var(--border-a) * 100%));
+      --accent: hsl(calc(220 + var(--temp-shift)) 75% 55%);
+
+      /* === TYPOGRAPHY (theme sets) === */
+      --font: 'DM Sans', system-ui, sans-serif;
+      --radius: 8px;
+
+      /* === SHADOW STYLE (theme sets) === */
+      --shadow-blur: calc(var(--depth) * 16px);
+      --shadow-y: calc(var(--depth) * 6px);
+      --shadow-a: calc(var(--depth) * 0.15);
+      --knob-shadow: 0 2px 4px hsl(0 0% 0% / calc(var(--depth) * 0.25));
+
+      /* === TEXTURE === */
+      --noise: 0;
+    }
+
+    html {
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background 200ms, color 200ms;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: var(--noise);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* === PANEL === */
+    .panel {
+      width: 100%;
+      max-width: 380px;
+      background: var(--surface);
+      border: 1px solid hsl(0 0% 0% / var(--border-a));
+      border-radius: var(--radius);
+      padding: var(--space);
+      box-shadow: 0 var(--shadow-y) var(--shadow-blur) hsl(0 0% 0% / var(--shadow-a));
+      transition: all 200ms;
+    }
+
+    .panel-header {
+      padding-bottom: var(--gap);
+      margin-bottom: var(--gap);
+      border-bottom: 1px solid hsl(0 0% 0% / calc(var(--border-a) * 0.5));
+    }
+
+    .panel-title { font-size: 16px; font-weight: 600; }
+    .panel-sub {
+      font-size: 10px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    /* === CONTROL === */
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap);
+      padding: calc(var(--gap) * 0.35) 0;
+      font-size: 13px;
+    }
+    .row-label { font-weight: 500; min-width: 75px; }
+    .row-input { display: flex; align-items: center; gap: 6px; }
+
+    /* === SLIDER === */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 90px;
+      height: 4px;
+      background: hsl(0 0% 0% / calc(var(--border-a) * 0.6));
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: calc(12px + var(--density) * 6px);
+      height: calc(12px + var(--density) * 6px);
+      background: var(--accent);
+      border-radius: var(--knob-radius, 50%);
+      cursor: grab;
+      box-shadow: var(--knob-shadow);
+      transition: transform 100ms;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+    .row-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--dim);
+      min-width: 28px;
+      text-align: right;
+    }
+
+    /* === SEGMENTED === */
+    .seg {
+      display: flex;
+      background: hsl(0 0% 0% / calc(var(--border-a) * 0.4));
+      border-radius: calc(var(--radius) * 0.5);
+      padding: 2px;
+      gap: 1px;
+    }
+    .seg button {
+      padding: 4px 7px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--dim);
+      background: transparent;
+      border: none;
+      border-radius: calc(var(--radius) * 0.4);
+      cursor: pointer;
+      transition: all 100ms;
+    }
+    .seg button:hover { color: var(--text); }
+    .seg button.on {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 2px hsl(0 0% 0% / calc(var(--shadow-a) * 0.6));
+    }
+
+    .divider {
+      height: 1px;
+      background: hsl(0 0% 0% / calc(var(--border-a) * 0.4));
+      margin: calc(var(--gap) * 0.8) 0;
+    }
+
+    /* ========================================
+       THEMES — distinct visual languages
+       ======================================== */
+
+    /* SWISS: Flat, functional, no decorative shadows */
+    [data-theme="swiss"] {
+      --font: 'DM Sans', system-ui, sans-serif;
+      --radius: 6px;
+      --shadow-blur: 0px;
+      --shadow-y: 0px;
+      --shadow-a: 0;
+      --knob-shadow: none;
+      --knob-radius: 50%;
+    }
+    [data-theme="swiss"] .panel {
+      box-shadow: none;
+    }
+
+    /* TERMINAL: Hard edges, 1px shadows only */
+    [data-theme="terminal"] {
+      --font: 'JetBrains Mono', monospace;
+      --radius: 0px;
+      --shadow-blur: 0px;
+      --shadow-y: 2px;
+      --shadow-a: calc(var(--depth) * 0.5);
+      --knob-shadow: 1px 1px 0 hsl(0 0% 0% / calc(var(--depth) * 0.5));
+      --knob-radius: 1px;
+    }
+    [data-theme="terminal"] .panel {
+      box-shadow: 2px 2px 0 hsl(0 0% 0% / var(--shadow-a));
+    }
+
+    /* CLASSIC: Timeless, warm, serif, for readers */
+    [data-theme="classic"] {
+      --font: 'Libre Baskerville', Georgia, serif;
+      --radius: 3px;
+      --shadow-blur: calc(var(--depth) * 8px);
+      --shadow-y: calc(var(--depth) * 3px);
+      --shadow-a: calc(var(--depth) * 0.1);
+      --knob-shadow: 0 1px 2px hsl(0 0% 0% / calc(var(--depth) * 0.2));
+      --knob-radius: 50%;
+    }
+
+    /* ANALOG: Realistic, layered shadows, tactile */
+    [data-theme="analog"] {
+      --font: 'Space Grotesk', system-ui, sans-serif;
+      --radius: 6px;
+      --shadow-blur: calc(var(--depth) * 20px);
+      --shadow-y: calc(var(--depth) * 8px);
+      --shadow-a: calc(var(--depth) * 0.2);
+      --knob-shadow:
+        0 calc(var(--depth) * 3px) calc(var(--depth) * 6px) hsl(0 0% 0% / calc(var(--depth) * 0.3)),
+        inset 0 1px 0 hsl(0 0% 100% / 0.2);
+      --knob-radius: 50%;
+    }
+    [data-theme="analog"] .panel {
+      box-shadow:
+        0 var(--shadow-y) var(--shadow-blur) hsl(0 0% 0% / var(--shadow-a)),
+        0 1px 2px hsl(0 0% 0% / calc(var(--shadow-a) * 0.5)),
+        inset 0 1px 0 hsl(0 0% 100% / 0.1);
+    }
+
+    /* MORPHISM: Neumorphic, paired shadows */
+    [data-theme="morphism"] {
+      --font: 'DM Sans', system-ui, sans-serif;
+      --radius: 14px;
+      --knob-radius: 50%;
+    }
+    [data-theme="morphism"] .panel {
+      border-color: transparent;
+      box-shadow:
+        calc(var(--depth) * 6px) calc(var(--depth) * 6px) calc(var(--depth) * 14px) hsl(0 0% 0% / calc(var(--depth) * 0.12)),
+        calc(var(--depth) * -4px) calc(var(--depth) * -4px) calc(var(--depth) * 10px) hsl(0 0% 100% / calc(var(--depth) * 0.8));
+    }
+    [data-theme="morphism"] .seg {
+      box-shadow: inset 2px 2px 4px hsl(0 0% 0% / calc(var(--depth) * 0.06));
+    }
+    [data-theme="morphism"] .seg button.on {
+      box-shadow:
+        calc(var(--depth) * 2px) calc(var(--depth) * 2px) calc(var(--depth) * 4px) hsl(0 0% 0% / calc(var(--depth) * 0.1)),
+        calc(var(--depth) * -2px) calc(var(--depth) * -2px) calc(var(--depth) * 4px) hsl(0 0% 100% / calc(var(--depth) * 0.7));
+    }
+    [data-theme="morphism"] input[type="range"] {
+      box-shadow: inset 1px 1px 3px hsl(0 0% 0% / calc(var(--depth) * 0.1));
+    }
+    [data-theme="morphism"] input[type="range"]::-webkit-slider-thumb {
+      box-shadow:
+        calc(var(--depth) * 2px) calc(var(--depth) * 2px) calc(var(--depth) * 5px) hsl(0 0% 0% / calc(var(--depth) * 0.2)),
+        calc(var(--depth) * -1px) calc(var(--depth) * -1px) calc(var(--depth) * 3px) hsl(0 0% 100% / calc(var(--depth) * 0.5));
+    }
+  </style>
+</head>
+<body data-theme="swiss">
+  <div class="panel">
+    <header class="panel-header">
+      <div class="panel-title">Theme Laboratory</div>
+      <div class="panel-sub">Philosophy × Palette × Params</div>
+    </header>
+
+    <!-- THEME -->
+    <div class="row">
+      <span class="row-label">Theme</span>
+      <div class="seg" data-param="theme">
+        <button class="on" data-v="swiss">Swiss</button>
+        <button data-v="terminal">Term</button>
+        <button data-v="classic">Classic</button>
+        <button data-v="analog">Analog</button>
+        <button data-v="morphism">Morph</button>
+      </div>
+    </div>
+
+    <!-- MODE -->
+    <div class="row">
+      <span class="row-label">Mode</span>
+      <div class="seg" data-param="mode">
+        <button data-v="midnight">Midnight</button>
+        <button data-v="evening">Evening</button>
+        <button class="on" data-v="day">Day</button>
+        <button data-v="warm">Warm</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- DENSITY -->
+    <div class="row">
+      <span class="row-label">Density</span>
+      <span class="row-input">
+        <input type="range" data-param="density" min="0" max="100" value="50">
+        <span class="row-value">0.50</span>
+      </span>
+    </div>
+
+    <!-- CONTRAST -->
+    <div class="row">
+      <span class="row-label">Contrast</span>
+      <span class="row-input">
+        <input type="range" data-param="contrast" min="0" max="100" value="60">
+        <span class="row-value">0.60</span>
+      </span>
+    </div>
+
+    <!-- DEPTH -->
+    <div class="row">
+      <span class="row-label">Depth</span>
+      <span class="row-input">
+        <input type="range" data-param="depth" min="0" max="100" value="40">
+        <span class="row-value">0.40</span>
+      </span>
+    </div>
+
+    <!-- TEMPERATURE -->
+    <div class="row">
+      <span class="row-label">Temp</span>
+      <span class="row-input">
+        <input type="range" data-param="temperature" min="0" max="100" value="50">
+        <span class="row-value">0.50</span>
+      </span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TEXTURE -->
+    <div class="row">
+      <span class="row-label">Texture</span>
+      <div class="seg" data-param="texture">
+        <button class="on" data-v="0">Flat</button>
+        <button data-v="0.03">Subtle</button>
+        <button data-v="0.06">Grain</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const root = document.documentElement
+    const body = document.body
+
+    // === MODES (refined palettes) ===
+    const modes = {
+      midnight: {
+        '--bg': 'hsl(225 25% 8%)',
+        '--surface': 'hsl(225 20% 13%)',
+        '--text': 'hsl(220 15% 92%)',
+        '--dim': 'hsl(220 10% 50%)',
+        '--accent': 'hsl(210 100% 60%)',
+      },
+      evening: {
+        '--bg': 'hsl(250 20% 14%)',
+        '--surface': 'hsl(250 16% 20%)',
+        '--text': 'hsl(250 10% 90%)',
+        '--dim': 'hsl(250 8% 50%)',
+        '--accent': 'hsl(270 80% 65%)',
+      },
+      day: {
+        '--bg': 'hsl(220 20% 96%)',
+        '--surface': 'hsl(0 0% 100%)',
+        '--text': 'hsl(220 25% 12%)',
+        '--dim': 'hsl(220 10% 50%)',
+        '--accent': 'hsl(220 90% 54%)',
+      },
+      warm: {
+        '--bg': 'hsl(35 30% 95%)',
+        '--surface': 'hsl(40 40% 99%)',
+        '--text': 'hsl(25 40% 15%)',
+        '--dim': 'hsl(30 15% 50%)',
+        '--accent': 'hsl(25 95% 50%)',
+      }
+    }
+
+    function setVar(name, val) { root.style.setProperty(name, val) }
+
+    function applyTheme(name) {
+      body.dataset.theme = name
+      document.querySelectorAll('[data-param="theme"] button').forEach(b =>
+        b.classList.toggle('on', b.dataset.v === name))
+    }
+
+    function applyMode(name) {
+      const m = modes[name]
+      if (!m) return
+      Object.entries(m).forEach(([k, v]) => setVar(k, v))
+      document.querySelectorAll('[data-param="mode"] button').forEach(b =>
+        b.classList.toggle('on', b.dataset.v === name))
+    }
+
+    function applySlider(name, pct) {
+      const v = pct / 100
+      setVar('--' + name, v)
+      const input = document.querySelector(`input[data-param="${name}"]`)
+      if (input) {
+        input.value = pct
+        input.parentElement.querySelector('.row-value').textContent = v.toFixed(2)
+      }
+    }
+
+    function applyTexture(val) {
+      setVar('--noise', val)
+      document.querySelectorAll('[data-param="texture"] button').forEach(b =>
+        b.classList.toggle('on', b.dataset.v === val))
+    }
+
+    // === EVENTS ===
+    document.querySelectorAll('.seg').forEach(seg => {
+      seg.addEventListener('click', e => {
+        const btn = e.target.closest('button')
+        if (!btn) return
+        const param = seg.dataset.param
+        const val = btn.dataset.v
+        if (param === 'theme') applyTheme(val)
+        else if (param === 'mode') applyMode(val)
+        else if (param === 'texture') applyTexture(val)
+      })
+    })
+
+    document.querySelectorAll('input[type="range"]').forEach(input => {
+      input.addEventListener('input', e => {
+        applySlider(e.target.dataset.param, +e.target.value)
+      })
+    })
+
+    // === INIT ===
+    applyTheme('swiss')
+    applyMode('day')
+    applySlider('density', 50)
+    applySlider('contrast', 60)
+    applySlider('depth', 40)
+    applySlider('temperature', 50)
+    applyTexture('0')
+  </script>
+</body>
+</html>

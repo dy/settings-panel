@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reader Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #888;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .panel {
+      width: 380px;
+      background: #e8e8e8;
+      padding: 24px 28px 28px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #1a1a1a;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #1a1a1a;
+    }
+
+    .close-btn {
+      background: #6b6b6b;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #5a5a5a;
+    }
+
+    /* Setting rows */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .setting-label {
+      width: 110px;
+      font-size: 15px;
+      color: #555;
+      flex-shrink: 0;
+    }
+
+    .setting-options {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex: 1;
+      justify-content: flex-start;
+      padding-left: 20px;
+    }
+
+    /* Font */
+    .font-value {
+      font-family: 'Roboto Slab', serif;
+      font-size: 20px;
+      color: #1a1a1a;
+    }
+
+    /* Text size */
+    .size-option {
+      font-family: 'Roboto Slab', serif;
+      color: #999;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .size-option:hover {
+      color: #666;
+    }
+
+    .size-option.active {
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .size-1 { font-size: 14px; }
+    .size-2 { font-size: 17px; }
+    .size-3 { font-size: 21px; }
+    .size-4 { font-size: 26px; }
+
+    /* Alignment icons */
+    .align-option {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .align-option .line {
+      height: 2px;
+      background: #999;
+      transition: background 0.15s;
+    }
+
+    .align-option:hover .line {
+      background: #666;
+    }
+
+    .align-option.active .line {
+      background: #1a1a1a;
+    }
+
+    /* Left align */
+    .align-left .line:nth-child(1) { width: 22px; }
+    .align-left .line:nth-child(2) { width: 18px; }
+    .align-left .line:nth-child(3) { width: 22px; }
+    .align-left .line:nth-child(4) { width: 14px; }
+
+    /* Center align */
+    .align-center {
+      align-items: center;
+    }
+    .align-center .line:nth-child(1) { width: 18px; }
+    .align-center .line:nth-child(2) { width: 22px; }
+    .align-center .line:nth-child(3) { width: 16px; }
+    .align-center .line:nth-child(4) { width: 20px; }
+
+    /* Right align */
+    .align-right {
+      align-items: flex-end;
+    }
+    .align-right .line:nth-child(1) { width: 22px; }
+    .align-right .line:nth-child(2) { width: 18px; }
+    .align-right .line:nth-child(3) { width: 22px; }
+    .align-right .line:nth-child(4) { width: 14px; }
+
+    /* Justify */
+    .align-justify .line { width: 22px; }
+
+    /* Line spacing */
+    .spacing-option {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .spacing-option .line {
+      width: 28px;
+      height: 2px;
+      background: #999;
+      transition: background 0.15s;
+    }
+
+    .spacing-option:hover .line {
+      background: #666;
+    }
+
+    .spacing-option.active .line {
+      background: #1a1a1a;
+    }
+
+    .spacing-tight { gap: 3px; }
+    .spacing-normal { gap: 5px; }
+    .spacing-loose { gap: 7px; }
+
+    /* Indent */
+    .indent-option {
+      width: 44px;
+      height: 44px;
+      border: 2px solid #999;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .indent-option:hover {
+      border-color: #666;
+    }
+
+    .indent-option.active {
+      border-color: #1a1a1a;
+    }
+
+    .indent-option .block {
+      background: #999;
+      height: 28px;
+      transition: background 0.15s;
+    }
+
+    .indent-option:hover .block {
+      background: #666;
+    }
+
+    .indent-option.active .block {
+      background: #1a1a1a;
+    }
+
+    .indent-none .block {
+      width: 32px;
+      margin-left: 4px;
+    }
+
+    .indent-small .block {
+      width: 24px;
+      margin-left: 10px;
+    }
+
+    .indent-large .block {
+      width: 18px;
+      margin-left: 16px;
+    }
+
+    /* Contrast slider */
+    .contrast-row {
+      padding: 22px 0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 20px;
+    }
+
+    .slider-label {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .slider-track {
+      flex: 1;
+      height: 2px;
+      background: #999;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 75%;
+      background: #1a1a1a;
+    }
+
+    .slider-thumb {
+      position: absolute;
+      top: 50%;
+      left: 75%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      cursor: grab;
+    }
+
+    .slider-thumb:active {
+      cursor: grabbing;
+    }
+
+    /* CTA Button */
+    .cta-btn {
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      padding: 18px 24px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 28px;
+      transition: background 0.15s;
+    }
+
+    .cta-btn:hover {
+      background: #333;
+    }
+
+    .cta-btn:active {
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <!-- Header -->
+    <div class="header">
+      <span class="title">SETTINGS</span>
+      <button class="close-btn">CLOSE</button>
+    </div>
+
+    <!-- Font -->
+    <div class="setting-row">
+      <span class="setting-label">Font</span>
+      <div class="setting-options">
+        <span class="font-value">Roboto Slab</span>
+      </div>
+    </div>
+
+    <!-- Text size -->
+    <div class="setting-row">
+      <span class="setting-label">Text size</span>
+      <div class="setting-options">
+        <span class="size-option size-1">ABC</span>
+        <span class="size-option size-2">ABC</span>
+        <span class="size-option size-3 active">ABC</span>
+        <span class="size-option size-4">ABC</span>
+      </div>
+    </div>
+
+    <!-- Align -->
+    <div class="setting-row">
+      <span class="setting-label">Align</span>
+      <div class="setting-options">
+        <div class="align-option align-left active">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="align-option align-center">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="align-option align-right">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="align-option align-justify">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line spacing -->
+    <div class="setting-row">
+      <span class="setting-label">Line spacing</span>
+      <div class="setting-options">
+        <div class="spacing-option spacing-tight">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="spacing-option spacing-normal active">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+        <div class="spacing-option spacing-loose">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indent -->
+    <div class="setting-row">
+      <span class="setting-label">Indent</span>
+      <div class="setting-options">
+        <div class="indent-option indent-none">
+          <div class="block"></div>
+        </div>
+        <div class="indent-option indent-small active">
+          <div class="block"></div>
+        </div>
+        <div class="indent-option indent-large">
+          <div class="block"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contrast -->
+    <div class="setting-row contrast-row">
+      <span class="setting-label">Contrast</span>
+      <div class="slider-container">
+        <span class="slider-label">LOW</span>
+        <div class="slider-track">
+          <div class="slider-fill"></div>
+          <div class="slider-thumb"></div>
+        </div>
+        <span class="slider-label">HIGH</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="cta-btn">I'M READY TO COME BACK TO MY BOOK</button>
+  </div>
+</body>
+</html>

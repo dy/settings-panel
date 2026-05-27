@@ -126,7 +126,9 @@ export default `@layer s-base {\n.s-panel {
   }
   .s-label-group {
     flex: 0 0 auto;
-    min-width: 8ch; width: var(--label-w, 25%); max-width: 20ch;
+    min-width: 11ch;
+    width: 28%;
+    max-width: 20ch;
     display: flex; flex-direction: column; gap: var(--u);
     line-height: calc(var(--u) * 4);
   }
@@ -188,7 +190,7 @@ export default `@layer s-base {\n.s-panel {
     .s-input { cursor: pointer; }
 
     /* ── shared: hide native checkbox ── */
-    &.toggle, &.switch {
+    &.s-toggle, &.s-switch {
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       &:has(input:focus-visible) .s-track {
         outline: 2px solid var(--accent); outline-offset: 2px;
@@ -196,7 +198,7 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── switch — pill style ── */
-    &.switch {
+    &.s-switch {
       .s-track {
         width: calc(var(--u) * (8 + var(--spacing) * 2));
         height: calc(var(--u) * 4 + var(--padding));
@@ -225,7 +227,7 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── toggle — button style ── */
-    &.toggle {
+    &.s-toggle {
       .s-track {
         padding: var(--padding) calc(var(--padding) * 2);
         background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
@@ -247,7 +249,7 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── checkbox ── */
-    &.checkbox {
+    &.s-checkbox {
       input[type="checkbox"] {
         width: calc(var(--u) * 4); height: calc(var(--u) * 4);
         cursor: pointer;
@@ -298,7 +300,7 @@ export default `@layer s-base {\n.s-panel {
       transform: translate(-50%, 4px);
       font-size: smaller; text-align: center; white-space: nowrap;
       opacity: .5;
-      &.active { opacity: 1; color: var(--accent); }
+      &.s-active { opacity: 1; color: var(--accent); }
     }
 
     .s-readout {
@@ -321,7 +323,7 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── multiple (interval) ── */
-    &.multiple {
+    &.s-multiple {
       .s-interval-track {
         flex: 1; position: relative; display: flex; align-items: center;
         height: calc(var(--u) * 4);
@@ -351,18 +353,18 @@ export default `@layer s-base {\n.s-panel {
   .s-select {
 
     /* ── dropdown ── */
-    &.dropdown {
+    &.s-dropdown {
       select { flex: 1; cursor: pointer; }
     }
 
     /* ── radio ── */
-    &.radio {
+    &.s-radio {
       .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * var(--spacing)); }
       label { display: flex; center; gap: calc(var(--u) * 1.5); cursor: pointer; }
     }
 
     /* ── segmented ── */
-    &.segmented {
+    &.s-segmented {
       align-items: center;
       .s-input { gap: 0; }
       button {
@@ -377,12 +379,12 @@ export default `@layer s-base {\n.s-panel {
         &:last-child { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
         &:hover { filter: brightness(1.2); }
         &:active { filter: brightness(.95); }
-        &.selected { background: var(--accent); color: white; border-color: transparent; }
+        &.s-selected { background: var(--accent); color: white; border-color: transparent; }
       }
     }
 
     /* ── checkboxes ── */
-    &.checkboxes {
+    &.s-checkboxes {
       .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * var(--spacing)); }
       label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
       .s-track { display: none; }
@@ -393,7 +395,7 @@ export default `@layer s-base {\n.s-panel {
   .s-color {
 
     /* ── picker ── */
-    &.picker .s-color-input {
+    &.s-picker .s-color-input {
       flex: 1; position: relative; display: flex; align-items: center;
       input[type="color"] {
         position: absolute;
@@ -408,12 +410,12 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── swatches ── */
-    &.swatches {
+    &.s-swatches {
       .s-input { flex-wrap: wrap; gap: var(--u); }
       button {
         width: calc(var(--u) * 5); height: calc(var(--u) * 5); padding: 0;
         border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 15%); border-radius: var(--r);
-        &.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+        &.s-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
       }
     }
   }
@@ -437,7 +439,7 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── code ── */
-    &.code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
+    &.s-code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
   }
 
   /* ═══ Button ═══ */
@@ -453,16 +455,16 @@ export default `@layer s-base {\n.s-panel {
     }
 
     /* ── group ── */
-    &.group { }
+    &.s-group { }
 
     /* ── secondary ── */
-    &.secondary button, button.secondary {
+    &.s-secondary button, button.s-secondary {
       background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
       border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
       color: inherit;
       &:hover { filter: brightness(1.2); }
       &:active { filter: brightness(.95); }
-      &.selected { background: var(--accent); color: white; border-color: transparent; }
+      &.s-selected { background: var(--accent); color: white; border-color: transparent; }
     }
   }
 
@@ -486,13 +488,13 @@ export default `@layer s-base {\n.s-panel {
     &[open] > summary::after { transform: rotate(-180deg); }
 
     /* ── section (no collapse, just labeled block) ── */
-    &.section {
+    &.s-section {
       > summary { pointer-events: none; &::after { display: none; } }
       &:not([open]) { > summary { border-bottom: none; } }
     }
 
     /* ── tab (placeholder) ── */
-    &.tab { }
+    &.s-tab { }
   }
   .s-content {
     padding: calc(var(--u) * 2 * var(--spacing)) 0;

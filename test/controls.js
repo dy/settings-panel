@@ -415,14 +415,14 @@ test('select: multi-select segmented toggle', async () => {
   btns[0].dispatchEvent(new Event('click'))
   await tick()
   is(JSON.stringify(s.value), '["a"]')
-  ok(btns[0].classList.contains('selected'), 'a selected after click')
+  ok(btns[0].classList.contains('s-selected'), 'a selected after click')
 
   // Click 'b' → ['a', 'b']
   btns[1].dispatchEvent(new Event('click'))
   await tick()
   is(JSON.stringify(s.value), '["a","b"]')
-  ok(btns[0].classList.contains('selected'), 'a still selected')
-  ok(btns[1].classList.contains('selected'), 'b selected after click')
+  ok(btns[0].classList.contains('s-selected'), 'a still selected')
+  ok(btns[1].classList.contains('s-selected'), 'b selected after click')
 
   // Click 'a' again → ['b'] (deselect)
   btns[0].dispatchEvent(new Event('click'))
@@ -430,8 +430,8 @@ test('select: multi-select segmented toggle', async () => {
   await tick()
   await tick()
   is(JSON.stringify(s.value), '["b"]')
-  ok(!btns[0].classList.contains('selected'), 'a deselected after second click')
-  ok(btns[1].classList.contains('selected'), 'b still selected')
+  ok(!btns[0].classList.contains('s-selected'), 'a deselected after second click')
+  ok(btns[1].classList.contains('s-selected'), 'b still selected')
 
   cleanup(ctrl, c)
 })

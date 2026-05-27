@@ -420,7 +420,7 @@ body {
   color: var(--text);
 }
 
-.s-radio .s-input label.selected {
+.s-radio .s-input label.s-selected {
   color: var(--accent);
 }
 
@@ -471,7 +471,7 @@ body {
   color: var(--text);
 }
 
-.s-buttons .s-input button.selected {
+.s-buttons .s-input button.s-selected {
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 1px 3px hsla(0 0% 0% / 0.1);
@@ -577,7 +577,7 @@ body {
   transform: scale(1.1);
 }
 
-.s-color.s-swatches .s-input button.selected {
+.s-color.s-swatches .s-input button.s-selected {
   border-color: var(--text);
   box-shadow: 0 0 0 2px var(--surface);
 }
@@ -711,7 +711,7 @@ body {
     inset -1px -1px 2px hsla(0 0% 100% / 0.2);
 }
 
-[data-theme="morphism"] .s-buttons .s-input button.selected {
+[data-theme="morphism"] .s-buttons .s-input button.s-selected {
   box-shadow:
     2px 2px 4px hsla(0 0% 0% / 0.1),
     -1px -1px 2px hsla(0 0% 100% / 0.5);

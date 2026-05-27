@@ -32,7 +32,7 @@ export default (sig, opts = {}) => {
       const _disabled = signal(b.disabled ?? false)
       return {
         text: b.text || b.label || '',
-        cls: b.variant || '',
+        cls: b.variant ? `s-${b.variant}` : '',
         _disabled,
         click: async () => {
           if (_disabled.value || !handler) return

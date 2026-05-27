@@ -117,7 +117,7 @@ export default function controlPanel({
         &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
       }
     }
-    &.multiple .s-interval-track {
+    &.s-multiple .s-interval-track {
       flex: 1; height: 20px; margin: 0;
       background: var(--bg2);
       &:hover { background-color: var(--bg2h); }
@@ -142,7 +142,7 @@ export default function controlPanel({
     .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
     &:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
-    &.checkbox {
+    &.s-checkbox {
       .s-track {
         display: block;
         width: 18px; height: 18px; margin: 1px 0;
@@ -150,14 +150,14 @@ export default function controlPanel({
       }
       &:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
     }
-    &.switch {
+    &.s-switch {
       .s-track {
         width: 35px; height: 18px; margin: 1px 0;
         &::after { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 0; top: 4px; left: 2px; background: var(--fg); box-shadow: none; transition: transform 140ms; }
       }
       &:has(input:checked) .s-track::after { transform: translateX(17px); background: var(--s-color, var(--fg)); }
     }
-    &.toggle {
+    &.s-toggle {
       .s-track {
         width: auto; height: 20px; margin: 0;
         padding: 0 5px;
@@ -178,7 +178,7 @@ export default function controlPanel({
       padding: 0 16px 0 5px; cursor: pointer;
       option { background: var(--bg); color: var(--text); }
     }
-    &.checkboxes {
+    &.s-checkboxes {
       min-height: auto; padding: 0;
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track {
@@ -204,7 +204,7 @@ export default function controlPanel({
       label:has(input:checked) .s-track::after { background: var(--s-color, var(--fg)); }
       label:has(input:focus-visible) .s-track { outline: 1px solid var(--fg); outline-offset: 0; }
     }
-    &.segmented button { padding: 0 5px; &.selected { background: var(--dim); color: var(--bg2); } }
+    &.s-segmented button { padding: 0 5px; &.s-selected { background: var(--dim); color: var(--bg2); } }
   }
 
   /* ── Color ── */
