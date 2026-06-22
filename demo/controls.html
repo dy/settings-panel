@@ -26,8 +26,25 @@
         align-items: flex-start;
         font-family: system-ui;
         background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
-        padding: 2rem;
+        padding: 3.5rem 2rem 2rem;
       }
+
+      .theme-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .5rem .75rem;
+        font: 13px system-ui;
+        color: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.55) c h);
+        background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.05) c h);
+        border-bottom: 1px solid oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.12) c h);
+      }
+      .theme-bar select { font: inherit; padding: 2px 6px; }
 
       #panel {
         width: min(100%, 360px);
@@ -47,15 +64,28 @@
   </head>
 
   <body>
+    <div class="theme-bar">
+      <label>theme</label>
+      <select id="theme-picker"></select>
+    </div>
     <div id="panel"></div>
 
     <script type="module">
       import settings, { register } from '../index.js'
-      import base from '../theme/default.js'
       import control from '../control/control.js'
+      import soft from '../theme/default.js'
+      import swiss from '../theme/swiss.js'
+      import skeu from '../theme/skeu.js'
+      import controlPanel from '../theme/control-panel.js'
+      import lab01 from '../theme/lab01.js'
+      import brutal from '../theme/brutal.js'
+      import neu from '../theme/neu.js'
+      import glass from '../theme/glass.js'
+
+      const themes = { soft, swiss, skeu, 'control-panel': controlPanel, lab01, brutal, neu, glass }
 
       // ── Stub factory for planned control types ──
-      for (const t of ['knob', 'vector', 'font', 'file', 'graph', 'curve', 'custom', 'separator', 'info']) {
+      for (const t of ['knob', 'vector', 'font', 'file', 'graph', 'curve', 'custom']) {
         register(t, (sig, opts) => {
           const tpl = `<span class="s-stub" :text="stubLabel"></span>`
           return control(sig, { ...opts, template: tpl, stubLabel: '⬚ ' + t + ' — planned' })
@@ -64,7 +94,7 @@
 
       const log = (...a) => console.log('[controls]', ...a)
 
-      const state = settings({
+      const schema = {
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // Inferred defaults — no explicit type
@@ -210,7 +240,7 @@
         'sect.info': { type: 'text', value: 'Sections are non-collapsible headings', label: 'Note' },
         'sect.dial': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Control' },
 
-        'planned.dial': { type: 'knob', value: 0.5, label: 'Knob — rotary' },
+        'planned.knob': { type: 'knob', value: 0.5, label: 'Knob — rotary' },
         'planned.xy': { type: 'vector', value: [0, 0], label: 'Vector — XY pad' },
         'planned.typeface': { type: 'font', value: 'Inter', label: 'Font — family picker' },
         'planned.attachment': { type: 'file', value: null, label: 'File — upload / drop' },
@@ -219,19 +249,35 @@
         'planned.widget': { type: 'custom', value: null, label: 'Custom — escape hatch' },
         'planned.divider': { type: 'separator', value: null, label: 'Separator' },
         'planned.help': { type: 'info', value: null, label: 'Info — read-only text' },
-      }, {
-        container: '#panel',
-        theme: base,
-        title: 'Controls',
-        onChange: s => log('state', JSON.parse(JSON.stringify(s))),
-      })
-
-      // Sync body background with panel --bg
-      const el = document.querySelector('.s-panel')
-      if (el) {
-        const bg = getComputedStyle(el).getPropertyValue('--bg')
-        if (bg) document.documentElement.style.setProperty('--bg', bg)
       }
+
+      let state
+      function create(themeName) {
+        state?.[Symbol.dispose]()
+        state = settings(schema, {
+          container: '#panel',
+          theme: themes[themeName](),
+          title: 'Controls',
+          onChange: s => log('state', JSON.parse(JSON.stringify(s))),
+        })
+        // Sync body background with panel --bg
+        const el = document.querySelector('.s-panel')
+        const bg = el && getComputedStyle(el).getPropertyValue('--bg')
+        document.documentElement.style.setProperty('--bg', bg || 'oklch(.96 0 0)')
+      }
+
+      // ── Theme selector ──
+      const picker = document.getElementById('theme-picker')
+      for (const name of Object.keys(themes)) {
+        const opt = document.createElement('option')
+        opt.value = name
+        opt.textContent = name
+        picker.appendChild(opt)
+      }
+      picker.value = 'soft'
+      picker.addEventListener('change', () => create(picker.value))
+
+      create('soft')
     </script>
   </body>
 
