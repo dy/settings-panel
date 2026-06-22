@@ -42,13 +42,12 @@ export default function uil({
   border-radius: 6px;
   padding: 0;
 
-  /* ── Title ── */
+  /* ── Title (left-aligned, dot-grid mark right) ── */
   > summary, > .s-panel-title {
-    background: #28292e; color: #fff; font-weight: 500; justify-content: center; height: 26px; padding: 0 8px;
-    &::after { content: ''; width: 8px; height: 8px; margin-left: auto; position: absolute; right: 8px;
-      background: radial-gradient(${text} 40%, transparent 45%) 0 0 / 4px 4px; opacity: .7; }
+    color: #fff; font-weight: 500; justify-content: flex-start; height: 24px; padding: 0 8px; position: relative;
+    &::after { content: ''; width: 9px; height: 9px; margin-left: auto;
+      background: radial-gradient(${text} 40%, transparent 45%) 0 0 / 4.5px 4.5px; opacity: .7; }
   }
-  > summary { position: relative; }
   .s-panel-content { gap: 3px; padding: 4px; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 4px; }
 
@@ -93,7 +92,7 @@ export default function uil({
   /* ── Select ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='%23aaa'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg' stroke='%23bbb' stroke-width='1.4'%3E%3Cline x1='1' y1='3.5' x2='11' y2='3.5'/%3E%3Cline x1='1' y1='6.5' x2='11' y2='6.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; background-size: 11px 9px; padding-right: 20px;
       option { background: #2c2d31; color: ${text}; } }
     &.s-segmented { .s-input { gap: 3px; } button { flex: 1; background: ${face}; border: 1px solid ${border}; color: ${text}; border-radius: var(--r); padding: 3px; font: inherit; &:hover { background: #5c5c5c; } &.s-selected { background: ${acc}; color: #fff; border-color: ${acc}; } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
@@ -112,12 +111,12 @@ export default function uil({
     &.s-checkbox { input[type="checkbox"] { -webkit-appearance: none; appearance: none; position: static; opacity: 1; width: 16px; height: 16px; margin: 0; border-radius: 3px; background: rgba(0,0,0,.3); border: 1px solid ${border}; cursor: pointer; &:checked { background: ${acc}; } } .s-track { display: none; } }
   }
 
-  /* ── Color ── */
+  /* ── Color: full-width tinted field with the hex over it (uil style) ── */
   .s-color {
-    &.s-picker .s-color-input { gap: 4px;
-      input[type="color"] { position: static; width: 28px; height: 22px; padding: 0; border: 1px solid ${border}; border-radius: var(--r); cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 4px; } }
-      input[type="text"] { flex: 1; min-width: 0; } }
-    &.s-rgba .s-color-input { gap: 4px; input[type="color"] { width: 28px; height: 22px; } input[type="text"] { flex: 1; } }
+    &.s-picker .s-color-input { gap: 0; position: relative; border: 1px solid ${border}; border-radius: var(--r); overflow: hidden;
+      input[type="color"] { position: absolute; inset: 0; width: 100%; height: 22px; padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
+      input[type="text"] { position: relative; flex: 1; background: transparent; color: #fff; mix-blend-mode: difference; font-family: 'Roboto Mono', monospace; padding-left: 8px; height: 22px; } }
+    &.s-rgba .s-color-input { gap: 4px; input[type="color"] { flex: none; width: 28px; height: 22px; border: 1px solid ${border}; border-radius: var(--r); } input[type="text"] { flex: 1; } }
     &.s-swatches button { width: 18px; height: 18px; border-radius: var(--r); border: 1px solid ${border}; &.s-selected { outline: 1px solid ${acc}; } }
   }
 
