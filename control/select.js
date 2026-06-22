@@ -11,7 +11,7 @@ const templates = {
     </select>
   `,
   radio: `
-    <label :each="opt in options" :class="{ 's-selected': opt.value == value }">
+    <label :each="opt in options" :style="opt.style || null" :class="{ 's-selected': opt.value == value }">
       <input type="radio" :name="label || radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
       <span :text="opt.label"></span>
     </label>
@@ -19,6 +19,7 @@ const templates = {
   segmented: `
     <button
       :each="opt in options"
+      :style="opt.style || null"
       :class="{ 's-selected': multiple ? (value || []).includes(opt.value) : opt.value == value }"
       :onclick="toggle(opt.value)"
       :text="opt.label"
@@ -41,8 +42,13 @@ export default (sig, opts = {}) => {
   const radioName = `s-${Math.random().toString(36).slice(2)}`
   options = normalizeOptions(options)
 
+  if (multiple && variant === 'dropdown') console.warn('[settings-panel] select multiple is not supported for the dropdown variant — use segmented or checkboxes')
+
+  // <select> yields the option value as a DOM string; restore the original typed value.
+  const typed = v => { const o = options.find(o => String(o.value) === String(v)); return o ? o.value : v }
+
   const toggle = v => {
-    if (!multiple) { sig.value = v; return }
+    if (!multiple) { sig.value = typed(v); return }
     const arr = [...(sig.value || [])]
     const i = arr.indexOf(v)
     i < 0 ? arr.push(v) : arr.splice(i, 1)
@@ -53,7 +59,7 @@ export default (sig, opts = {}) => {
     ...rest,
     type: `select ${variant}`,
     template: templates[variant] || templates.dropdown,
-    value: sig, set: v => { sig.value = v },
+    value: sig, set: v => { sig.value = typed(v) },
     multiple, toggle,
     options, radioName
   })

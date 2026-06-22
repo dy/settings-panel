@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings Panel — Gallery</title>
   <script type="importmap">
-  { "imports": { "sprae": "https://esm.sh/sprae@12" } }
+  { "imports": { "sprae": "https://esm.sh/sprae@13" } }
   </script>
   <style>
     * { box-sizing: border-box; margin: 0; }
@@ -82,11 +82,18 @@
 <script type="module">
   import sprae from 'sprae'
 
+  // serve serves this index at both /demo/cases/ and /demo/cases (it redirects
+  // index.html, dropping the slash) — resolve case URLs against this dir either way.
+  const dir = location.pathname.endsWith('/') ? '' : 'cases/'
+
   sprae(gallery, { cases: [
-    { label: 'swiss', src: 'cases/swiss.html' },
-    { label: 'control-panel light', src: 'cases/control-panel.html#shade=ebebeb' },
-    { label: 'control-panel dark', src: 'cases/control-panel.html' },
-    { label: 'skeu', src: 'cases/skeu.html' },
+    { label: 'lab01', src: dir + 'lab01.html' },
+    { label: 'glass', src: dir + 'glass.html' },
+    { label: 'neu', src: dir + 'neu.html' },
+    { label: 'brutal', src: dir + 'brutal.html' },
+    { label: 'swiss', src: dir + 'swiss.html' },
+    { label: 'control-panel', src: dir + 'control-panel.html' },
+    { label: 'skeu', src: dir + 'skeu.html' },
     { label: 'dat.gui' },
     { label: 'leva' },
     { label: 'controlkit' },

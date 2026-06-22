@@ -9,13 +9,13 @@
  */
 
 import control from './control.js'
-import { signal } from 'sprae'
+import { signal } from '../signals.js'
 
-const singleTmpl = `<button :onclick="click" :disabled="_disabled" :text="text"></button>`
+const singleTmpl = `<button :onclick="click" :disabled="_disabled || _loading" :aria-busy="_loading || null" :text="text"></button>`
 const groupTmpl = `<button :each="b in _buttons" :onclick="b.click" :disabled="b._disabled.value" :text="b.text" :class="b.cls"></button>`
 
 export default (sig, opts = {}) => {
-  let { text = 'Action', onClick, disabled = false, variant, buttons, ...rest } = opts
+  let { text, onClick, disabled = false, variant, buttons, label, ...rest } = opts
 
   // Normalize buttons dict → array (value can be fn or { onclick, variant, ... })
   if (buttons && !Array.isArray(buttons)) {
@@ -41,8 +41,11 @@ export default (sig, opts = {}) => {
         }
       }
     })
-    return control(sig, { ...rest, type, template: groupTmpl, _buttons })
+    return control(sig, { ...rest, label, type, template: groupTmpl, _buttons })
   }
+
+  // Single button: the label IS the button text — no separate left descriptor.
+  text = text ?? (typeof label === 'string' && label ? label : 'Action')
 
   const _disabled = signal(disabled)
   const _loading = signal(false)
@@ -56,5 +59,5 @@ export default (sig, opts = {}) => {
     }
   }
 
-  return control(sig, { ...rest, type, template: singleTmpl, text, click, _disabled, _loading })
+  return control(sig, { ...rest, label: false, type, template: singleTmpl, text, click, _disabled, _loading })
 }

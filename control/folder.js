@@ -3,7 +3,9 @@
  * No store, no children. Just a DOM wrapper with open/close.
  */
 
-import sprae, { signal } from 'sprae'
+import sprae from 'sprae'
+import { signal } from '../signals.js'
+import { resolveEl } from './util.js'
 
 const tmplManaged = `
   <details class="s-control s-folder" :class="variantCls || null" :open="_open">
@@ -39,12 +41,7 @@ export default ({ label, collapsed = false, name, variant, container }) => {
   if (native && !collapsed) el.open = true
   const content = el.querySelector('.s-content')
 
-  if (container) {
-    const target = typeof container === 'string'
-      ? document.querySelector(container)
-      : container
-    target?.appendChild(el)
-  }
+  if (container) resolveEl(container)?.appendChild(el)
 
-  return { el, content, [Symbol.dispose]() { el?.remove() } }
+  return { el, content, [Symbol.dispose]() { wrapper[Symbol.dispose]?.(); el?.remove() } }
 }

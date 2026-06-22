@@ -1,5 +1,14 @@
 # Controls Research
 
+> **This is a design/research document.** It describes the full intended control vocabulary — most entries are planned, not yet implemented.
+>
+> **Implemented today (v2.0):**
+> `boolean` (variants: switch / checkbox / toggle) · `number` · `slider` · `select` (variants: dropdown / segmented / radio / checkboxes) · `color` (variants: picker / swatches / rgba) · `text` · `textarea` (+ `code` variant) · `button` (single or group via `buttons`) · `info` (read-only monitor) · `separator` (structural divider, with optional `label`)
+>
+> Variant syntax: `type: 'select:segmented'`, `type: 'boolean:checkbox'`, `type: 'color:rgba'`.
+
+---
+
 Control = function(params) → UI + value binding
 
 Each control **knows its domain**. A slider isn't just a draggable bar — it understands logarithmic scales, tactile feedback, pointer lock. A color picker isn't just HSL sliders — it understands perceptual spaces, contrast, harmony.
@@ -977,9 +986,9 @@ settings({
   color3: 'hsl(0,100%,50%)', // → color:swatch
 
   // ARRAY → depends on contents
-  position: [0, 0],        // → vector:inputs (2d, numbers)
-  position3d: [0, 0, 0],   // → vector:inputs (3d)
-  rgba: [255, 0, 0, 1],    // → color (4 numbers, last ≤1)
+  position: [0, 0],        // → text (JSON, no vector control yet)
+  position3d: [0, 0, 0],   // → text (JSON)
+  rgba: [255, 0, 0, 0.5],  // → color:rgba (4 nums, 8-bit channels + alpha 0-1)
   options: ['a', 'b', 'c'], // → select:dropdown (strings)
 
   // FUNCTION → button
@@ -1037,13 +1046,12 @@ data: '{"a": 1}',    // → text:code (language: json)
 
 **Arrays:**
 ```js
-// Numbers → vector
-[0, 0]           // → vector:inputs (2d)
-[0, 0, 0]        // → vector:inputs (3d)
-[0, 0, 0, 0]     // → vector:inputs (4d)
+// Numeric arrays (2–4 numbers) → editable JSON text (no vector control yet)
+[0, 0]           // → text (JSON)
+[0, 0, 0]        // → text (JSON)
 
-// 4 numbers with last ≤1 → color (rgba)
-[255, 0, 0, 0.5] // → color:picker (rgba detected)
+// 4-element: 8-bit channels (at least one > 1) + alpha 0–1 → color:rgba
+[255, 0, 0, 0.5] // → color { variant: 'rgba', value: 'rgba(255, 0, 0, 0.5)' }
 
 // Strings → select (first = value, rest = options)
 ['apple', 'banana', 'cherry']
@@ -1255,15 +1263,18 @@ settings.inference = {
 }
 ```
 
-**Inference heuristics:**
+**Inference heuristics (actual, v2.0):**
 - `true/false` → boolean
-- `0-1` float → slider with 0-1 range
-- Integer → number
-- String starting with `#` or `rgb`/`hsl` → color
-- Array of 2-4 numbers → vector
+- fractional 0–1 float (not 0 or 1) → slider; integer (incl. 0, 1) → number
+- NaN/Infinity → number with value 0
+- String starting with `#` (hex) or `rgb()`/`hsl()` → color; bare `'abc'` (no `#`) is NOT a color
+- String containing `\n` → textarea; otherwise → text
+- `[r, g, b, a]` with 8-bit channels (one > 1) and alpha 0–1 → color:rgba
+- Numeric array of 2–4 → text (JSON); no vector control exists yet
 - Array of strings → select (first is value)
-- Function → button
-- Object with `type`/`value` → explicit control config
+- Function → button; `{ fnName: fn, ... }` (all-function dict) → button group
+- Object with `type` key → explicit control config; with `min`/`max` → slider; with `options` → select; with `value` → infer from value
+- Object → button group
 
 
 ## Coverage Matrix

@@ -4,13 +4,13 @@
 
 import control from './control.js'
 
-const tpl = `<textarea :id="label || null" :name="label || null" :value="value" :placeholder="placeholder" :readonly="readonly"></textarea>`
+const tpl = `<textarea :id="label || null" :name="label || null" :value="value" :placeholder="placeholder" :readonly="readonly" :oninput="e => set(e.target.value)"></textarea>`
 
 export default (sig, opts = {}) => {
   const { placeholder = '', readonly = false, rows = 3, variant, ...rest } = opts
 
   const type = variant ? `textarea ${variant}` : 'textarea'
-  const result = control(sig, { ...rest, type, template: tpl, value: sig, placeholder, readonly })
+  const result = control(sig, { ...rest, type, template: tpl, value: sig, set: v => { sig.value = v }, placeholder, readonly })
   const ta = result.el.querySelector('textarea')
   ta.rows = rows
 

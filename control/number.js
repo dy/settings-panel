@@ -18,7 +18,9 @@ export default (sig, opts = {}) => {
 
   return control(sig, {
     ...rest,
-    type: 'number', template, value: sig, min, max, step,
+    type: 'number', template, value: sig, step,
+    min: Number.isFinite(min) ? min : null,  // omit ±Infinity from min/max attrs
+    max: Number.isFinite(max) ? max : null,
     set: v => { sig.value = clamp(v) }
   })
 }

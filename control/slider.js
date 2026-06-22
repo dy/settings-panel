@@ -45,6 +45,18 @@ const template = `
 
 const defaultFormat = v => v >= 1000 ? v.toFixed(0) : v >= 100 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3)
 
+// Resolve `readout` option → display-mode flags (shared by single + interval paths)
+// readout: true/'input' → editable, 'readonly' → text, 'tooltip' → above thumb, fn → custom, false/null → hidden
+const resolveReadout = (readout, format) => {
+  const fn = typeof readout === 'function' ? readout : null
+  return {
+    showInput: readout === true || readout === 'input',
+    showReadonly: readout === 'readonly' || !!fn,
+    showTooltip: readout === 'tooltip',
+    readoutText: fn || format,
+  }
+}
+
 // Curve: maps [0,1] → [0,1] non-linearly
 // number: power (>1 = precise low, <1 = precise high)
 // 'exp': alias for 2, 'log': alias for 0.5
@@ -81,10 +93,7 @@ export default (sig, opts = {}) => {
     const format = fmt || (v => v.toFixed(prec) + unit)
 
     // Same readout options as single slider
-    const readoutFn = typeof readout === 'function' ? readout : null
-    const showInput = readout === true || readout === 'input'
-    const showReadonly = readout === 'readonly' || !!readoutFn
-    const readoutText = readoutFn || format
+    const { showInput, showReadonly, readoutText } = resolveReadout(readout, format)
     const fmtLow = computed(() => readoutText(low.value))
     const fmtHigh = computed(() => readoutText(high.value))
 
@@ -120,6 +129,7 @@ export default (sig, opts = {}) => {
   const step = discrete ? null : stepOpt
 
   const isLog = scale === 'log'
+  if (isLog && curveOpt != null && curveOpt !== 1) console.warn('[settings-panel] slider: `curve` is ignored when scale="log"')
   const logMin = isLog ? Math.log(Math.max(min, 1e-10)) : min
   const logMax = isLog ? Math.log(max) : max
 
@@ -260,16 +270,21 @@ export default (sig, opts = {}) => {
   const stepKey = e => {
     const v = parseFloat(e.target.value)
     if (!Number.isFinite(v)) return
+    const up = e.key === 'ArrowUp' || e.key === 'ArrowRight'
+    if (discrete) {
+      // step to the neighbouring discrete value
+      let idx = steps.findIndex(t => t >= v)
+      if (idx < 0) idx = steps.length - 1
+      if (steps[idx] === v) idx += up ? 1 : -1
+      else if (!up) idx -= 1
+      sig.value = steps[Math.max(0, Math.min(steps.length - 1, idx))]
+      return
+    }
     const s = (step || (max - min) / 100) * (e.shiftKey ? 10 : e.altKey ? 0.1 : 1)
-    sig.value = clean(Math.min(max, Math.max(min, e.key === 'ArrowUp' || e.key === 'ArrowRight' ? v + s : v - s)))
+    sig.value = clean(Math.min(max, Math.max(min, up ? v + s : v - s)))
   }
 
-  // Readout: true/'input' → editable, 'readonly' → span, 'tooltip' → above thumb, fn → custom span, false/null → hidden
-  const readoutFn = typeof readout === 'function' ? readout : null
-  const showInput = readout === true || readout === 'input'
-  const showReadonly = readout === 'readonly' || readoutFn
-  const showTooltip = readout === 'tooltip'
-  const readoutText = readoutFn || format
+  const { showInput, showReadonly, showTooltip, readoutText } = resolveReadout(readout, format)
 
   const listId = `s-${Math.random().toString(36).slice(2)}`
   const nativeTicks = signal(nativeTicksOpt ?? false)

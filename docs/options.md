@@ -10,12 +10,13 @@ const state = settings(schema, options?)
 | Option | Type | Default | Purpose |
 |--------|------|---------|---------|
 | `container` | `string \| Element` | `document.body` | Mount target (selector or element) |
-| `title` | `string` | `'Settings'` | Panel header text |
-| `theme` | `string \| (state) → CSS \| false` | `base` | Visual style |
-| `collapsed` | `boolean \| Signal` | `false` | Fold state |
-| `persist` | `boolean \| string` | `false` | Save/restore values via localStorage |
-| `key` | `string` | — | Keyboard shortcut to toggle panel |
-| `onChange` | `(state) => void` | — | Called on any value change |
+| `title` | `string` | — | Panel header text (no header if omitted) |
+| `theme` | `string \| (state) → CSS \| false` | `soft()` | Visual style |
+| `collapsed` | `boolean \| (initials) → boolean \| Signal` | — | Fold state; signal enables two-way binding |
+| `persist` | `boolean \| string` | `false` | Save/restore values via localStorage (restores falsy `false`/`0`/`''` too) |
+| `key` | `string` | — | Keyboard shortcut to toggle panel (e.g. `'h'`, `'ctrl+shift+s'`) |
+| `onChange` / `onchange` | `(state) => void` | — | Called on any value change (both spellings accepted) |
+| `controls` | `{ [type]: factory }` | — | Per-panel custom control registry additions/overrides |
 
 
 ### `theme`
@@ -44,16 +45,23 @@ theme: false
 ### `collapsed`
 
 When collapsed, only the title bar shows. Click header to expand.
-Pass a signal for programmatic control — this is the universal
-toggle mechanism for any interaction model.
+Requires `title` to be set (no title = no foldable panel).
+
+Three forms:
 
 ```js
+// Boolean — initial state only
+settings(schema, { title: 'Settings', collapsed: true })
+
+// Function — computed from initial values
+settings(schema, { title: 'Settings', collapsed: (initials) => initials.expert })
+
+// Signal — two-way binding (programmatic control at any time)
 const open = signal(false)
-settings(schema, { collapsed: open })
+settings(schema, { title: 'Settings', collapsed: open })
 
 // Wire to anything:
 button.onclick = () => open.value = !open.value  // button trigger
-hotkey('h', () => open.value = !open.value)       // custom hotkey
 open.value = false                                // programmatic
 ```
 
@@ -136,7 +144,7 @@ const state = settings({
   'advanced.rate': { value: 1, min: 0, max: 10, step: 0.1 },
 }, {
   title: 'Audio',
-  theme: soft({ lightness: 0.13, accent: 210 }),
+  theme: soft({ shade: '#1a1a1a', accent: '#7c3aed' }),
   persist: 'my-app',
   key: 'h',
   onChange: (s) => console.log(s.volume),

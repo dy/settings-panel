@@ -47,6 +47,12 @@ test('number: 1 → number (boundary)', () => {
   is(infer('o', 1).type, 'number')
 })
 
+test('number: NaN/Infinity → number with safe 0 value', () => {
+  is(infer('x', NaN).type, 'number')
+  is(infer('x', NaN).value, 0)
+  is(infer('y', Infinity).value, 0)
+})
+
 test('number: 0-1 float → slider', () => {
   const r = infer('opacity', 0.5)
   is(r.type, 'slider')
@@ -92,10 +98,11 @@ test('string: #rgb → color', () => {
   is(infer('c', '#fff').value, '#ffffff')
 })
 
-test('string: bare hex → color', () => {
-  is(infer('c', 'fff').type, 'color')
-  is(infer('c', 'fff').value, '#ffffff')
-  is(infer('c', '000').value, '#000000')
+test('string: bare hex (no #) → text, not color', () => {
+  // Requiring a leading '#' keeps words like 'abc'/'feed'/'facade' from inferring as colors.
+  is(infer('c', 'fff').type, 'text')
+  is(infer('name', 'abc').type, 'text')
+  is(infer('w', 'feed').type, 'text')
 })
 
 test('string: #rrggbbaa → color', () => {
@@ -156,22 +163,28 @@ test('array: option objects → select', () => {
   is(r.value, 's')
 })
 
-test('array: 2 numbers → vector', () => {
+// No vector control is registered, so numeric arrays infer to editable JSON (round-trips,
+// no silent drop). Repoint at type:'vector' once a vector control is added.
+test('array: 2 numbers → text (json)', () => {
   const r = infer('pos', [0, 0])
-  is(r.type, 'vector')
-  is(r.dimensions, 2)
+  is(r.type, 'text')
+  is(r.value, '[0,0]')
 })
 
-test('array: 3 numbers → vector', () => {
-  const r = infer('rgb', [255, 128, 0])
-  is(r.type, 'vector')
-  is(r.dimensions, 3)
+test('array: 3 numbers → text (json)', () => {
+  is(infer('rgb', [255, 128, 0]).type, 'text')
 })
 
-test('array: 4 numbers → vector', () => {
-  const r = infer('rgba', [1, 0, 0, 0.5])
-  is(r.type, 'vector')
-  is(r.dimensions, 4)
+test('array: 4 normalized numbers → text (not 8-bit rgba)', () => {
+  // all channels ≤ 1 → plain numeric array, not a color
+  is(infer('q', [1, 0, 0, 0.5]).type, 'text')
+})
+
+test('array: 8-bit rgba → color', () => {
+  const r = infer('col', [255, 0, 0, 0.5])
+  is(r.type, 'color')
+  is(r.variant, 'rgba')
+  is(r.value, 'rgba(255, 0, 0, 0.5)')
 })
 
 test('array: empty → text fallback', () => {

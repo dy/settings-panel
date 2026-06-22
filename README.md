@@ -50,7 +50,18 @@ settings({
 
 ## Themes
 
-Two themes today: `default` (browser baseline) and `skeu` (tactile, textured).
+Eight themes, all functions: `theme(axes?) → CSS string`.
+
+| Import | Name | Character |
+|--------|------|-----------|
+| `settings-panel/theme/default` | **soft** | Gentle shadows, generous radius. The mainstream baseline. |
+| `settings-panel/theme/swiss` | **swiss** | No shadows, grid-pure, typographic hierarchy. |
+| `settings-panel/theme/skeu` | **skeu** | Realistic textures, directional lighting. |
+| `settings-panel/theme/brutal` | **brutal** | Hard offset shadows, thick borders, zero radius. |
+| `settings-panel/theme/neu` | **neu** | Paired inset/outset shadows, same-surface color. |
+| `settings-panel/theme/glass` | **glass** | `backdrop-filter` blur, translucent surfaces. |
+| `settings-panel/theme/lab01` | **lab01** | Frosted glass with gradient borders, noise texture. |
+| `settings-panel/theme/control-panel` | **control-panel** | freeman-lab/control-panel reproduction. |
 
 ```js
 import settings from 'settings-panel'
@@ -61,7 +72,7 @@ settings(schema, {
 })
 ```
 
-Themes are functions: axes in, CSS out. Default axes: shade, accent, spacing, size, weight, roundness. Skeu adds: contrast, depth, relief, bevel, grid. See [axes](docs/axes.md).
+Themes are functions: axes in, CSS out. Core axes: `shade`, `accent`, `spacing`, `size`, `weight`, `roundness`. Some themes add extras: `skeu`/`brutal` add `bevel`; `neu` adds `depth`; `glass` adds `blur`. See [axes](docs/axes.md).
 
 
 ## [Options](docs/options.md)
@@ -69,10 +80,11 @@ Themes are functions: axes in, CSS out. Default axes: shade, accent, spacing, si
 ```js
 settings(schema, {
   container: '#app',
-  title: 'Settings',
+  title: 'My Panel',
   theme: skeu({ shade: '#2a2a2a' }),
   collapsed: false,
   persist: 'my-app',
+  key: 'h',
   onChange: (state) => console.log(state)
 })
 ```

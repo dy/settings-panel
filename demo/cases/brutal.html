@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brutal — Neobrutalism</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #6c63ff;
+      padding: 2rem;
+      font-size: 14px;
+    }
+    #panel { width: min(100%, 360px); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import brutal from '../../theme/brutal.js'
+
+    settings({
+      name: { type: 'text', value: 'Cumulus Steve', label: 'Name' },
+      size: { type: 'select', variant: 'segmented', value: 'M', options: ['S', 'M', 'L'], label: 'Size' },
+      fluffiness: { type: 'slider', value: 0.7, min: 0, max: 1, label: 'Fluffiness' },
+      altitude: { type: 'slider', value: 3000, min: 0, max: 12000, step: 500, label: 'Altitude', unit: 'm' },
+      drifting: { type: 'boolean', variant: 'switch', value: true, label: 'Drifting' },
+      ominous: { type: 'boolean', variant: 'checkbox', value: false, label: 'Ominous' },
+      tint: { type: 'color', value: '#ff5a5f', label: 'Tint' },
+      shapes: { type: 'select', variant: 'checkboxes', multiple: true, value: ['dog'], options: ['dog', 'dragon', 'face'], label: 'Looks like' },
+      rain: { type: 'button', label: false, text: 'Make it rain' },
+    }, {
+      container: '#panel',
+      title: 'Cloud',
+      theme: () => brutal(),
+    })
+  </script>
+</body>
+</html>

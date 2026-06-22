@@ -5,14 +5,18 @@
 
 export { lerp, clamp, parseColor, resolveAccent, normalizeHex } from './color.js'
 import baseCSS from './base.js'
+import { resolveAccent } from './color.js'
 
 const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
-const softCSS = `@layer s-soft {
+const softCSS = (t) => `@layer s-soft {
 .s-panel {
-  --bg: #f5f4f2;
-  --accent: #2563eb;
-  --roundness: 1;
+  --bg: ${t.shade};
+  --accent: ${t.accent};
+  --roundness: ${t.roundness};
+  --spacing: ${t.spacing};
+  --weight: ${t.weight};
+  --u: ${4 * t.size}px;
   --r: calc(var(--u) * var(--roundness));
 
   background-color: var(--bg);
@@ -117,7 +121,7 @@ const softCSS = `@layer s-soft {
         border-radius: 999px;
         position: relative;
         cursor: pointer;
-        transition: background-color 200ms;
+        transition: background-color 0ms;
         margin: calc(var(--pad) / 2) 0;
         &::after {
           content: '';
@@ -293,7 +297,7 @@ const softCSS = `@layer s-soft {
         margin-left: -1px;
         color: inherit;
         font-size: smaller;
-        transition: background-color 140ms, color 140ms, filter 140ms, border-color 140ms;
+        transition: color 140ms, filter 140ms, border-color 140ms;
         &:first-child { margin-left: 0; border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
         &:last-child { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
         &:hover { filter: brightness(1.2); }
@@ -362,7 +366,7 @@ const softCSS = `@layer s-soft {
       color: white;
       border: none;
       border-radius: var(--r);
-      transition: background-color 140ms, filter 140ms;
+      transition: filter 140ms;
       &:hover { filter: brightness(1.2); }
       &:active { filter: brightness(.95); }
       &:disabled { opacity: .35; cursor: not-allowed; }
@@ -405,4 +409,17 @@ const softCSS = `@layer s-soft {
 }
 }`
 
-export default baseCSS + '\n' + softCSS
+/**
+ * Default (soft) theme — the mainstream baseline. Like every other theme, it is a
+ * function of axes, so it can be tuned: soft({ shade, accent, roundness, ... }).
+ */
+export default function soft({
+  shade = '#f5f4f2',
+  accent = '#2563eb',
+  spacing = 1,
+  weight = 400,
+  roundness = 1,
+  size = 1,
+} = {}) {
+  return baseCSS + '\n' + softCSS({ shade, accent: resolveAccent(accent, shade), spacing, weight, roundness, size })
+}

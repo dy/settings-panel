@@ -1,10 +1,10 @@
 Purpose-built parameter controls that _feel right_. Miniature app helper, not app settings replacer.
 
 ## Docs (source of truth)
-- `docs/axes.md` — theme axes
-- `docs/themes.md` — foundational themes
+- `docs/axes.md` — theme axes (core + per-theme extras)
+- `docs/themes.md` — themes: 8 shipped + planned (research doc with Status column)
 - `docs/options.md` — panel options
-- `docs/controls.md` — control types
+- `docs/controls.md` — **research/design doc**; has "Implemented today" banner at top
 - `docs/signals.md` — signals pattern
 
 ## Rules
@@ -16,7 +16,24 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 ## Structure
 - `/control/*` — controls. `/control/control.js` is base wrapper.
 - `/theme/*` — `theme(axes?) → CSS string`. Peers, not hierarchy.
-- `/index.js` — settings(), infer(), register().
+  - `theme/color.js` — `resolveRoles`, `resolveAccent`, `parseColor`, `normalizeHex`
+  - `theme/mixins.js` — `bevel`, `bevelRing`, `hardShadow`, `neuShadow`, `neuInset`
+  - `theme/base.js` — shared structural reset
+- `/index.js` — `settings()`, `infer()`, `register()`.
+- `/signals.js` — decorators + re-exports: `signal`, `effect`, `computed`, `batch`, `untracked`, `store`, `use`.
+
+## Control Registry (index.js)
+Registered: `boolean`, `number`, `slider`, `select`, `color`, `text`, `textarea`, `button`, `info`.
+Structural (handled separately, not in registry): `folder`, `separator`.
+
+## Inference summary (`infer()`)
+- `true/false` → boolean
+- fractional 0–1 float → slider; integer (incl. 0, 1) → number; NaN/Infinity → number(0)
+- `'#hex'` / `'rgb()'` / `'hsl()'` → color; bare hex without `#` is NOT a color
+- multiline string → textarea; other string → text
+- `[r,g,b,a]` 8-bit + alpha 0–1 → color:rgba; numeric 2–4 arrays → text(JSON)
+- array of strings → select; function → button; all-function dict → button group
+- `{type}` → explicit; `{min/max}` → slider; `{options}` → select; `{value}` → infer value
 
 ## Architecture
 Controls are signal decorators: `factory(sig, opts) → sig` with `.el`, `[Symbol.dispose]`.
@@ -24,11 +41,17 @@ Controls are signal decorators: `factory(sig, opts) → sig` with `.el`, `[Symbo
 - Controls pass state explicitly: `value: sig, set: v => { sig.value = v }`
 - No implicit injection — control.js knows nothing about value/set
 - Sprae auto-unwraps signals in templates. `:value` is two-way for inputs.
+- Colon variant syntax parsed in `settings()` factory loop: `'select:segmented'` → `type='select', variant='segmented'`
 
-Panel flow: `settings() → theme <style> + panel el + root folder + onchange effect`
-- Folder is self-sufficient: imports infer, receives controls registry
-- Folder state is `sprae/store` — reactive proxy, one signal per prop
-- Controls receive store's internal signals directly
-- onchange wired at settings() level via single effect
+Panel flow: `settings() → theme <style> + panel el + controls + onchange effect`
+- State is `sprae/store` — reactive proxy, one signal per prop
+- Controls receive store's internal signals directly (`store[_signals][key]`)
+- `collapsed` signal → two-way bind via `toggle` event + `effect`
+- `key` option → keyboard shortcut wired via `keydown` on `document`
+- `persist: true|string` → localStorage; restores falsy values (`false`, `0`, `''`)
+- `onchange`/`onChange` both accepted
 
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.
+- `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles` + `hardShadow`)
+- New themes: `brutal`, `neu`, `glass` use `resolveRoles` + mixins from `theme/color.js` + `theme/mixins.js`
+- Package: v2.0.0. Dependency: `sprae ^13.3.8` only (`sube` removed).

@@ -136,6 +136,34 @@ export default `@layer s-base {
     input[type="text"] { flex: 1; min-width: 0; }
   }
 
+  /* ── rgba color layout (swatch + alpha + text) ── */
+  .s-color.s-rgba .s-input { min-width: 0; }
+  .s-color.s-rgba .s-color-input {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--pad);
+    input[type="color"] { flex: none; width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: none; cursor: pointer; }
+    input[type="text"] { flex: 1; min-width: calc(var(--u) * 12); width: 0; }
+    .s-alpha {
+      flex: 1;
+      min-width: calc(var(--u) * 8);
+      width: 0;
+      --c: #000;
+      -webkit-appearance: none;
+      appearance: none;
+      height: calc(var(--u) * 2);
+      border-radius: calc(var(--u));
+      cursor: pointer;
+      background:
+        linear-gradient(to right, transparent, var(--c)),
+        conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / 8px 8px;
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.35); cursor: pointer; }
+      &::-moz-range-thumb { width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.35); cursor: pointer; }
+    }
+  }
+
   /* ── Slider layout ── */
   .s-slider .s-track {
     flex: 1;
@@ -190,6 +218,30 @@ export default `@layer s-base {
     display: flex;
     flex-direction: column;
     gap: calc(var(--u) * 2 * var(--spacing));
+  }
+
+  /* ── Separator (structural divider) ── */
+  .s-separator {
+    height: 1px;
+    background: currentColor;
+    opacity: .15;
+    margin: calc(var(--u) * var(--spacing)) 0;
+  }
+  .s-separator-labeled {
+    height: auto;
+    background: none;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 2);
+    &::before, &::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: .15; }
+  }
+  .s-separator-label { font-size: smaller; opacity: .6; white-space: nowrap; }
+
+  /* ── Info / monitor (read-only readout) ── */
+  .s-info {
+    align-items: center;
+    .s-monitor { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; opacity: .85; }
   }
 }
 }`

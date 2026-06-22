@@ -54,6 +54,35 @@ export const resolveAccent = (accent, shade) => {
   return `oklch(${+L.toFixed(3)} ${+max(C, 0.15).toFixed(4)} ${+H.toFixed(1)})`
 }
 
+/**
+ * Resolve a shade + accent into a semantic role palette every theme can map to CSS vars.
+ * One color drives the whole ramp: its lightness sets light/dark mode, its hue & chroma
+ * tint the neutrals. `contrast` widens or narrows the luminance spread between roles.
+ *
+ * @returns {{ dark, L, C, H, bg, surface, surface2, fg, fgMuted, border, divider, accent, onAccent }}
+ */
+export function resolveRoles(shade = '#f5f4f2', accent, { contrast = 1 } = {}) {
+  const { L, C, H } = parseColor(shade)
+  const dark = L < 0.5
+  const sign = dark ? 1 : -1            // surfaces lift toward light in dark mode, toward dark in light mode
+  const k = clamp(contrast, 0, 2)
+  const nC = min(C, 0.03)               // neutral chroma — tint, don't saturate
+  const at = (l, c = nC, a) => `oklch(${clamp(l, 0, 1).toFixed(3)} ${(+c).toFixed(4)} ${H.toFixed(1)}${a != null ? ` / ${a}` : ''})`
+  const resolved = resolveAccent(accent, shade)
+  return {
+    dark, L, C, H, at,
+    bg: shade,
+    surface: at(L + sign * 0.06 * k),   // raised panel / control surface
+    surface2: at(L - sign * 0.05 * k),  // sunken input / groove
+    fg: at(dark ? 0.95 : 0.18),         // primary text
+    fgMuted: at(dark ? 0.66 : 0.42),    // hints / secondary text
+    border: at(L + sign * 0.16 * k),    // hairline / structural border
+    divider: at(L + sign * 0.09 * k),
+    accent: resolved || at(dark ? 0.7 : 0.5, max(C, 0.16)),
+    onAccent: '#fff',                   // text on accent fill (themes may override)
+  }
+}
+
 /** Convert OKLCH {L, C, H} to #rrggbb hex string */
 export function toHex({ L, C, H }) {
   const a_ = C * Math.cos(H * Math.PI / 180)

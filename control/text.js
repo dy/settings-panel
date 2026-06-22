@@ -4,9 +4,9 @@
 
 import control from './control.js'
 
-const template = `<input type="text" :id="label || null" :name="label || null" :value="value" :placeholder="placeholder" />`
+const template = `<input type="text" :id="label || null" :name="label || null" :value="value" :placeholder="placeholder" :oninput="e => set(e.target.value)" />`
 
 export default (sig, opts = {}) => {
   const { placeholder = '', ...rest } = opts
-  return control(sig, { ...rest, type: 'text', template, value: sig, placeholder })
+  return control(sig, { ...rest, type: 'text', template, value: sig, set: v => { sig.value = v }, placeholder })
 }

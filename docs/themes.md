@@ -7,20 +7,46 @@ A theme is distinct only if it has a structural property that can't be achieved
 by tweaking axes (density, roundness, depth, weight) of another theme.
 
 
-## The 10 Foundational Themes
+## Authoring a theme
 
-| # | Name | Structural Distinction | Iconic Reference |
-|---|------|----------------------|------------------|
-| 1 | **soft** | Subtle shadows, generous radius, gentle transitions | Linear, Tailwind UI, Figma |
-| 2 | **swiss** | No shadows, grid-pure, typographic hierarchy only | Braun, Stripe, FabFilter |
-| 3 | **classic** | Serif typography, rule lines, print margins | Notion, iA Writer, The New Yorker |
-| 4 | **terminal** | Monospace, 0 radius, 1px borders, max density | Bloomberg, vim, Ableton |
-| 5 | **industrial** | Exposed structure, functional labels, accent = interaction | Teenage Engineering, Nothing |
-| 6 | **brutal** | Hard offset shadows (no blur), thick borders (2-4px) | Gumroad |
-| 7 | **glass** | backdrop-filter blur, transparency, thin light borders | macOS Big Sur, Windows 11 |
-| 8 | **neu** | Paired shadows (light+dark), same-surface color, no borders | Neumorphism / claymorphism |
-| 9 | **skeu** | Realistic textures, directional lighting, physical affordances | iOS 1-6, Universal Audio |
-| 10 | **retro** | Inset/outset bevel borders, system colors, pixel-crisp | Windows 95/98, classic GTK |
+Every theme is `theme(axes?) → CSS string`. The canonical pattern for new themes:
+
+```js
+import baseCSS from './base.js'           // structural reset + shared layout
+import { resolveRoles } from './color.js' // shade + accent → semantic role tokens
+import { hardShadow, neuShadow, bevel } from './mixins.js'  // reusable CSS fragments
+
+export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest } = {}) {
+  const { dark, bg, fg, accent: acc, surface, border } = resolveRoles(shade, accent)
+  // build CSS using role tokens...
+  return baseCSS + '\n' + `.s-panel { --bg: ${bg}; ... }`
+}
+```
+
+**`resolveRoles(shade, accent, { contrast })`** returns semantic tokens:
+`dark`, `bg`, `surface`, `surface2`, `fg`, `fgMuted`, `border`, `divider`, `accent`, `onAccent`.
+
+**Mixins** (`theme/mixins.js`): `bevel(grad, w)`, `bevelRing(grad, w)`, `hardShadow(x, y, color)`, `neuShadow(dist, blur, dark, light)`, `neuInset(dist, blur, dark, light)`.
+
+`brutal.js` is the simplest complete example: ~250 lines, uses `resolveRoles` + `hardShadow`.
+
+
+## The Foundational Themes
+
+| # | Name | Status | Import | Structural Distinction | Iconic Reference |
+|---|------|--------|--------|----------------------|------------------|
+| 1 | **soft** | ✅ shipped | `theme/default` | Subtle shadows, generous radius, gentle transitions | Linear, Tailwind UI, Figma |
+| 2 | **swiss** | ✅ shipped | `theme/swiss` | No shadows, grid-pure, typographic hierarchy only | Braun, Stripe, FabFilter |
+| 3 | **skeu** | ✅ shipped | `theme/skeu` | Realistic textures, directional lighting, physical affordances | iOS 1-6, Universal Audio |
+| 4 | **brutal** | ✅ shipped | `theme/brutal` | Hard offset shadows (no blur), thick borders | Gumroad |
+| 5 | **neu** | ✅ shipped | `theme/neu` | Paired shadows (light+dark), same-surface color, no borders | Neumorphism / claymorphism |
+| 6 | **glass** | ✅ shipped | `theme/glass` | backdrop-filter blur, transparency, thin light borders | macOS Big Sur, Windows 11 |
+| 7 | **lab01** | ✅ shipped | `theme/lab01` | Frosted glass + gradient borders + noise texture | lab01.dev |
+| 8 | **control-panel** | ✅ shipped | `theme/control-panel` | freeman-lab/control-panel reproduction | control-panel |
+| 9 | **classic** | 🔲 planned | — | Serif typography, rule lines, print margins | Notion, iA Writer, The New Yorker |
+| 10 | **terminal** | 🔲 planned | — | Monospace, 0 radius, 1px borders, max density | Bloomberg, vim, Ableton |
+| 11 | **industrial** | 🔲 planned | — | Exposed structure, functional labels, accent = interaction | Teenage Engineering, Nothing |
+| 12 | **retro** | 🔲 planned | — | Inset/outset bevel borders, system colors, pixel-crisp | Windows 95/98, classic GTK |
 
 ### What each structurally owns (can't be faked by another)
 
@@ -74,20 +100,29 @@ by tweaking axes (density, roundness, depth, weight) of another theme.
 
 ## Implementation Order
 
+**Shipped (v2.0)**
+
 1. **soft** — default, most users, lowest risk
-2. **classic** — serif gives immediate visual contrast
-3. **brutal** — hard shadows are simple CSS, high impact
-4. **glass** — backdrop-filter, visually striking
-5. **terminal** — monospace + density, appeals to devs
-6. **swiss** — restraint is hard to get right
-7. **neu** — paired shadows need care
-8. **industrial** — label-as-decoration needs thought
-9. **retro** — bevel borders are specific
-10. **skeu** — textures are the most work
+2. **swiss** — restraint as a statement
+3. **skeu** — textures, directional lighting
+4. **brutal** — hard shadows, high impact
+5. **neu** — paired shadows, tactile plastic
+6. **glass** — backdrop-filter, frosted surfaces
+7. **lab01** — frosted + gradient border + noise
+8. **control-panel** — dat.gui-era reproduction
+
+**Planned**
+
+9. **classic** — serif, editorial
+10. **terminal** — monospace + density
+11. **industrial** — label-as-decoration
+12. **retro** — bevel border model
 
 
 
 ## Structural Rules Per Theme
+
+> Sections marked **(planned)** describe intended design, not yet implemented.
 
 ### soft (default)
 - Shadows: subtle drop (0 2px 8px, low opacity)
@@ -107,7 +142,7 @@ by tweaking axes (density, roundness, depth, weight) of another theme.
 - Grid: mathematical, visible in alignment
 - Feel: invisible design — if you notice the UI, it failed
 
-### classic
+### classic *(planned)*
 - Shadows: none or hairline rule
 - Borders: rule lines (horizontal dividers, not boxes)
 - Radius: 0 or very subtle (2px)
@@ -116,7 +151,7 @@ by tweaking axes (density, roundness, depth, weight) of another theme.
 - Margins: generous, controlled line length (~66ch)
 - Feel: centuries of print wisdom, scholarly, timeless
 
-### terminal
+### terminal *(planned)*
 - Shadows: none
 - Borders: 1px solid, or none
 - Radius: 0 (enforced)
@@ -126,7 +161,7 @@ by tweaking axes (density, roundness, depth, weight) of another theme.
 - Density: maximum
 - Feel: every pixel earns its place
 
-### industrial
+### industrial *(planned)*
 - Shadows: none or minimal
 - Borders: visible, structural (like panel seams)
 - Radius: small (2-4px)
@@ -175,7 +210,7 @@ by tweaking axes (density, roundness, depth, weight) of another theme.
 - Affordances: buttons look pressable, sliders look grabbable
 - Feel: the world before screens, analog warmth
 
-### retro
+### retro *(planned)*
 - Shadows: none (depth via border colors)
 - Borders: **inset/outset bevel** (light color top+left, dark color bottom+right, 2px)
 - Radius: 0 (enforced)

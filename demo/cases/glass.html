@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glass — Glassmorphism</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      font-size: 14px;
+      background:
+        radial-gradient(40rem 30rem at 15% 15%, #ff7eb3 0%, transparent 55%),
+        radial-gradient(36rem 30rem at 85% 25%, #7367f0 0%, transparent 55%),
+        radial-gradient(40rem 36rem at 70% 95%, #21d4fd 0%, transparent 55%),
+        radial-gradient(30rem 30rem at 25% 90%, #ffd86f 0%, transparent 50%),
+        #15121f;
+    }
+    #panel { width: min(100%, 360px); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import glass from '../../theme/glass.js'
+
+    settings({
+      title: { type: 'text', value: 'Northern Lights', label: 'Title' },
+      blend: { type: 'select', value: 'Screen', options: ['Normal', 'Screen', 'Overlay', 'Soft Light'], label: 'Blend' },
+      opacity: { type: 'slider', value: 0.82, min: 0, max: 1, label: 'Opacity' },
+      blur: { type: 'slider', value: 18, min: 0, max: 40, step: 1, label: 'Blur', unit: 'px' },
+      frosted: { type: 'boolean', variant: 'switch', value: true, label: 'Frosted' },
+      tint: { type: 'color', variant: 'rgba', value: '#6ea8ffd9', label: 'Tint' },
+      mode: { type: 'select', variant: 'segmented', value: 'auto', options: ['light', 'auto', 'dark'], label: 'Mode' },
+      div: { type: 'separator' },
+      memory: { type: 'info', value: 128, format: v => v + ' MB', label: 'GPU memory' },
+      apply: { type: 'button', label: false, text: 'Apply effect' },
+    }, {
+      container: '#panel',
+      title: 'Layer',
+      theme: () => glass(),
+    })
+  </script>
+</body>
+</html>

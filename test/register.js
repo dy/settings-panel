@@ -20,3 +20,14 @@ Object.assign(globalThis, {
   DocumentFragment: window.DocumentFragment,
   Event: window.Event,
 })
+
+// happy-dom ships a non-functional localStorage stub — provide a Map-backed one so persist is testable.
+const _ls = new Map()
+globalThis.localStorage = {
+  getItem: k => _ls.has(k) ? _ls.get(k) : null,
+  setItem: (k, v) => { _ls.set(k, String(v)) },
+  removeItem: k => { _ls.delete(k) },
+  clear: () => { _ls.clear() },
+  key: i => [..._ls.keys()][i] ?? null,
+  get length() { return _ls.size },
+}

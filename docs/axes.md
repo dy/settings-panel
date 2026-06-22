@@ -1,7 +1,13 @@
 # Theme axes
 
-Theme = function(axes) → CSS string.
-Every theme receives the same axes. Each interprets them differently.
+Theme = function(axes?) → CSS string.
+Every theme is a function accepting an optional axes object. Each interprets axes differently.
+Support varies per theme — see the table at the bottom.
+
+
+## Core axes (all themes)
+
+The six axes below are accepted by every theme. Per-theme extras are noted in each theme's signature.
 
 
 ## Color
@@ -26,13 +32,13 @@ The interactive/brand color. CSS color string, or a number 0–1 to derive from 
 Default: `'#2563eb'`.
 
 
-### `contrast`
+### `contrast` *(glass only)*
 
-Luminance spread between roles (bg → surface → dim → text).
+Luminance spread between roles (bg → surface → dim → text). Passed through `resolveRoles`.
 
 0 = subtle, everything close together. 1 = stark, high-accessibility ratios.
 Below 0.3 may fail WCAG.
-Default: `0.5`. Range 0–1.
+Default: `1`. Range 0–2.
 
 
 ## Shape
@@ -61,19 +67,16 @@ Default: `0.5`. Range 0–2.
 
 ## Surface
 
-### `depth`
+### `depth` *(neu, skeu)*
 
 How much things lift off the surface. Same value, different physics per theme:
 
-| Theme | depth at 0.8 |
-|-------|-------------|
+| Theme | depth at 1 |
+|-------|-----------|
+| neu | ±5px paired light/dark shadows |
 | skeu | directional shadow, physical weight |
-| glass | backdrop-filter: blur(20px) |
-| brutal | 5px 5px 0 black, hard offset |
-| neu | ±6px paired light/dark shadows |
 
-This is where themes diverge most.
-Default: `0.4`. Range 0–1.
+Default: `1` (neu), `1` (skeu). Range 0–∞ (values > 1 amplify the effect).
 
 
 ### `weight`
@@ -81,23 +84,17 @@ Default: `0.4`. Range 0–1.
 Font weight and icon stroke thickness. Affects title, labels, chevrons.
 
 100 = thin. 400 = normal. 900 = black.
-Default: `400`. Range 100–900.
+Default varies per theme (e.g. `400` for soft, `700` for brutal). Range 100–900.
 
 
-### `relief`
+### `bevel` *(skeu, brutal)*
 
-Surface curvature — convex buttons (highlight top, shadow bottom), concave inputs (shadow top, highlight bottom). The axis controls intensity, direction is semantic.
-
-0 = flat digital surfaces. 1 = full pillow/inset, skeuomorphic.
-Classic toolkits call this relief (Tk: raised/sunken, GTK: shadow-type, Win32: edge style).
-Default: `0`. Range 0–1.
+Structural edge width. In `skeu` it controls the relief gradient intensity (0–∞, default `1`). In `brutal` it is the border thickness in px (default `3`).
 
 
-### `bevel`
+### `blur` *(glass only)*
 
-Structural edge width in pixels. Outlines, box-shadow borders, separator lines. Independent of weight — this is about pixel-level edge definition, not typographic heaviness.
-
-Default: `2`. Range 0–4. Skeu-specific.
+`backdrop-filter: blur(${blur}px)`. Default `18`. Controls frosted-glass intensity.
 
 
 ## Character
@@ -129,38 +126,41 @@ Default: `0.5`. Range 0–1.
 
 ## Summary
 
-| Axis | Range | Default | What it does |
-|------|-------|---------|-------------|
-| shade | hex/oklch | #f5f4f2 | background color, dark/light mode |
-| accent | color or 0–1 | #2563eb | interactive/brand hue |
-| contrast | 0–1 | 0.5 | luminance spread between roles |
-| spacing | 0.5–2 | 1 | air between elements |
-| size | 0–1 | 0.5 | element and type scale |
-| roundness | 0–2 | 0.5 | corner radius |
-| depth | 0–1 | 0.4 | shadow/elevation |
-| weight | 100–900 | 400 | font weight, stroke thickness |
-| relief | 0–1 | 0 | surface curvature (convex/concave) |
-| bevel | 0–4 | 2 | structural edge width (px) |
+Core axes (accepted by all themes):
+
+| Axis | Range | Default (soft) | What it does |
+|------|-------|----------------|-------------|
+| shade | hex/oklch | `#f5f4f2` | background color; L < 0.5 → dark mode |
+| accent | color or 0–1 | `#2563eb` | interactive/brand hue |
+| spacing | 0.5–2 | `1` | air between elements |
+| size | 0.5–2 | `1` | element and type scale (`--u = 4*size px`) |
+| roundness | 0–2 | `1` | corner radius |
+| weight | 100–900 | `400` | font weight |
+
+Theme-specific extras:
+
+| Axis | Themes | What it does |
+|------|--------|-------------|
+| depth | neu, skeu | shadow/elevation intensity |
+| bevel | skeu, brutal | relief intensity (skeu) or border width in px (brutal) |
+| blur | glass | `backdrop-filter` blur radius in px |
+| contrast | glass | luminance spread between roles (via `resolveRoles`) |
 
 | Group | Axes |
 |-------|------|
-| Color | shade, accent, contrast |
+| Color | shade, accent |
 | Shape | spacing, size, roundness |
-| Surface | depth, weight, relief, bevel |
-| Character | texture, font |
-| Time | motion |
+| Surface | weight, depth, bevel, blur, contrast |
 
 
 ## Orthogonality
 
 Each axis moves one thing:
 
-- shade ≠ contrast — shade sets luminance level, contrast sets spread between roles
-- accent ≠ contrast — accent is hue/identity, contrast is luminance ratios
-- spacing ≠ size — spacing is air between, size is scale of elements
-- depth ≠ weight — depth is shadow/elevation, weight is stroke/border
-- weight ≠ bevel — weight is typographic (font, icons), bevel is structural (edges, outlines)
-- relief ≠ depth — relief is surface curvature (convex/concave), depth is z-elevation
+- shade ≠ accent — shade is the surface; accent is the interactive hue
+- spacing ≠ size — spacing is air between elements; size is element scale
+- depth ≠ weight — depth is shadow/elevation; weight is typographic heaviness
+- bevel (skeu) ≠ bevel (brutal) — same name, different semantics per theme
 
 
 ## What's not an axis

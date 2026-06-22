@@ -1,10 +1,21 @@
 import { test, expect } from '@playwright/test'
 
+// Always fetch fresh — the browser otherwise keeps a heuristically-cached copy of the
+// ES modules across runs, which masks edits when regenerating snapshots locally.
+test.beforeEach(async ({ page }) => {
+  const client = await page.context().newCDPSession(page)
+  await client.send('Network.setCacheDisabled', { cacheDisabled: true })
+})
+
 const cases = [
   { name: 'swiss', path: '/demo/cases/swiss.html' },
   { name: 'control-panel', path: '/demo/cases/control-panel.html' },
   { name: 'control-panel-light', path: '/demo/cases/control-panel.html#shade=ebebeb' },
   { name: 'skeu', path: '/demo/cases/skeu.html' },
+  { name: 'lab01', path: '/demo/cases/lab01.html' },
+  { name: 'brutal', path: '/demo/cases/brutal.html' },
+  { name: 'neu', path: '/demo/cases/neu.html' },
+  { name: 'glass', path: '/demo/cases/glass.html' },
 ]
 
 test.describe('interval slider readout keyboard', () => {

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neu — Neumorphism</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e6e7ee;
+      padding: 2rem;
+      font-size: 14px;
+    }
+    #panel { width: min(100%, 360px); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import neu from '../../theme/neu.js'
+
+    settings({
+      name: { type: 'text', value: 'Bloop', label: 'Name' },
+      species: { type: 'select', value: 'Slime', options: ['Slime', 'Sprite', 'Golem'], label: 'Species' },
+      charm: { type: 'slider', value: 0.65, min: 0, max: 1, label: 'Charm' },
+      speed: { type: 'slider', value: 42, min: 0, max: 100, step: 1, label: 'Speed', unit: '%' },
+      friendly: { type: 'boolean', variant: 'switch', value: true, label: 'Friendly' },
+      nocturnal: { type: 'boolean', variant: 'checkbox', value: false, label: 'Nocturnal' },
+      hue: { type: 'color', value: '#7b6cf6', label: 'Hue' },
+      align: { type: 'select', variant: 'segmented', value: 'good', options: ['good', 'neutral', 'chaos'], label: 'Alignment' },
+      save: { type: 'button', label: false, text: 'Summon' },
+    }, {
+      container: '#panel',
+      title: 'Creature',
+      theme: () => neu(),
+    })
+  </script>
+</body>
+</html>

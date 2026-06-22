@@ -104,7 +104,7 @@ export default function skeu({
     padding-block: calc(var(--pad) - var(--bevel) * 0.5) calc(var(--pad) + var(--bevel) * 0.5);
     padding-inline: calc(var(--pad) * 2);
     filter: brightness(1);
-    transition: background-color 140ms, color 140ms, box-shadow 140ms, filter 140ms;
+    transition: color 140ms, box-shadow 140ms, filter 140ms;
     &:hover { filter: brightness(1.2); color: var(${isDark ? '--text-dark' : '--text-light'}); }
     &:active { filter: brightness(.95); box-shadow: inset 0 var(--bevel) var(--bh), inset 0 0 0 var(--bevel) var(--bh), 0 var(--bevel) 0 0 var(--bl); }
     &:disabled { opacity: .35; cursor: not-allowed; }
@@ -196,7 +196,7 @@ export default function skeu({
       ${raise(-1)}
       border: none; border-radius: 999px;
       position: relative; cursor: pointer;
-      transition: background-color 140ms, box-shadow 140ms, outline-color 140ms;
+      transition: box-shadow 140ms, outline-color 140ms;
       &::after {
         content: '';
         ${raise(max(depth, .3), thumbBg)}
@@ -479,5 +479,5 @@ export default function skeu({
   }
 }`
 
-  return defaultCSS + '\n' + overrides
+  return defaultCSS() + '\n' + overrides
 }

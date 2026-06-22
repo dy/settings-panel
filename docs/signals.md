@@ -21,7 +21,7 @@ effect(() => {
 Re-exported from main entry. Preact-signals compatible API.
 
 ```js
-import { signal, effect, computed, batch, untracked, use } from 'settings-panel'
+import { signal, effect, computed, batch, untracked, store, use } from 'settings-panel'
 ```
 
 | | |
@@ -31,6 +31,7 @@ import { signal, effect, computed, batch, untracked, use } from 'settings-panel'
 | `computed(fn)` | Derived read-only signal. Lazy, cached. |
 | `batch(fn)` | Group writes — effects fire once at end. |
 | `untracked(fn)` | Read without subscribing. |
+| `store(obj)` | Reactive proxy — one signal per key. This is what `settings()` returns. |
 | `use({ signal, effect, computed, batch })` | Swap signal implementation. Call before `settings()`. |
 
 ---
@@ -49,8 +50,13 @@ import { from, persist, throttle, map, media } from 'settings-panel/signals'
 |---|---|
 | `from(source)` | Normalize to signal. Accepts: `.value` (preact), `[get, set]` (solid), `.get/.set` (TC39), plain value. |
 | `readonly(sig)` | Read-only view. `.value` reads, no writes. |
-| `peek(sig)` | Read value without tracking. |
 | `map(sig, fn)` | Derived signal via transform function. |
+
+**Utilities**
+
+| | |
+|---|---|
+| `peek(sig)` | Returns the plain current **value** (not a signal). Calls `sig.peek?.()` or reads `sig.value` without tracking. |
 
 **Storage**
 
@@ -106,7 +112,7 @@ Pass a signal as a theme — re-themes live:
 const theme = signal(soft())
 settings(controls, { theme })
 
-theme.value = soft({ lightness: 0.13 })
+theme.value = soft({ shade: '#1a1a1a' })
 ```
 
 ---

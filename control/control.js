@@ -3,6 +3,7 @@
  */
 
 import sprae from 'sprae'
+import { resolveEl } from './util.js'
 
 /**
  * Create a control that wraps a signal
@@ -41,17 +42,13 @@ export default function control(sig, opts) {
   sprae(wrapper, { ...state, label, hint, title, disabled })
 
   // Mount if container provided
-  if (container) {
-    const target = typeof container === 'string'
-      ? document.querySelector(container)
-      : container
-    target?.appendChild(el)
-  }
+  if (container) resolveEl(container)?.appendChild(el)
 
   return Object.assign(sig, {
     el,
     [Symbol.dispose]() {
       dispose?.()
+      wrapper[Symbol.dispose]?.()  // release sprae reactive subscriptions
       el?.remove()
     }
   })

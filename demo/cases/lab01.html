@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab01 — Glass Panel</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Geist Mono', system-ui, monospace;
+      font-size: 13px;
+      background: #0a0a0a center / cover no-repeat;
+      transition: background-image .3s;
+    }
+    #panel { width: min(100%, 444px); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+
+  <script type="module">
+    import settings from '../../index.js'
+    import lab01 from '../../theme/lab01.js'
+
+    const img = 'https://lab01.dev/experiments/01/assets/img/'
+    const shades = { dark: '#111111', light: '#b4b4b4', gold: '#ba965a' }
+
+    const setBg = (t) => document.body.style.backgroundImage = `url(${img}bg-${t}.webp)`
+    setBg('dark')
+
+    settings({
+      theme: {
+        type: 'select', variant: 'segmented', value: 'dark',
+        label: 'Theme', hint: 'Customize UI colors',
+        options: [
+          { value: 'dark', label: '', style: `background-image:url(${img}theme-dark.png)` },
+          { value: 'light', label: '', style: `background-image:url(${img}theme-light.png)` },
+          { value: 'gold', label: '', style: `background-image:url(${img}theme-gold.png)` },
+        ],
+      },
+      sidebar: {
+        type: 'boolean', variant: 'switch', value: false,
+        label: 'Sidebar', hint: 'Make the sidebar transparent',
+      },
+      actions: {
+        type: 'button', label: false,
+        buttons: {
+          Cancel: { variant: 'secondary', onClick() {} },
+          Save: { onClick() {} },
+        },
+      },
+    }, {
+      container: '#panel',
+      title: 'Appearance',
+      collapsed: false,
+      theme: (s) => lab01({ shade: shades[s?.theme] || shades.dark }),
+      onchange(s) { setBg(s.theme) },
+    })
+  </script>
+</body>
+</html>
