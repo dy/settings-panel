@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oui — calibration</title>
+  <!-- Replica of the oui example · ref: https://github.com/wearekuva/oui -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 0 0;
+      background: #1d1d1f;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import oui from '../../theme/oui.js'
+
+    settings({
+      someNum: { type: 'slider', value: 10, min: 0, max: 100, step: 1, label: 'someNum' },
+      amount: { type: 'number', value: 42, label: 'amount' },
+      enabled: { type: 'boolean', variant: 'checkbox', value: true, label: 'enabled' },
+      tint: { type: 'color', value: '#ff5252', label: 'tint' },
+      mode: { type: 'select', value: 'soft', options: ['soft', 'hard', 'auto'], label: 'mode' },
+      dir: { type: 'folder', label: 'dir' },
+      'dir.someNestedProp': { type: 'slider', value: 10, min: 0, max: 100, step: 1, label: 'someNestedProp' },
+      apply: { type: 'button', label: false, text: 'apply' },
+    }, {
+      container: '#panel',
+      title: 'oui',
+      theme: () => oui(),
+    })
+  </script>
+</body>
+</html>

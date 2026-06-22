@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uil — calibration</title>
+  <!-- Replica of the uil canonical example · ref: https://lo-th.github.io/uil/ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 0 0;
+      background: #1f2024;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import uil from '../../theme/uil.js'
+
+    settings({
+      Bool_v: { type: 'boolean', variant: 'switch', value: false, label: 'Bool_v' },
+      Color_v: { type: 'color', value: '#ffffff', label: 'Color_v' },
+      Color: { type: 'color', value: '#00ffff', label: 'Color' },
+      Slide_v: { type: 'slider', value: 20, min: -100, max: 100, step: 1, label: 'Slide_v' },
+      Slide: { type: 'slider', value: 0.4, min: -1, max: 1, step: 0.01, label: 'Slide' },
+      Slide2: { type: 'slider', value: 0.6, min: -1, max: 1, step: 0.01, label: 'Slide', style: '--slide:#d4b87b' },
+      String: { type: 'text', value: 'welcome to uil', label: 'String' },
+      List: { type: 'select', value: 'Box', options: ['Box', 'Sphere', 'Cone', 'Torus'], label: 'List' },
+      Number: { type: 'number', value: 70, min: -60, max: 200, label: 'Number' },
+      Files: { type: 'button', variant: 'group', label: 'Files', buttons: { LOAD: () => {}, SAVE: () => {} } },
+    }, {
+      container: '#panel',
+      title: 'UIL',
+      theme: () => uil(),
+    })
+  </script>
+</body>
+</html>

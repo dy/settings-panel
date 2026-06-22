@@ -16,6 +16,12 @@ const cases = [
   { name: 'brutal', path: '/demo/cases/brutal.html' },
   { name: 'neu', path: '/demo/cases/neu.html' },
   { name: 'glass', path: '/demo/cases/glass.html' },
+  { name: 'dat', path: '/demo/cases/dat.html' },
+  { name: 'tweakpane', path: '/demo/cases/tweakpane.html' },
+  { name: 'leva', path: '/demo/cases/leva.html' },
+  { name: 'controlkit', path: '/demo/cases/controlkit.html' },
+  { name: 'uil', path: '/demo/cases/uil.html' },
+  { name: 'oui', path: '/demo/cases/oui.html' },
 ]
 
 test.describe('interval slider readout keyboard', () => {

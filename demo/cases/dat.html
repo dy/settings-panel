@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dat.gui / lil-gui — calibration</title>
+  <!-- Replica of the lil-gui canonical example · ref: https://lil-gui.georgealways.com/ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 0 0;
+      background: linear-gradient(160deg, #6b7a8f, #46505e);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import dat from '../../theme/dat.js'
+
+    settings({
+      Boolean: { type: 'boolean', variant: 'checkbox', value: true },
+      Function: { type: 'button', label: false, text: 'Function' },
+      String: { type: 'text', value: 'lil-gui', label: 'String' },
+      Number: { type: 'number', value: 0.5, label: 'Number' },
+      Slider: { type: 'slider', value: 0.4, min: 0, max: 1, step: 0.01, label: 'Slider' },
+      Stepped: { type: 'slider', value: 48, min: 0, max: 100, step: 2, label: 'Stepped' },
+      Choices: { type: 'select', value: 1, label: 'Choices', options: [{ value: 0, label: '0' }, { value: 1, label: '1' }, { value: 2, label: '2' }] },
+      Named: { type: 'select', value: 1, label: 'Named', options: [{ value: 0, label: 'Label1' }, { value: 1, label: 'Label2' }, { value: 2, label: 'Label3' }] },
+      Color: { type: 'color', value: '#aa00ff', label: 'Color' },
+    }, {
+      container: '#panel',
+      title: 'Controls',
+      theme: () => dat(),
+    })
+  </script>
+</body>
+</html>

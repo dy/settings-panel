@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ControlKit — calibration</title>
+  <!-- Replica of the ControlKit canonical example · ref: https://github.com/automat/controlkit.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 0 0;
+      background: #2b2b2b;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import controlkit from '../../theme/controlkit.js'
+
+    settings({
+      number: { type: 'number', value: 123, label: 'number' },
+      string: { type: 'text', value: 'abc', label: 'string' },
+      value: { type: 'slider', value: 0.5, min: 0, max: 1, step: 0.01, label: 'value' },
+      range: { type: 'slider', multiple: true, value: [-0.5, 0.5], min: -1, max: 1, step: 0.01, label: 'range' },
+      bool: { type: 'boolean', variant: 'checkbox', value: false, label: 'bool' },
+      select: { type: 'select', value: 'B', options: ['A', 'B', 'C'], label: 'select' },
+      color: { type: 'color', value: '#ff0000', label: 'color' },
+      FIRE: { type: 'button', label: false, text: 'FIRE' },
+    }, {
+      container: '#panel',
+      title: 'ControlKit',
+      theme: () => controlkit(),
+    })
+  </script>
+</body>
+</html>
