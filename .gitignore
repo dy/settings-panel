@@ -37,3 +37,6 @@ bundle.js
 .DS_Store
 .claude/settings.json
 /test-results
+
+# competitor comparison harness (loads external libs from CDN)
+demo/_ref/

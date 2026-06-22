@@ -43,19 +43,21 @@ export default function leva({
   box-shadow: 0 0 9px 0 #00000088;
   overflow: hidden;
 
-  /* ── Title bar (elevation1) ── */
+  /* ── Title bar (elevation1): left collapse triangle, centered title, right filter icon ── */
   > summary, > .s-panel-title {
     background: ${title};
     color: ${muted};
     font-weight: 400;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 28px;
     height: 32px;
     position: relative;
-    &::after { content: ''; position: absolute; right: 10px; width: 10px; height: 10px; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; opacity: .6; transition: transform .15s; }
+    &::before { content: ''; position: absolute; left: 14px; width: 0; height: 0; border-top: 5px solid currentColor; border-left: 4px solid transparent; border-right: 4px solid transparent; opacity: .65; transition: transform .15s; }
+    &::after { content: ''; position: absolute; right: 12px; width: 14px; height: 14px; background: currentColor; opacity: .5; -webkit-mask: var(--search) center / contain no-repeat; mask: var(--search) center / contain no-repeat; }
   }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,2 7,5 3,8' fill='none' stroke='%23fff' stroke-width='1.4'/%3E%3C/svg%3E");
-  &[open] > summary::after { transform: rotate(90deg); }
+  --search: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='7' cy='7' r='5' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3Cline x1='10.5' y1='10.5' x2='15' y2='15' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E");
+  &:not([open]) > summary::before { transform: rotate(-90deg); }
   .s-panel-content { gap: 0; padding: 7px 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 7px; }
 
