@@ -41,18 +41,18 @@ export default function dat({
   border-radius: 0;
   padding: 0;
 
-  /* ── Title bar ── */
+  /* ── Title bar (left-prefixed disclosure triangle, lil-gui style) ── */
   > summary, > .s-panel-title {
     background: ${title};
     color: var(--text);
     font-weight: 600;
     font-size: 11px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     line-height: 1;
-    &::after { content: ''; width: 9px; height: 9px; margin-left: auto; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
+    &::before { content: ''; width: 8px; height: 8px; margin-right: 6px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
   }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E");
-  &[open] > summary::after { transform: rotate(-180deg); }
+  &:not([open]) > summary::before { transform: rotate(-90deg); }
   .s-panel-content { gap: 0; padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
@@ -140,10 +140,10 @@ export default function dat({
 
   /* ── Color: full-width swatch + hex ── */
   .s-color {
-    &.s-picker .s-color-input { gap: 0; position: relative;
-      input[type="color"] { position: absolute; inset: 0; width: 100%; height: 20px; padding: 0; border: none; border-radius: var(--r); cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r); } }
-      input[type="text"] { position: relative; flex: 1; background: transparent; color: #fff; mix-blend-mode: difference; font-family: ui-monospace, monospace; padding-left: 6px; height: 20px; } }
-    &.s-rgba .s-color-input { gap: 4px; input[type="color"] { width: 28px; height: 20px; } input[type="text"] { flex: 1; font-family: ui-monospace, monospace; } }
+    &.s-picker .s-color-input { gap: 4px;
+      input[type="color"] { position: static; flex: 1; min-width: 0; height: 20px; padding: 0; border: none; border-radius: var(--r); cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r); } }
+      input[type="text"] { flex: 0 0 auto; width: 56px; background: var(--widget); color: var(--accent); border-radius: var(--r); font-family: ui-monospace, monospace; padding: 0 5px; height: 20px; } }
+    &.s-rgba .s-color-input { gap: 4px; input[type="color"] { flex: none; width: 28px; height: 20px; } input[type="text"] { flex: 1; font-family: ui-monospace, monospace; } }
     &.s-swatches button { width: 18px; height: 18px; border-radius: var(--r); border: 1px solid #000; &.s-selected { outline: 1px solid var(--accent); } }
   }
 

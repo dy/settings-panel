@@ -99,7 +99,7 @@ export default function tweakpane({
   /* ── Select ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='%23bcbcc2'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='%23bcbcc2' stroke-width='1.3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; background-size: 9px 6px; padding-right: 20px;
       option { background: #2f2f33; color: var(--fg); } }
     &.s-segmented { .s-input { gap: 2px; } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: 3px; font: inherit; &:hover { background: ${fieldH}; } &.s-selected { background: ${button}; color: ${shade}; } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }

@@ -43,8 +43,7 @@
       advanced: { type: 'folder', label: 'ADVANCED' },
       'advanced.gain': { type: 'slider', value: 0.7, min: 0, max: 1, step: 0.01, label: 'gain' },
       'advanced.loop': { type: 'boolean', variant: 'checkbox', value: true, label: 'loop' },
-      div: { type: 'separator' },
-      fps: { type: 'info', value: 61.8, format: v => v.toFixed(1) + ' fps', label: 'fps' },
+      fps: { type: 'info', value: 61.8, format: v => v.toFixed(2), label: 'fps' },
       export: { type: 'button', label: false, text: 'Export' },
     }, {
       container: '#panel',
