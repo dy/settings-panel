@@ -92,7 +92,7 @@ export default function oui({
   /* ── Select ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; border-bottom: 1px solid ${line};
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='%23999' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 2px center; background-size: 9px 6px; padding-right: 16px; }
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='%23999' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1px center; background-size: 9px 6px; padding-right: 18px; }
     &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: transparent; border: 1px solid ${line}; color: ${text}; margin-left: -1px; padding: 3px; font: inherit; &:first-child { margin-left: 0; } &:hover { color: ${acc}; } &.s-selected { background: ${acc}; color: #fff; border-color: ${acc}; } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: flex-end; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
   }
@@ -114,10 +114,11 @@ export default function oui({
     &.s-swatches { .s-input { justify-content: flex-end; } button { width: 16px; height: 16px; border-radius: 50%; border: 1px solid ${line}; &.s-selected { outline: 2px solid var(--accent); } } }
   }
 
-  /* ── Button ── */
+  /* ── Button (small gray pill, left-aligned) ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
-    button { width: 100%; background: transparent; color: ${text}; border: none; border-radius: 2px; padding: 8px; font-weight: 700; &:hover { background: ${acc}; color: #fff; } &:active { filter: brightness(.92); } }
+    .s-input { justify-content: flex-start; }
+    button { background: rgba(0,0,0,.06); color: ${text}; border: none; border-radius: 2px; padding: 5px 14px; &:hover { background: ${acc}; color: #fff; } &:active { filter: brightness(.92); } }
     &.s-secondary button, button.s-secondary { background: rgba(0,0,0,.04); &:hover { background: ${acc}; color: #fff; } }
   }
 

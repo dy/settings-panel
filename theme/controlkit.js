@@ -41,9 +41,9 @@ export default function controlkit({
   border-radius: 2px;
   padding: 0;
 
-  /* ── Title ── */
+  /* ── Title (mixed-case on a subtle gradient bar) ── */
   > summary, > .s-panel-title {
-    background: ${shade}; color: ${muted}; font-weight: 700; height: 30px; padding: 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+    background: linear-gradient(#3a3a3a, #2f2f2f); color: ${muted}; font-weight: 400; height: 30px; padding: 0 8px; font-size: 11px;
     &::after { content: ''; width: 8px; height: 8px; margin-left: auto; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
   }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23aaa' stroke-width='1.6'/%3E%3C/svg%3E");
@@ -101,7 +101,7 @@ export default function controlkit({
   /* ── Boolean: small blue checkbox ── */
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] { -webkit-appearance: none; appearance: none; position: static; opacity: 1; width: 14px; height: 14px; margin: 0; border-radius: 2px; background: ${field}; border: 1px solid #000; cursor: pointer;
+    input[type="checkbox"] { -webkit-appearance: none; appearance: none; position: static; opacity: 1; width: 14px; height: 14px; margin: 0; border-radius: 2px; background: #fff; border: 1px solid #000; cursor: pointer;
       &:checked { background: #2f6fb3 url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E") center / 10px no-repeat; } }
     .s-track { display: none; }
   }
@@ -110,7 +110,7 @@ export default function controlkit({
   .s-color {
     &.s-picker .s-color-input { gap: 0; position: relative; border: 1px solid #000; border-radius: 2px; overflow: hidden;
       input[type="color"] { position: absolute; inset: 0; width: 100%; height: 19px; padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
-      input[type="text"] { position: relative; flex: 1; background: transparent; color: #fff; mix-blend-mode: difference; font-family: Arial, sans-serif; padding-left: 5px; height: 19px; } }
+      input[type="text"] { position: relative; flex: 1; background: transparent; color: #fff; mix-blend-mode: difference; font-family: Arial, sans-serif; text-align: center; padding: 0; height: 19px; } }
     &.s-rgba .s-color-input { gap: 4px; input[type="color"] { width: 28px; height: 19px; border: 1px solid #000; } input[type="text"] { flex: 1; } }
     &.s-swatches button { width: 16px; height: 16px; border: 1px solid #000; &.s-selected { outline: 1px solid var(--accent); } }
   }
