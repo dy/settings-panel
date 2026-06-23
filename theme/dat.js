@@ -47,24 +47,24 @@ export default function dat({
     color: var(--text);
     font-weight: 600;
     font-size: 11px;
-    padding: 5px 8px;
+    padding: 0 6px;
+    min-height: 25px;
     line-height: 1;
-    &::before { content: ''; width: 8px; height: 8px; margin-right: 6px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
+    &::before { content: ''; width: 7px; height: 7px; margin-right: 5px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
   }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E");
   &:not([open]) > summary::before { transform: rotate(-90deg); }
-  .s-panel-content { gap: 0; padding: 0; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
+  .s-panel-content { gap: 4px; padding: 4px 0; }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 4px; }
 
-  /* ── Row ── */
+  /* ── Row (lil-gui metrics: 20px tall, 4px side padding, 4px gaps, no border, 45% name) ── */
   .s-control {
     gap: 0;
-    padding: 0 8px 0 10px;
-    min-height: 26px;
+    padding: 0 4px;
+    min-height: 20px;
     align-items: center;
-    border-bottom: 1px solid #00000033;
   }
-  .s-label-group { width: 38%; min-width: 0; max-width: none; padding: 0; line-height: 1.2; }
+  .s-label-group { width: 45%; min-width: 0; max-width: none; padding: 0; line-height: 20px; }
   .s-label { color: var(--text); font-weight: 400; }
   .s-hint { color: #888; font-size: 10px; }
   .s-input { gap: 4px; align-items: center; }
@@ -95,7 +95,7 @@ export default function dat({
   .s-slider {
     align-items: center;
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 14px; }
-    .s-track { height: 20px; margin: 3px 0; }
+    .s-track { height: 20px; margin: 0; }
     input[type="range"] {
       width: 100%; height: 20px; -webkit-appearance: none; appearance: none; cursor: ew-resize;
       border-radius: var(--r);
