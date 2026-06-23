@@ -163,21 +163,24 @@ test('array: option objects → select', () => {
   is(r.value, 's')
 })
 
-// No vector control is registered, so numeric arrays infer to editable JSON (round-trips,
-// no silent drop). Repoint at type:'vector' once a vector control is added.
-test('array: 2 numbers → text (json)', () => {
+// Numeric arrays → vector (N labeled axis inputs).
+test('array: 2 numbers → vector', () => {
   const r = infer('pos', [0, 0])
-  is(r.type, 'text')
-  is(r.value, '[0,0]')
+  is(r.type, 'vector')
+  is(r.dimensions, 2)
 })
 
-test('array: 3 numbers → text (json)', () => {
-  is(infer('rgb', [255, 128, 0]).type, 'text')
+test('array: 3 numbers → vector', () => {
+  const r = infer('rgb', [255, 128, 0])
+  is(r.type, 'vector')
+  is(r.dimensions, 3)
 })
 
-test('array: 4 normalized numbers → text (not 8-bit rgba)', () => {
-  // all channels ≤ 1 → plain numeric array, not a color
-  is(infer('q', [1, 0, 0, 0.5]).type, 'text')
+test('array: 4 normalized numbers → vector (not 8-bit rgba)', () => {
+  // all channels ≤ 1 → plain numeric vector, not a color
+  const r = infer('q', [1, 0, 0, 0.5])
+  is(r.type, 'vector')
+  is(r.dimensions, 4)
 })
 
 test('array: 8-bit rgba → color', () => {

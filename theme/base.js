@@ -243,5 +243,58 @@ export default `@layer s-base {
     align-items: center;
     .s-monitor { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; opacity: .85; }
   }
+
+  /* ── Vector (multiple axis inputs) ── */
+  .s-vector {
+    .s-input { gap: calc(var(--u) * 1.5); }
+    .s-vec-axis { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--u); }
+    .s-vec-label { flex: none; font-size: smaller; opacity: .55; }
+    input[type="number"] { flex: 1; width: 0; min-width: 0; text-align: right; }
+  }
+
+  /* ── XY pad ── */
+  .s-xy { align-items: flex-start; }
+  .s-pad {
+    position: relative;
+    width: calc(var(--u) * 24);
+    height: calc(var(--u) * 24);
+    max-width: 100%;
+    aspect-ratio: 1;
+    background: color-mix(in oklab, currentColor 6%, transparent);
+    border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+    border-radius: var(--r);
+    cursor: crosshair;
+    touch-action: none;
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .s-pad-x, .s-pad-y { position: absolute; background: color-mix(in oklab, currentColor 12%, transparent); pointer-events: none; }
+    .s-pad-x { left: 0; right: 0; top: 50%; height: 1px; }
+    .s-pad-y { top: 0; bottom: 0; left: 50%; width: 1px; }
+    .s-pad-dot {
+      position: absolute;
+      width: calc(var(--u) * 3);
+      height: calc(var(--u) * 3);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--bg, #000), transparent 35%);
+      pointer-events: none;
+    }
+  }
+
+  /* ── Knob (rotary dial) ── */
+  .s-knob-wrap {
+    display: inline-flex; align-items: center; gap: calc(var(--u) * 2);
+    cursor: ns-resize; touch-action: none;
+    &:focus-visible { outline: none; .s-knob-dial { outline: 2px solid var(--accent); outline-offset: 2px; } }
+  }
+  .s-knob-dial {
+    position: relative; flex: none;
+    width: calc(var(--u) * 8); height: calc(var(--u) * 8);
+    border-radius: 50%;
+    background: color-mix(in oklab, currentColor 10%, transparent);
+    border: 1px solid color-mix(in oklab, currentColor 22%, transparent);
+    i { position: absolute; left: 50%; top: 9%; width: 2px; height: 30%; border-radius: 1px; background: var(--accent); transform: translateX(-50%); }
+  }
+  .s-knob-val { font-size: smaller; opacity: .8; font-variant-numeric: tabular-nums; }
 }
 }`

@@ -21,8 +21,11 @@ import textarea from './control/textarea.js'
 import button from './control/button.js'
 import info from './control/info.js'
 import separator from './control/separator.js'
+import vector from './control/vector.js'
+import xy from './control/xy.js'
+import knob from './control/knob.js'
 
-export { boolean, number, slider, select, color, folder, text, textarea, button, info, separator }
+export { boolean, number, slider, select, color, folder, text, textarea, button, info, separator, vector, xy, knob }
 export * from './signals.js'
 
 // Control registry (folder & separator excluded — structural, handled in settings())
@@ -36,6 +39,9 @@ const controls = {
   textarea,
   button,
   info,
+  vector,
+  xy,
+  knob,
 }
 
 /**
@@ -312,10 +318,9 @@ export function infer(key, def) {
         const [r, g, b, a] = def
         return { type: 'color', variant: 'rgba', value: `rgba(${r}, ${g}, ${b}, ${a})`, label: key }
       }
-      // Numeric arrays → editable JSON (round-trips, no silent drop). There is no
-      // vector control registered; point this at type:'vector' once one is added.
+      // Numeric arrays → vector (N labeled axis inputs)
       if (def.length >= 2 && def.length <= 4 && def.every(v => typeof v === 'number')) {
-        return { type: 'text', value: JSON.stringify(def), label: key }
+        return { type: 'vector', value: def, dimensions: def.length, label: key }
       }
       if (def.every(v => typeof v === 'string' || (v && typeof v === 'object' && 'value' in v))) {
         return { type: 'select', options: def, value: typeof def[0] === 'string' ? def[0] : def[0]?.value, label: key }

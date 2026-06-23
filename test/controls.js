@@ -10,6 +10,9 @@ import text from '../control/text.js'
 import textarea from '../control/textarea.js'
 import info from '../control/info.js'
 import separator from '../control/separator.js'
+import vector from '../control/vector.js'
+import xy from '../control/xy.js'
+import knob from '../control/knob.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -640,6 +643,69 @@ test('separator: labeled variant', () => {
   is(sep.el.querySelector('.s-separator-label').textContent, 'Advanced')
   sep[Symbol.dispose]()
   c.remove()
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VECTOR
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('vector: renders N axis inputs and writes back per axis', () => {
+  const c = mount()
+  const s = signal([1, 2, 3])
+  const ctrl = vector(s, { container: c })
+  const inputs = ctrl.el.querySelectorAll('input[type=number]')
+  is(inputs.length, 3)
+  is(inputs[0].value, '1')
+  inputs[1].value = '5'
+  inputs[1].dispatchEvent(new Event('input', { bubbles: true }))
+  is(JSON.stringify(s.value), '[1,5,3]')
+  cleanup(ctrl, c)
+})
+
+test('vector: clamps to min/max', () => {
+  const c = mount()
+  const s = signal([0, 0])
+  const ctrl = vector(s, { min: 0, max: 10, container: c })
+  const inp = ctrl.el.querySelector('input[type=number]')
+  inp.value = '20'
+  inp.dispatchEvent(new Event('input', { bubbles: true }))
+  is(s.value[0], 10)
+  cleanup(ctrl, c)
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// XY PAD
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('xy: renders pad + dot, keyboard moves value', () => {
+  const c = mount()
+  const s = signal([0.5, 0.5])
+  const ctrl = xy(s, { min: 0, max: 1, step: 0.01, container: c })
+  const pad = ctrl.el.querySelector('.s-pad')
+  ok(pad, 'has pad')
+  ok(ctrl.el.querySelector('.s-pad-dot'), 'has dot')
+  pad.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+  ok(s.value[0] > 0.5, 'x increased on ArrowRight')
+  pad.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+  ok(s.value[1] < 0.5, 'y decreased on ArrowDown')
+  cleanup(ctrl, c)
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KNOB
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('knob: renders dial, keyboard adjusts value', () => {
+  const c = mount()
+  const s = signal(0.5)
+  const ctrl = knob(s, { min: 0, max: 1, step: 0.01, container: c })
+  ok(ctrl.el.querySelector('.s-knob-dial'), 'has knob dial')
+  const wrap = ctrl.el.querySelector('.s-knob-wrap')
+  wrap.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+  is(s.value, 0.51)
+  wrap.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+  is(s.value, 0.5)
+  cleanup(ctrl, c)
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
