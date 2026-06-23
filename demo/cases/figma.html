@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figma — calibration</title>
+  <!-- Replica of Figma's right-hand properties panel · ref: https://figma.com -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      background: #e5e5e5;
+      font-size: 14px;
+    }
+    #panel { box-shadow: -1px 0 0 #e6e6e6; height: 100%; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import figma from '../../theme/figma.js'
+
+    settings({
+      align: { type: 'select', variant: 'segmented', value: 'Center', options: ['Left', 'Center', 'Right'], label: 'Align' },
+
+      position: { type: 'folder', label: 'Position', collapsed: false },
+      'position.xy': { type: 'vector', value: [120, 64], labels: ['X', 'Y'], step: 1, label: false },
+      'position.rotation': { type: 'number', value: 0, label: 'Rotation', unit: '°' },
+
+      layout: { type: 'folder', label: 'Layout', collapsed: false },
+      'layout.size': { type: 'vector', value: [240, 120], labels: ['W', 'H'], min: 0, step: 1, label: false },
+      'layout.radius': { type: 'number', value: 8, min: 0, label: 'Radius' },
+
+      appearance: { type: 'folder', label: 'Appearance', collapsed: false },
+      'appearance.opacity': { type: 'slider', value: 100, min: 0, max: 100, step: 1, unit: '%', label: 'Opacity' },
+      'appearance.blend': { type: 'select', value: 'Normal', options: ['Normal', 'Multiply', 'Screen', 'Overlay'], label: 'Blend' },
+
+      fill: { type: 'folder', label: 'Fill', collapsed: false },
+      'fill.color': { type: 'color', variant: 'rgba', value: '#0d99ff', label: 'Color' },
+      'fill.visible': { type: 'boolean', variant: 'switch', value: true, label: 'Visible' },
+
+      stroke: { type: 'folder', label: 'Stroke', collapsed: false },
+      'stroke.scolor': { type: 'color', value: '#1e1e1e', label: 'Color' },
+      'stroke.weight': { type: 'number', value: 1, min: 0, label: 'Weight' },
+      'stroke.pos': { type: 'select', value: 'Inside', options: ['Inside', 'Center', 'Outside'], label: 'Position' },
+
+      text: { type: 'folder', label: 'Text', collapsed: false },
+      'text.font': { type: 'select', value: 'Inter', options: ['Inter', 'Roboto', 'SF Pro', 'Helvetica'], label: 'Font' },
+      'text.tsize': { type: 'number', value: 14, min: 1, label: 'Size' },
+      'text.tweight': { type: 'select', value: 'Regular', options: ['Light', 'Regular', 'Medium', 'Bold'], label: 'Weight' },
+      'text.talign': { type: 'select', variant: 'segmented', value: 'Left', options: ['Left', 'Center', 'Right'], label: 'Align' },
+
+      effects: { type: 'folder', label: 'Effects', collapsed: false },
+      'effects.type': { type: 'select', value: 'Drop shadow', options: ['Drop shadow', 'Inner shadow', 'Layer blur'], label: 'Effect' },
+
+      export: { type: 'button', label: false, text: 'Export' },
+    }, {
+      container: '#panel',
+      title: 'Design',
+      theme: () => figma(),
+    })
+  </script>
+</body>
+</html>

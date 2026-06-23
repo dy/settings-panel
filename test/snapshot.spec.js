@@ -22,6 +22,8 @@ const cases = [
   { name: 'controlkit', path: '/demo/cases/controlkit.html' },
   { name: 'uil', path: '/demo/cases/uil.html' },
   { name: 'oui', path: '/demo/cases/oui.html' },
+  { name: 'figma', path: '/demo/cases/figma.html' },
+  { name: 'apple', path: '/demo/cases/apple.html' },
 ]
 
 test.describe('interval slider readout keyboard', () => {

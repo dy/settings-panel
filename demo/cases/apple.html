@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apple — calibration</title>
+  <!-- macOS System Settings style · ref: Apple Human Interface Guidelines -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { height: 100%; overflow: hidden; }
+    body {
+      height: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2.5rem 0 0;
+      background: #f2f2f7;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import apple from '../../theme/apple.js'
+
+    settings({
+      appearance: { type: 'select', variant: 'segmented', value: 'Auto', options: ['Light', 'Dark', 'Auto'], label: 'Appearance' },
+      accentColor: { type: 'color', value: '#007aff', label: 'Accent color' },
+      wallpaper: { type: 'select', value: 'Sonoma', options: ['Sonoma', 'Sequoia', 'Ventura', 'Solid'], label: 'Wallpaper' },
+      brightness: { type: 'slider', value: 80, min: 0, max: 100, step: 1, unit: '%', label: 'Brightness' },
+      nightShift: { type: 'boolean', variant: 'switch', value: true, label: 'Night Shift' },
+      trueTone: { type: 'boolean', variant: 'switch', value: false, label: 'True Tone' },
+
+      sound: { type: 'folder', label: 'Sound', collapsed: false },
+      'sound.output': { type: 'select', value: 'MacBook Speakers', options: ['MacBook Speakers', 'AirPods Pro', 'Studio Display'], label: 'Output' },
+      'sound.volume': { type: 'slider', value: 65, min: 0, max: 100, step: 1, unit: '%', label: 'Volume' },
+      'sound.balance': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Balance' },
+      'sound.feedback': { type: 'boolean', variant: 'switch', value: true, label: 'Play feedback' },
+      'sound.position': { type: 'vector', value: [0, 0], labels: ['x', 'y'], min: -10, max: 10, step: 1, label: 'Speaker offset' },
+
+      restart: { type: 'button', label: false, text: 'Apply Changes' },
+    }, {
+      container: '#panel',
+      title: 'Displays',
+      theme: () => apple(),
+    })
+  </script>
+</body>
+</html>
