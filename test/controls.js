@@ -517,6 +517,29 @@ test('color: swatches variant', () => {
   cleanup(ctrl, c)
 })
 
+test('color: formatText/parseText apply to both variants', () => {
+  const c = mount()
+  // picker: display without '#', parse re-adds it
+  const s1 = signal('#aa00ff')
+  const ctrl1 = color(s1, { container: c, formatText: v => v.replace(/^#/, ''), parseText: v => v.startsWith('#') ? v : `#${v}` })
+  const txt1 = ctrl1.el.querySelector('input[type=text]')
+  is(txt1.value, 'aa00ff')
+  txt1.value = '00ff88'
+  txt1.dispatchEvent(new Event('change', { bubbles: true }))
+  is(s1.value, '#00ff88')
+  cleanup(ctrl1, c)
+  // rgba: same hooks must apply (was a gap — only picker honored them)
+  const c2 = mount()
+  const s2 = signal('#11223344')
+  const ctrl2 = color(s2, { variant: 'rgba', container: c2, formatText: v => v.replace(/^#/, ''), parseText: v => v.startsWith('#') ? v : `#${v}` })
+  const txt2 = ctrl2.el.querySelector('input[type=text]')
+  is(txt2.value, '11223344')
+  txt2.value = '12345680'
+  txt2.dispatchEvent(new Event('change', { bubbles: true }))
+  is(s2.value, '#12345680')
+  cleanup(ctrl2, c2)
+})
+
 test('color: rgba variant exposes rgb + alpha and round-trips', () => {
   const c = mount()
   const s = signal('rgba(255, 0, 0, 0.5)')
@@ -657,7 +680,8 @@ test('vector: renders N axis inputs and writes back per axis', () => {
   is(inputs.length, 3)
   is(inputs[0].value, '1')
   inputs[1].value = '5'
-  inputs[1].dispatchEvent(new Event('input', { bubbles: true }))
+  // commits on change, not input — oninput writeback mangles typing (see vector.js)
+  inputs[1].dispatchEvent(new Event('change', { bubbles: true }))
   is(JSON.stringify(s.value), '[1,5,3]')
   cleanup(ctrl, c)
 })
@@ -668,14 +692,71 @@ test('vector: clamps to min/max', () => {
   const ctrl = vector(s, { min: 0, max: 10, container: c })
   const inp = ctrl.el.querySelector('input[type=number]')
   inp.value = '20'
-  inp.dispatchEvent(new Event('input', { bubbles: true }))
+  inp.dispatchEvent(new Event('change', { bubbles: true }))
   is(s.value[0], 10)
   cleanup(ctrl, c)
+})
+
+test('vector: pad option adds expand toggle + embedded xy pad (2D only)', async () => {
+  const c = mount()
+  const s = signal([0.5, 0.5])
+  const ctrl = vector(s, { pad: true, min: 0, max: 1, container: c })
+  const btn = ctrl.el.querySelector('.s-vec-expand')
+  ok(btn, 'has expand button')
+  ok(!ctrl.el.querySelector('.s-pad'), 'pad hidden initially')
+  btn.dispatchEvent(new Event('click', { bubbles: true }))
+  await new Promise(r => setTimeout(r))
+  const pad = ctrl.el.querySelector('.s-pad')
+  ok(pad, 'pad shown after toggle')
+  pad.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+  is(s.value[0], 0.51)
+  cleanup(ctrl, c)
+
+  // non-2D vectors never get the pad
+  const c2 = mount()
+  const s2 = signal([1, 2, 3])
+  const ctrl2 = vector(s2, { pad: true, container: c2 })
+  ok(!ctrl2.el.querySelector('.s-vec-expand'), 'no expand button for 3D')
+  cleanup(ctrl2, c2)
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
 // XY PAD
 // ─────────────────────────────────────────────────────────────────────────────
+
+test('xy: readout renders live formatted value', () => {
+  const c = mount()
+  const s = signal([0.2, 0.5])
+  const ctrl = xy(s, { readout: true, container: c })
+  const val = ctrl.el.querySelector('.s-pad-val')
+  ok(val, 'has readout')
+  is(val.textContent, '0.2,0.5')
+  s.value = [0.3, 0.7]
+  is(val.textContent, '0.3,0.7')
+  cleanup(ctrl, c)
+})
+
+test('xy: min > max flips axis direction (screen-style Y)', () => {
+  const c = mount()
+  const s = signal([0.5, 0.5])
+  // y: 0 at top, 1 at bottom
+  const ctrl = xy(s, { min: [0, 1], max: [1, 0], container: c })
+  const pad = ctrl.el.querySelector('.s-pad')
+  // dot y position: value .5 → 50%
+  ok(pad.getAttribute('style').includes('--y:50%'), 'dot centered')
+  // ArrowUp moves the dot up = smaller y value in screen convention
+  pad.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+  is(s.value[1], 0.49)
+  cleanup(ctrl, c)
+
+  // explicit step is a magnitude — direction still follows the flipped axis
+  const c2 = mount()
+  const s2 = signal([0.5, 0.5])
+  const ctrl2 = xy(s2, { min: [0, 1], max: [1, 0], step: 0.1, container: c2 })
+  ctrl2.el.querySelector('.s-pad').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+  is(s2.value[1], 0.4)
+  cleanup(ctrl2, c2)
+})
 
 test('xy: renders pad + dot, keyboard moves value', () => {
   const c = mount()

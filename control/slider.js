@@ -18,17 +18,18 @@
  */
 
 import control from './control.js'
+import { scrub, clamp, stepMul, decimals } from './util.js'
 import { signal, effect, computed } from '../signals.js'
 
 const multipleTemplate = `
   <span class="s-readout s-readout-lo" :if="showReadonly" :text="fmtLow"></span>
-  <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onkeydown.arrow.prevent="stepKeyLow" :onfocus="e => e.target.select()" />
-  <span class="s-interval-track" :style="{'--low': lowPct + '%', '--high': highPct + '%'}">
-    <input type="range" class="s-interval-lo" :name="label ? label+'-lo' : null" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
-    <input type="range" class="s-interval-hi" :name="label ? label+'-hi' : null" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
+  <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onkeydown.arrow.prevent="stepKeyLow" :onfocus="e => e.target.select()" :onpointerdown="scrubLo" />
+  <span class="s-interval-track" :style="{'--low': lowPct + '%', '--high': highPct + '%'}" :onpointermove="pickThumb">
+    <input type="range" class="s-interval-lo" :class="{'s-top': top === 'lo'}" :name="label ? label+'-lo' : null" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
+    <input type="range" class="s-interval-hi" :class="{'s-top': top === 'hi'}" :name="label ? label+'-hi' : null" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
   </span>
   <span class="s-readout s-readout-hi" :if="showReadonly" :text="fmtHigh"></span>
-  <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onkeydown.arrow.prevent="stepKeyHigh" :onfocus="e => e.target.select()" />
+  <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onkeydown.arrow.prevent="stepKeyHigh" :onfocus="e => e.target.select()" :onpointerdown="scrubHi" />
 `
 
 const template = `
@@ -40,7 +41,7 @@ const template = `
     <span class="s-tooltip" :if="showTooltip" :style="'left:' + progress + '%'" :text="readoutText(actual)"></span>
   </span>
   <span class="s-readout" :if="showReadonly" :text="readoutText(actual)"></span>
-  <input type="text" inputmode="decimal" class="s-readout" :if="showInput" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" />
+  <input type="text" inputmode="decimal" class="s-readout" :if="showInput" :value="format(actual)" :onchange="setActual" :onkeydown.arrow.prevent="stepKey" :onfocus="e => e.target.select()" :onpointerdown="scrubR" />
 `
 
 const defaultFormat = v => v >= 1000 ? v.toFixed(0) : v >= 100 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3)
@@ -89,16 +90,16 @@ export default (sig, opts = {}) => {
     const setLow = v => { sig.value = [Math.min(v, high.value), high.value] }
     const setHigh = v => { sig.value = [low.value, Math.max(v, low.value)] }
 
-    const prec = step < 1 ? (String(step).split('.')[1] || '').length : 0
-    const format = fmt || (v => v.toFixed(prec) + unit)
+    // String(+…) strips zero-padding: 0.6 not "0.60" (explicit `format` opts in to padding)
+    const format = fmt || (v => String(+v.toFixed(decimals(step))) + unit)
 
     // Same readout options as single slider
     const { showInput, showReadonly, readoutText } = resolveReadout(readout, format)
     const fmtLow = computed(() => readoutText(low.value))
     const fmtHigh = computed(() => readoutText(high.value))
 
-    const clampVal = v => Math.min(max, Math.max(min, v))
-    const stepSize = e => step * (e.shiftKey ? 10 : e.altKey ? 0.1 : 1)
+    const clampVal = v => clamp(v, min, max)
+    const stepSize = e => step * stepMul(e)
     const isUp = e => e.key === 'ArrowUp' || e.key === 'ArrowRight'
     const makeActual = fn => e => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) fn(clampVal(v)) }
     const makeStepKey = fn => e => { const v = parseFloat(e.target.value); if (!Number.isFinite(v)) return; fn(clampVal(v + (isUp(e) ? 1 : -1) * stepSize(e))) }
@@ -108,13 +109,27 @@ export default (sig, opts = {}) => {
     const stepKeyLow = makeStepKey(setLow)
     const stepKeyHigh = makeStepKey(setHigh)
 
+    // Both range inputs overlap full-width; hit-testing precedes event dispatch, so the
+    // thumb nearest the pointer must already be on top before the press — track hover.
+    const top = signal(null)
+    const pickThumb = e => {
+      const r = e.currentTarget.getBoundingClientRect()
+      const v = min + (e.clientX - r.left) / r.width * range
+      const dLo = Math.abs(v - low.value), dHi = Math.abs(v - high.value)
+      top.value = dLo < dHi ? 'lo' : dHi < dLo ? 'hi'
+        // exact tie (stacked thumbs): grab the one with room to move
+        : low.value - min > max - high.value ? 'lo' : 'hi'
+    }
+
     return control(sig, {
       ...rest,
       type: 'slider multiple',
       template: multipleTemplate, dispose,
       low, high, lowPct, highPct, min, max, step,
       setLow, setHigh, setLowActual, setHighActual, stepKeyLow, stepKeyHigh,
-      showInput, showReadonly, fmtLow, fmtHigh
+      showInput, showReadonly, fmtLow, fmtHigh, top, pickThumb,
+      scrubLo: scrub(() => low.value, v => setLow(clampVal(v)), step),
+      scrubHi: scrub(() => high.value, v => setHigh(clampVal(v)), step)
     })
   }
 
@@ -248,14 +263,14 @@ export default (sig, opts = {}) => {
   }
 
   // Quantize to step precision
-  const prec = step ? (String(step).split('.')[1] || '').length : 10
-  const format = fmt || (step ? (v => v.toFixed(Math.max(0, prec)) + unit) : (v => defaultFormat(v) + unit))
+  const prec = decimals(step, 10)
+  const format = fmt || (step ? (v => String(+v.toFixed(Math.max(0, prec))) + unit) : (v => String(+defaultFormat(v)) + unit))
   const quantize = v => step ? Math.round(v / step) * step : v
   const clean = v => +quantize(v).toFixed(Math.max(0, prec))
 
   const set = d => {
     const raw = fromDisplay(d)
-    const clamped = Math.min(max, Math.max(min, raw))
+    const clamped = clamp(raw, min, max)
     const final = clean(dragging ? snap(clamped) : clamped)
     tick(final)
     sig.value = final
@@ -264,7 +279,7 @@ export default (sig, opts = {}) => {
 
   const setActual = e => {
     const v = parseFloat(e.target.value)
-    if (Number.isFinite(v)) sig.value = clean(Math.min(max, Math.max(min, v)))
+    if (Number.isFinite(v)) sig.value = clean(clamp(v, min, max))
   }
 
   const stepKey = e => {
@@ -280,8 +295,8 @@ export default (sig, opts = {}) => {
       sig.value = steps[Math.max(0, Math.min(steps.length - 1, idx))]
       return
     }
-    const s = (step || (max - min) / 100) * (e.shiftKey ? 10 : e.altKey ? 0.1 : 1)
-    sig.value = clean(Math.min(max, Math.max(min, up ? v + s : v - s)))
+    const s = (step || (max - min) / 100) * stepMul(e)
+    sig.value = clean(clamp(up ? v + s : v - s, min, max))
   }
 
   const { showInput, showReadonly, showTooltip, readoutText } = resolveReadout(readout, format)
@@ -293,7 +308,8 @@ export default (sig, opts = {}) => {
     ...rest,
     type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, listId, nativeTicks,
     dMin, dMax, dStep, set, setActual, stepKey, grab, release,
-    readout, showInput, showReadonly, showTooltip, readoutText, format
+    readout, showInput, showReadonly, showTooltip, readoutText, format,
+    scrubR: scrub(() => sig.value, v => { sig.value = clean(clamp(v, min, max)) }, step || (max - min) / 100)
   })
 
   // el is now in live DOM (panel mounted before controls) — detect sync

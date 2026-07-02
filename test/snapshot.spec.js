@@ -88,6 +88,82 @@ test.describe('interval slider readout keyboard', () => {
     await hi.press('Shift+ArrowUp')
     await expect(hi).toHaveValue('60')
   })
+
+  // Thumbs overlap full-width; hit-testing precedes dispatch, so the nearer thumb
+  // must be promoted (.s-top) on track hover or close handles become ungrabbable.
+  test('hover promotes nearer interval thumb', async ({ page }) => {
+    const track = page.locator('.s-interval-track').first()
+    const box = await track.boundingBox()
+    const y = box.y + box.height / 2
+    // values 25/50 on 0..100
+    await page.mouse.move(box.x + box.width * 0.25, y)
+    await expect(page.locator('.s-interval-lo')).toHaveClass(/s-top/)
+    await page.mouse.move(box.x + box.width * 0.5, y)
+    await expect(page.locator('.s-interval-hi')).toHaveClass(/s-top/)
+  })
+
+  // Numeric inputs drag-scrub (1px = 1 step); a clean click still enters editing.
+  test('readout scrubs on horizontal drag', async ({ page }) => {
+    const lo = page.locator('input.s-readout-lo')
+    const box = await lo.boundingBox()
+    const y = box.y + box.height / 2
+    await page.mouse.move(box.x + 10, y)
+    await page.mouse.down()
+    await page.mouse.move(box.x + 10 + 10, y, { steps: 4 })
+    await page.mouse.up()
+    await expect(lo).toHaveValue('35')
+    // input not focused after a scrub
+    expect(await lo.evaluate(el => document.activeElement === el)).toBe(false)
+  })
+
+  test('clean click on readout enters editing', async ({ page }) => {
+    const lo = page.locator('input.s-readout-lo')
+    await lo.click()
+    expect(await lo.evaluate(el => document.activeElement === el)).toBe(true)
+  })
+
+  test('low thumb drags when handles are adjacent', async ({ page }) => {
+    const track = page.locator('.s-interval-track').first()
+    const box = await track.boundingBox()
+    const y = box.y + box.height / 2
+    await page.mouse.move(box.x + box.width * 0.25, y)
+    await page.mouse.down()
+    await page.mouse.move(box.x + box.width * 0.45, y, { steps: 5 })
+    await page.mouse.up()
+    // lo moved toward hi (exact landing value depends on thumb-width geometry), hi untouched
+    const lo = +await page.locator('input.s-readout-lo').inputValue()
+    expect(lo).toBeGreaterThan(40)
+    expect(lo).toBeLessThanOrEqual(50)
+    await expect(page.locator('input.s-readout-hi')).toHaveValue('50')
+  })
+})
+
+// Vector inputs commit on change, not input — oninput writeback re-rendered
+// :value into the focused field, mangling typed digits (e.g. "12.5" → "512").
+test('vector input typing is not mangled', async ({ page }) => {
+  await page.goto('/demo/cases/figma.html')
+  await page.waitForLoadState('networkidle')
+  const inp = page.locator('.s-vec-axis input').first()
+  await inp.click({ clickCount: 3 })
+  await inp.pressSequentially('12.5', { delay: 30 })
+  await expect(inp).toHaveValue('12.5')
+  await inp.press('Tab')
+  await expect(inp).toHaveValue('12.5')
+})
+
+test.describe('search filter', () => {
+  test('icon toggles input, typing filters rows, Escape restores', async ({ page }) => {
+    await page.goto('/demo/cases/leva.html')
+    await page.waitForLoadState('networkidle')
+    await page.click('.s-search-btn')
+    await expect(page.locator('.s-panel')).toHaveClass(/s-searching/)
+    await page.fill('.s-search-input', 'text')
+    await expect(page.locator('.s-control[data-key=text]')).toBeVisible()
+    await expect(page.locator('.s-control[data-key=number]')).toBeHidden()
+    await page.press('.s-search-input', 'Escape')
+    await expect(page.locator('.s-panel')).not.toHaveClass(/s-searching/)
+    await expect(page.locator('.s-control[data-key=number]')).toBeVisible()
+  })
 })
 
 for (const { name, path } of cases) {

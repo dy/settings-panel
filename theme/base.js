@@ -40,15 +40,31 @@ export default `@layer s-base {
   > summary { cursor: pointer; }
   > summary:focus-visible, .s-folder > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* ── Collapse ── */
-  &:is(details) {
+  /* ── Search (opt-in via search option; themes refine) ── */
+  .s-search { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
+  .s-search-btn {
+    width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
+    background: currentColor;
+    -webkit-mask: var(--s-search-icon) center / contain no-repeat;
+    mask: var(--s-search-icon) center / contain no-repeat;
+  }
+  --s-search-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Ccircle cx='7' cy='7' r='4.5'/%3E%3Cpath d='M10.5 10.5 L14 14'/%3E%3C/svg%3E");
+  .s-search-input { display: none; border: none; background: transparent; color: inherit; font: inherit; min-width: 0; }
+  &.s-searching .s-search-input { display: inline-block; }
+
+  /* ── Numeric drag-scrub ── */
+  input.s-scrubbing { cursor: ew-resize; user-select: none; }
+
+  /* ── Collapse (panel and folders alike) ── */
+  &:is(details), .s-folder:is(details) {
     display: block;
     interpolate-size: allow-keywords;
     &::details-content {
       content-visibility: visible;
       height: 0;
       opacity: 0;
-      transition: height 200ms 80ms, opacity 80ms;
+      overflow: clip;
+      transition: height 200ms, opacity 80ms;
     }
     &[open]::details-content {
       height: auto;
@@ -188,6 +204,8 @@ export default `@layer s-base {
       pointer-events: none;
       &::-webkit-slider-thumb { pointer-events: all; }
       &::-moz-range-thumb { pointer-events: all; }
+      &.s-top { z-index: 1; }
+      &:focus-visible { z-index: 2; }
     }
   }
 
@@ -246,14 +264,26 @@ export default `@layer s-base {
 
   /* ── Vector (multiple axis inputs) ── */
   .s-vector {
-    .s-input { gap: calc(var(--u) * 1.5); }
+    .s-input { gap: calc(var(--u) * 1.5); flex-wrap: wrap; }
     .s-vec-axis { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--u); }
     .s-vec-label { flex: none; font-size: smaller; opacity: .55; }
     input[type="number"] { flex: 1; width: 0; min-width: 0; text-align: right; }
+    /* expandable 2D pad (pad option) — dot-in-corners glyph toggle, pad on its own row */
+    .s-vec-expand {
+      flex: none; width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
+      background: currentColor; opacity: .55;
+      -webkit-mask: var(--s-expand-icon) center / contain no-repeat;
+      mask: var(--s-expand-icon) center / contain no-repeat;
+      &:hover, &.s-open { opacity: 1; }
+    }
+    .s-pad { flex-basis: 100%; }
   }
+  --s-expand-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' fill='%23000'%3E%3Ccircle cx='4' cy='4' r='1.6'/%3E%3Ccircle cx='12' cy='4' r='1.6'/%3E%3Ccircle cx='4' cy='12' r='1.6'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Ccircle cx='8' cy='8' r='1.6'/%3E%3C/svg%3E");
 
   /* ── XY pad ── */
   .s-xy { align-items: flex-start; }
+  .s-xy .s-input { flex-wrap: wrap; }
+  .s-pad-val { flex-basis: 100%; font-size: smaller; opacity: .7; font-variant-numeric: tabular-nums; }
   .s-pad {
     position: relative;
     width: calc(var(--u) * 24);
@@ -271,6 +301,8 @@ export default `@layer s-base {
     .s-pad-y { top: 0; bottom: 0; left: 50%; width: 1px; }
     .s-pad-dot {
       position: absolute;
+      left: var(--x, 50%);
+      top: var(--y, 50%);
       width: calc(var(--u) * 3);
       height: calc(var(--u) * 3);
       transform: translate(-50%, -50%);

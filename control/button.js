@@ -26,19 +26,21 @@ export default (sig, opts = {}) => {
 
   const type = variant ? `button ${variant}` : 'button'
 
+  // Run handler; while its promise is pending, `busy` is set (and blocks re-entry)
+  const asyncClick = (handler, busy, blocked = () => false) => async () => {
+    if (busy.value || blocked() || !handler) return
+    const r = handler()
+    if (r instanceof Promise) { busy.value = true; try { await r } finally { busy.value = false } }
+  }
+
   if (buttons) {
     const _buttons = buttons.map(b => {
-      const handler = b.onClick || b.onclick
       const _disabled = signal(b.disabled ?? false)
       return {
         text: b.text || b.label || '',
         cls: b.variant ? `s-${b.variant}` : '',
         _disabled,
-        click: async () => {
-          if (_disabled.value || !handler) return
-          const r = handler()
-          if (r instanceof Promise) { _disabled.value = true; try { await r } finally { _disabled.value = false } }
-        }
+        click: asyncClick(b.onClick || b.onclick, _disabled)
       }
     })
     return control(sig, { ...rest, label, type, template: groupTmpl, _buttons })
@@ -49,15 +51,7 @@ export default (sig, opts = {}) => {
 
   const _disabled = signal(disabled)
   const _loading = signal(false)
-
-  const click = async () => {
-    if (_disabled.value || _loading.value || !onClick) return
-    const result = onClick()
-    if (result instanceof Promise) {
-      _loading.value = true
-      try { await result } finally { _loading.value = false }
-    }
-  }
+  const click = asyncClick(onClick, _loading, () => _disabled.value)
 
   return control(sig, { ...rest, label: false, type, template: singleTmpl, text, click, _disabled, _loading })
 }

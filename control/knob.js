@@ -6,6 +6,7 @@
  */
 
 import control from './control.js'
+import { clamp, stepMul, decimals } from './util.js'
 import { computed } from '../signals.js'
 
 const template = `
@@ -15,11 +16,9 @@ const template = `
   </span>
 `
 
-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
-
 export default (sig, opts = {}) => {
   const { min = 0, max = 1, step, unit = '', startAngle = -135, endAngle = 135, ...rest } = opts
-  const prec = step ? (String(step).split('.')[1] || '').length : 2
+  const prec = decimals(step, 2)
 
   const angle = computed(() => startAngle + clamp((sig.value - min) / (max - min), 0, 1) * (endAngle - startAngle))
   const knobStyle = computed(() => `transform: rotate(${angle.value.toFixed(1)}deg)`)
@@ -40,7 +39,7 @@ export default (sig, opts = {}) => {
     e.currentTarget.focus(); e.preventDefault()
   }
   const key = e => {
-    const s = (step || (max - min) / 100) * (e.shiftKey ? 10 : 1)
+    const s = (step || (max - min) / 100) * stepMul(e)
     set(sig.value + (e.key === 'ArrowUp' || e.key === 'ArrowRight' ? s : -s))
   }
 

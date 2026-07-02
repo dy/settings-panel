@@ -31,7 +31,7 @@ export default function control(sig, opts) {
         </span>
         <span class="s-hint" :if="hint" :text="hint"></span>
       </label>
-      <${inputTag} class=\"s-input\" :inert=\"disabled\"></${inputTag}>
+      <${inputTag} class="s-input" :inert="disabled"></${inputTag}>
     </div>`
   wrapper.querySelector('.s-input').innerHTML = template
 

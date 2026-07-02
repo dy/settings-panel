@@ -1,5 +1,5 @@
 /**
- * Color control - picker, swatches
+ * Color control - picker, swatches, rgba
  */
 
 import control from './control.js'
@@ -8,13 +8,13 @@ import { normalizeHex } from '../theme/color.js'
 
 const templates = {
   picker: `
-    <span class="s-color-input">
+    <span class="s-color-input" :style="'--color:' + value">
       <input type="color" :id="label || null" :name="label || null" :value="value" :oninput="e => commit(e.target.value)" />
       <input type="text" :value="text" :oninput="e => input(e.target.value)" :onchange="e => commit(e.target.value)" spellcheck="false" />
     </span>
   `,
   rgba: `
-    <span class="s-color-input s-rgba">
+    <span class="s-color-input s-rgba" :style="'--color:' + value">
       <input type="color" :id="label || null" :name="label || null" :value="hex6" :oninput="e => setRgb(e.target.value)" />
       <input type="range" class="s-alpha" min="0" max="1" step="0.01" :value="alpha" :oninput="e => setAlpha(+e.target.value)" :style="{'--c': hex6}" />
       <input type="text" :value="text" :oninput="e => input(e.target.value)" :onchange="e => commit(e.target.value)" spellcheck="false" />
@@ -43,6 +43,7 @@ const parseRGBA = v => {
   return { r: 0, g: 0, b: 0, a: 1 }
 }
 const isColorish = v => /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v.trim()) || /^rgba?\(/i.test(v.trim())
+const isFullHex = v => /^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(v)
 
 const defaultColors = [
   '#ff0000', '#ff8000', '#ffff00', '#80ff00',
@@ -51,28 +52,45 @@ const defaultColors = [
   '#ffffff', '#c0c0c0', '#808080', '#000000'
 ]
 
-const isFullHex = v => /^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(v)
+/**
+ * Text field mirroring `sig`: raw while typing, canonical on commit / external change.
+ * `canon` maps a stored value to canonical form (pass-through when not a color),
+ * `parse`/`format` translate between display text and value (theme/demo hooks).
+ * Normalizing only on commit keeps typing '#fff' from being rewritten to '#ffffff'
+ * mid-keystroke — which would jump the caret to the end.
+ */
+const textMirror = (sig, { canon, parse, complete, format }) => {
+  const text = signal(typeof sig.value === 'string' ? format(sig.value) : '')
+  let editing = false
+  const stop = effect(() => {
+    const v = sig.value
+    if (editing || typeof v !== 'string') return
+    const n = canon(v)
+    if (n !== v) { sig.value = n; return }  // canonicalize initial/external value, then re-sync
+    text.value = format(v)
+  })
+  const input = v => {                 // live typing — keep the field raw, push only complete colors
+    editing = true
+    text.value = v
+    const p = parse(v)
+    if (complete(p)) sig.value = canon(p)
+    editing = false
+  }
+  const commit = v => { sig.value = canon(parse(v)) }   // blur / enter / swatch / picker pick
+  return { text, input, commit, stop }
+}
 
 export default (sig, opts = {}) => {
-  const { variant = 'picker', colors = defaultColors, dispose, ...rest } = opts
+  const { variant = 'picker', colors = defaultColors, dispose, formatText = v => v, parseText = v => v, ...rest } = opts
 
   // ── rgba variant: rgb swatch + alpha slider + text, value stored as #rrggbb[aa] ──
   if (variant === 'rgba') {
+    const canon = v => isColorish(v) ? toHex8(parseRGBA(v)) : v
+    const { text, input, commit, stop } = textMirror(sig, { canon, parse: parseText, complete: isColorish, format: formatText })
     const hex6 = computed(() => { const { r, g, b } = parseRGBA(sig.value); return '#' + hx(r) + hx(g) + hx(b) })
     const alpha = computed(() => +parseRGBA(sig.value).a.toFixed(2))
-    const text = signal(typeof sig.value === 'string' ? sig.value : toHex8(parseRGBA(sig.value)))
-    let editing = false
-    const stop = effect(() => {
-      const v = sig.value
-      if (editing || typeof v !== 'string') return
-      const n = toHex8(parseRGBA(v))          // canonicalize initial/external value to compact #rrggbb[aa]
-      if (n !== v && isColorish(v)) { sig.value = n; return }
-      text.value = v
-    })
     const setRgb = h => { const { a } = parseRGBA(sig.value); const { r, g, b } = parseRGBA(h); sig.value = toHex8({ r, g, b, a }) }
     const setAlpha = a => { const { r, g, b } = parseRGBA(sig.value); sig.value = toHex8({ r, g, b, a }) }
-    const input = v => { editing = true; text.value = v; if (isColorish(v)) sig.value = toHex8(parseRGBA(v)); editing = false }
-    const commit = v => { sig.value = toHex8(parseRGBA(v)) }
     return control(sig, {
       ...rest,
       type: 'color rgba',
@@ -82,27 +100,12 @@ export default (sig, opts = {}) => {
     })
   }
 
-  // `text` mirrors the text field; `sig` holds the canonical color. Normalizing only on
-  // commit (blur/change/pick/external) keeps typing '#fff' from being rewritten to
-  // '#ffffff' mid-keystroke — which would jump the caret to the end.
-  const text = signal(typeof sig.value === 'string' ? sig.value : '')
-  let editing = false
-  const stop = effect(() => {
-    const v = sig.value
-    if (editing || typeof v !== 'string') return
-    const n = normalizeHex(v)
-    if (n !== v) { sig.value = n; return }  // normalize initial/external value, then re-sync text
-    text.value = v
+  const { text, input, commit, stop } = textMirror(sig, {
+    canon: normalizeHex,
+    parse: parseText,
+    complete: v => isFullHex(normalizeHex(v)),
+    format: formatText,
   })
-
-  const input = v => {                 // live typing — keep the field raw, push only full colors
-    editing = true
-    text.value = v
-    const n = normalizeHex(v)
-    if (isFullHex(n)) sig.value = n
-    editing = false
-  }
-  const commit = v => { sig.value = normalizeHex(v) }   // blur / enter / swatch / picker pick
 
   return control(sig, {
     ...rest,
@@ -110,9 +113,6 @@ export default (sig, opts = {}) => {
     template: templates[variant] || templates.picker,
     value: sig, text, input, commit, set: commit,
     colors,
-    dispose: () => {
-      stop()
-      dispose?.()
-    }
+    dispose: () => { stop(); dispose?.() }
   })
 }

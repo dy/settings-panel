@@ -61,6 +61,7 @@ export default function settings(schema, options = {}) {
     theme = base(),  // default soft theme (call for a static sheet; pass soft({...}) or (s)=>soft({...}) to tune)
     title,
     collapsed,
+    search = false,
     persist = false,
     key,
     controls: extraControls,
@@ -139,6 +140,8 @@ export default function settings(schema, options = {}) {
   const body = document.createElement('div')
   body.className = 's-panel-content'
   panel.appendChild(body)
+
+  if (search && title) initSearch(panel, body)
 
   // Apply theme CSS (after state resolved, before controls — so getComputedStyle works)
   if (style) style.textContent = themeIsFunc ? theme(state) : theme
@@ -252,6 +255,34 @@ export default function settings(schema, options = {}) {
   })
 
   return state
+}
+
+// Search: filter controls by label (opt-in via `search` option; themes style .s-search)
+function initSearch(panel, body) {
+  const heading = panel.firstElementChild
+  heading.insertAdjacentHTML('beforeend',
+    '<span class="s-search"><button type="button" class="s-search-btn" aria-label="Filter controls"></button><input class="s-search-input" type="search" placeholder="Filter" /></span>')
+  const btn = heading.querySelector('.s-search-btn')
+  const inp = heading.querySelector('.s-search-input')
+  const apply = q => {
+    q = q.trim().toLowerCase()
+    for (const el of body.querySelectorAll('.s-control')) {
+      const label = el.querySelector('.s-label')?.textContent || el.dataset.key || ''
+      el.hidden = !!q && !label.toLowerCase().includes(q)
+    }
+    // folders with no matching controls fold away entirely
+    for (const f of body.querySelectorAll('.s-folder'))
+      f.hidden = !!q && !f.querySelector('.s-control:not([hidden])')
+  }
+  btn.addEventListener('click', e => {
+    e.preventDefault() // inside <summary>: don't toggle the fold
+    const open = panel.classList.toggle('s-searching')
+    if (open) inp.focus()
+    else { inp.value = ''; apply('') }
+  })
+  inp.addEventListener('click', e => e.preventDefault())
+  inp.addEventListener('input', () => apply(inp.value))
+  inp.addEventListener('keydown', e => { if (e.key === 'Escape') btn.click() })
 }
 
 // Match a KeyboardEvent against a combo string like 'h' or 'ctrl+shift+s'
