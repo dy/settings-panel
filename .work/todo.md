@@ -48,7 +48,6 @@
   * [ ] settings-panel v1
   * [ ] daytime switch
   * [ ] customize theme link
-  * [ ] Figma
   * [ ] dat.gui+
   * [ ] Apples
   * [ ] refactoring.ui
