@@ -321,6 +321,7 @@ export default function lab01({
     padding: var(--pad-i) calc(var(--pad));
     height: auto;
   }
+  input[type="number"] { font-variant-numeric: tabular-nums; }
 
   /* ── Buttons ── */
   button {
@@ -362,6 +363,7 @@ export default function lab01({
         ${surface}
         cursor: pointer;
         border: none;
+        transition: background 120ms, box-shadow 120ms, transform 120ms;
       }
       &::-moz-range-thumb {
         width: 18px; height: 18px;
@@ -369,9 +371,13 @@ export default function lab01({
         background: var(--bg-light);
         border: 1px solid hsl(from ${ink} h s l / .15);
         cursor: pointer;
+        transition: background 120ms, transform 120ms;
       }
+      &:hover::-webkit-slider-thumb { background: var(--surface-bg-hover); }
+      &:active::-webkit-slider-thumb, &.s-scrubbing::-webkit-slider-thumb { box-shadow: var(--surface-active); transform: scale(0.96); }
+      &:active::-moz-range-thumb, &.s-scrubbing::-moz-range-thumb { transform: scale(0.96); }
     }
-    .s-readout { color: inherit; font-size: 12px; opacity: .7; }
+    .s-readout { color: inherit; font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
     .s-track { height: auto; }
   }
 
@@ -460,7 +466,7 @@ export default function lab01({
           width: 10px; height: 10px;
           border-radius: calc(var(--r) * 0.2);
           background: transparent;
-          transition: background 0ms;
+          transition: background 140ms;
         }
       }
       &:has(input:checked) .s-track::after { background: var(--accent); }

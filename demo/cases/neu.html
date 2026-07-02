@@ -42,10 +42,15 @@
       nocturnal: { type: 'boolean', variant: 'checkbox', value: false, label: 'Nocturnal' },
       hue: { type: 'color', value: '#7b6cf6', label: 'Hue' },
       align: { type: 'select', variant: 'segmented', value: 'good', options: ['good', 'neutral', 'chaos'], label: 'Alignment' },
+      lore: { type: 'folder', label: 'Lore', collapsed: true },
+      'lore.origin': { type: 'text', value: 'Swamp', label: 'Origin' },
+      'lore.age': { type: 'number', value: 3, min: 0, max: 99, label: 'Age' },
       save: { type: 'button', label: false, text: 'Summon' },
     }, {
       container: '#panel',
       title: 'Creature',
+      collapsed: false,
+      search: true,
       theme: () => neu(),
     })
   </script>

@@ -54,6 +54,7 @@ export default function swiss({
   font-size: inherit;
   border-radius: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
 
   /* ── Panel header ── */
   > summary, > .s-panel-title {
@@ -159,6 +160,7 @@ export default function swiss({
     border: none;
     outline: none;
     padding: var(--pad) calc(var(--u) * 4);
+    font-variant-numeric: tabular-nums;
     &::placeholder { color: var(--dim); }
     &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -223,12 +225,14 @@ export default function swiss({
       border: 1px solid var(--rule);
       border-radius: 0;
       box-shadow: none;
+      transition: background-color 120ms, transform 120ms;
       &::after {
         border-radius: 0;
         background: currentColor;
         box-shadow: none;
       }
     }
+    .s-input:active .s-track { transform: scale(0.96); }
     &:has(input:checked) .s-track {
       background: var(--fill);
       border-color: var(--rule);
@@ -269,6 +273,7 @@ export default function swiss({
         margin-left: -1px;
         padding: var(--pad) calc(var(--u) * 1.5);
         text-align: center;
+        transition: background-color 120ms;
         &:first-child { margin-left: 0; border-left: none; }
         &:hover { background: var(--fill-hover); }
         &.s-selected {
@@ -325,11 +330,12 @@ export default function swiss({
           flex-shrink: 0;
           padding: calc(var(--u) * 1.5);
           border-right: 1px solid var(--rule);
+          transition: background-color 120ms;
         }
         &:hover::before { background: var(--fill-hover); }
         &:has(input:checked)::before { background-color: var(--fill); }
         &:has(input:checked):hover::before { background-color: var(--fill-hover); }
-        &:has(input:checked)::after {
+        &::after {
           content: '';
           position: absolute;
           left: 0;
@@ -340,7 +346,11 @@ export default function swiss({
           -webkit-mask: var(--check-mark) center / 14px no-repeat;
           mask: var(--check-mark) center / 14px no-repeat;
           pointer-events: none;
+          opacity: 0;
+          transform: scale(.25);
+          transition: opacity 140ms, transform 140ms;
         }
+        &:has(input:checked)::after { opacity: 1; transform: scale(1); }
       }
     }
 
@@ -351,6 +361,7 @@ export default function swiss({
         font-family: var(--value-font);
         padding: var(--pad) calc(var(--u) * 4);
         cursor: pointer;
+        transition: background-color 120ms;
         & + label { border-top: 1px solid var(--rule); }
         &:hover { background: var(--fill-hover); }
         &.s-selected {
@@ -367,6 +378,7 @@ export default function swiss({
     .s-readout {
       color: var(--dim);
       font-size: 0.875rem;
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -384,8 +396,9 @@ export default function swiss({
       font-size: 1.2rem;
       padding: calc(var(--u) * 4) calc(var(--u) * 5);
       cursor: pointer;
+      transition: background-color 120ms, filter 120ms, transform 120ms;
       &:hover { background: var(--fill-hover); }
-      &:active { filter: brightness(.9); }
+      &:active { filter: brightness(.9); transform: scale(0.96); }
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
     }
     &.s-secondary button, button.s-secondary {

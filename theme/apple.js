@@ -35,6 +35,7 @@ export default function apple({
   --spacing: 1;
   --weight: 400;
   --r: 8px;
+  --ease: cubic-bezier(.2, 0, 0, 1);
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background: ${fill};
@@ -53,8 +54,8 @@ export default function apple({
   > summary, > .s-panel-title {
     font-weight: 600; font-size: 15px; color: var(--ink);
     padding: 16px 18px 10px;
-    &::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s; }
   }
+  > summary::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   &[open] > summary::after { transform: rotate(-180deg); }
   .s-panel-content { gap: 0; padding: 0; }
@@ -72,20 +73,23 @@ export default function apple({
   input[type="text"], input[type="number"], select, textarea {
     background: var(--field); color: var(--ink); border: none; border-radius: 6px;
     height: 28px; padding: 0 8px; font: inherit;
+    transition: box-shadow .12s var(--ease);
     &::placeholder { color: ${dim}; }
     &:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%); }
   }
   .s-text input[type="text"] { flex: 1; text-align: right; }
 
   /* ── Number ── */
-  .s-number { input[type="number"] { flex: 0 1 auto; width: 72px; text-align: right; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
+  .s-number { input[type="number"] { flex: 0 1 auto; width: 72px; text-align: right; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
 
   /* ── Vector ── */
   .s-vector {
     .s-input { gap: calc(var(--u) * 2); }
-    .s-vec-axis { flex: 1; min-width: 0; gap: calc(var(--u)); background: var(--field); border-radius: 6px; padding: 0 8px; height: 28px; }
+    .s-vec-axis { flex: 1; min-width: 0; gap: calc(var(--u)); background: var(--field); border-radius: 6px; padding: 0 8px; height: 28px;
+      transition: box-shadow .12s var(--ease);
+      &:focus-within { box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%); } }
     .s-vec-label { color: ${dim}; font-size: 12px; }
-    input[type="number"] { background: transparent; text-align: right; padding: 0; height: 28px; &:focus { box-shadow: none; } }
+    input[type="number"] { background: transparent; text-align: right; padding: 0; height: 28px; font-variant-numeric: tabular-nums; &:focus { box-shadow: none; } }
   }
 
   /* ── Slider (thin track, 20px circular thumb) ── */
@@ -100,7 +104,7 @@ export default function apple({
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 4px); font-size: 11px; color: ${dim}; white-space: nowrap; }
-    .s-readout { flex: 0 0 auto; width: 52px; text-align: right; background: var(--field); color: var(--ink); border: none; border-radius: 6px; height: 28px; padding: 0 8px; font-variant-numeric: tabular-nums; }
+    .s-readout { flex: 0 0 auto; width: 52px; text-align: right; background: var(--field); color: var(--ink); border: none; border-radius: 6px; height: 28px; padding: 0 8px; font-variant-numeric: tabular-nums; cursor: ew-resize; }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: ${dark ? '#3a3a3c' : '#fff'}; color: var(--ink); padding: 3px 8px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.2); white-space: nowrap; }
     &.s-multiple .s-interval-track { height: 4px; margin: 12px 0; background: ${dark ? '#48484a' : '#e9e9eb'}; border-radius: 2px; position: relative;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); } }
@@ -108,12 +112,19 @@ export default function apple({
 
   /* ── Select (macOS popup button) ── */
   .s-select {
-    &.s-dropdown select { flex: 0 1 auto; width: auto; min-width: 0; appearance: none; -webkit-appearance: none; cursor: pointer; font-weight: 400; color: var(--ink); padding-right: 26px;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 16' xmlns='http://www.w3.org/2000/svg' fill='%23${dark ? 'fff' : 'fff'}'%3E%3Cpath d='M2 7 L6 3 L10 7Z'/%3E%3Cpath d='M2 9 L6 13 L10 9Z'/%3E%3C/svg%3E"), linear-gradient(${acc}, ${acc}); background-repeat: no-repeat; background-position: right 0 center, right 0 center; background-size: 20px 28px, 20px 28px;
+    &.s-dropdown .s-input { position: relative; flex: 0 1 auto; min-width: auto; max-width: 100%;
+      &::after { content: ''; position: absolute; top: 50%; right: 3px; width: 16px; height: 18px; transform: translateY(-50%); border-radius: 4px; background: ${acc};
+        -webkit-mask: var(--pop-chev) center / 9px 12px no-repeat; mask: var(--pop-chev) center / 9px 12px no-repeat; pointer-events: none; } }
+    --pop-chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 9 12' xmlns='http://www.w3.org/2000/svg' fill='%23fff'%3E%3Cpath d='M4.5 0 L8 3.6 L6.8 4.8 L4.5 2.5 L2.2 4.8 L1 3.6Z'/%3E%3Cpath d='M4.5 12 L8 8.4 L6.8 7.2 L4.5 9.5 L2.2 7.2 L1 8.4Z'/%3E%3C/svg%3E");
+    &.s-dropdown select { flex: 0 1 auto; width: auto; max-width: 100%; min-width: 0; appearance: none; -webkit-appearance: none; cursor: pointer; font-weight: 400; color: var(--ink);
+      text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+      padding-right: 26px; background: var(--field);
       option { background: ${fill}; color: var(--ink); } }
-    &.s-segmented { .s-input { gap: 0; background: ${dark ? '#48484a' : '#e9e9eb'}; border-radius: 7px; padding: 2px; }
+    &.s-segmented { .s-input { gap: 0; background: ${dark ? '#48484a' : '#e9e9eb'}; border-radius: var(--r); padding: 2px; }
       button { flex: 1; background: transparent; border: none; color: var(--ink); border-radius: 6px; height: 26px; font: inherit;
-        &.s-selected { background: ${dark ? '#636366' : '#fff'}; box-shadow: 0 1px 3px rgba(0,0,0,.12); } } }
+        transition: background .12s var(--ease), box-shadow .12s var(--ease);
+        &:not(.s-selected):hover { background: ${dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.04)'}; }
+        &.s-selected { background: ${dark ? '#636366' : '#fff'}; box-shadow: 0 .5px 1px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); } label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
   }
 
@@ -122,13 +133,14 @@ export default function apple({
     align-items: center;
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &.s-switch {
-      .s-track { width: 38px; height: 22px; border-radius: 999px; background: ${dark ? '#39393d' : '#e9e9eb'}; position: relative; cursor: pointer; transition: background .2s;
-        &::after { content: ''; position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s; } }
+      .s-track { width: 38px; height: 22px; border-radius: 999px; background: ${dark ? '#39393d' : '#e9e9eb'}; position: relative; cursor: pointer; transition: background .2s var(--ease);
+        &::after { content: ''; position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s var(--ease); } }
       &:has(input:checked) .s-track { background: var(--accent); &::after { left: 17px; } }
       &:has(input:focus-visible) .s-track { outline: 3px solid color-mix(in oklab, var(--accent), transparent 60%); outline-offset: 1px; }
     }
     &.s-checkbox {
       .s-track { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: transparent; border: 1.5px solid ${dim};
+        transition: background .12s var(--ease), border-color .12s var(--ease);
         &::after { content: ''; width: 11px; height: 9px; -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: #fff; opacity: 0; } }
       &:has(input:checked) .s-track { background: var(--accent); border-color: var(--accent); &::after { opacity: 1; } }
     }
@@ -151,8 +163,9 @@ export default function apple({
   .s-button {
     .s-input { gap: calc(var(--u) * 2); }
     button { flex: 1; height: 30px; background: var(--accent); color: #fff; border: none; border-radius: 7px; font-weight: 500;
+      transition: filter .12s var(--ease);
       &:hover { filter: brightness(1.05); } &:active { filter: brightness(.92); } &:disabled { opacity: .4; cursor: not-allowed; } }
-    &.s-secondary button, button.s-secondary { background: var(--field); color: var(--accent); &:hover { filter: brightness(.97); } }
+    &.s-secondary button, button.s-secondary { background: var(--field); color: var(--accent); transition: filter .12s var(--ease); &:hover { filter: brightness(.97); } }
   }
 
   /* ── Textarea ── */
@@ -160,8 +173,9 @@ export default function apple({
 
   /* ── Folder (grouped section) ── */
   .s-folder {
-    > summary { font-weight: 600; font-size: 13px; color: ${dim}; text-transform: none; padding: 14px 18px 6px; border-top: 1px solid var(--line);
-      &::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s; } }
+    padding: 0; /* .s-folder also matches .s-control — without this it double-applies the row inset/top-padding to both the header and .s-content's children */
+    > summary { font-weight: 600; font-size: 13px; color: ${dim}; text-transform: none; padding: 14px 18px 6px;
+      &::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); } }
     &[open] > summary::after { transform: rotate(-180deg); }
     .s-content { gap: 0; }
   }

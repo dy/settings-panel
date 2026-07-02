@@ -101,6 +101,7 @@ export default function controlPanel({
     color: var(--dim);
     font-family: inherit;
     font-size: 11px;
+    transition: background-color 120ms;
     &::placeholder { color: var(--fg); }
     &:hover { background-color: var(--bg2h); }
     &:focus { background-color: var(--bg2h); outline: none; }
@@ -161,7 +162,9 @@ export default function controlPanel({
     font-size: 11px;
     height: 20px;
     cursor: pointer;
+    transition: background-color 120ms, filter 120ms, transform 120ms;
     &:hover { background-color: var(--bg2h); }
+    &:active { transform: scale(0.96); }
     &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
   }
 
@@ -179,6 +182,7 @@ export default function controlPanel({
       text-align: left;
       padding: 0 4px;
       overflow: hidden;
+      font-variant-numeric: tabular-nums;
     }
     &:not(.s-multiple) .s-track {
       margin: 0;
@@ -192,10 +196,11 @@ export default function controlPanel({
         border-radius: 0;
         outline: none;
         cursor: ew-resize;
+        transition: background-color 120ms;
         &:hover { background-color: var(--bg2h); }
         &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; &:hover { filter: var(--hover); } }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; &:hover { filter: var(--hover); } }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: 20px; border-radius: 0; box-shadow: none; }
         &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
       }
@@ -205,6 +210,7 @@ export default function controlPanel({
       margin: 0;
       background: var(--bg2);
       cursor: ew-resize;
+      transition: background-color 120ms;
       &:hover { background-color: var(--bg2h); }
       &::before {
         content: '';
@@ -225,8 +231,8 @@ export default function controlPanel({
         &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
         &::-webkit-slider-thumb { pointer-events: all; cursor: ew-resize; }
         &::-moz-range-thumb { pointer-events: all; cursor: ew-resize; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; box-shadow: none; &:hover { filter: var(--hover); } }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; &:hover { filter: var(--hover); } }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; background: transparent; box-shadow: none; }
       }
     }
@@ -238,7 +244,7 @@ export default function controlPanel({
     cursor: pointer;
     .s-input { align-self: center; cursor: pointer; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; }
+    .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; transition: background-color 120ms; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
     &:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 0; }
     &.s-checkbox {
@@ -307,6 +313,7 @@ export default function controlPanel({
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: background-color 120ms, color 120ms;
         &::after { font-size: 11px; background: none; box-shadow: none; position: static; width: auto; height: auto; border-radius: 0; }
       }
       &:has(input:checked) .s-track { background: var(--dim); color: var(--bg2); }
@@ -341,6 +348,7 @@ export default function controlPanel({
         position: relative;
         display: inline-block;
         flex-shrink: 0;
+        transition: background-color 120ms;
         &::after {
           content: '';
           position: absolute;
@@ -395,7 +403,7 @@ export default function controlPanel({
 
   /* ── Number ── */
   .s-number {
-    input[type="number"] { width: 60px; text-align: left; }
+    input[type="number"] { width: 60px; text-align: left; font-variant-numeric: tabular-nums; }
     .s-step { display: none; }
   }
 

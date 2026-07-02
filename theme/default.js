@@ -93,6 +93,7 @@ const softCSS = (t) => `@layer s-soft {
   input[type="text"], input[type="number"], select {
     height: calc(1lh + var(--pad) * 2);
   }
+  input[type="number"] { font-variant-numeric: tabular-nums; }
   select {
     padding-top: 0;
     padding-bottom: 0;
@@ -121,7 +122,7 @@ const softCSS = (t) => `@layer s-soft {
         border-radius: 999px;
         position: relative;
         cursor: pointer;
-        transition: background-color 0ms;
+        transition: background-color 140ms, border-color 140ms;
         margin: calc(var(--pad) / 2) 0;
         &::after {
           content: '';
@@ -129,18 +130,21 @@ const softCSS = (t) => `@layer s-soft {
           position: absolute;
           width: calc(var(--u) * 4);
           height: calc(var(--u) * 4);
-          margin: auto calc(var(--pad) / 2);
-          inset: 0;
+          top: 0;
+          bottom: 0;
+          left: calc(var(--pad) / 2);
+          margin: auto 0;
           background: #fff;
           border-radius: 50%;
           transition: transform 200ms;
+          transform: translateX(0);
           box-shadow: 0 1px 2px color-mix(in oklab, light-dark(black, white), transparent 75%);
         }
       }
       &:has(input:checked) .s-track {
         background: var(--accent);
         border-color: var(--accent);
-        &::after { right: 0; left: auto; }
+        &::after { transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--pad))); }
       }
     }
     &.s-toggle {
@@ -157,6 +161,7 @@ const softCSS = (t) => `@layer s-soft {
         justify-content: center;
         font-size: smaller;
         overflow: hidden;
+        transition: filter 140ms, border-color 140ms;
         &::before {
           content: '';
           position: absolute;
@@ -247,6 +252,7 @@ const softCSS = (t) => `@layer s-soft {
       font-size: smaller;
       padding-left: var(--pad);
       padding-right: 0;
+      font-variant-numeric: tabular-nums;
     }
     .s-tooltip {
       position: absolute;
@@ -275,6 +281,7 @@ const softCSS = (t) => `@layer s-soft {
         min-width: calc(4ch + var(--pad));
         font-size: smaller;
         padding-left: var(--pad);
+        font-variant-numeric: tabular-nums;
       }
     }
   }
@@ -297,7 +304,7 @@ const softCSS = (t) => `@layer s-soft {
         margin-left: -1px;
         color: inherit;
         font-size: smaller;
-        transition: color 140ms, filter 140ms, border-color 140ms;
+        transition: color 140ms, filter 140ms, border-color 140ms, background-color 140ms;
         &:first-child { margin-left: 0; border-top-left-radius: var(--r); border-bottom-left-radius: var(--r); }
         &:last-child { border-top-right-radius: var(--r); border-bottom-right-radius: var(--r); }
         &:hover { filter: brightness(1.2); }
@@ -329,8 +336,9 @@ const softCSS = (t) => `@layer s-soft {
         width: calc(var(--u) * 5);
         height: calc(var(--u) * 5);
         padding: 0;
-        border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 15%);
+        box-shadow: 0 0 0 1px color-mix(in oklab, var(--bg), light-dark(black, white) 15%);
         border-radius: var(--r);
+        transition: box-shadow 140ms;
         &.s-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
       }
     }
@@ -366,18 +374,18 @@ const softCSS = (t) => `@layer s-soft {
       color: white;
       border: none;
       border-radius: var(--r);
-      transition: filter 140ms;
+      transition: filter 140ms, background-color 140ms, box-shadow 140ms;
       &:hover { filter: brightness(1.2); }
       &:active { filter: brightness(.95); }
       &:disabled { opacity: .35; cursor: not-allowed; }
     }
     &.s-secondary button, button.s-secondary {
       background-color: color-mix(in oklab, var(--bg), light-dark(black, white) 5%);
-      border: 1px solid color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--bg), light-dark(black, white) 20%);
       color: inherit;
       &:hover { filter: brightness(1.2); }
       &:active { filter: brightness(.95); }
-      &.s-selected { background: var(--accent); color: white; border-color: transparent; }
+      &.s-selected { background: var(--accent); color: white; box-shadow: none; }
     }
   }
 

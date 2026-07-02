@@ -42,10 +42,14 @@
       ominous: { type: 'boolean', variant: 'checkbox', value: false, label: 'Ominous' },
       tint: { type: 'color', value: '#ff5a5f', label: 'Tint' },
       shapes: { type: 'select', variant: 'checkboxes', multiple: true, value: ['dog'], options: ['dog', 'dragon', 'face'], label: 'Looks like' },
+      forecast: { type: 'folder', label: 'Forecast', collapsed: true },
+      'forecast.lifespan': { type: 'number', value: 6, min: 1, max: 48, label: 'Lifespan', unit: 'h' },
       rain: { type: 'button', label: false, text: 'Make it rain' },
     }, {
       container: '#panel',
       title: 'Cloud',
+      collapsed: false,
+      search: true,
       theme: () => brutal(),
     })
   </script>

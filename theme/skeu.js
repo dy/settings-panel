@@ -196,12 +196,12 @@ export default function skeu({
       ${raise(-1)}
       border: none; border-radius: 999px;
       position: relative; cursor: pointer;
-      transition: box-shadow 140ms, outline-color 140ms;
+      transition: background-color 140ms, box-shadow 140ms, outline-color 140ms;
       &::after {
         content: '';
         ${raise(max(depth, .3), thumbBg)}
         border: none; border-radius: 50%;
-        transition: transform 140ms, box-shadow 140ms;
+        transition: transform 140ms, box-shadow 140ms, background-color 140ms;
         transform: translateX(0);
       }
     }
@@ -230,6 +230,7 @@ export default function skeu({
         border: none; border-radius: var(--ri);
         width: auto; height: auto;
         margin: 0;
+        transition: background-color 140ms, box-shadow 140ms, outline-color 140ms;
         &::after {
           content: 'Off';
           position: static; display: flex; align-items: center; justify-content: center;
@@ -247,6 +248,7 @@ export default function skeu({
     }
     &.s-checkbox {
       .s-track {
+        display: grid; place-items: center;
         border-radius: var(--ri);
         width: calc(var(--u) * 4 + var(--pad)); height: calc(var(--u) * 4 + var(--pad));
         margin: calc(var(--pad) / 2) 0;
@@ -257,14 +259,15 @@ export default function skeu({
           -webkit-mask: ${check} center / contain no-repeat;
           mask: ${check} center / contain no-repeat;
           border-radius: 0; outline: none; box-shadow: none;
-          opacity: 0; transition: opacity 140ms;
+          opacity: 0; transform: scale(.25); transition: opacity 140ms, transform 140ms;
         }
       }
-      &:has(input:checked) .s-track::after { opacity: 1; }
+      &:has(input:checked) .s-track::after { opacity: 1; transform: scale(1); }
     }
   }
 
   /* ── Number ── */
+  input[type="number"] { font-variant-numeric: tabular-nums; }
   .s-number input[type="number"] {
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; }
   }
@@ -313,7 +316,7 @@ export default function skeu({
       color: var(--text-dim); opacity: 1;
       &.s-active { color: var(--accent); }
     }
-    .s-readout { color: var(--text-dim); opacity: 1; font-size: smaller; }
+    .s-readout { color: var(--text-dim); opacity: 1; font-size: smaller; font-variant-numeric: tabular-nums; }
     input[type="text"].s-readout { padding: var(--pad); }
     .s-tooltip {
       color: var(--text-dim); opacity: 1;
@@ -434,7 +437,7 @@ export default function skeu({
     ${btn(surfaceL, surfaceC, surfaceH)}
     box-shadow: inset 0 0 0 var(--bevel) var(--bl);
     border-radius: var(--ri);
-    &.s-selected { border: 1px solid var(--text); box-shadow: 0 0 0 2px var(--bg); }
+    &.s-selected { box-shadow: 0 0 0 1px var(--text), 0 0 0 3px var(--bg); }
   }
 
   /* ── Button (action) ── */
