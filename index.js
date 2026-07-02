@@ -52,6 +52,9 @@ export function register(type, factory) {
   return factory
 }
 
+// Per-instance stylesheet scope counter (see scope() in settings())
+let scopeSeq = 0
+
 /**
  * Create settings panel
  */
@@ -113,10 +116,16 @@ export default function settings(schema, options = {}) {
 
   const state = store(initials)
 
-  // Inject theme CSS
+  // Inject theme CSS, scoped to this instance: every sheet keys off bare
+  // `.s-panel`, so two differently-themed panels on one page would otherwise
+  // cascade-collide (last-injected sheet wins the source-order tie for both).
+  // `:where(.<id>)` filters by the instance class while adding ZERO specificity,
+  // so the cascade inside and against user CSS behaves exactly as unscoped.
   const themeIsFunc = typeof theme === 'function'
   const style = theme ? document.createElement('style') : null
   if (style) document.head.appendChild(style)
+  const scopeId = `s${(scopeSeq++).toString(36)}`
+  const scope = css => css.replace(/\.s-panel(?![\w-])/g, `.s-panel:where(.${scopeId})`)
 
   // Create panel container. `collapsed` may be a boolean, a function of initials,
   // or a signal (two-way bound below — the universal programmatic toggle).
@@ -126,7 +135,7 @@ export default function settings(schema, options = {}) {
     : collapsed
   const foldable = title && typeof resolved === 'boolean'
   const panel = document.createElement(foldable ? 'details' : 'div')
-  panel.className = 's-panel'
+  panel.className = `s-panel ${scopeId}`
   if (title) {
     if (foldable) { if (!resolved) panel.open = true }
     const heading = document.createElement(foldable ? 'summary' : 'div')
@@ -144,7 +153,7 @@ export default function settings(schema, options = {}) {
   if (search && title) initSearch(panel, body)
 
   // Apply theme CSS (after state resolved, before controls — so getComputedStyle works)
-  if (style) style.textContent = themeIsFunc ? theme(state) : theme
+  if (style) style.textContent = scope(themeIsFunc ? theme(state) : theme)
 
   // ── Mount panel before controls (so getComputedStyle works during creation) ──
   resolveEl(container)?.appendChild(panel)
@@ -189,7 +198,7 @@ export default function settings(schema, options = {}) {
   // ── Reactive theme update ──
   let stopTheme
   if (style && themeIsFunc) {
-    stopTheme = effect(() => { style.textContent = theme(state) })
+    stopTheme = effect(() => { style.textContent = scope(theme(state)) })
   }
 
   // ── Persistence ──

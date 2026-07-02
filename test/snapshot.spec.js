@@ -151,6 +151,26 @@ test('vector input typing is not mangled', async ({ page }) => {
   await expect(inp).toHaveValue('12.5')
 })
 
+// Theme sheets are scoped per instance (`.s-panel:where(.<id>)`) — without it,
+// two differently-themed panels on one page cascade-collide (last sheet wins both).
+test('two themed panels on one page keep their own styles', async ({ page }) => {
+  await page.goto('/demo/cases/dat.html')
+  await page.waitForLoadState('networkidle')
+  const bgs = await page.evaluate(async () => {
+    const { default: settings } = await import('/index.js')
+    const { default: theme } = await import('/theme/default.js')
+    const holder = document.createElement('div')
+    document.body.appendChild(holder)
+    settings({ a: 1 }, { container: holder, theme: theme({ shade: '#331111' }) })
+    settings({ b: 2 }, { container: holder, theme: theme({ shade: '#113311' }) })
+    const [p1, p2] = holder.querySelectorAll('.s-panel')
+    return [getComputedStyle(p1).getPropertyValue('--bg'), getComputedStyle(p2).getPropertyValue('--bg')]
+  })
+  expect(bgs[0]).toBeTruthy()
+  expect(bgs[1]).toBeTruthy()
+  expect(bgs[0]).not.toBe(bgs[1])
+})
+
 test.describe('search filter', () => {
   test('icon toggles input, typing filters rows, Escape restores', async ({ page }) => {
     await page.goto('/demo/cases/leva.html')
