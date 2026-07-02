@@ -7,6 +7,12 @@
  * are sunken (inset) wells, buttons/thumbs/toggles rise proud of the surface,
  * pressed states invert. Soft, quiet, tactile — low contrast, same-hue throughout.
  *
+ * Axes: shade/accent set the hue (resolveRoles derives fg/fg-muted/accent from
+ * them); depth scales both the shadow tone's contrast and its physical
+ * distance/blur throw; softness re-ratios blur against distance independent of
+ * depth (higher = hazier edge, lower = crisper); spacing/weight/roundness/size
+ * are the shared structural axes every theme exposes.
+ *
  * neu(axes?) → CSS string
  */
 
@@ -21,9 +27,11 @@ export default function neu({
   weight = 500,
   roundness = 1.4,
   depth = 1,
+  softness = 1,
   size = 1,
 } = {}) {
   const { dark, fg, fgMuted, accent: acc } = resolveRoles(shade, accent)
+  const enc = c => encodeURIComponent(c)   // any CSS color, safe inside an SVG data-URI
 
   // Shadow tones derived from the surface so the effect holds on any shade.
   // Two-layer shadows (tight contact + wide ambient) read as soft-molded plastic
@@ -39,19 +47,41 @@ export default function neu({
   const lSh = lt(dark ? 0.16 : 0.11), lShWide = lt(dark ? 0.09 : 0.07)
   const sheenHi = lt(dark ? 0.035 : 0.05), sheenLo = dk(0.035)
 
-  // distance/blur pairs — near contact shadow + wide soft falloff, ~1:2 ratio each
-  const layer2 = (d1, b1, d2, b2) => `${neuShadow(d1, b1, dSh, lSh)}, ${neuShadow(d2, b2, dShWide, lShWide)}`
-  const inset2 = (d1, b1, d2, b2) => `${neuInset(d1, b1, dSh, lSh)}, ${neuInset(d2, b2, dShWide, lShWide)}`
+  // distance/blur pairs — near contact shadow + wide soft falloff, ~1:2 ratio each.
+  // depth scales the throw (both legs move together, like the relief growing
+  // deeper); softness re-ratios blur against distance on top of that (higher =
+  // hazier edge, lower = crisper) — the two axes compose, not replace each other.
+  const D = (n) => `${+(n * depth).toFixed(3)}px`
+  const B = (n) => `${+(n * depth * softness).toFixed(3)}px`
+  const layer2 = (d1, b1, d2, b2) => `${neuShadow(D(d1), B(b1), dSh, lSh)}, ${neuShadow(D(d2), B(b2), dShWide, lShWide)}`
+  const inset2 = (d1, b1, d2, b2) => `${neuInset(D(d1), B(b1), dSh, lSh)}, ${neuInset(D(d2), B(b2), dShWide, lShWide)}`
 
-  const raised = layer2('4px', '8px', '9px', '20px')
-  const raisedSm = layer2('2px', '4px', '4px', '10px')
-  const raisedXs = layer2('1px', '2px', '2px', '5px')
-  const sunken = inset2('2px', '4px', '5px', '11px')
-  const sunkenSm = inset2('1px', '2px', '3px', '7px')
+  const raisedLg = layer2(7, 14, 16, 34)   // panel drop shadow
+  const raised = layer2(4, 8, 9, 20)
+  const raisedSm = layer2(2, 4, 4, 10)
+  const raisedXs = layer2(1, 2, 2, 5)
+  const sunken = inset2(2, 4, 5, 11)
+  const sunkenSm = inset2(1, 2, 3, 7)
+  const sunkenTrack = inset2(1, 3, 3, 7)    // slider groove — tighter falloff for a thin channel
+  const pressXs = inset2(1, 2, 2, 4)        // active-press micro inset (step buttons, swatches)
   const focusRing = (c = 'var(--accent)') => `0 0 0 4px color-mix(in oklab, ${c}, transparent 72%)`
   // Directional sheen: a whisper of the same light/dark tilt baked into the fill
   // itself (not just the shadow), so the plastic looks lit, not just outlined.
   const sheen = `linear-gradient(135deg, ${sheenHi}, var(--bg) 35%, var(--bg) 65%, ${sheenLo})`
+
+  // Glossy highlight duo — a whisper of specular white/black baked into pressed or
+  // checked fills so plastic reads as lit, not flat; the color swatch runs a touch
+  // stronger than toggles/checkboxes, both fixed ratios independent of shade/depth.
+  const glossHi = (a = 60) => `inset 0 1px 1px color-mix(in oklab, white, transparent ${a}%)`
+  const glossLo = (a = 80) => `inset 0 -1px 1px color-mix(in oklab, black, transparent ${a}%)`
+  const gloss = (hi = 60, lo = 80) => `${glossHi(hi)}, ${glossLo(lo)}`
+
+  // Fixed neutral icon tones — deliberately hue-independent (a quiet grey mark
+  // reads as inert chrome regardless of the surface's tint); the header disclosure
+  // dot nudges brighter in dark mode to hold contrast, matching how the rest of
+  // the surface's own tone shifts between modes.
+  const iconArrow = '#999'
+  const iconChevron = dark ? '#999' : '#888'
 
   const overrides = `.s-panel {
   --bg: ${shade};
@@ -71,7 +101,7 @@ export default function neu({
   font-family: ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
   font-weight: var(--weight);
   border-radius: calc(var(--r) * 1.4);
-  box-shadow: ${layer2('7px', '14px', '16px', '34px')};
+  box-shadow: ${raisedLg};
   padding: calc(var(--u) * (3 + 2 * var(--spacing)));
   min-width: 27ch;
   max-width: calc(var(--u) * 110);
@@ -86,7 +116,7 @@ export default function neu({
     &::after {
       content: ''; width: calc(var(--u) * 7); height: calc(var(--u) * 7); margin-left: auto; flex-shrink: 0;
       border-radius: 50%; background: ${sheen}; box-shadow: ${raisedSm};
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='%23${dark ? '999' : '888'}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), ${sheen};
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='${enc(iconChevron)}' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), ${sheen};
       background-repeat: no-repeat, no-repeat; background-position: center, 0 0; background-size: 60%, 100%;
       transition: transform .2s, box-shadow .15s;
     }
@@ -132,7 +162,7 @@ export default function neu({
   input[type="number"] { font-variant-numeric: tabular-nums; }
   input.s-scrubbing { box-shadow: ${sunken}, ${focusRing()}; }
   select { cursor: pointer; appearance: none; -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='%23999' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(var(--u) * 2) center; padding-right: calc(var(--u) * 6);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='${enc(iconArrow)}' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(var(--u) * 2) center; padding-right: calc(var(--u) * 6);
     option { background: var(--bg); color: var(--fg); } }
 
   /* ── Number ── */
@@ -141,7 +171,7 @@ export default function neu({
     .s-step { flex-direction: column; gap: calc(var(--u) * 0.5);
       button { background: ${sheen}; border: none; border-radius: calc(var(--r) * 0.5); box-shadow: ${raisedXs}; color: var(--fg-muted); padding: 0 calc(var(--u) * 1.5); font-size: .6em; line-height: 1.4; cursor: pointer; transition: box-shadow .1s, color .1s;
         &:hover { color: var(--fg); }
-        &:active { box-shadow: ${inset2('1px', '2px', '2px', '4px')}; } } }
+        &:active { box-shadow: ${pressXs}; } } }
   }
 
   /* ── Raised buttons ── */
@@ -166,14 +196,14 @@ export default function neu({
       .s-track { width: calc(var(--u) * 12); height: calc(var(--u) * 6.5); border-radius: 999px; background: var(--bg); box-shadow: ${sunkenSm}; position: relative; transition: box-shadow .2s;
         &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5); height: calc(var(--u) * 5); transform: translateY(-50%); border-radius: 50%; background: ${sheen}; box-shadow: ${raisedSm}; transition: left .2s, background .2s, box-shadow .2s; } }
       &:hover .s-track { box-shadow: ${sunkenSm}, 0 0 0 3px color-mix(in oklab, var(--fg), transparent 92%); }
-      &:has(input:checked) .s-track::after { left: calc(100% - var(--u) * 5.75); background: var(--accent); box-shadow: ${raisedSm}, inset 0 1px 1px color-mix(in oklab, white, transparent 60%); }
+      &:has(input:checked) .s-track::after { left: calc(100% - var(--u) * 5.75); background: var(--accent); box-shadow: ${raisedSm}, ${glossHi()}; }
       &:has(input:focus-visible) .s-track { box-shadow: ${sunkenSm}, ${focusRing()}; }
     }
     &.s-checkbox {
       .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--r) * 0.6); background: var(--bg); box-shadow: ${sunkenSm}; transition: box-shadow .15s;
         &::after { content: ''; width: 100%; height: 100%; border-radius: inherit; background: transparent; transition: background .12s, box-shadow .12s; } }
       &:hover .s-track { box-shadow: ${sunkenSm}, 0 0 0 3px color-mix(in oklab, var(--fg), transparent 92%); }
-      &:has(input:checked) .s-track::after { background: var(--accent); box-shadow: inset 0 1px 1px color-mix(in oklab, white, transparent 60%), inset 0 -1px 1px color-mix(in oklab, black, transparent 80%); }
+      &:has(input:checked) .s-track::after { background: var(--accent); box-shadow: ${gloss()}; }
       &:has(input:focus-visible) .s-track { box-shadow: ${sunkenSm}, ${focusRing()}; }
     }
     &.s-toggle {
@@ -191,7 +221,7 @@ export default function neu({
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
     .s-track { height: calc(var(--u) * 5); margin: calc(var(--u) * var(--spacing)) 0; }
     input[type="range"] {
-      width: 100%; height: calc(var(--u) * 2.5); -webkit-appearance: none; appearance: none; background: var(--bg); border-radius: 999px; box-shadow: ${inset2('1px', '3px', '3px', '7px')}; cursor: pointer; transition: box-shadow .15s;
+      width: 100%; height: calc(var(--u) * 2.5); -webkit-appearance: none; appearance: none; background: var(--bg); border-radius: 999px; box-shadow: ${sunkenTrack}; cursor: pointer; transition: box-shadow .15s;
       &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; background: ${sheen}; box-shadow: ${raisedSm}; cursor: grab; transition: box-shadow .12s; }
       &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: 50%; background: ${sheen}; box-shadow: ${raisedSm}; cursor: grab; transition: box-shadow .12s; }
       &:hover::-webkit-slider-thumb { box-shadow: ${raisedSm}, 0 0 0 5px color-mix(in oklab, var(--accent), transparent 85%); }
@@ -208,7 +238,7 @@ export default function neu({
     .s-readout { flex: 0 0 auto; min-width: 7ch; text-align: right; font-size: smaller; color: var(--fg-muted); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; padding-left: var(--pad); cursor: ew-resize;
       &:hover, &.s-scrubbing { color: var(--accent); } }
     .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: var(--u); background: ${sheen}; border-radius: var(--r); box-shadow: ${raisedSm}; padding: 2px 8px; font-size: smaller; white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(var(--u) * 2.5); margin: calc(var(--u) * var(--spacing)) 0; border-radius: 999px; background: var(--bg); box-shadow: ${inset2('1px', '3px', '3px', '7px')}; position: relative;
+    &.s-multiple .s-interval-track { height: calc(var(--u) * 2.5); margin: calc(var(--u) * var(--spacing)) 0; border-radius: 999px; background: var(--bg); box-shadow: ${sunkenTrack}; position: relative;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: color-mix(in oklab, var(--accent), transparent 55%); border-radius: 999px; } }
   }
 
@@ -230,21 +260,21 @@ export default function neu({
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); flex-shrink: 0; border-radius: calc(var(--r) * 0.6); background: var(--bg); box-shadow: ${sunkenSm};
         &::after { content: ''; width: 100%; height: 100%; border-radius: inherit; background: transparent; transition: background .12s, box-shadow .12s; } }
-      label:has(input:checked) .s-track::after { background: var(--accent); box-shadow: inset 0 1px 1px color-mix(in oklab, white, transparent 60%), inset 0 -1px 1px color-mix(in oklab, black, transparent 80%); }
+      label:has(input:checked) .s-track::after { background: var(--accent); box-shadow: ${gloss()}; }
     }
   }
 
   /* ── Color ── */
   .s-color {
     &.s-picker .s-color-input { gap: calc(var(--u) * 2);
-      input[type="color"] { position: static; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: none; border-radius: var(--r); box-shadow: ${raisedXs}, inset 0 1px 1px color-mix(in oklab, white, transparent 55%), inset 0 -1px 1px color-mix(in oklab, black, transparent 78%); cursor: pointer; overflow: hidden;
+      input[type="color"] { position: static; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: none; border-radius: var(--r); box-shadow: ${raisedXs}, ${gloss(55, 78)}; cursor: pointer; overflow: hidden;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r); }
         &:focus-visible { outline: none; box-shadow: ${raisedXs}, ${focusRing()}; } }
       input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 1.5); }
       button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: none; border-radius: calc(var(--r) * 0.7); box-shadow: ${raisedXs}; transition: box-shadow .12s;
         &:hover { box-shadow: ${raisedXs}, 0 0 0 3px color-mix(in oklab, var(--fg), transparent 85%); }
-        &:active { box-shadow: ${inset2('1px', '2px', '2px', '4px')}; }
+        &:active { box-shadow: ${pressXs}; }
         &.s-selected { box-shadow: ${raisedXs}, 0 0 0 2px var(--accent); } } }
   }
 

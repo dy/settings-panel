@@ -128,11 +128,10 @@ export default function lab01({
   // ── Helpers (reference tokens, not raw values) ──
   const fg = (a) => `oklch(from var(--ink) l c h / ${a})`        // primary text @ alpha
   const muteFg = (a) => `oklch(from var(--ink-mute) l c h / ${a})` // muted text @ alpha
-  const textShadow = `0 ${embossOffset} 0 var(--emboss)`
   // Raised surface shorthand — primary button, collapse circle, switch thumb share it
   const surface = `background: var(--surface-bg); box-shadow: var(--surface-shadow);`
   // Gradient-border bevel mixin (background-origin/clip must be border-box)
-  const bevelRing = (grad, w = '1px', blend = overlay) => `
+  const bevelRing = (grad, w = 'var(--bevel-w)', blend = overlay) => `
     border: ${w} solid transparent;
     background: ${grad} border-box border-box;
     -webkit-mask: linear-gradient(black, black) padding-box, linear-gradient(black, black);
@@ -140,7 +139,7 @@ export default function lab01({
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     ${blend}`
-  const bevel = (grad, w = '1px', blend = overlay) => `
+  const bevel = (grad, w = 'var(--bevel-w)', blend = overlay) => `
     content: '';
     position: absolute;
     inset: 0;
@@ -156,17 +155,25 @@ export default function lab01({
   --bg-light: ${bgLight};        /* raised control surface */
   --surface-2: ${surface2};      /* sunken / secondary surface (cancel button, switch track) */
   --accent: ${resolved};
+  --accent-fg: white;            /* text on a solid-accent fill (toggle On) */
+  --panel-glass: ${panelGlass};  /* translucent panel fill, under the glare */
 
   /* Text */
   --ink: ${inkBase};             /* primary text (used with alpha) */
   --ink-mute: ${inkMuteBase};    /* hints / muted text */
   --hint: ${muteFg('.64')};      /* hint text — muted ink @ .64 */
   --emboss: ${embossCol};        /* embossed text-shadow colour */
+  --emboss-offset: ${embossOffset}; /* emboss direction — sunken (dark) vs raised (light) */
+  --text-shadow: 0 var(--emboss-offset) 0 var(--emboss);
+  --text-shadow-secondary: ${(dark || colored) ? '0 -1px 0 hsl(from black h s l / .35)' : 'var(--text-shadow)'};
 
   /* Lines & fields */
   --ring: black;                 /* button outline ring (used with alpha) */
+  --focus-ring: ${ink};          /* focus-visible outline colour */
   --field: ${field};             /* sunken input / checkbox fill */
+  --field-hover: hsl(from black h s l / ${dark ? '.4' : '.1'}); /* input hover/focus fill */
   --divider: ${divider};         /* separators */
+  --footer-hi: ${dark ? 'hsl(from white h s l / .11)' : 'hsl(from white h s l / .2)'}; /* footer-divider top highlight */
 
   /* Raised glass surface (primary button, collapse circle, switch thumb) */
   --surface-bg: ${btnBg};
@@ -176,6 +183,14 @@ export default function lab01({
   --surface-bevel: ${btnBevel};  /* gradient for the ::after bevel */
   --panel-bevel: ${panelBevel};  /* the panel's own gradient border */
   --glare: ${glare};
+  --thumb-shadow: ${dark ? 'var(--surface-shadow), 0 0 0 1px oklch(from var(--bg) 0.04 c h)' : 'var(--surface-shadow)'}; /* switch thumb — dark gets an extra contrast ring */
+  --switch-glow: ${switchGlow};  /* checked-switch ambient glow (dark theme only) */
+  --switch-on-bg: ${dark ? 'hsl(from white h s l / .83)' : 'hsl(from black h s l / .85)'};
+  --seg-bg: ${dark ? 'hsl(from black h s l / .58)' : 'hsl(from black h s l / .1)'}; /* segmented unselected fill */
+  --btn-secondary-fg: ${(dark || colored) ? 'hsl(from white h s l / .9)' : fg('.83')};
+  --track-bevel: ${trackBevel};  /* recessed groove — switch track & card plate */
+  --card-frame: ${cardFrame};    /* recessed plate behind image-card photos */
+  --card-ring: ${cardRing};      /* image-card selection ring */
 
   /* Geometry & type */
   --spacing: ${spacing};
@@ -187,21 +202,52 @@ export default function lab01({
   --track-w: 44px;
   --track-h: 22px;
   --thumb: 16px;
+  --thumb-inset: 3px;
   --fold: 34px;
   --font: 'Geist Mono', 'Geist', system-ui, sans-serif;
   --font-head: 'Geist', system-ui, sans-serif;
+  --blur: 20px;                  /* backdrop-filter glass blur */
+  --noise-opacity: ${dark ? '.1' : '.15'};
+  --fs: 13px;                    /* base type size */
+  --fs-sm: 12px;                 /* slider readout */
+  --fs-head: 20px;               /* panel title */
+  --tracking-head: -0.025em;
+  --icon-size: 16px;             /* chevron glyph */
+  --pad-head: 1.5rem;            /* header padding — fixed, independent of --spacing */
+  --content-pad: 24px;           /* panel-content edge padding */
+  --bevel-w: 1px;                /* panel gradient-border width */
+  --surface-bevel-w: 1.5px;      /* raised-surface rim width (buttons, thumb, fold icon) */
+  --outline-w: 1.5px;            /* focus-ring width */
+  --outline-gap: 2px;            /* focus-ring offset — default */
+  --outline-gap-track: 1.5px;    /* focus-ring offset — boolean track */
+  --outline-gap-card: 6px;       /* focus-ring offset — image-card button */
+  --ctrl-h: 38px;                /* button / segmented-button height */
+  --slider-h: 6px;
+  --slider-thumb: 18px;
+  --checkbox: 18px;
+  --checkbox-fill: 10px;
+  --number-w: 70px;
+  --card-h: 90px;
+  --card-r: 12px;
+  --card-inset: -3px;            /* image-card plate outset */
+  --card-ring-w: 1.5px;
+  --card-label-gap: 16px;
+  --group-gap: 12px;             /* button-group / image-card option gap */
+  --seg-pad: 12px;               /* segmented-button horizontal padding */
+  --btn-pad: 20px;               /* button-group button horizontal padding */
+  --color-gap: 8px;
   /* ═════════════════════════════════════════════════════════════════════════ */
 
   color-scheme: ${dark ? 'dark' : 'light'};
   position: relative;
-  background: var(--glare), ${panelGlass};
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: var(--glare), var(--panel-glass);
+  -webkit-backdrop-filter: blur(var(--blur));
+  backdrop-filter: blur(var(--blur));
   border-radius: var(--r);
   max-width: calc(var(--u) * 111);
   font-family: var(--font);
-  font-weight: 500;
-  font-size: 13px;
+  font-weight: calc(var(--weight) + 100);
+  font-size: var(--fs);
   line-height: calc(var(--u) * 4);
   color: ${fg('.83')};
   padding: 0;
@@ -221,7 +267,7 @@ export default function lab01({
     pointer-events: none;
     z-index: 10;
     mix-blend-mode: screen;
-    opacity: ${dark ? '.1' : '.15'};
+    opacity: var(--noise-opacity);
     filter: ${noiseSvg} grayscale(100%);
   }` : ''}
 
@@ -230,14 +276,14 @@ export default function lab01({
   /* ── Panel header ── */
   > summary, > .s-panel-title {
     font-family: var(--font-head);
-    font-size: 20px;
-    font-weight: normal;
-    letter-spacing: -0.025em;
+    font-size: var(--fs-head);
+    font-weight: var(--weight);
+    letter-spacing: var(--tracking-head);
     color: ${fg('.85')};
-    text-shadow: ${textShadow};
+    text-shadow: var(--text-shadow);
     /* Constant padding (incl. bottom) so the header height never changes on
        toggle — only the content collapses, avoiding a layout jump. */
-    padding: 1.5rem;
+    padding: var(--pad-head);
   }
   > summary::after { display: none; } /* suppress default chevron */
 
@@ -251,7 +297,7 @@ export default function lab01({
     border-radius: 50%;
     ${surface}
     transition: box-shadow .12s, background .12s, transform .12s;
-    &::after { ${bevel('var(--surface-bevel)', '1.5px', ovl)} }
+    &::after { ${bevel('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} }
     /* Chevron glyph: ink shape (::after) over a 1px-offset emboss copy (::before).
        Two masked layers — NOT mask+drop-shadow, which Chromium clips the shadow off. */
     i {
@@ -262,11 +308,11 @@ export default function lab01({
         content: '';
         position: absolute;
         inset: 0;
-        -webkit-mask: ${chevronMask} center / 16px no-repeat;
-        mask: ${chevronMask} center / 16px no-repeat;
+        -webkit-mask: ${chevronMask} center / var(--icon-size) no-repeat;
+        mask: ${chevronMask} center / var(--icon-size) no-repeat;
         transition: transform .2s;
       }
-      &::before { background: var(--emboss); transform: translateY(${embossOffset}); } /* bevel */
+      &::before { background: var(--emboss); transform: translateY(var(--emboss-offset)); } /* bevel */
       &::after { background: ${fg('.9')}; }                                            /* chevron */
     }
   }
@@ -276,10 +322,10 @@ export default function lab01({
   /* On open the chevron flips — but the bevel keeps its screen direction: the
      offset is applied AFTER the rotation, so the light stays on the same side. */
   &[open] .s-fold-icon i::after { transform: rotate(180deg); }
-  &[open] .s-fold-icon i::before { transform: translateY(${embossOffset}) rotate(180deg); }
+  &[open] .s-fold-icon i::before { transform: translateY(var(--emboss-offset)) rotate(180deg); }
 
   .s-panel-content {
-    padding: 0 24px 24px;
+    padding: 0 var(--content-pad) var(--content-pad);
     gap: calc(var(--u) * 8);
   }
 
@@ -293,14 +339,14 @@ export default function lab01({
     line-height: 1.3;
   }
   .s-label {
-    font-size: 13px;
+    font-size: var(--fs);
     color: ${fg('.9')};
-    text-shadow: ${textShadow};
+    text-shadow: var(--text-shadow);
   }
   .s-hint {
-    font-size: 13px;
+    font-size: var(--fs);
     color: var(--hint);
-    text-shadow: ${textShadow};
+    text-shadow: var(--text-shadow);
   }
   .s-input { gap: calc(var(--u) * var(--spacing)); align-items: center; }
 
@@ -311,11 +357,11 @@ export default function lab01({
     border-radius: calc(var(--r) * 0.5);
     color: inherit;
     font-family: inherit;
-    font-size: 13px;
+    font-size: var(--fs);
     &::placeholder { color: hsl(from currentColor h s l / .4); }
-    &:hover { background: hsl(from black h s l / ${dark ? '.4' : '.1'}); }
-    &:focus { background: hsl(from black h s l / ${dark ? '.4' : '.1'}); outline: none; }
-    &:focus-visible { outline: 1.5px solid ${ink}; outline-offset: 2px; }
+    &:hover { background: var(--field-hover); }
+    &:focus { background: var(--field-hover); outline: none; }
+    &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
   }
   input[type="text"], input[type="number"], select {
     padding: var(--pad-i) calc(var(--pad));
@@ -331,20 +377,20 @@ export default function lab01({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 38px;
+    height: var(--ctrl-h);
     border-radius: calc(var(--r) * 0.5);
     font-family: inherit;
-    font-size: 13px;
+    font-size: var(--fs);
     cursor: pointer;
     transition: translate .1s;
     border: none;
     color: ${fg('.83')};
-    text-shadow: ${textShadow};
+    text-shadow: var(--text-shadow);
 
     /* kill the base theme's filter:brightness hover — lab01 uses its own bg hover */
     &:hover, &:active { filter: none; }
     &:active { translate: 0 1px; }
-    &:focus-visible { outline: 1.5px solid ${ink}; outline-offset: 2px; transition: none; }
+    &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); transition: none; }
   }
 
   /* ── Slider ── */
@@ -354,11 +400,11 @@ export default function lab01({
       border-radius: calc(var(--r) * 0.5);
       appearance: none;
       -webkit-appearance: none;
-      height: 6px;
-      &:focus-visible { outline: 1.5px solid ${ink}; outline-offset: 2px; }
+      height: var(--slider-h);
+      &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
       &::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 18px; height: 18px;
+        width: var(--slider-thumb); height: var(--slider-thumb);
         border-radius: 50%;
         ${surface}
         cursor: pointer;
@@ -366,10 +412,10 @@ export default function lab01({
         transition: background 120ms, box-shadow 120ms, transform 120ms;
       }
       &::-moz-range-thumb {
-        width: 18px; height: 18px;
+        width: var(--slider-thumb); height: var(--slider-thumb);
         border-radius: 50%;
         background: var(--bg-light);
-        border: 1px solid hsl(from ${ink} h s l / .15);
+        border: 1px solid hsl(from var(--focus-ring) h s l / .15);
         cursor: pointer;
         transition: background 120ms, transform 120ms;
       }
@@ -377,7 +423,7 @@ export default function lab01({
       &:active::-webkit-slider-thumb, &.s-scrubbing::-webkit-slider-thumb { box-shadow: var(--surface-active); transform: scale(0.96); }
       &:active::-moz-range-thumb, &.s-scrubbing::-moz-range-thumb { transform: scale(0.96); }
     }
-    .s-readout { color: inherit; font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+    .s-readout { color: inherit; font-size: var(--fs-sm); opacity: .7; font-variant-numeric: tabular-nums; }
     .s-track { height: auto; }
   }
 
@@ -388,26 +434,26 @@ export default function lab01({
     .s-label-group { flex: 1; width: auto; max-width: none; }
     .s-input { flex: 0 0 auto; cursor: pointer; align-self: center; }
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    &:has(input:focus-visible) .s-track { outline: 1.5px solid ${ink}; outline-offset: 1.5px; transition: none; }
+    &:has(input:focus-visible) .s-track { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap-track); transition: none; }
 
     &.s-switch {
       /* 44×22 recessed track, 16px glass thumb centred (3px inset) */
       .s-track {
         width: var(--track-w); height: var(--track-h);
-        border: 0; /* reset base switch border so the thumb's 3px inset is from the outer edge */
+        border: 0; /* reset base switch border so the thumb's inset is from the outer edge */
         border-radius: 50em;
         position: relative;
         cursor: pointer;
         /* recess fill shares the secondary surface so track == cancel button */
         background: var(--surface-2);
-        box-shadow: ${trackBevel};
+        box-shadow: var(--track-bevel);
         transition: background .2s, box-shadow .2s;
 
         /* Thumb: fill (::before) + shared gradient bevel ring (::after), concentric. */
         &::before, &::after {
           content: '';
           position: absolute;
-          left: 3px; top: 3px;
+          left: var(--thumb-inset); top: var(--thumb-inset);
           margin: 0;
           width: var(--thumb); height: var(--thumb);
           border-radius: 50%;
@@ -416,15 +462,15 @@ export default function lab01({
         }
         /* thumb fill = shared surface, plus (dark theme) an extra dark border so the
            dark thumb reads against the white on-state track */
-        &::before { ${surface}${dark ? ' box-shadow: var(--surface-shadow), 0 0 0 1px oklch(from var(--bg) 0.04 c h);' : ''} }
-        &::after { pointer-events: none; ${bevelRing('var(--surface-bevel)', '1.5px', ovl)} }
+        &::before { background: var(--surface-bg); box-shadow: var(--thumb-shadow); }
+        &::after { pointer-events: none; ${bevelRing('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} }
         &:hover::before { background: var(--surface-bg-hover); } /* same hover as buttons */
       }
       &:has(input:checked) .s-track {
-        background: ${dark ? 'hsl(from white h s l / .83)' : 'hsl(from black h s l / .85)'};
-        box-shadow: ${switchGlow};
-        &::before { transform: translateX(calc(var(--track-w) - var(--thumb) - 6px)); }
-        &::after { transform: translateX(calc(var(--track-w) - var(--thumb) - 6px)); }
+        background: var(--switch-on-bg);
+        box-shadow: var(--switch-glow);
+        &::before { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); }
+        &::after { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); }
       }
     }
 
@@ -445,17 +491,17 @@ export default function lab01({
           opacity: 0;
           transition: opacity 140ms;
         }
-        &::after { content: 'Off'; position: relative; transition: color 140ms; font-size: 13px; }
+        &::after { content: 'Off'; position: relative; transition: color 140ms; font-size: var(--fs); }
       }
       &:has(input:checked) .s-track {
         &::before { opacity: 1; }
-        &::after { content: 'On'; color: white; }
+        &::after { content: 'On'; color: var(--accent-fg); }
       }
     }
 
     &.s-checkbox {
       .s-track {
-        width: 18px; height: 18px;
+        width: var(--checkbox); height: var(--checkbox);
         border-radius: calc(var(--r) * 0.3);
         background: var(--field);
         position: relative;
@@ -463,7 +509,7 @@ export default function lab01({
         display: flex; align-items: center; justify-content: center;
         &::after {
           content: '';
-          width: 10px; height: 10px;
+          width: var(--checkbox-fill); height: var(--checkbox-fill);
           border-radius: calc(var(--r) * 0.2);
           background: transparent;
           transition: background 140ms;
@@ -483,17 +529,17 @@ export default function lab01({
     &.s-segmented button {
       background: transparent;
       border-radius: calc(var(--r) * 0.5);
-      padding: 0 12px;
+      padding: 0 var(--seg-pad);
       color: inherit;
-      font-size: 13px;
-      height: 38px;
+      font-size: var(--fs);
+      height: var(--ctrl-h);
       &::after {
         content: '';
         position: absolute;
         z-index: -1;
         inset: 0;
         border-radius: inherit;
-        background: ${dark ? 'hsl(from black h s l / .58)' : 'hsl(from black h s l / .1)'};
+        background: var(--seg-bg);
       }
       &.s-selected {
         ${surface}
@@ -508,14 +554,14 @@ export default function lab01({
       flex-direction: column;
       align-items: stretch;
       margin-bottom: calc(var(--u) * 3);
-      .s-label-group { flex: none; width: auto; max-width: none; margin-bottom: 16px; }
-      .s-input { gap: 12px; }
+      .s-label-group { flex: none; width: auto; max-width: none; margin-bottom: var(--card-label-gap); }
+      .s-input { gap: var(--group-gap); }
       button {
         flex: 1;
-        height: 90px;
+        height: var(--card-h);
         padding: 0;
         position: relative;
-        border-radius: 12px;
+        border-radius: var(--card-r);
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -524,15 +570,15 @@ export default function lab01({
         &::before {                 /* recessed plate behind the photo */
           content: '';
           position: absolute;
-          inset: -3px;
+          inset: var(--card-inset);
           z-index: -1;
-          border-radius: 15px;
-          background: ${cardFrame};
-          box-shadow: ${trackBevel};
+          border-radius: calc(var(--card-r) - var(--card-inset));
+          background: var(--card-frame);
+          box-shadow: var(--track-bevel);
           transition: box-shadow .14s;
         }
-        &:focus-visible { outline: 1.5px solid ${ink}; outline-offset: 6px; }
-        &.s-selected::before { box-shadow: ${trackBevel}, 0 0 0 1.5px ${cardRing}; }
+        &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap-card); }
+        &.s-selected::before { box-shadow: var(--track-bevel), 0 0 0 var(--card-ring-w) var(--card-ring); }
       }
     }
 
@@ -551,32 +597,32 @@ export default function lab01({
 
   /* ── Color ── */
   .s-color.s-picker .s-color-input {
-    gap: 8px;
+    gap: var(--color-gap);
     input[type="color"] { position: static; }
     input[type="text"] { flex: 1; min-width: 0; }
   }
 
   /* ── Button group ── */
   .s-button {
-    .s-input { flex: 1; gap: 12px; }
+    .s-input { flex: 1; gap: var(--group-gap); }
     button {
       flex: 1;
-      padding: 0 20px;
+      padding: 0 var(--btn-pad);
       ${surface}
       color: ${fg('.83')};
-      text-shadow: ${textShadow};
+      text-shadow: var(--text-shadow);
       transition: background .12s, box-shadow .12s, translate .1s;
       &:hover { background: var(--surface-bg-hover); }
       &:active { box-shadow: var(--surface-active); }
-      &:not(.s-secondary)::after { ${bevel('var(--surface-bevel)', '1.5px', ovl)} } /* bevel rim */
+      &:not(.s-secondary)::after { ${bevel('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} } /* bevel rim */
     }
     &.s-secondary button, button.s-secondary {
       /* Secondary fill = --surface-2. White font on dark/colored fills (emboss on TOP,
          engraved), dark font on a light (gray) fill. No border/shadow. */
       background: var(--surface-2);
       box-shadow: none;
-      color: ${(dark || colored) ? 'hsl(from white h s l / .9)' : fg('.83')};
-      text-shadow: ${(dark || colored) ? '0 -1px 0 hsl(from black h s l / .35)' : textShadow};
+      color: var(--btn-secondary-fg);
+      text-shadow: var(--text-shadow-secondary);
       &::after { display: none; }
       /* darken the surface, keep its hue & chroma (a black overlay would desaturate) */
       &:hover { background: oklch(from var(--surface-2) calc(l - 0.04) c h); }
@@ -586,7 +632,7 @@ export default function lab01({
 
   /* ── Number ── */
   .s-number {
-    input[type="number"] { width: 70px; }
+    input[type="number"] { width: var(--number-w); }
     .s-step { display: none; }
   }
 
@@ -596,8 +642,8 @@ export default function lab01({
   /* ── Folder ── */
   .s-folder {
     > summary {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: var(--fs);
+      font-weight: calc(var(--weight) + 100);
       color: ${fg('.83')};
       padding: calc(var(--u) * var(--spacing) * 2) 0;
       opacity: 1;
@@ -608,7 +654,7 @@ export default function lab01({
   /* ── Footer separator (trailing action row) ── */
   .s-panel-content > .s-button:last-child {
     position: relative;
-    padding-top: 24px;
+    padding-top: var(--content-pad);
     &::before, &::after {
       content: '';
       position: absolute;
@@ -616,7 +662,7 @@ export default function lab01({
       height: 1px;
     }
     &::before { top: 0; background: var(--divider); }
-    &::after { top: 1px; background: ${dark ? 'hsl(from white h s l / .11)' : 'hsl(from white h s l / .2)'}; mix-blend-mode: overlay; }
+    &::after { top: 1px; background: var(--footer-hi); mix-blend-mode: overlay; }
   }
 }`
 

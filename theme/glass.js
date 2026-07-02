@@ -10,11 +10,16 @@
  * and top-lit sheen. Airy, cool, premium — distinct from skeu's warm foam
  * relief and neu's paired soft-blob shadows.
  *
+ * Axes: shade/accent (hue + light/dark via resolveRoles), spacing/weight/
+ * roundness/size (shared scale axes), blur (backdrop frost radius), depth
+ * (specular sheen + chromatic dispersion intensity — the glass's optical
+ * "thickness"), tint (backdrop tint density — 0 clear, 1 milky frost).
+ *
  * glass(axes?) → CSS string
  */
 
 import baseCSS from './base.js'
-import { resolveRoles } from './color.js'
+import { resolveRoles, clamp } from './color.js'
 import { bevel } from './mixins.js'
 
 export default function glass({
@@ -25,21 +30,46 @@ export default function glass({
   roundness = 1.4,
   blur = 18,
   size = 1,
+  depth = 1,
+  tint = 1,
 } = {}) {
-  const { dark, fg, fgMuted, accent: acc } = resolveRoles(shade, accent)
+  const { dark, fg, fgMuted, accent: acc, onAccent } = resolveRoles(shade, accent)
 
   // Translucent surface + light-stroke helpers, all derived from the shade.
   const sheet = (a) => `hsl(from var(--bg) h s l / ${a})`
   const lite = (a) => `hsl(from white h s l / ${a})`
   const ink = (a) => `hsl(from black h s l / ${a})`
+  const op = (a) => clamp(a, 0, 1)   // guard depth/tint multipliers from blowing past a valid alpha
+
   const fieldFill = dark ? lite(0.05) : lite(0.3)
   const fieldHover = dark ? lite(0.09) : lite(0.45)
   const stroke = dark ? lite(0.14) : lite(0.6)
   const ctrlBevel = `linear-gradient(160deg, ${lite(dark ? 0.4 : 0.75)}, ${lite(0.03)} 45%, ${ink(dark ? 0.28 : 0.08)})`
+  // Dot the switch thumb / slider selects fall back to when not the lensed thumb.
+  const thumbBg = dark ? lite(0.85) : '#fff'
+  // The select arrow is a raw (non-mask) SVG stroke, so its color is a real,
+  // overridable token — encoded into the data-URI like tweakpane's icons.
+  const chevronFg = dark ? '#ccc' : '#555'
+
+  // Backdrop tint: the milky density of the glass itself, scaled by `tint`
+  // (0 clear → 1 current frost). Saturate is the fixed optical constant that
+  // keeps whatever shows through the blur vivid rather than washed out.
+  const tintAlpha = op((dark ? 0.45 : 0.4) * tint)
+  const saturate = 1.7
+
   // Dispersion: real glass edges split light into a faint red/blue fringe
   // (chromatic aberration) — a hairline colour offset on opposing sides of the
   // rim, at very low alpha so it reads on close inspection, never as a tint.
-  const dispersion = `inset 1px 0 0 rgba(255,90,90,.12), inset -1px 0 0 rgba(90,150,255,.12), inset 0 1px 0 rgba(255,90,90,.08), inset 0 -1px 0 rgba(90,150,255,.08)`
+  // Scales with `depth` — the thicker the glass reads, the more it disperses.
+  const dispersionWarm = '255,90,90', dispersionCool = '90,150,255'
+  const dispersionHard = op(0.12 * depth), dispersionSoft = op(0.08 * depth)
+  const dispersion = `inset 1px 0 0 rgba(${dispersionWarm},${dispersionHard}), inset -1px 0 0 rgba(${dispersionCool},${dispersionHard}), inset 0 1px 0 rgba(${dispersionWarm},${dispersionSoft}), inset 0 -1px 0 rgba(${dispersionCool},${dispersionSoft})`
+  // Specular highlight: a soft diagonal sheen sweeping the upper glass plus a
+  // tighter hot-spot near the top-left corner — like a curved pane catching a
+  // single overhead light. Scales with `depth` alongside the dispersion fringe
+  // — both are the same physical property (how strongly the glass bends and
+  // catches light), just expressed as rim-color vs. surface-sheen.
+  const specular = `radial-gradient(60% 40% at 22% 0%, ${lite(op((dark ? 0.22 : 0.65) * depth))} 0%, transparent 70%), linear-gradient(120deg, ${lite(op((dark ? 0.12 : 0.55) * depth))} 0%, ${lite(op(0.03 * depth))} 22%, transparent 46%, transparent 100%)`
   // Etched groove for fields — carved *into* the glass: dark top inner edge,
   // light bottom inner edge (inverse of a raised bevel).
   const etchShadow = `inset 0 1px 1px ${ink(dark ? 0.35 : 0.14)}, inset 0 -1px 0 ${lite(dark ? 0.1 : 0.7)}`
@@ -47,10 +77,13 @@ export default function glass({
   // Floating-control shadow: contact shadow below + rim light above, for parts
   // that sit proud of the glass (thumbs, switch knob, buttons).
   const floatShadow = `0 1px 1px ${ink(dark ? 0.5 : 0.2)}, 0 3px 8px -2px ${ink(dark ? 0.55 : 0.28)}, inset 0 1px 0 ${lite(0.8)}`
+  // Ambient contact shadow — the pane floating over the scene.
+  const contactShadow = `0 24px 60px -16px ${ink(dark ? 0.55 : 0.35)}, 0 6px 16px -8px ${ink(dark ? 0.4 : 0.22)}`
 
   const overrides = `.s-panel {
   --bg: ${shade};
   --accent: ${acc};
+  --on-accent: ${onAccent};
   --fg: ${fg};
   --fg-muted: ${fgMuted};
   --field: ${fieldFill};
@@ -61,6 +94,17 @@ export default function glass({
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 3);
   --u: ${4 * size}px;
+  --blur: ${blur}px;
+  --saturate: ${saturate};
+  --depth: ${depth};
+  --tint: ${tintAlpha};
+  --ctrl-bevel: ${ctrlBevel};
+  --etch: ${etchShadow};
+  --etch-hover: ${etchShadowHover};
+  --float: ${floatShadow};
+  --thumb-bg: ${thumbBg};
+  --dispersion: ${dispersion};
+  --specular: ${specular};
   color-scheme: ${dark ? 'dark' : 'light'};
 
   position: relative;
@@ -72,9 +116,7 @@ export default function glass({
   /* Ambient contact shadow only — the pane floating over the scene. The glass
      material itself (tint, blur, refraction, rim) lives on ::after so the
      lens filter can bend *it* without ever warping the real content on top. */
-  box-shadow:
-    0 24px 60px -16px ${ink(dark ? 0.55 : 0.35)},
-    0 6px 16px -8px ${ink(dark ? 0.4 : 0.22)};
+  box-shadow: ${contactShadow};
   padding: calc(var(--u) * (3 + 2 * var(--spacing)));
   min-width: 28ch;
   max-width: calc(var(--u) * 112);
@@ -86,11 +128,11 @@ export default function glass({
     /* SVG filter regions paint past the border box (border-radius doesn't clip
        filter output) — clip-path pins the displaced backdrop inside the glass */
     clip-path: inset(0 round var(--r));
-    background: ${sheet(dark ? 0.45 : 0.4)};
+    background: hsl(from var(--bg) h s l / var(--tint));
     /* Fallback for browsers without SVG reference-filter support in
        backdrop-filter: plain frosted glass (blur + saturate). */
-    -webkit-backdrop-filter: blur(${blur}px) saturate(1.7);
-    backdrop-filter: blur(${blur}px) saturate(1.7);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--saturate));
+    backdrop-filter: blur(var(--blur)) saturate(var(--saturate));
     /* Spec-correct override: an SVG filter (feDisplacementMap over a radial/
        edge gradient map — flat at the centre, lensing at the rim) referenced
        directly by backdrop-filter, bundling its own blur+saturate so nothing
@@ -113,19 +155,14 @@ export default function glass({
     box-shadow:
       inset 0 1px 1px ${lite(dark ? 0.12 : 0.5)},
       inset 0 -1px 1px ${ink(dark ? 0.25 : 0.05)},
-      ${dispersion};
+      var(--dispersion);
   }
-  /* specular highlight: a soft diagonal sheen sweeping the upper glass plus a
-     tighter hot-spot near the top-left corner — like a curved pane catching
-     a single overhead light. A surface reflection, not a backdrop refraction,
-     so it stays put (unwarped) above content while the glass bends beneath. */
+  /* specular highlight: a surface reflection, not a backdrop refraction, so it
+     stays put (unwarped) above content while the glass bends beneath. */
   &::before {
     content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
-    background:
-      radial-gradient(60% 40% at 22% 0%, ${lite(dark ? 0.22 : 0.65)} 0%, transparent 70%),
-      linear-gradient(120deg, ${lite(dark ? 0.12 : 0.55)} 0%, ${lite(0.03)} 22%, transparent 46%, transparent 100%);
+    background: var(--specular);
   }
-  --ctrl-bevel: ${ctrlBevel};
 
   /* ── Header ── */
   > summary, > .s-panel-title { font-weight: 600; font-size: larger; letter-spacing: -0.01em; text-shadow: 0 1px 2px ${sheet(0.4)}; }
@@ -162,12 +199,10 @@ export default function glass({
     &:hover { background: var(--field-hover); box-shadow: var(--etch-hover); }
     &:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--etch), 0 0 0 2px color-mix(in oklab, var(--accent), transparent 65%); }
   }
-  --etch: ${etchShadow};
-  --etch-hover: ${etchShadowHover};
   input[type="text"], input[type="number"], select { height: calc(1lh + var(--pad) * 2); }
   select { cursor: pointer; appearance: none; -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='%23${dark ? 'ccc' : '555'}' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(var(--u) * 2) center; padding-right: calc(var(--u) * 6);
-    option { background: ${dark ? '#1c2030' : '#fff'}; color: var(--fg); } }
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3,4 5,6.5 7,4' fill='none' stroke='${encodeURIComponent(chevronFg)}' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(var(--u) * 2) center; padding-right: calc(var(--u) * 6);
+    option { background: var(--bg); color: var(--fg); } }
   .s-select.s-dropdown select { flex: 1; }
 
   /* ── Number ── */
@@ -181,7 +216,7 @@ export default function glass({
   button { font: inherit; cursor: pointer; }
   .s-button {
     .s-input { gap: calc(var(--u) * 2); }
-    button { position: relative; width: 100%; background: color-mix(in oklab, var(--accent), transparent 12%); color: #fff; font-weight: 600; border: none; border-radius: calc(var(--r) * 0.55);
+    button { position: relative; width: 100%; background: color-mix(in oklab, var(--accent), transparent 12%); color: var(--on-accent); font-weight: 600; border: none; border-radius: calc(var(--r) * 0.55);
       padding: calc(var(--u) * (1 + var(--spacing))) calc(var(--pad) * 2);
       box-shadow: 0 1px 1px ${lite(0.5)} inset, 0 3px 10px -3px color-mix(in oklab, var(--accent), transparent 25%), 0 8px 20px -8px ${ink(dark ? 0.6 : 0.35)};
       transition: background .14s, transform .08s, box-shadow .14s;
@@ -191,7 +226,7 @@ export default function glass({
       &:hover { background: var(--accent); }
       &:active { transform: scale(0.96); box-shadow: 0 1px 1px ${ink(0.15)} inset, 0 2px 6px -3px color-mix(in oklab, var(--accent), transparent 30%); }
       &:disabled { opacity: .5; box-shadow: none; cursor: not-allowed; &::before { display: none; } }
-      &:focus-visible { outline: 2px solid #fff; outline-offset: 2px; } }
+      &:focus-visible { outline: 2px solid var(--on-accent); outline-offset: 2px; } }
     &.s-secondary button, button.s-secondary { background: var(--field); color: var(--fg); border: 1px solid var(--stroke); box-shadow: var(--etch);
       &::after { display: none; } &::before { background: linear-gradient(${lite(0.18)}, transparent); }
       &:hover { background: var(--field-hover); }
@@ -205,7 +240,7 @@ export default function glass({
     .s-input { cursor: pointer; }
     &.s-switch {
       .s-track { width: calc(var(--u) * 12); height: calc(var(--u) * 6.5); border-radius: 999px; background: var(--field); border: 1px solid var(--stroke); box-shadow: var(--etch); position: relative; transition: background .2s, box-shadow .2s;
-        &::after { content: ''; position: absolute; top: 50%; left: 2px; width: calc(var(--u) * 5); height: calc(var(--u) * 5); transform: translateY(-50%); border-radius: 50%; background: ${dark ? lite(0.85) : '#fff'}; box-shadow: var(--float); transition: left .2s cubic-bezier(.34,1.4,.64,1); } }
+        &::after { content: ''; position: absolute; top: 50%; left: 2px; width: calc(var(--u) * 5); height: calc(var(--u) * 5); transform: translateY(-50%); border-radius: 50%; background: var(--thumb-bg); box-shadow: var(--float); transition: left .2s cubic-bezier(.34,1.4,.64,1); } }
       &:has(input:checked) .s-track { background: var(--accent); border-color: transparent; box-shadow: inset 0 1px 2px ${ink(0.3)}; &::after { left: calc(100% - var(--u) * 5 - 2px); } }
       &:has(input:hover) .s-track { background: var(--field-hover); }
       &:has(input:checked:hover) .s-track { background: var(--accent); }
@@ -215,18 +250,17 @@ export default function glass({
       .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--r) * 0.35); background: var(--field); border: 1px solid var(--stroke); box-shadow: var(--etch); transition: background .14s, box-shadow .14s;
         &::after { content: ''; width: 55%; height: 55%; border-radius: calc(var(--r) * 0.2); background: transparent; transition: background .12s; } }
       &:has(input:hover) .s-track { background: var(--field-hover); }
-      &:has(input:checked) .s-track { background: var(--accent); border-color: transparent; box-shadow: inset 0 1px 2px ${ink(0.3)}; &::after { background: #fff; } }
+      &:has(input:checked) .s-track { background: var(--accent); border-color: transparent; box-shadow: inset 0 1px 2px ${ink(0.3)}; &::after { background: var(--on-accent); } }
       &:has(input:focus-visible) .s-track { box-shadow: var(--etch), 0 0 0 2px color-mix(in oklab, var(--accent), transparent 50%); }
     }
     &.s-toggle {
       .s-track { padding: var(--pad) calc(var(--pad) * 2); border-radius: calc(var(--r) * 0.55); background: var(--field); border: 1px solid var(--stroke); box-shadow: var(--etch); height: calc(1lh + var(--pad) * 2); display: flex; align-items: center; justify-content: center; font-size: smaller; color: var(--fg-muted); cursor: pointer; transition: background .14s, box-shadow .14s, color .14s;
         &::after { content: 'Off'; } }
       &:has(input:hover) .s-track { background: var(--field-hover); }
-      &:has(input:checked) .s-track { background: color-mix(in oklab, var(--accent), transparent 15%); border-color: transparent; color: #fff; box-shadow: inset 0 1px 2px ${ink(0.25)}; &::after { content: 'On'; } }
+      &:has(input:checked) .s-track { background: color-mix(in oklab, var(--accent), transparent 15%); border-color: transparent; color: var(--on-accent); box-shadow: inset 0 1px 2px ${ink(0.25)}; &::after { content: 'On'; } }
       &:has(input:focus-visible) .s-track { box-shadow: var(--etch), 0 0 0 2px color-mix(in oklab, var(--accent), transparent 50%); }
     }
   }
-  --float: ${floatShadow};
 
   /* ── Slider — etched track, thumb is a small glass lens (radial sheen + rim) ── */
   .s-slider {
@@ -265,7 +299,7 @@ export default function glass({
       button { flex: 1; position: relative; background: transparent; border: none; border-radius: calc(var(--r) * 0.45); color: var(--fg-muted); padding: calc(var(--pad) - 2px); transition: background .14s, color .14s, box-shadow .14s, transform .1s;
         &:hover { color: var(--fg); }
         &:active { transform: scale(0.96); }
-        &.s-selected { background: var(--accent); color: #fff; box-shadow: 0 1px 1px ${lite(0.45)} inset, 0 2px 6px -2px ${ink(dark ? 0.5 : 0.3)}; } }
+        &.s-selected { background: var(--accent); color: var(--on-accent); box-shadow: 0 1px 1px ${lite(0.45)} inset, 0 2px 6px -2px ${ink(dark ? 0.5 : 0.3)}; } }
     }
     &.s-radio, &.s-checkboxes {
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing) * 1.5); }
@@ -276,7 +310,7 @@ export default function glass({
       .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); flex-shrink: 0; border-radius: calc(var(--r) * 0.35); background: var(--field); border: 1px solid var(--stroke); box-shadow: var(--etch); transition: background .14s;
         &::after { content: ''; width: 55%; height: 55%; border-radius: calc(var(--r) * 0.2); background: transparent; } }
       label:has(input:hover) .s-track { background: var(--field-hover); }
-      label:has(input:checked) .s-track { background: var(--accent); border-color: transparent; box-shadow: inset 0 1px 2px ${ink(0.3)}; &::after { background: #fff; } }
+      label:has(input:checked) .s-track { background: var(--accent); border-color: transparent; box-shadow: inset 0 1px 2px ${ink(0.3)}; &::after { background: var(--on-accent); } }
     }
   }
 
@@ -290,7 +324,7 @@ export default function glass({
       button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: 1px solid var(--stroke); box-shadow: 0 1px 1px ${lite(0.4)} inset, 0 2px 4px -2px ${ink(dark ? 0.45 : 0.25)}; border-radius: calc(var(--r) * 0.45); transition: transform .1s;
         &:hover { transform: translateY(-1px); }
         &:active { transform: scale(0.96); }
-        &.s-selected { outline: 2px solid #fff; outline-offset: 2px; } } }
+        &.s-selected { outline: 2px solid var(--on-accent); outline-offset: 2px; } } }
   }
 
   /* ── Text / Textarea ── */

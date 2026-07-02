@@ -1,6 +1,26 @@
 /**
  * Control-panel theme — freeman-lab/control-panel reproduction
  *
+ * Signatures: a flat monospace (Hack) panel — every corner square, every
+ * control a hard-edged row, values landing at native's own numbers (a
+ * 35px readout/swatch/switch strip, a 10px slider thumb, an 18px checkbox
+ * box). shade sets bg + light/dark via OKLCH; accent resolves an explicit
+ * color or falls back to a lightness shift off shade.
+ *
+ * Every size below is a multiple of --u (the 5px grid unit, already used
+ * for spacing) or one of two named leftover constants (--fs the fixed
+ * 11px type size, --line the 1px focus-ring/hairline weight) — so the
+ * whole control layer scales together off one grid rather than scattered
+ * literals. Colors were already tokenized (--bg/--bg2/--fg/--text/--dim/
+ * --accent, derived via parseColor below); this pass finishes the size
+ * side the same way. The inline SVG select-arrow can't read CSS custom
+ * properties, so it takes dimColor's raw string via encodeURIComponent —
+ * same pattern as tweakpane/uil.
+ *
+ * Axes: shade, accent, spacing, weight, roundness. Like swiss, this
+ * replica is deliberately always square — roundness is accepted for axis-
+ * signature parity but (as in the original) never drives a radius.
+ *
  * base scaffold + control-panel visual layer.
  * controlPanel(axes?) → CSS string
  */
@@ -18,8 +38,8 @@ export default function controlPanel({
   const { L, C, H } = parseColor(shade)
   const dark = L < .6
   const resolved = resolveAccent(accent, shade) || `oklch(${clamp(dark ? L + 0.22 : L - 0.22, 0, 1).toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
-  const gap = `calc(var(--u) * var(--spacing))`
 
+  // ── Derived tokens (colors) ──
   const bgStep = 0.08
   const bg2L = clamp(dark ? Math.max(L + bgStep, 0.15) : L - bgStep, 0, 1)
   const bg2hL = clamp(bg2L + 0.02, 0, 1)
@@ -45,12 +65,26 @@ export default function controlPanel({
   --roundness: ${roundness};
   --r: 0;
   --hover: brightness(1.08);
+
+  /* ── Derived tokens (size) — every control dimension is one of these,
+     itself a multiple of --u, so overriding --u rescales the whole panel.
+     --fs / --line are the two fixed leftovers (native's type size and
+     hairline weight) that aren't unit multiples. ── */
+  --fs: 11px;
+  --line: 1px;
+  --gap: calc(var(--u) * var(--spacing));
+  --lh-tight: calc(var(--u) * 3);   /* 15px — input/textarea line-height */
+  --thumb: calc(var(--u) * 2);      /* 10px — slider thumb / checkbox+switch dot */
+  --box: calc(var(--u) * 3.6);      /* 18px — checkbox square / switch track height */
+  --wide: calc(var(--u) * 7);       /* 35px — readout / color-swatch / switch width */
+  --pad-sm: calc(var(--u) * .8);    /* 4px  — readout pad, select-arrow offset, checkbox label gap */
+  --pad-xs: calc(var(--u) * .4);    /* 2px  — textarea v-pad, scrollbar-thumb border */
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background-color: var(--bg);
   font-family: 'Hack', monospace;
-  font-size: 11px;
-  line-height: 20px;
+  font-size: var(--fs);
+  line-height: var(--lh);
   color: var(--text);
   border-radius: 0;
   padding: calc(var(--u) * (2 + 1 * var(--spacing)));
@@ -60,26 +94,26 @@ export default function controlPanel({
   /* ── Panel header ── */
   > summary, > .s-panel-title {
     display: block;
-    font-size: 11px;
+    font-size: var(--fs);
     font-weight: ${weight};
     color: var(--dim);
     text-transform: uppercase;
     text-align: center;
-    height: 20px;
-    line-height: 20px;
+    height: var(--lh);
+    line-height: var(--lh);
     padding: 0;
     &::after { display: none; }
     cursor: pointer;
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+    &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
 
-  .s-panel-content { gap: ${gap}; padding: 0; }
+  .s-panel-content { gap: var(--gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
     padding-top: calc(var(--u) * var(--spacing));
   }
 
   /* ── Layout ── */
-  .s-control { gap: ${gap}; padding: 0; position: relative; align-items: center; }
+  .s-control { gap: var(--gap); padding: 0; position: relative; align-items: center; }
   .s-label-group {
     min-width: 0;
     width: 36%;
@@ -89,8 +123,8 @@ export default function controlPanel({
     line-height: 1.1;
     height: auto;
   }
-  .s-label { font-size: 11px; overflow-wrap: break-word; }
-  .s-input { gap: ${gap}; align-items: center; }
+  .s-label { font-size: var(--fs); overflow-wrap: break-word; }
+  .s-input { gap: var(--gap); align-items: center; }
 
   /* ── Interactive elements ── */
   input[type="text"], input[type="number"], textarea, select {
@@ -100,28 +134,28 @@ export default function controlPanel({
     outline: none;
     color: var(--dim);
     font-family: inherit;
-    font-size: 11px;
+    font-size: var(--fs);
     transition: background-color 120ms;
     &::placeholder { color: var(--fg); }
     &:hover { background-color: var(--bg2h); }
     &:focus { background-color: var(--bg2h); outline: none; }
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+    &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
   input[type="text"], input[type="number"], select {
-    padding: 0 5px;
-    height: 20px;
-    line-height: 15px;
+    padding: 0 var(--u);
+    height: var(--lh);
+    line-height: var(--lh-tight);
   }
   input[type="color"] {
     -webkit-appearance: none;
     appearance: none;
     flex: none;
-    width: 35px;
-    height: 20px;
+    width: var(--wide);
+    height: var(--lh);
     padding: 0;
     border: none;
     cursor: pointer;
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+    &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
     &::-webkit-color-swatch-wrapper { padding: 0; }
     &::-webkit-color-swatch { border: none; border-radius: 0; }
     &::-moz-color-swatch { border: none; border-radius: 0; }
@@ -137,18 +171,18 @@ export default function controlPanel({
       height: auto;
       min-height: calc(var(--lh) * 3);
       max-height: 50vh;
-      padding: 2px 5px;
-      line-height: 15px;
+      padding: var(--pad-xs) var(--u);
+      line-height: var(--lh-tight);
       field-sizing: content;
       white-space: nowrap;
       overflow: auto;
       resize: both;
-      &::-webkit-scrollbar { width: 8px; height: 8px; }
+      &::-webkit-scrollbar { width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6); }
       &::-webkit-scrollbar-track { background: var(--bg2); }
       &::-webkit-scrollbar-thumb {
         background: var(--accent);
         border-radius: 0;
-        border: 2px solid var(--bg2);
+        border: var(--pad-xs) solid var(--bg2);
       }
       &::-webkit-scrollbar-corner { background: var(--bg2); }
     }
@@ -159,13 +193,13 @@ export default function controlPanel({
     border-radius: 0;
     color: var(--dim);
     font-family: inherit;
-    font-size: 11px;
-    height: 20px;
+    font-size: var(--fs);
+    height: var(--lh);
     cursor: pointer;
     transition: background-color 120ms, filter 120ms, transform 120ms;
     &:hover { background-color: var(--bg2h); }
     &:active { transform: scale(0.96); }
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+    &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
 
   /* ── Slider ── */
@@ -173,40 +207,40 @@ export default function controlPanel({
     align-items: center;
     .s-readout {
       color: var(--dim);
-      font-size: 11px;
-      height: 20px;
-      line-height: 20px;
-      width: 35px;
-      min-width: 35px;
-      flex: 0 0 35px;
+      font-size: var(--fs);
+      height: var(--lh);
+      line-height: var(--lh);
+      width: var(--wide);
+      min-width: var(--wide);
+      flex: 0 0 var(--wide);
       text-align: left;
-      padding: 0 4px;
+      padding: 0 var(--pad-sm);
       overflow: hidden;
       font-variant-numeric: tabular-nums;
     }
     &:not(.s-multiple) .s-track {
       margin: 0;
-      height: 20px;
+      height: var(--lh);
       input[type="range"] {
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
-        height: 20px;
+        height: var(--lh);
         background: var(--bg2);
         border-radius: 0;
         outline: none;
         cursor: ew-resize;
         transition: background-color 120ms;
         &:hover { background-color: var(--bg2h); }
-        &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
-        &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: 20px; border-radius: 0; box-shadow: none; }
-        &::-moz-range-track { height: 20px; background: var(--bg2); border-radius: 0; border: none; }
+        &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: var(--lh); border-radius: 0; box-shadow: none; }
+        &::-moz-range-track { height: var(--lh); background: var(--bg2); border-radius: 0; border: none; }
       }
     }
     &.s-multiple .s-interval-track {
-      height: 20px;
+      height: var(--lh);
       margin: 0;
       background: var(--bg2);
       cursor: ew-resize;
@@ -228,11 +262,11 @@ export default function controlPanel({
         background: transparent;
         pointer-events: none;
         cursor: ew-resize;
-        &:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
+        &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
         &::-webkit-slider-thumb { pointer-events: all; cursor: ew-resize; }
         &::-moz-range-thumb { pointer-events: all; cursor: ew-resize; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
-        &::-moz-range-thumb { width: 10px; height: 20px; background: var(--accent); border-radius: 0; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; border: none; box-shadow: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
+        &::-moz-range-thumb { width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; border: none; transition: filter 120ms; &:hover { filter: var(--hover); } }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; background: transparent; box-shadow: none; }
       }
     }
@@ -246,13 +280,13 @@ export default function controlPanel({
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track { border-radius: 0; border: none; box-shadow: none; background: var(--bg2); position: relative; transition: background-color 120ms; }
     .s-input:hover .s-track { background-color: var(--bg2h); }
-    &:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 0; }
+    &:has(input:focus-visible) .s-track { outline: var(--line) solid var(--accent); outline-offset: 0; }
     &.s-checkbox {
       .s-track {
         display: block;
-        width: 18px;
-        height: 18px;
-        margin: 1px 0;
+        width: var(--box);
+        height: var(--box);
+        margin: calc((var(--lh) - var(--box)) / 2) 0;
         &::after {
           content: '';
           position: absolute;
@@ -261,8 +295,8 @@ export default function controlPanel({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 10px;
-          height: 10px;
+          width: var(--thumb);
+          height: var(--thumb);
           border-radius: 0;
           background: transparent;
           box-shadow: none;
@@ -273,17 +307,16 @@ export default function controlPanel({
     }
     &.s-switch {
       .s-track {
-        --thumb: 10px;
-        width: 35px;
-        height: 18px;
-        margin: 1px 0;
+        width: var(--wide);
+        height: var(--box);
+        margin: calc((var(--lh) - var(--box)) / 2) 0;
         &::after {
           content: '';
           position: absolute;
           inset: auto;
           margin: 0;
           top: 50%;
-          left: calc((18px - var(--thumb)) / 2);
+          left: calc((var(--box) - var(--thumb)) / 2);
           transform: translateY(-50%);
           width: var(--thumb);
           height: var(--thumb);
@@ -296,9 +329,9 @@ export default function controlPanel({
       &:has(input:checked) .s-track::after {
         inset: auto;
         top: 50%;
-        left: calc((18px - var(--thumb)) / 2);
+        left: calc((var(--box) - var(--thumb)) / 2);
         right: auto;
-        transform: translate(calc(35px - var(--thumb) - (18px - var(--thumb))), -50%);
+        transform: translate(calc(var(--wide) - var(--thumb) - (var(--box) - var(--thumb))), -50%);
         background: var(--s-color, var(--accent));
       }
       .s-input:hover .s-track::after { filter: var(--hover); }
@@ -307,14 +340,14 @@ export default function controlPanel({
       .s-track {
         cursor: pointer;
         width: auto;
-        height: 20px;
+        height: var(--lh);
         margin: 0;
-        padding: 0 5px;
+        padding: 0 var(--u);
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background-color 120ms, color 120ms;
-        &::after { font-size: 11px; background: none; box-shadow: none; position: static; width: auto; height: auto; border-radius: 0; }
+        &::after { font-size: var(--fs); background: none; box-shadow: none; position: static; width: auto; height: auto; border-radius: 0; }
       }
       &:has(input:checked) .s-track { background: var(--dim); color: var(--bg2); }
     }
@@ -329,8 +362,8 @@ export default function controlPanel({
       appearance: none;
       background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='${dimColor}'><path d='M0 5 L3 1 L6 5Z'/><path d='M0 7 L3 11 L6 7Z'/></svg>`)}");
       background-repeat: no-repeat;
-      background-position: right 4px center;
-      padding: 0 16px 0 5px;
+      background-position: right var(--pad-sm) center;
+      padding: 0 calc(var(--u) * 3.2) 0 var(--u);
       cursor: pointer;
       option { background: var(--bg); color: var(--text); }
     }
@@ -339,8 +372,8 @@ export default function controlPanel({
       padding: 0;
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track {
-        width: 18px;
-        height: 18px;
+        width: var(--box);
+        height: var(--box);
         border-radius: 0;
         border: none;
         box-shadow: none;
@@ -357,8 +390,8 @@ export default function controlPanel({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 10px;
-          height: 10px;
+          width: var(--thumb);
+          height: var(--thumb);
           border-radius: 0;
           background: transparent;
           box-shadow: none;
@@ -373,23 +406,23 @@ export default function controlPanel({
         label {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: var(--pad-sm);
           color: var(--dim);
-          font-size: 11px;
-          margin-right: 8px;
+          font-size: var(--fs);
+          margin-right: calc(var(--u) * 1.6);
           cursor: pointer;
         }
       }
       label:hover .s-track { background-color: var(--bg2h); }
       label:has(input:checked) .s-track::after { background: var(--s-color, var(--accent)); }
-      label:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 0; }
+      label:has(input:focus-visible) .s-track { outline: var(--line) solid var(--accent); outline-offset: 0; }
     }
-    &.s-segmented button { padding: 0 5px; &.s-selected { background-color: var(--accent); color: var(--bg); &:hover { filter: var(--hover); } } }
+    &.s-segmented button { padding: 0 var(--u); &.s-selected { background-color: var(--accent); color: var(--bg); &:hover { filter: var(--hover); } } }
   }
 
   /* ── Color ── */
   .s-color.s-picker .s-color-input {
-    gap: 5px;
+    gap: var(--u);
     input[type="color"] { position: static; }
     input[type="text"] { flex: 1; min-width: 0; width: auto; }
   }
@@ -397,13 +430,13 @@ export default function controlPanel({
   /* ── Button ── */
   .s-button {
     .s-input { flex: 1; }
-    button { background-color: var(--accent); color: var(--bg); width: 100%; padding: 0 10px; &:hover { filter: var(--hover); } }
+    button { background-color: var(--accent); color: var(--bg); width: 100%; padding: 0 calc(var(--u) * 2); &:hover { filter: var(--hover); } }
     &.s-secondary button, button.s-secondary { background-color: var(--bg2); color: var(--dim); &:hover { background-color: var(--bg2h); filter: none; } }
   }
 
   /* ── Number ── */
   .s-number {
-    input[type="number"] { width: 60px; text-align: left; font-variant-numeric: tabular-nums; }
+    input[type="number"] { width: calc(var(--u) * 12); text-align: left; font-variant-numeric: tabular-nums; }
     .s-step { display: none; }
   }
 
@@ -413,7 +446,7 @@ export default function controlPanel({
   /* ── Folder ── */
   .s-folder {
     > summary {
-      font-size: 11px;
+      font-size: var(--fs);
       font-weight: ${weight};
       color: var(--dim);
       padding: calc(var(--u) * var(--spacing) * 2) 0;

@@ -6,6 +6,10 @@
  * halftone grain, pressed states that visibly displace (translate + shadow
  * collapse to zero, exact to the shadow offset). Zero radius, zero blur.
  *
+ * Axes: shade/accent (roles), spacing, weight, bevel (border/outline weight),
+ * offset (hard-shadow displacement — plate depth, press distance), grain
+ * (halftone texture intensity, 0 disables), size (unit scale).
+ *
  * brutal(axes?) → CSS string
  */
 
@@ -17,14 +21,15 @@ export default function brutal({
   accent = '#ff5a5f',
   spacing = 1,
   weight = 700,
-  bevel = 3,            // border thickness in px (brutal-specific)
+  bevel = 3,             // border/outline weight in px
+  offset = 6,             // hard-shadow displacement in px (plate depth, press distance)
+  grain = 1,              // halftone texture intensity, 0 disables
   size = 1,
 } = {}) {
-  const { dark, bg, fg, accent: acc } = resolveRoles(shade, accent)
+  const { dark, bg, accent: acc } = resolveRoles(shade, accent)
   const ink = dark ? '#ffffff' : '#000000'
   const inkRGB = dark ? '255,255,255' : '0,0,0'
   const paper = dark ? 'oklch(from var(--bg) calc(l + 0.07) c h)' : '#fffdf8'
-  const bw = `${bevel}px`
 
   // Hard offset shadow — solid ink, zero blur, zero transparency. The plate
   // sits stacked on the page like cut card stock, not floating above it, so
@@ -34,27 +39,48 @@ export default function brutal({
 
   // Halftone grain — coarse monochrome dot screen, print-registration feel.
   // Two offset dot layers at slightly different scale = subtle moiré, like
-  // a stamped plate that's been inked and pressed onto stock.
-  const halftone = (a = .05) => `image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='1.5' cy='1.5' r='.7' fill='rgba(${inkRGB},${a})'/%3E%3Ccircle cx='4.5' cy='4.5' r='.7' fill='rgba(${inkRGB},${a})'/%3E%3C/svg%3E") 1x)`
+  // a stamped plate that's been inked and pressed onto stock. `grain` axis
+  // scales dot opacity; 0 disables the texture entirely.
+  const halftone = (a) => grain <= 0 ? 'none' : `image-set(url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='1.5' cy='1.5' r='.7' fill='rgba(${inkRGB},${+(a * grain).toFixed(3)})'/%3E%3Ccircle cx='4.5' cy='4.5' r='.7' fill='rgba(${inkRGB},${+(a * grain).toFixed(3)})'/%3E%3C/svg%3E") 1x)`
 
   const overrides = `.s-panel {
+  /* ── Roles (shade/accent axes) ── */
   --bg: ${bg};
   --ink: ${ink};
+  --ink-rgb: ${inkRGB};
   --paper: ${paper};
   --accent: ${acc};
-  --bw: ${bw};
+  --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' stroke='${encodeURIComponent(ink)}' stroke-width='2.5' stroke-linecap='square'%3E%3Cpath d='M3 3 L13 13 M13 3 L3 13'/%3E%3C/svg%3E");
+  color-scheme: ${dark ? 'dark' : 'light'};
+
+  /* ── Scale ── */
   --spacing: ${spacing};
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
   --u: ${4 * size}px;
-  --plate-1: ${plate(6)};
-  --plate-sm: ${plate(3, 0.75)};
-  --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' stroke='%23000' stroke-width='2.5' stroke-linecap='square'%3E%3Cpath d='M3 3 L13 13 M13 3 L3 13'/%3E%3C/svg%3E");
-  color-scheme: ${dark ? 'dark' : 'light'};
+
+  /* ── Border/outline weight (bevel axis) ── */
+  --bw: ${bevel}px;
+  --bw-sm: calc(var(--bw) * 2 / 3);
+
+  /* ── Hard shadow (offset axis) — plate stacked on paper, zero blur ── */
+  --offset: ${offset}px;
+  --plate-1: ${plate(offset)};
+  --plate-hover: ${plate(offset + 1)};
+  --plate-sm: ${plate(offset / 2, 0.75)};
+  --press-sm: calc(var(--offset) / 3);
+  --groove: inset var(--press-sm) var(--press-sm) 0 rgba(var(--ink-rgb), .12);
+  --hover-lift: -1px;
+  --focus-gap: 2px;
+  --thumb-trim: 2px;
+
+  /* ── Grain (texture axis) ── */
+  --grain-bg: ${halftone(.05)};
+  --grain-btn: ${halftone(.08)};
 
   background: var(--bg);
-  background-image: ${halftone(.05)};
+  background-image: var(--grain-bg);
   background-repeat: repeat;
   color: var(--ink);
   font-family: ui-sans-serif, system-ui, 'Helvetica Neue', sans-serif;
@@ -82,7 +108,7 @@ export default function brutal({
   > summary {
     cursor: pointer;
     user-select: none;
-    &:hover { background: rgba(${inkRGB},.06); }
+    &:hover { background: rgba(var(--ink-rgb),.06); }
     &::before {
       content: '▸';
       display: inline-block;
@@ -94,14 +120,14 @@ export default function brutal({
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
     padding-top: 0;
   }
-  > summary:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: -${bevel}px; }
+  > summary:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: calc(var(--bw) * -1); }
 
   /* ── Fold icon / search (title-bar controls) ── */
   .s-fold-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: calc(var(--u) * 6); height: calc(var(--u) * 6);
     margin-left: auto; flex-shrink: 0;
-    border: 2px solid var(--ink); background: var(--paper);
+    border: var(--bw-sm) solid var(--ink); background: var(--paper);
     box-shadow: var(--plate-sm);
     transition: transform .08s, box-shadow .08s;
     &:hover { background: color-mix(in oklab, var(--accent), var(--paper) 60%); }
@@ -109,8 +135,8 @@ export default function brutal({
       &::before { content: '+'; } }
   }
   &[open] .s-fold-icon i::before { content: '–'; }
-  > summary:active .s-fold-icon, .s-fold-icon:active { transform: translate(2px, 2px); box-shadow: none; }
-  > summary:focus-visible .s-fold-icon { outline: 3px solid var(--accent); outline-offset: 2px; }
+  > summary:active .s-fold-icon, .s-fold-icon:active { transform: translate(var(--press-sm), var(--press-sm)); box-shadow: none; }
+  > summary:focus-visible .s-fold-icon { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); }
 
   .s-search {
     margin-left: auto;
@@ -120,14 +146,14 @@ export default function brutal({
   .s-fold-icon + .s-search { margin-left: calc(var(--u) * 3); }
   .s-search-btn {
     width: calc(var(--u) * 6); height: calc(var(--u) * 6); flex-shrink: 0;
-    border: 2px solid var(--ink); background: var(--paper);
+    border: var(--bw-sm) solid var(--ink); background: var(--paper);
     box-shadow: var(--plate-sm);
     transition: transform .08s, box-shadow .08s;
     -webkit-mask: none; mask: none;
     position: relative;
     &:hover { background: color-mix(in oklab, var(--accent), var(--paper) 60%); }
-    &:active { transform: translate(2px, 2px); box-shadow: none; }
-    &:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+    &:active { transform: translate(var(--press-sm), var(--press-sm)); box-shadow: none; }
+    &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
     &::before {
       content: ''; position: absolute; inset: 0;
       background: var(--ink);
@@ -135,7 +161,7 @@ export default function brutal({
       mask: var(--s-search-icon) center / 55% no-repeat;
     }
   }
-  &.s-searching .s-search-btn { background: var(--accent); transform: translate(2px, 2px); box-shadow: none; }
+  &.s-searching .s-search-btn { background: var(--accent); transform: translate(var(--press-sm), var(--press-sm)); box-shadow: none; }
   .s-search-input {
     border: var(--bw) solid var(--ink); background: var(--paper); color: var(--ink);
     padding: 0 calc(var(--u) * 1.5); height: calc(var(--u) * 6);
@@ -159,7 +185,7 @@ export default function brutal({
   .s-title {
     display: inline-flex; align-items: center; justify-content: center;
     width: calc(var(--u) * 4); height: calc(var(--u) * 4);
-    border: 2px solid var(--ink); font-size: 10px; font-weight: 800; cursor: help;
+    border: var(--bw-sm) solid var(--ink); font-size: 10px; font-weight: 800; cursor: help;
     &:hover + .s-title-text { opacity: 1; visibility: visible; }
   }
   .s-title-text {
@@ -188,7 +214,7 @@ export default function brutal({
   }
   input[type="number"] { font-variant-numeric: tabular-nums; }
   /* Scrub-drag: plate presses into the page, same collapse as an active button. */
-  input.s-scrubbing { background: color-mix(in oklab, var(--accent), var(--paper) 60%); box-shadow: inset 2px 2px 0 rgba(${inkRGB},.15); }
+  input.s-scrubbing { background: color-mix(in oklab, var(--accent), var(--paper) 60%); box-shadow: inset var(--press-sm) var(--press-sm) 0 rgba(var(--ink-rgb),.15); }
   select { cursor: pointer; option { background: var(--paper); color: var(--ink); } }
 
   /* ── Number ── */
@@ -198,10 +224,10 @@ export default function brutal({
       &:focus { cursor: text; } }
     .s-step { display: flex; flex-direction: column; border: var(--bw) solid var(--ink); margin-left: -1px;
       button { background: var(--paper); border: none; color: var(--ink); padding: 0 calc(var(--u) * 1.5); font-weight: 800; cursor: pointer; line-height: 1;
-        &:first-child { border-bottom: 2px solid var(--ink); }
+        &:first-child { border-bottom: var(--bw-sm) solid var(--ink); }
         &:hover { background: var(--accent); }
         &:active { background: color-mix(in oklab, var(--accent), black 15%); }
-        &:focus-visible { outline: 3px solid var(--ink); outline-offset: -2px; z-index: 1; position: relative; } } }
+        &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: calc(var(--focus-gap) * -1); z-index: 1; position: relative; } } }
   }
 
   /* ── Buttons ── */
@@ -210,7 +236,7 @@ export default function brutal({
     button {
       width: 100%;
       background: var(--accent);
-      background-image: ${halftone(.08)};
+      background-image: var(--grain-btn);
       color: var(--ink);
       border: var(--bw) solid var(--ink);
       border-radius: 0;
@@ -219,10 +245,10 @@ export default function brutal({
       padding: calc(var(--u) * (1 + var(--spacing))) calc(var(--pad) * 2);
       box-shadow: var(--plate-1);
       transition: transform .08s, box-shadow .08s;
-      &:hover { transform: translate(-1px, -1px); box-shadow: ${plate(7)}; }
-      &:active { transform: translate(6px, 6px); box-shadow: none; }
+      &:hover { transform: translate(var(--hover-lift), var(--hover-lift)); box-shadow: var(--plate-hover); }
+      &:active { transform: translate(var(--offset), var(--offset)); box-shadow: none; }
       &:disabled { opacity: .4; box-shadow: none; cursor: not-allowed; }
-      &:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+      &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: var(--bw); }
     }
     &.s-secondary button, button.s-secondary { background: var(--paper); background-image: none; }
     .s-input { gap: calc(var(--u) * 2); }
@@ -235,28 +261,28 @@ export default function brutal({
     .s-input { cursor: pointer; }
     &.s-switch {
       .s-track {
-        width: 44px; height: 24px;
+        width: calc(var(--u) * 11); height: calc(var(--u) * 6);
         background: var(--paper); border: var(--bw) solid var(--ink); border-radius: 0; position: relative;
-        box-shadow: inset 2px 2px 0 rgba(${inkRGB},.12);
-        &::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: var(--ink); transition: transform .12s; }
+        box-shadow: var(--groove);
+        &::after { content: ''; position: absolute; top: calc(var(--u) * .5); left: calc(var(--u) * .5); width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); background: var(--ink); transition: transform .12s; }
       }
-      &:has(input:checked) .s-track { background: var(--accent); &::after { transform: translateX(20px); } }
-      &:has(input:focus-visible) .s-track { outline: 3px solid var(--ink); outline-offset: 2px; }
+      &:has(input:checked) .s-track { background: var(--accent); &::after { transform: translateX(calc(var(--u) * 5)); } }
+      &:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
       &:active .s-track::after { background: color-mix(in oklab, var(--ink), var(--paper) 25%); }
     }
     &.s-checkbox {
       .s-track { display: block; width: calc(var(--u) * 5); height: calc(var(--u) * 5); background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
-        box-shadow: inset 2px 2px 0 rgba(${inkRGB},.12);
-        &::after { content: ''; position: absolute; inset: 2px; background: transparent; } }
+        box-shadow: var(--groove);
+        &::after { content: ''; position: absolute; inset: var(--press-sm); background: transparent; } }
       &:has(input:checked) .s-track::after { background: var(--accent); }
-      &:has(input:focus-visible) .s-track { outline: 3px solid var(--ink); outline-offset: 2px; }
+      &:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
     }
     &.s-toggle {
       .s-track { padding: var(--pad) calc(var(--pad) * 2); background: var(--paper); border: var(--bw) solid var(--ink); height: calc(1lh + var(--pad) * 2);
         display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; cursor: pointer;
         box-shadow: var(--plate-sm); transition: transform .08s, box-shadow .08s;
         &::after { content: 'Off'; } }
-      .s-input:active .s-track { transform: translate(2px, 2px); box-shadow: none; }
+      .s-input:active .s-track { transform: translate(var(--press-sm), var(--press-sm)); box-shadow: none; }
       &:has(input:checked) .s-track { background: var(--accent); &::after { content: 'On'; } }
     }
   }
@@ -270,12 +296,12 @@ export default function brutal({
       width: 100%; height: calc(var(--u) * 5); -webkit-appearance: none; appearance: none;
       background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--paper) var(--p, 0%));
       border: var(--bw) solid var(--ink); cursor: ew-resize;
-      box-shadow: inset 2px 2px 0 rgba(${inkRGB},.12);
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 4); height: calc(var(--u) * 5 - 2px); background: var(--accent); border: var(--bw) solid var(--ink); box-shadow: 2px 2px 0 var(--ink); margin-top: -1px; cursor: ew-resize; }
-      &::-moz-range-thumb { width: calc(var(--u) * 4); height: calc(var(--u) * 5); background: var(--accent); border: var(--bw) solid var(--ink); border-radius: 0; box-shadow: 2px 2px 0 var(--ink); cursor: ew-resize; }
+      box-shadow: var(--groove);
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 4); height: calc(var(--u) * 5 - var(--thumb-trim)); background: var(--accent); border: var(--bw) solid var(--ink); box-shadow: var(--press-sm) var(--press-sm) 0 var(--ink); margin-top: calc(var(--thumb-trim) / -2); cursor: ew-resize; }
+      &::-moz-range-thumb { width: calc(var(--u) * 4); height: calc(var(--u) * 5); background: var(--accent); border: var(--bw) solid var(--ink); border-radius: 0; box-shadow: var(--press-sm) var(--press-sm) 0 var(--ink); cursor: ew-resize; }
       &:active::-webkit-slider-thumb { box-shadow: none; }
       &:active::-moz-range-thumb { box-shadow: none; }
-      &:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+      &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
     }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-marks { display: none; }
@@ -285,7 +311,7 @@ export default function brutal({
     .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: var(--u); background: var(--ink); color: var(--paper); padding: 2px 6px; font-weight: 700; white-space: nowrap; }
     &.s-multiple .s-interval-track {
       height: calc(var(--u) * 5); margin: calc(var(--u) * var(--spacing)) 0; background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
-      box-shadow: inset 2px 2px 0 rgba(${inkRGB},.12);
+      box-shadow: var(--groove);
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); }
     }
   }
@@ -299,9 +325,9 @@ export default function brutal({
         position: relative; transition: transform .06s;
         &:first-child { margin-left: 0; }
         &:hover { background: color-mix(in oklab, var(--accent), var(--paper) 60%); }
-        &:active { transform: translateY(2px); }
-        &.s-selected { background: var(--accent); box-shadow: inset 0 -3px 0 rgba(${inkRGB},.3); z-index: 1; }
-        &:focus-visible { outline: 3px solid var(--ink); outline-offset: -6px; z-index: 2; } }
+        &:active { transform: translateY(var(--press-sm)); }
+        &.s-selected { background: var(--accent); box-shadow: inset 0 calc(var(--bw) * -1) 0 rgba(var(--ink-rgb),.3); z-index: 1; }
+        &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: calc(var(--bw) * -2); z-index: 2; } }
     }
     &.s-radio {
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing)); }
@@ -311,11 +337,11 @@ export default function brutal({
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing)); }
       label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; font-weight: 600; }
       .s-track { width: calc(var(--u) * 5); height: calc(var(--u) * 5); flex-shrink: 0; background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
-        box-shadow: inset 2px 2px 0 rgba(${inkRGB},.12);
-        &::after { content: ''; position: absolute; inset: 2px; background: transparent; } }
+        box-shadow: var(--groove);
+        &::after { content: ''; position: absolute; inset: var(--press-sm); background: transparent; } }
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       label:has(input:checked) .s-track::after { background: var(--accent); }
-      label:has(input:focus-visible) .s-track { outline: 3px solid var(--ink); outline-offset: 2px; }
+      label:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
     }
   }
 
@@ -325,17 +351,17 @@ export default function brutal({
       gap: var(--u);
       input[type="color"] { position: static; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: var(--bw) solid var(--ink); box-shadow: var(--plate-sm); cursor: pointer;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; }
-        &:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; } }
+        &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); } }
       input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; }
     }
     &.s-swatches {
       .s-input { flex-wrap: wrap; gap: var(--u); }
       button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: var(--bw) solid var(--ink);
         box-shadow: var(--plate-sm); transition: transform .06s, box-shadow .06s;
-        &:hover { transform: translate(-1px, -1px); }
-        &:active { transform: translate(2px, 2px); box-shadow: none; }
-        &.s-selected { outline: 3px solid var(--ink); outline-offset: 2px; }
-        &:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; } }
+        &:hover { transform: translate(var(--hover-lift), var(--hover-lift)); }
+        &:active { transform: translate(var(--press-sm), var(--press-sm)); box-shadow: none; }
+        &.s-selected { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
+        &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); } }
     }
   }
 
@@ -350,9 +376,9 @@ export default function brutal({
   /* ── Folder ── */
   .s-folder {
     > summary { font-weight: 800; text-transform: uppercase; letter-spacing: .02em; padding: calc(var(--u) * 2) 0; border-bottom: var(--bw) solid var(--ink);
-      &:hover { background: rgba(${inkRGB},.06); }
+      &:hover { background: rgba(var(--ink-rgb),.06); }
       &::after { content: '+'; margin-left: auto; font-size: 1.2em; }
-      &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: -${bevel}px; } }
+      &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: calc(var(--bw) * -1); } }
     &[open] > summary { border-bottom: none; &::after { content: '–'; } }
     .s-content { padding: calc(var(--u) * 2 * var(--spacing)) 0; }
   }

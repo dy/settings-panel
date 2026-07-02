@@ -5,6 +5,12 @@
  * cells with hairline row dividers, thin sliders with a 20px circular thumb,
  * and macOS popup-button dropdowns. Light by default; dark shade flips it.
  *
+ * Axes: shade + accent decompose (via parseColor) into a `dark` flag that
+ * drives every native constant below (ink/dim text, hairline, sheet/field
+ * fill, slider/segmented/switch track tones, tooltip, shadows) — each still
+ * a named CSS custom property so it can be overridden independently even
+ * though its default is Apple's own fixed value, not a formula.
+ *
  * apple(axes?) → CSS string
  */
 
@@ -19,34 +25,79 @@ export default function apple({
   const { L } = parseColor(shade)
   const dark = L < 0.5
   const acc = resolveAccent(accent, shade)
-  const ink = dark ? '#ffffff' : '#1d1d1f'
-  const dim = dark ? '#98989d' : '#8e8e93'
-  const line = dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.08)'
-  const fill = dark ? '#1c1c1e' : '#ffffff'
-  const field = dark ? '#2c2c2e' : '#f2f2f7'
+
+  // ── Derived tokens (native's own constants, named + light/dark aware) ──
+  const ink = dark ? '#ffffff' : '#1d1d1f'                                  // primary text
+  const dim = dark ? '#98989d' : '#8e8e93'                                  // secondary text, hint, chevrons
+  const line = dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.08)'           // row hairline
+  const fill = dark ? '#1c1c1e' : '#ffffff'                                 // panel sheet background
+  const field = dark ? '#2c2c2e' : '#f2f2f7'                                // input / well fill
+  const track = dark ? '#48484a' : '#e9e9eb'                                // slider / segmented / interval empty track
+  const switchOff = dark ? '#39393d' : '#e9e9eb'                            // switch off-state track (its own shade — not `track`)
+  const segmentSelected = dark ? '#636366' : '#fff'                         // segmented active pill
+  const segmentHover = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.04)'   // segmented hover wash
+  const tooltipBg = dark ? '#3a3a3c' : '#fff'
+  const swatchBorder = 'rgba(0,0,0,.15)'                                    // color-well / swatch edge — same both modes
+  const onAccent = '#fff'                                                   // text/icon drawn on an accent-filled surface
+  const thumbFace = '#fff'                                                  // slider/switch knob face — native keeps this white in both modes
+
+  const shadowPanel = '0 8px 30px rgba(0,0,0,.12)'
+  const shadowThumb = '0 1px 3px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.04)'
+  const shadowKnob = '0 1px 3px rgba(0,0,0,.25)'
+  const shadowTooltip = '0 2px 8px rgba(0,0,0,.2)'
+  const shadowPill = '0 .5px 1px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06)'
 
   const overrides = `.s-panel {
+  /* ── Axes → color tokens ── */
   --bg: ${shade};
   --accent: ${acc};
   --ink: ${ink};
+  --dim: ${dim};
   --line: ${line};
+  --fill: ${fill};
   --field: ${field};
+  --track: ${track};
+  --switch-off: ${switchOff};
+  --segment-selected: ${segmentSelected};
+  --segment-hover: ${segmentHover};
+  --tooltip-bg: ${tooltipBg};
+  --swatch-border: ${swatchBorder};
+  --on-accent: ${onAccent};
+  --thumb-face: ${thumbFace};
+  --shadow-panel: ${shadowPanel};
+  --shadow-thumb: ${shadowThumb};
+  --shadow-knob: ${shadowKnob};
+  --shadow-tooltip: ${shadowTooltip};
+  --shadow-pill: ${shadowPill};
+
+  /* ── Size tokens — native's exact constants, still overridable ── */
   --u: ${4 * size}px;
   --spacing: 1;
   --weight: 400;
+  --w: 320px;
   --r: 8px;
+  --r-panel: 12px;
+  --r-field: 6px;
+  --r-control: 7px;
+  --r-track: 2px;
+  --thumb: 20px;
+  --field-h: 28px;
+  --switch-w: 38px;
+  --switch-h: 22px;
+  --swatch-picker: 24px;
+  --swatch: 22px;
   --ease: cubic-bezier(.2, 0, 0, 1);
   color-scheme: ${dark ? 'dark' : 'light'};
 
-  background: ${fill};
+  background: var(--fill);
   color: var(--ink);
   font: 13px/1.3 -apple-system, system-ui, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-  width: 320px;
+  width: var(--w);
   min-width: 0;
-  max-width: 320px;
-  border-radius: 12px;
+  max-width: var(--w);
+  border-radius: var(--r-panel);
   padding: 0;
-  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  box-shadow: var(--shadow-panel);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 
@@ -55,7 +106,7 @@ export default function apple({
     font-weight: 600; font-size: 15px; color: var(--ink);
     padding: 16px 18px 10px;
   }
-  > summary::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); }
+  > summary::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: var(--dim); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); }
   --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   &[open] > summary::after { transform: rotate(-180deg); }
   .s-panel-content { gap: 0; padding: 0; }
@@ -66,15 +117,15 @@ export default function apple({
     &:first-child { border-top: none; } }
   .s-label-group { width: 42%; min-width: 0; max-width: none; padding: 0; }
   .s-label { color: var(--ink); font-weight: 400; }
-  .s-hint { color: ${dim}; font-size: 12px; }
+  .s-hint { color: var(--dim); font-size: 12px; }
   .s-input { gap: calc(var(--u) * 2); align-items: center; justify-content: flex-end; }
 
   /* ── Fields ── */
   input[type="text"], input[type="number"], select, textarea {
-    background: var(--field); color: var(--ink); border: none; border-radius: 6px;
-    height: 28px; padding: 0 8px; font: inherit;
+    background: var(--field); color: var(--ink); border: none; border-radius: var(--r-field);
+    height: var(--field-h); padding: 0 8px; font: inherit;
     transition: box-shadow .12s var(--ease);
-    &::placeholder { color: ${dim}; }
+    &::placeholder { color: var(--dim); }
     &:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%); }
   }
   .s-text input[type="text"] { flex: 1; text-align: right; }
@@ -85,46 +136,46 @@ export default function apple({
   /* ── Vector ── */
   .s-vector {
     .s-input { gap: calc(var(--u) * 2); }
-    .s-vec-axis { flex: 1; min-width: 0; gap: calc(var(--u)); background: var(--field); border-radius: 6px; padding: 0 8px; height: 28px;
+    .s-vec-axis { flex: 1; min-width: 0; gap: calc(var(--u)); background: var(--field); border-radius: var(--r-field); padding: 0 8px; height: var(--field-h);
       transition: box-shadow .12s var(--ease);
       &:focus-within { box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%); } }
-    .s-vec-label { color: ${dim}; font-size: 12px; }
-    input[type="number"] { background: transparent; text-align: right; padding: 0; height: 28px; font-variant-numeric: tabular-nums; &:focus { box-shadow: none; } }
+    .s-vec-label { color: var(--dim); font-size: 12px; }
+    input[type="number"] { background: transparent; text-align: right; padding: 0; height: var(--field-h); font-variant-numeric: tabular-nums; &:focus { box-shadow: none; } }
   }
 
   /* ── Slider (thin track, 20px circular thumb) ── */
   .s-slider {
     align-items: center;
-    .s-track { height: 28px; margin: 0; }
+    .s-track { height: var(--field-h); margin: 0; }
     input[type="range"] {
-      width: 100%; height: 4px; -webkit-appearance: none; appearance: none; border-radius: 2px; cursor: pointer;
-      background: linear-gradient(to right, var(--accent) var(--p, 0%), ${dark ? '#48484a' : '#e9e9eb'} var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.04); cursor: pointer; }
-      &::-moz-range-thumb { width: 20px; height: 20px; border: none; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer; }
+      width: 100%; height: 4px; -webkit-appearance: none; appearance: none; border-radius: var(--r-track); cursor: pointer;
+      background: linear-gradient(to right, var(--accent) var(--p, 0%), var(--track) var(--p, 0%));
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border-radius: 50%; background: var(--thumb-face); box-shadow: var(--shadow-thumb); cursor: pointer; }
+      &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: none; border-radius: 50%; background: var(--thumb-face); box-shadow: var(--shadow-knob); cursor: pointer; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 4px); font-size: 11px; color: ${dim}; white-space: nowrap; }
-    .s-readout { flex: 0 0 auto; width: 52px; text-align: right; background: var(--field); color: var(--ink); border: none; border-radius: 6px; height: 28px; padding: 0 8px; font-variant-numeric: tabular-nums; cursor: ew-resize; }
-    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: ${dark ? '#3a3a3c' : '#fff'}; color: var(--ink); padding: 3px 8px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.2); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: 4px; margin: 12px 0; background: ${dark ? '#48484a' : '#e9e9eb'}; border-radius: 2px; position: relative;
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 4px); font-size: 11px; color: var(--dim); white-space: nowrap; }
+    .s-readout { flex: 0 0 auto; width: 52px; text-align: right; background: var(--field); color: var(--ink); border: none; border-radius: var(--r-field); height: var(--field-h); padding: 0 8px; font-variant-numeric: tabular-nums; cursor: ew-resize; }
+    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: var(--tooltip-bg); color: var(--ink); padding: 3px 8px; border-radius: var(--r-field); box-shadow: var(--shadow-tooltip); white-space: nowrap; }
+    &.s-multiple .s-interval-track { height: 4px; margin: 12px 0; background: var(--track); border-radius: var(--r-track); position: relative;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); } }
   }
 
   /* ── Select (macOS popup button) ── */
   .s-select {
     &.s-dropdown .s-input { position: relative; flex: 0 1 auto; min-width: auto; max-width: 100%;
-      &::after { content: ''; position: absolute; top: 50%; right: 3px; width: 16px; height: 18px; transform: translateY(-50%); border-radius: 4px; background: ${acc};
+      &::after { content: ''; position: absolute; top: 50%; right: 3px; width: 16px; height: 18px; transform: translateY(-50%); border-radius: 4px; background: var(--accent);
         -webkit-mask: var(--pop-chev) center / 9px 12px no-repeat; mask: var(--pop-chev) center / 9px 12px no-repeat; pointer-events: none; } }
     --pop-chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 9 12' xmlns='http://www.w3.org/2000/svg' fill='%23fff'%3E%3Cpath d='M4.5 0 L8 3.6 L6.8 4.8 L4.5 2.5 L2.2 4.8 L1 3.6Z'/%3E%3Cpath d='M4.5 12 L8 8.4 L6.8 7.2 L4.5 9.5 L2.2 7.2 L1 8.4Z'/%3E%3C/svg%3E");
     &.s-dropdown select { flex: 0 1 auto; width: auto; max-width: 100%; min-width: 0; appearance: none; -webkit-appearance: none; cursor: pointer; font-weight: 400; color: var(--ink);
       text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
       padding-right: 26px; background: var(--field);
-      option { background: ${fill}; color: var(--ink); } }
-    &.s-segmented { .s-input { gap: 0; background: ${dark ? '#48484a' : '#e9e9eb'}; border-radius: var(--r); padding: 2px; }
-      button { flex: 1; background: transparent; border: none; color: var(--ink); border-radius: 6px; height: 26px; font: inherit;
+      option { background: var(--fill); color: var(--ink); } }
+    &.s-segmented { .s-input { gap: 0; background: var(--track); border-radius: var(--r); padding: 2px; }
+      button { flex: 1; background: transparent; border: none; color: var(--ink); border-radius: var(--r-field); height: 26px; font: inherit;
         transition: background .12s var(--ease), box-shadow .12s var(--ease);
-        &:not(.s-selected):hover { background: ${dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.04)'}; }
-        &.s-selected { background: ${dark ? '#636366' : '#fff'}; box-shadow: 0 .5px 1px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06); } } }
+        &:not(.s-selected):hover { background: var(--segment-hover); }
+        &.s-selected { background: var(--segment-selected); box-shadow: var(--shadow-pill); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); } label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
   }
 
@@ -133,36 +184,36 @@ export default function apple({
     align-items: center;
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &.s-switch {
-      .s-track { width: 38px; height: 22px; border-radius: 999px; background: ${dark ? '#39393d' : '#e9e9eb'}; position: relative; cursor: pointer; transition: background .2s var(--ease);
-        &::after { content: ''; position: absolute; top: 1px; left: 1px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s var(--ease); } }
-      &:has(input:checked) .s-track { background: var(--accent); &::after { left: 17px; } }
+      .s-track { width: var(--switch-w); height: var(--switch-h); border-radius: 999px; background: var(--switch-off); position: relative; cursor: pointer; transition: background .2s var(--ease);
+        &::after { content: ''; position: absolute; top: 1px; left: 1px; width: var(--thumb); height: var(--thumb); border-radius: 50%; background: var(--thumb-face); box-shadow: var(--shadow-knob); transition: left .2s var(--ease); } }
+      &:has(input:checked) .s-track { background: var(--accent); &::after { left: calc(var(--switch-w) - var(--thumb) - 1px); } }
       &:has(input:focus-visible) .s-track { outline: 3px solid color-mix(in oklab, var(--accent), transparent 60%); outline-offset: 1px; }
     }
     &.s-checkbox {
-      .s-track { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: transparent; border: 1.5px solid ${dim};
+      .s-track { display: grid; place-items: center; width: var(--thumb); height: var(--thumb); border-radius: 50%; background: transparent; border: 1.5px solid var(--dim);
         transition: background .12s var(--ease), border-color .12s var(--ease);
-        &::after { content: ''; width: 11px; height: 9px; -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: #fff; opacity: 0; } }
+        &::after { content: ''; width: 11px; height: 9px; -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: var(--on-accent); opacity: 0; } }
       &:has(input:checked) .s-track { background: var(--accent); border-color: var(--accent); &::after { opacity: 1; } }
     }
     --check: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E");
-    &.s-toggle .s-track { padding: 0 14px; height: 28px; border-radius: 7px; background: var(--field); display: flex; align-items: center; justify-content: center; cursor: pointer; &::after { content: 'Off'; } }
-    &.s-toggle:has(input:checked) .s-track { background: var(--accent); color: #fff; &::after { content: 'On'; } }
+    &.s-toggle .s-track { padding: 0 14px; height: var(--field-h); border-radius: var(--r-control); background: var(--field); display: flex; align-items: center; justify-content: center; cursor: pointer; &::after { content: 'Off'; } }
+    &.s-toggle:has(input:checked) .s-track { background: var(--accent); color: var(--on-accent); &::after { content: 'On'; } }
   }
 
   /* ── Color (rounded well) ── */
   .s-color {
     &.s-picker .s-color-input { gap: calc(var(--u) * 2); justify-content: flex-end;
-      input[type="color"] { position: static; flex: none; width: 24px; height: 24px; padding: 0; border: .5px solid rgba(0,0,0,.15); border-radius: 50%; cursor: pointer; overflow: hidden; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } }
-      input[type="text"] { flex: 0 1 auto; width: auto; min-width: 9ch; background: var(--field); border-radius: 6px; height: 28px; text-align: right; } }
-    &.s-rgba .s-color-input { gap: calc(var(--u) * 1.5); justify-content: flex-end; input[type="color"] { width: 24px; height: 24px; border-radius: 50%; } input[type="text"] { flex: 1; background: var(--field); border-radius: 6px; height: 28px; } }
-    &.s-swatches { .s-input { justify-content: flex-end; } button { width: 22px; height: 22px; border-radius: 50%; border: .5px solid rgba(0,0,0,.15); &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } } }
+      input[type="color"] { position: static; flex: none; width: var(--swatch-picker); height: var(--swatch-picker); padding: 0; border: .5px solid var(--swatch-border); border-radius: 50%; cursor: pointer; overflow: hidden; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } }
+      input[type="text"] { flex: 0 1 auto; width: auto; min-width: 9ch; background: var(--field); border-radius: var(--r-field); height: var(--field-h); text-align: right; } }
+    &.s-rgba .s-color-input { gap: calc(var(--u) * 1.5); justify-content: flex-end; input[type="color"] { width: var(--swatch-picker); height: var(--swatch-picker); border-radius: 50%; } input[type="text"] { flex: 1; background: var(--field); border-radius: var(--r-field); height: var(--field-h); } }
+    &.s-swatches { .s-input { justify-content: flex-end; } button { width: var(--swatch); height: var(--swatch); border-radius: 50%; border: .5px solid var(--swatch-border); &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } } }
   }
 
   /* ── Button ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
     .s-input { gap: calc(var(--u) * 2); }
-    button { flex: 1; height: 30px; background: var(--accent); color: #fff; border: none; border-radius: 7px; font-weight: 500;
+    button { flex: 1; height: 30px; background: var(--accent); color: var(--on-accent); border: none; border-radius: var(--r-control); font-weight: 500;
       transition: filter .12s var(--ease);
       &:hover { filter: brightness(1.05); } &:active { filter: brightness(.92); } &:disabled { opacity: .4; cursor: not-allowed; } }
     &.s-secondary button, button.s-secondary { background: var(--field); color: var(--accent); transition: filter .12s var(--ease); &:hover { filter: brightness(.97); } }
@@ -174,8 +225,8 @@ export default function apple({
   /* ── Folder (grouped section) ── */
   .s-folder {
     padding: 0; /* .s-folder also matches .s-control — without this it double-applies the row inset/top-padding to both the header and .s-content's children */
-    > summary { font-weight: 600; font-size: 13px; color: ${dim}; text-transform: none; padding: 14px 18px 6px;
-      &::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: ${dim}; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); } }
+    > summary { font-weight: 600; font-size: 13px; color: var(--dim); text-transform: none; padding: 14px 18px 6px;
+      &::after { content: ''; width: 13px; height: 13px; margin-left: auto; background: var(--dim); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s var(--ease); } }
     &[open] > summary::after { transform: rotate(-180deg); }
     .s-content { gap: 0; }
   }
@@ -185,7 +236,7 @@ export default function apple({
   .s-knob-dial { background: var(--field); border: 1px solid var(--line); }
 
   /* ── Info / separator ── */
-  .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: ${dim}; font-variant-numeric: tabular-nums; } }
+  .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: var(--dim); font-variant-numeric: tabular-nums; } }
   .s-separator { background: var(--line); opacity: 1; }
 }`
 

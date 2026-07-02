@@ -1,7 +1,11 @@
 /**
  * Swiss theme — International Typographic Style
  *
- * Grid rows, 1px rules, typographic hierarchy. No radius, no shadow.
+ * Grid rows, hairline rules, typographic hierarchy. No radius, no shadow.
+ * Axes: shade/accent (ink + selection color), spacing, weight, size (grid
+ * unit), hairline (rule weight), scale (type-size ramp), plus the three
+ * font-role slots (title/label/value). Every rule, size, and font-size below
+ * reads from the derived tokens in the var block — nothing is a bare literal.
  * swiss(axes?) → CSS string
  */
 
@@ -19,6 +23,9 @@ export default function swiss({
   spacing = 1,
   weight = 500,
   roundness = 0, // always sharp; kept for axis API
+  size = 1,       // grid unit (--u) multiplier
+  hairline = 1,   // rule / border weight, px
+  scale = 1,      // typographic scale multiplier
   titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
   labelFont = `'DM Sans', 'Helvetica', sans-serif`,
   valueFont = `'DM Serif Display', 'Georgia', serif`
@@ -34,6 +41,16 @@ export default function swiss({
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
+  --u: calc(4px * ${size});
+  --hairline: ${hairline}px;
+  --scale: ${scale};
+  /* type scale — every font-size in the theme is one of these six steps */
+  --size-title: calc(2.625rem * var(--scale));
+  --size-subtitle: calc(0.9375rem * var(--scale));
+  --size-label: calc(0.75rem * var(--scale));
+  --size-value: calc(1rem * var(--scale));
+  --size-readout: calc(0.875rem * var(--scale));
+  --size-button: calc(1.2rem * var(--scale));
   --title-font: ${titleFont};
   --label-font: ${labelFont};
   --value-font: ${valueFont};
@@ -61,7 +78,7 @@ export default function swiss({
     font-family: var(--title-font);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 2.625rem;
+    font-size: var(--size-title);
     line-height: 1.1;
     text-align: center;
     display: block;
@@ -71,7 +88,7 @@ export default function swiss({
     & + .s-subtitle {
       font-family: var(--value-font);
       font-style: italic;
-      font-size: 0.9375rem;
+      font-size: var(--size-subtitle);
       text-align: center;
       color: var(--dim);
       line-height: 1.25;
@@ -90,7 +107,7 @@ export default function swiss({
 
   /* ── Grid row ── */
   .s-control {
-    border-top: 1px solid var(--rule);
+    border-top: var(--hairline) solid var(--rule);
     padding: 0;
     gap: 0;
     align-items: stretch;
@@ -102,7 +119,7 @@ export default function swiss({
     max-width: none;
     align-self: stretch;
     padding: var(--pad);
-    border-right: 1px solid var(--rule);
+    border-right: var(--hairline) solid var(--rule);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -115,7 +132,7 @@ export default function swiss({
     text-transform: uppercase;
     letter-spacing: .08em;
     line-height: 1.57;
-    font-size: 0.75rem;
+    font-size: var(--size-label);
   }
 
   .s-input {
@@ -127,7 +144,7 @@ export default function swiss({
   /* ── Value typography (shared) ── */
   input[type="text"], input[type="number"], textarea, select, button {
     font-family: var(--value-font);
-    font-size: 1rem;
+    font-size: var(--size-value);
     font-weight: var(--weight);
     color: inherit;
     border-radius: 0;
@@ -149,7 +166,7 @@ export default function swiss({
     outline: none;
     padding: var(--pad) calc(var(--u) * 4);
     &::placeholder { color: var(--dim); }
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+    &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
   }
 
   input[type="number"] {
@@ -162,7 +179,7 @@ export default function swiss({
     padding: var(--pad) calc(var(--u) * 4);
     font-variant-numeric: tabular-nums;
     &::placeholder { color: var(--dim); }
-    &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+    &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   }
 
@@ -183,7 +200,7 @@ export default function swiss({
     .s-step {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: var(--hairline);
       flex: none;
       margin-left: auto;
       button {
@@ -222,7 +239,7 @@ export default function swiss({
   .s-boolean {
     .s-track {
       background: transparent;
-      border: 1px solid var(--rule);
+      border: var(--hairline) solid var(--rule);
       border-radius: 0;
       box-shadow: none;
       transition: background-color 120ms, transform 120ms;
@@ -239,8 +256,8 @@ export default function swiss({
       &::after { background: currentColor; }
     }
     &:has(input:focus-visible) .s-track {
-      outline: 1px solid var(--accent);
-      outline-offset: -1px;
+      outline: var(--hairline) solid var(--accent);
+      outline-offset: calc(var(--hairline) * -1);
     }
   }
 
@@ -248,9 +265,9 @@ export default function swiss({
   .s-select {
 
     select {
-      border: 1px solid var(--rule);
+      border: var(--hairline) solid var(--rule);
       cursor: pointer;
-      &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
     }
 
     /* segmented — horizontal or vertical, same selection model */
@@ -266,11 +283,11 @@ export default function swiss({
         align-self: stretch;
         background: transparent;
         border: none;
-        border-left: 1px solid var(--rule);
+        border-left: var(--hairline) solid var(--rule);
         outline: none;
         cursor: pointer;
         letter-spacing: .02em;
-        margin-left: -1px;
+        margin-left: calc(var(--hairline) * -1);
         padding: var(--pad) calc(var(--u) * 1.5);
         text-align: center;
         transition: background-color 120ms;
@@ -283,9 +300,9 @@ export default function swiss({
       }
       .s-input:has(button:nth-child(3)) button {
         margin-left: 0;
-        margin-top: -1px;
+        margin-top: calc(var(--hairline) * -1);
         border-left: none;
-        border-top: 1px solid var(--rule);
+        border-top: var(--hairline) solid var(--rule);
         &:first-child { margin-top: 0; border-top: none; }
       }
     }
@@ -306,7 +323,7 @@ export default function swiss({
         gap: 0;
         align-items: stretch;
         padding: 0;
-        border-left: 1px solid var(--rule);
+        border-left: var(--hairline) solid var(--rule);
       }
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
       .s-track { display: none; }
@@ -317,19 +334,19 @@ export default function swiss({
         gap: calc(var(--u) * 1.5);
         font-family: var(--label-font);
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: var(--size-label);
         line-height: 1.57;
         text-transform: none;
         cursor: pointer;
         min-height: calc(var(--u) * 6.5);
-        & + label { border-top: 1px solid var(--rule); }
+        & + label { border-top: var(--hairline) solid var(--rule); }
         &::before {
           content: '';
           width: calc(var(--u) * 7);
           align-self: stretch;
           flex-shrink: 0;
           padding: calc(var(--u) * 1.5);
-          border-right: 1px solid var(--rule);
+          border-right: var(--hairline) solid var(--rule);
           transition: background-color 120ms;
         }
         &:hover::before { background: var(--fill-hover); }
@@ -362,7 +379,7 @@ export default function swiss({
         padding: var(--pad) calc(var(--u) * 4);
         cursor: pointer;
         transition: background-color 120ms;
-        & + label { border-top: 1px solid var(--rule); }
+        & + label { border-top: var(--hairline) solid var(--rule); }
         &:hover { background: var(--fill-hover); }
         &.s-selected {
           background: var(--fill);
@@ -377,7 +394,7 @@ export default function swiss({
     input[type="range"] { accent-color: var(--accent); }
     .s-readout {
       color: var(--dim);
-      font-size: 0.875rem;
+      font-size: var(--size-readout);
       font-variant-numeric: tabular-nums;
     }
   }
@@ -388,18 +405,18 @@ export default function swiss({
     button {
       width: 100%;
       background: var(--fill);
-      border: 1px solid var(--rule);
+      border: var(--hairline) solid var(--rule);
       font-family: var(--title-font);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .06em;
-      font-size: 1.2rem;
+      font-size: var(--size-button);
       padding: calc(var(--u) * 4) calc(var(--u) * 5);
       cursor: pointer;
       transition: background-color 120ms, filter 120ms, transform 120ms;
       &:hover { background: var(--fill-hover); }
       &:active { filter: brightness(.9); transform: scale(0.96); }
-      &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
     }
     &.s-secondary button, button.s-secondary {
       background: transparent;
@@ -416,8 +433,8 @@ export default function swiss({
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .04em;
-      font-size: 0.75rem;
-      border-bottom: 1px solid var(--rule);
+      font-size: var(--size-label);
+      border-bottom: var(--hairline) solid var(--rule);
       padding: var(--pad);
       &::after { display: none; }
     }
@@ -428,7 +445,7 @@ export default function swiss({
   .s-color {
     .s-color-input {
       input[type="text"] { font-family: ui-monospace, monospace; }
-      input[type="color"] { border: 1px solid var(--rule); padding: 0; }
+      input[type="color"] { border: var(--hairline) solid var(--rule); padding: 0; }
     }
   }
 }`
