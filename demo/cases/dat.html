@@ -32,22 +32,37 @@
   <script type="module">
     import settings from '../../index.js'
     import dat from '../../theme/dat.js'
+    import { nativeToggle } from './native-toggle.js'
 
     settings({
       Boolean: { type: 'boolean', variant: 'checkbox', value: true },
       Function: { type: 'button', label: false, text: 'Function' },
       String: { type: 'text', value: 'lil-gui', label: 'String' },
+      Long: { type: 'text', value: 'wraps?', label: 'A Long Descriptive Label For Overflow Testing' },
       Number: { type: 'number', value: 0.5, label: 'Number' },
-      Slider: { type: 'slider', value: 0.4, min: 0, max: 1, step: 0.01, label: 'Slider' },
+      Slider: { type: 'slider', value: 0.4, min: 0, max: 1, step: 0.01, format: v => String(+v.toFixed(2)), label: 'Slider' },
       Stepped: { type: 'slider', value: 48, min: 0, max: 100, step: 2, label: 'Stepped' },
+      Wide: { type: 'slider', value: 250, min: 0, max: 1000, step: 10, label: 'Wide Range' },
       Choices: { type: 'select', value: 1, label: 'Choices', options: [{ value: 0, label: '0' }, { value: 1, label: '1' }, { value: 2, label: '2' }] },
       Named: { type: 'select', value: 1, label: 'Named', options: [{ value: 0, label: 'Label1' }, { value: 1, label: 'Label2' }, { value: 2, label: 'Label3' }] },
-      Color: { type: 'color', value: '#aa00ff', label: 'Color' },
+      Season: { type: 'select', value: 'Summer', label: 'Season', options: ['Spring', 'Summer', 'Autumn', 'Winter', 'Monsoon', 'Dry'].map(v => ({ value: v, label: v })) },
+      Color: { type: 'color', value: '#aa00ff', label: 'Color', formatText: v => v.replace(/^#/, ''), parseText: v => v.startsWith('#') ? v : `#${v}` },
+      Locked: { type: 'slider', value: 5, min: 0, max: 10, step: 1, label: 'Locked', disabled: true },
+      Folder: { type: 'folder', label: 'Folder' },
+      'Folder.Nested': { type: 'slider', value: 0.35, min: 0, max: 1, step: 0.01, label: 'Nested' },
+      'Folder.Enabled': { type: 'boolean', variant: 'checkbox', value: true, label: 'Enabled' },
+      'Folder.Tint': { type: 'color', value: '#ff5500', label: 'Tint', formatText: v => v.replace(/^#/, ''), parseText: v => v.startsWith('#') ? v : `#${v}` },
+      Extras: { type: 'folder', label: 'Extras' },
+      'Extras.Volume': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.01, label: 'Volume' },
+      'Extras.Muted': { type: 'boolean', variant: 'checkbox', value: false, label: 'Muted' },
     }, {
       container: '#panel',
       title: 'Controls',
+      collapsed: false,
       theme: () => dat(),
     })
+
+    nativeToggle({ ref: '../_ref/lil.html' })
   </script>
 </body>
 </html>

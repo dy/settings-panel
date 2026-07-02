@@ -47,13 +47,14 @@ export default function dat({
     color: var(--text);
     font-weight: 600;
     font-size: 11px;
-    padding: 0 6px;
+    padding: 0 4px;
     min-height: 25px;
     line-height: 1;
-    &::before { content: ''; width: 7px; height: 7px; margin-right: 5px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
+    &::before { content: ''; width: 1em; height: 1em; margin-right: 2px; flex-shrink: 0; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
   }
-  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E");
+  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 11 11' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='0.5,4 4,7.5 7.5,4' fill='none' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E");
   &:not([open]) > summary::before { transform: rotate(-90deg); }
+  > summary:focus-visible { outline: none; text-decoration: underline; }
   .s-panel-content { gap: 4px; padding: 4px 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 4px; }
 
@@ -63,11 +64,13 @@ export default function dat({
     padding: 0 4px;
     min-height: 20px;
     align-items: center;
+    /* Disabled: dim the whole row (lil-gui .controller.disabled), not just the widget — .s-input[inert] is the only disabled hook base.js exposes */
+    &:has(> .s-input[inert]) .s-label-group { opacity: .5; }
   }
-  .s-label-group { width: 45%; min-width: 0; max-width: none; padding: 0; line-height: 20px; }
-  .s-label { color: var(--text); font-weight: 400; }
+  .s-label-group { flex: 0 0 auto; width: auto; min-width: 45%; max-width: none; padding: 0; line-height: 20px; overflow: visible; }
+  .s-label { color: var(--text); font-weight: 400; white-space: nowrap; overflow: visible; }
   .s-hint { color: #888; font-size: 10px; }
-  .s-input { gap: 4px; align-items: center; }
+  .s-input { flex: 1 1 auto; min-width: 0; gap: 4px; align-items: center; }
 
   /* ── Widgets (inputs / select) ── */
   input[type="text"], input[type="number"], select {
@@ -76,7 +79,7 @@ export default function dat({
     border: none;
     border-radius: var(--r);
     height: 20px;
-    padding: 0 5px;
+    padding: 0 0 0 3px;
     font: inherit;
     &::placeholder { color: #888; }
     &:hover { background: #4f4f4f; }
@@ -99,10 +102,10 @@ export default function dat({
     input[type="range"] {
       width: 100%; height: 20px; -webkit-appearance: none; appearance: none; cursor: ew-resize;
       border-radius: var(--r);
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--widget) var(--p, 0%));
+      background: var(--widget);
       &::-webkit-slider-thumb { -webkit-appearance: none; width: 2px; height: 20px; background: var(--accent); cursor: ew-resize; }
       &::-moz-range-thumb { width: 2px; height: 20px; border: none; border-radius: 0; background: var(--accent); cursor: ew-resize; }
-      &:hover { background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), #4f4f4f var(--p, 0%)); }
+      &:hover { background: #4f4f4f; }
     }
     .s-marks { display: none; }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
@@ -110,7 +113,7 @@ export default function dat({
     .s-readout {
       flex: 0 0 auto; width: 27%; min-width: 45px; text-align: left;
       background: var(--widget); color: var(--accent); border: none; border-radius: var(--r);
-      height: 20px; padding: 0 5px; font-variant-numeric: tabular-nums;
+      height: 20px; padding: 0 0 0 3px; font-variant-numeric: tabular-nums;
       &:hover { background: #4f4f4f; } &:focus { background: #595959; outline: none; }
     }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 2px; background: #000; color: var(--accent); padding: 1px 5px; border-radius: 2px; white-space: nowrap; }
@@ -120,8 +123,9 @@ export default function dat({
 
   /* ── Select / dropdown ── */
   .s-select {
-    &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--text);
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='%23bbb'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; padding-right: 18px;
+    &.s-dropdown .s-input { justify-content: flex-start; }
+    &.s-dropdown select { flex: 0 0 auto; width: auto; min-width: 30px; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--text);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='%23ebebeb'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; background-size: 6px 9px; padding: 0 1.75em 0 0.55em;
       option { background: #2a2a2a; color: var(--text); } }
     &.s-segmented { .s-input { gap: 1px; } button { flex: 1; background: var(--widget); border: none; color: var(--text); padding: 3px; &:hover { background: #4f4f4f; } &.s-selected { background: var(--accent); color: #000; } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; padding: 3px 0; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
@@ -130,9 +134,10 @@ export default function dat({
   /* ── Boolean: #424242 square checkbox with a cyan check ── */
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; margin: 0; background: var(--widget); border-radius: var(--r); cursor: pointer; position: static; opacity: 1;
+    input[type="checkbox"] { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; margin: 0; background: var(--widget); border-radius: var(--r); cursor: pointer; position: static; opacity: 1; outline: none;
       &:hover { background: #4f4f4f; }
-      &:checked { background: var(--widget) url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%232cc9ff' stroke-width='2'/%3E%3C/svg%3E") center / 11px no-repeat; } }
+      &:focus-visible { background: #595959; }
+      &:checked { background: var(--widget) url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23ebebeb' stroke-width='2'/%3E%3C/svg%3E") center / 11px no-repeat; } }
     .s-track { display: none; }
     /* switch/toggle fall back to a checkbox-ish look via the native input above */
     &.s-switch .s-input, &.s-toggle .s-input { gap: 6px; }
@@ -142,7 +147,7 @@ export default function dat({
   .s-color {
     &.s-picker .s-color-input { gap: 4px;
       input[type="color"] { position: static; flex: 1; min-width: 0; height: 20px; padding: 0; border: none; border-radius: var(--r); cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r); } }
-      input[type="text"] { flex: 0 0 auto; width: 56px; background: var(--widget); color: var(--accent); border-radius: var(--r); font-family: ui-monospace, monospace; padding: 0 5px; height: 20px; } }
+      input[type="text"] { flex: 0 0 auto; width: 45px; background: var(--widget); color: var(--text); border-radius: var(--r); font-family: ui-monospace, monospace; padding: 0 0 0 3px; height: 20px; } }
     &.s-rgba .s-color-input { gap: 4px; input[type="color"] { flex: none; width: 28px; height: 20px; } input[type="text"] { flex: 1; font-family: ui-monospace, monospace; } }
     &.s-swatches button { width: 18px; height: 18px; border-radius: var(--r); border: 1px solid #000; &.s-selected { outline: 1px solid var(--accent); } }
   }
@@ -159,10 +164,13 @@ export default function dat({
 
   /* ── Folder ── */
   .s-folder {
-    > summary { background: #181818; color: #ccc; font-weight: 400; padding: 5px 8px 5px 10px; border-bottom: 1px solid #00000033;
-      &::after { content: ''; width: 9px; height: 9px; margin-left: auto; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; } }
-    &[open] > summary::after { transform: rotate(-180deg); }
-    .s-content { gap: 0; }
+    padding: 0;
+    > summary { background: transparent; color: var(--text); font-weight: 600; height: 25px; padding: 0 4px; border-top: 1px solid var(--widget); border-bottom: 1px solid var(--widget);
+      &::before { content: ''; width: 1em; height: 1em; margin-right: 2px; flex: none; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; }
+      &::after { display: none; } }
+    &:not([open]) > summary::before { transform: rotate(-90deg); }
+    > summary:focus-visible { outline: none; text-decoration: underline; }
+    .s-content { gap: 4px; margin-top: 4px; }
   }
 
   /* ── Info / separator ── */

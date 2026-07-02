@@ -21,7 +21,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 2rem 0 0;
+      padding: 0;
       background: #2b2b2b;
       font-size: 14px;
     }
@@ -32,22 +32,33 @@
   <script type="module">
     import settings from '../../index.js'
     import controlkit from '../../theme/controlkit.js'
+    import { nativeToggle } from './native-toggle.js'
 
     settings({
-      number: { type: 'number', value: 123, label: 'number' },
+      number: { type: 'text', value: '123.00', label: 'number' },
       string: { type: 'text', value: 'abc', label: 'string' },
       value: { type: 'slider', value: 0.5, min: 0, max: 1, step: 0.01, label: 'value' },
-      range: { type: 'slider', multiple: true, value: [-0.5, 0.5], min: -1, max: 1, step: 0.01, label: 'range' },
+      pair: { type: 'slider', multiple: true, value: [-0.5, 0.5], min: -1, max: 1, step: 0.01, readout: 'readonly', format: v => v.toFixed(2), label: 'pair' },
       bool: { type: 'boolean', variant: 'checkbox', value: false, label: 'bool' },
-      select: { type: 'select', value: 'B', options: ['A', 'B', 'C'], label: 'select' },
+      select: { type: 'select', value: 'Choose ...', options: ['Choose ...', 'A', 'B', 'C', 'D'], label: 'select' },
       color: { type: 'color', value: '#ff0000', label: 'color' },
-      xyvalue: { type: 'xy', value: [0.3, 0.7], min: 0, max: 1, step: 0.01, label: 'xyvalue' },
+      xyvalue: { type: 'xy', value: [0.3, 0.7], min: -1, max: 1, step: 0.01, label: 'xyvalue' },
+      speed: { type: 'slider', value: 50, min: 0, max: 200, step: 1, format: v => v.toFixed(2), label: 'speed' },
+      angle: { type: 'slider', value: 0, min: -180, max: 180, step: 1, format: v => v.toFixed(2), label: 'angle' },
+      ratio: { type: 'slider', value: 0.5, min: 0, max: 1, step: 0.01, label: 'ratio', disabled: true },
+      fps: { type: 'info', value: 60, label: 'fps' },
+      note: { type: 'text', value: 'hello', label: 'note' },
       FIRE: { type: 'button', label: false, text: 'FIRE' },
+      more: { type: 'folder', label: 'More' },
+      'more.seed': { type: 'text', value: '7.00', label: 'seed' },
     }, {
       container: '#panel',
       title: 'ControlKit',
+      collapsed: false,
       theme: () => controlkit(),
     })
+
+    nativeToggle({ ref: '../_ref/ck-ref.html' })
   </script>
 </body>
 </html>
