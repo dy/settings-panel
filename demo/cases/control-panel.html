@@ -14,18 +14,17 @@
   </script>
   <link href="https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css" rel="stylesheet">
   <style>
-    html { height: 100%; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; }
     body {
-      height: 100%;
+      min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #1a1a1a;
+      background: radial-gradient(120% 90% at 50% -10%, #2e2e2e 0%, #1a1a1a 55%, #0f0f0f 100%);
       padding: 2rem;
       font-size: 11px;
     }
     #panel {
       width: min(100%, 300px);
+      margin: auto;
     }
   </style>
 </head>
@@ -47,7 +46,9 @@
     }
     const initialDark = params.shade ? !isLight('#' + params.shade) : true
 
-    const setBodyBg = (dark) => document.body.style.background = dark ? '#1a1a1a' : '#999'
+    const DARK_BG = 'radial-gradient(120% 90% at 50% -10%, #2e2e2e 0%, #1a1a1a 55%, #0f0f0f 100%)'
+    const LIGHT_BG = 'radial-gradient(120% 90% at 50% -10%, #c4c4c4 0%, #999999 55%, #7a7a7a 100%)'
+    const setBodyBg = (dark) => document.body.style.background = dark ? DARK_BG : LIGHT_BG
     setBodyBg(initialDark)
 
     settings({
