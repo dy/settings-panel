@@ -13,7 +13,7 @@
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; }
     html { height: 100%; overflow: hidden; }
@@ -22,11 +22,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      /* Reference backdrop: two dark tonal panels, sparse oversized plus marks,
+         and a soft diagonal light sweep — the transparent form reads through it. */
+      background:
+        linear-gradient(115deg, transparent 40%, rgba(255,255,255,.05) 45%, rgba(255,255,255,.018) 58%, transparent 64%),
+        url("data:image/svg+xml,%3Csvg width='520' height='520' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M260 30v460M30 260h460' stroke='rgba(255,255,255,0.045)' stroke-width='92'/%3E%3C/svg%3E") no-repeat -180px 55% / 520px 520px,
+        url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M320 40v560M40 320h560' stroke='rgba(0,0,0,0.12)' stroke-width='110'/%3E%3C/svg%3E") no-repeat calc(100% + 220px) -160px / 640px 640px,
+        url("data:image/svg+xml,%3Csvg width='420' height='420' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M210 20v380M20 210h380' stroke='rgba(255,255,255,0.03)' stroke-width='72'/%3E%3C/svg%3E") no-repeat 82% 108% / 420px 420px,
+        linear-gradient(rgba(0,0,0,.10), rgba(0,0,0,.10)) no-repeat 0 78% / 30% 34%,
+        linear-gradient(rgba(255,255,255,.025), rgba(255,255,255,.025)) no-repeat 66% 12% / 42% 30%,
+        linear-gradient(90deg, rgb(43,40,44) 0 38%, rgb(70,67,73) 38%);
       padding: 2rem;
       font-size: 14px;
     }
     #panel {
-      width: min(100%, 460px);
+      width: min(100%, 340px);
     }
   </style>
 </head>
@@ -38,7 +48,7 @@
 
     const titleFont = `'Oswald', 'Arial Narrow', sans-serif`
     const labelFont = `'DM Sans', 'Helvetica', sans-serif`
-    const valueFont = `'DM Sans', 'Helvetica', sans-serif`
+    const valueFont = `'DM Serif Display', 'Georgia', serif`
 
     const schema = {
       'company': { type: 'text', value: 'Acme Co.', label: 'Company' },
@@ -48,6 +58,7 @@
       'desks': {
         type: 'number', value: 1, min: 1, max: 50,
         label: 'Number of Desks Needed',
+        style: '--label-w: 72%',
       },
       'founder': {
         type: 'select',
@@ -55,6 +66,7 @@
         value: 'Yes',
         options: ['No', 'Yes'],
         label: 'Startup Founder?',
+        style: '--label-w: 72%',
       },
       'needs': {
         type: 'select', variant: 'checkboxes', multiple: true,
@@ -66,12 +78,7 @@
           { value: 'events', label: 'A Space For Events' },
         ],
         label: 'Check All That Apply',
-      },
-      'preferences': { type: 'folder', label: 'Preferences', collapsed: false },
-      'preferences.budget': {
-        type: 'slider', value: 800, min: 200, max: 2000, step: 50,
-        format: v => `$${v}`,
-        label: 'Monthly Budget',
+        style: '--label-w: 40%',
       },
       'submit': { type: 'button', label: false, text: 'Send My Info', onClick: () => {} },
     }
@@ -86,11 +93,6 @@
         theme: () => swiss({ titleFont, labelFont, valueFont }),
         title: 'Be in Cahoots',
       })
-      // Body ground derives from the panel's own resolved --shade (panel itself
-      // stays --bg: transparent by design) — one literal, not two independently
-      // maintained colors.
-      const panelEl = container.querySelector('.s-panel')
-      document.body.style.background = getComputedStyle(panelEl).getPropertyValue('--shade').trim()
       const title = container.querySelector('.s-panel-title')
       if (title) {
         const sub = document.createElement('div')
