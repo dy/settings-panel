@@ -2,6 +2,10 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   testDir: './test',
+  // Strict pixel comparison: the default perceptual threshold (0.2) lets
+  // low-contrast design drift pass (an entire backdrop swap between two
+  // charcoals went unnoticed). 0.06 still tolerates antialiasing noise.
+  expect: { toHaveScreenshot: { threshold: 0.06 } },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
