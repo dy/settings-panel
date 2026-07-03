@@ -1,12 +1,26 @@
 /**
  * Swiss theme — International Typographic Style
  *
- * Grid rows, hairline rules, typographic hierarchy. No radius, no shadow.
- * Axes: shade/accent (ink + selection color), spacing, weight, size (grid
- * unit), hairline (rule weight), scale (type-size ramp), plus the three
- * font-role slots (title/label/value). Every rule, size, and font-size below
- * reads from the derived tokens in the var block — nothing is a bare literal.
- * swiss(axes?) → CSS string
+ * Baseline grid: one atomic unit (--u, from the `size` axis) drives a single
+ * shared leading (--leading, 6u) used as the line-height of every text line —
+ * label or value, whatever the point size — so baselines lock across columns
+ * regardless of the font-size tier. Every row is pad + leading + pad (--row,
+ * 10u); every padding, gap, and hairline position is a calc() of --u.
+ * Nothing vertical is a bare literal.
+ *
+ * Modular type scale: three tiers off one ratio (--ratio) and the `scale`
+ * axis — label (÷ratio), value (the 1rem base), title (×ratio⁴). Hierarchy
+ * comes from size + one bold weight (`weight` axis; reading text stays a
+ * fixed book weight), never decoration — no italics, no serif-for-emphasis.
+ *
+ * Grotesque throughout: one workhorse sans for labels and values, a condensed
+ * display cut for the title — the Univers/Akzidenz-Grotesk family-of-weights
+ * idea, not a mix of unrelated typefaces. Tabular numerals on every value.
+ * One signal red accent. Sharp corners, no shadow — `roundness` stays 0.
+ *
+ * Axes: shade/accent (ink + selection color), spacing, weight (bold tier),
+ * size (grid unit), hairline (rule weight), scale (type ramp), plus the
+ * three font-role slots (title/label/value). swiss(axes?) → CSS string
  */
 
 import baseCSS from './base.js'
@@ -19,16 +33,16 @@ const checkMark = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='htt
 
 export default function swiss({
   shade = '#4a4a4a',
-  accent = '#ffffff',
+  accent = '#e30613', // Swiss signal red
   spacing = 1,
-  weight = 500,
+  weight = 700,       // bold tier; reading text stays a fixed book weight
   roundness = 0, // always sharp; kept for axis API
   size = 1,       // grid unit (--u) multiplier
   hairline = 1,   // rule / border weight, px
   scale = 1,      // typographic scale multiplier
-  titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
-  labelFont = `'DM Sans', 'Helvetica', sans-serif`,
-  valueFont = `'DM Serif Display', 'Georgia', serif`
+  titleFont = `'Oswald', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif`,
+  labelFont = `'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif`,
+  valueFont = `'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif`
 } = {}) {
   const { L } = parseColor(shade)
   const dark = L < .6
@@ -36,6 +50,7 @@ export default function swiss({
   const overrides = `.s-panel {
   /* ── Tokens ── */
   --bg: transparent;
+  --shade: ${shade};
   --accent: ${resolveAccent(accent, shade)};
   --spacing: ${spacing};
   --weight: ${weight};
@@ -44,28 +59,46 @@ export default function swiss({
   --u: calc(4px * ${size});
   --hairline: ${hairline}px;
   --scale: ${scale};
-  /* type scale — every font-size in the theme is one of these six steps */
-  --size-title: calc(2.625rem * var(--scale));
-  --size-subtitle: calc(0.9375rem * var(--scale));
-  --size-label: calc(0.75rem * var(--scale));
-  --size-value: calc(1rem * var(--scale));
-  --size-readout: calc(0.875rem * var(--scale));
-  --size-button: calc(1.2rem * var(--scale));
+
+  /* baseline grid — every vertical value in this theme is a calc() of --u */
+  --leading: calc(var(--u) * 6);                /* 24px @1 — the one line-height, label or value */
+  --pad: calc(var(--u) * 2 * var(--spacing));   /* 8px @1 — vertical rhythm padding */
+  --row: calc(var(--pad) * 2 + var(--leading)); /* 40px @1 — one grid row: pad + leading + pad */
+
+  /* modular type scale — one ratio, three tiers, off --scale */
+  --ratio: 1.25;
+  --size-value: calc(1rem * var(--scale));                                                            /* 16px @1 — data / body tier */
+  --size-label: calc(var(--size-value) / var(--ratio));                                                /* 12.8px @1 — caption tier */
+  --size-title: calc(var(--size-value) * var(--ratio) * var(--ratio) * var(--ratio) * var(--ratio));   /* 39px @1 — display tier */
+  /* Baseline lock: label and value share one line box (--leading) but each size
+     centres its own half-leading, drifting their baselines apart by
+     (size-value − size-label) · k, k = (ascent − descent)/2 of the value font
+     (0.3125 measured for DM Sans). Value ink lifts by that difference so both
+     tiers sit on ONE baseline per row — the grid's actual promise. */
+  --baseline-comp: calc((var(--size-value) - var(--size-label)) * 0.3125);
+  --size-subtitle: var(--size-label);
+  --size-readout: var(--size-label);
+  --size-button: var(--size-value);
   --title-font: ${titleFont};
   --label-font: ${labelFont};
   --value-font: ${valueFont};
+
+  /* two weights only: fixed book for reading, axis-driven bold for chrome */
+  --weight-book: 400;
+  --weight-bold: var(--weight);
+  --tracking: 0.06em;
+
   color-scheme: ${dark ? 'dark' : 'light'};
   color: light-dark(black, white);
 
-  --rule: light-dark(color-mix(in srgb, black 12%, transparent), white);
-  --dim: light-dark(color-mix(in srgb, black 45%, transparent), color-mix(in srgb, white 50%, transparent));
+  --rule: light-dark(color-mix(in srgb, black 12%, transparent), color-mix(in srgb, white 12%, transparent));
+  --dim: light-dark(color-mix(in srgb, black 58%, transparent), color-mix(in srgb, white 66%, transparent)); /* ≥4.5:1 AA vs panel ground, both modes */
   --fill: light-dark(color-mix(in srgb, black 7%, transparent), color-mix(in srgb, white 10%, transparent));
   --fill-hover: light-dark(color-mix(in srgb, black 11%, transparent), color-mix(in srgb, white 16%, transparent));
   --check-mark: ${checkMark};
   --chev-up: ${chevUp};
   --chev-down: ${chevDown};
-  --pad: calc(var(--u) * 2 * var(--spacing));
-  --label-w: 28%;
+  --label-w: 47.5%; /* wide enough that multi-word labels (e.g. "Number of Desks Needed") stay one line */
 
   font-family: system-ui, -apple-system, sans-serif;
   font-size: inherit;
@@ -73,48 +106,68 @@ export default function swiss({
   padding: 0;
   -webkit-font-smoothing: antialiased;
 
-  /* ── Panel header ── */
+  /* ── Panel header — flush-left, asymmetric composition (International
+     Typographic Style rejects centered classical titling) ── */
   > summary, > .s-panel-title {
     font-family: var(--title-font);
-    font-weight: 600;
+    font-weight: var(--weight-bold);
     text-transform: uppercase;
     font-size: var(--size-title);
-    line-height: 1.1;
-    text-align: center;
+    line-height: calc(var(--u) * 10);
+    text-align: left;
     display: block;
     padding: calc(var(--u) * 5) var(--pad) calc(var(--u) * 4);
     &::after { display: none; }
 
     & + .s-subtitle {
       font-family: var(--value-font);
-      font-style: italic;
+      font-weight: var(--weight-book);
       font-size: var(--size-subtitle);
-      text-align: center;
+      text-align: left;
       color: var(--dim);
-      line-height: 1.25;
+      line-height: var(--leading);
       max-width: 24ch;
-      margin: 0 auto;
+      margin: 0;
+      padding: 0 var(--pad);
     }
   }
 
   .s-panel-content {
     gap: 0;
-    padding: calc(var(--u) * 13) 0 0;
+    padding: calc(var(--leading) * 2) 0 0; /* 48px @1 — two leadings, the gap before the grid begins */
   }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
     padding-top: 0;
   }
 
-  /* ── Grid row ── */
+  /* ── Grid row ──
+     The hairline is painted as a box-shadow, not a border: a border-top
+     would add var(--hairline) on top of the content box (border-box
+     includes it in principle, but min-height is only a floor — content
+     already fills the full --row, so the border pushes the rendered
+     height to --row + hairline). A 0-blur/0-spread shadow draws the same
+     crisp line bleeding into the row above without consuming any of
+     this row's own box, so every row renders at exactly --row (the 4px
+     module), never --row + 1. */
   .s-control {
-    border-top: var(--hairline) solid var(--rule);
+    min-height: var(--row);
+    box-shadow: 0 calc(var(--hairline) * -1) 0 0 var(--rule);
     padding: 0;
     gap: 0;
     align-items: stretch;
   }
+  /* First row inside a folder: the summary's own bottom hairline already
+     divides it from its content, so this row's top hairline would double it. */
+  .s-folder > .s-content > .s-control:first-child { box-shadow: none; }
 
   .s-label-group {
-    min-width: 12ch;
+    /* min-width floor measured in the label's OWN font (not the inherited
+       system-ui/14px/700 the panel starts from) — otherwise 12ch resolves
+       against the wrong glyph metrics and silently overrides --label-w. */
+    font-family: var(--label-font);
+    font-weight: var(--weight-bold);
+    font-size: var(--size-label);
+    min-width: 23ch;
     width: var(--label-w);
     max-width: none;
     align-self: stretch;
@@ -123,15 +176,15 @@ export default function swiss({
     display: flex;
     flex-direction: column;
     justify-content: center;
-    line-height: var(--lh);
+    line-height: var(--leading);
   }
 
   .s-label {
     font-family: var(--label-font);
-    font-weight: 600;
+    font-weight: var(--weight-bold);
     text-transform: uppercase;
-    letter-spacing: .08em;
-    line-height: 1.57;
+    letter-spacing: var(--tracking);
+    line-height: var(--leading);
     font-size: var(--size-label);
   }
 
@@ -141,11 +194,22 @@ export default function swiss({
     align-self: stretch;
   }
 
+  /* value ink sits on the label's baseline (--baseline-comp): ink-only shift,
+     no reflow. Buttons pair with no label in-row, so they stay box-centred. */
+  .s-text input[type="text"], .s-number input[type="number"], .s-textarea textarea,
+  .s-select select, .s-slider .s-readout, .s-info .s-monitor,
+  .s-select.s-radio .s-input label span,
+  .s-select.s-checkboxes .s-input label span:not(.s-track) {
+    transform: translateY(calc(-1 * var(--baseline-comp)));
+  }
+
   /* ── Value typography (shared) ── */
   input[type="text"], input[type="number"], textarea, select, button {
     font-family: var(--value-font);
     font-size: var(--size-value);
-    font-weight: var(--weight);
+    font-weight: var(--weight-book);
+    line-height: var(--leading);
+    font-variant-numeric: tabular-nums;
     color: inherit;
     border-radius: 0;
     box-shadow: none;
@@ -177,7 +241,6 @@ export default function swiss({
     border: none;
     outline: none;
     padding: var(--pad) calc(var(--u) * 4);
-    font-variant-numeric: tabular-nums;
     &::placeholder { color: var(--dim); }
     &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -286,7 +349,6 @@ export default function swiss({
         border-left: var(--hairline) solid var(--rule);
         outline: none;
         cursor: pointer;
-        letter-spacing: .02em;
         margin-left: calc(var(--hairline) * -1);
         padding: var(--pad) calc(var(--u) * 1.5);
         text-align: center;
@@ -300,10 +362,9 @@ export default function swiss({
       }
       .s-input:has(button:nth-child(3)) button {
         margin-left: 0;
-        margin-top: calc(var(--hairline) * -1);
         border-left: none;
-        border-top: var(--hairline) solid var(--rule);
-        &:first-child { margin-top: 0; border-top: none; }
+        box-shadow: 0 calc(var(--hairline) * -1) 0 0 var(--rule);
+        &:first-child { box-shadow: none; }
       }
     }
 
@@ -331,43 +392,45 @@ export default function swiss({
         position: relative;
         display: flex;
         align-items: center;
-        gap: calc(var(--u) * 1.5);
-        font-family: var(--label-font);
-        font-weight: 600;
-        font-size: var(--size-label);
-        line-height: 1.57;
-        text-transform: none;
+        font-family: var(--value-font);
+        font-weight: var(--weight-book);
+        font-size: var(--size-value);
+        line-height: var(--leading);
         cursor: pointer;
-        min-height: calc(var(--u) * 6.5);
-        & + label { border-top: var(--hairline) solid var(--rule); }
-        &::before {
-          content: '';
-          width: calc(var(--u) * 7);
-          align-self: stretch;
-          flex-shrink: 0;
-          padding: calc(var(--u) * 1.5);
-          border-right: var(--hairline) solid var(--rule);
-          transition: background-color 120ms;
-        }
-        &:hover::before { background: var(--fill-hover); }
-        &:has(input:checked)::before { background-color: var(--fill); }
-        &:has(input:checked):hover::before { background-color: var(--fill-hover); }
+        /* text takes the standard value lead (flush with every other row's
+           value column); the check glyph sits flush right instead — a second
+           gutter rule here would duplicate the column divider a few u away. */
+        padding: var(--pad) calc(var(--u) * 8) var(--pad) calc(var(--u) * 4);
+        transition: background-color 120ms;
+        /* box-shadow, not border-top: an added border would push this row's
+           own rendered height past --row, same fix as .s-control above. */
+        & + label { box-shadow: 0 calc(var(--hairline) * -1) 0 0 var(--rule); }
+        &:hover { background: var(--fill-hover); }
+        &:has(input:checked) { background: var(--fill);
+          &:hover { background: var(--fill-hover); } }
+        /* Checkbox glyph: an always-visible bordered square (the box itself
+           is the affordance) that fills solid + reveals the checkmark cut-out
+           only once checked — unchecked state must never read as a bare rule. */
         &::after {
           content: '';
           position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: calc(var(--u) * 7);
-          background: light-dark(black, white);
-          -webkit-mask: var(--check-mark) center / 14px no-repeat;
-          mask: var(--check-mark) center / 14px no-repeat;
+          right: calc(var(--u) * 4);
+          top: 50%;
+          width: calc(var(--u) * 4);
+          height: calc(var(--u) * 4);
+          transform: translateY(-50%);
+          background: transparent;
+          border: var(--hairline) solid var(--rule);
           pointer-events: none;
-          opacity: 0;
-          transform: scale(.25);
-          transition: opacity 140ms, transform 140ms;
+          transition: background-color 140ms, border-color 140ms;
         }
-        &:has(input:checked)::after { opacity: 1; transform: scale(1); }
+        &:hover::after { border-color: var(--dim); }
+        &:has(input:checked)::after {
+          background: light-dark(black, white);
+          border-color: light-dark(black, white);
+          -webkit-mask: var(--check-mark) center / calc(var(--u) * 2.75) no-repeat;
+          mask: var(--check-mark) center / calc(var(--u) * 2.75) no-repeat;
+        }
       }
     }
 
@@ -376,10 +439,13 @@ export default function swiss({
       .s-input { flex-direction: column; gap: 0; align-items: stretch; padding: 0; }
       .s-input label {
         font-family: var(--value-font);
+        font-weight: var(--weight-book);
+        font-size: var(--size-value);
+        line-height: var(--leading);
         padding: var(--pad) calc(var(--u) * 4);
         cursor: pointer;
         transition: background-color 120ms;
-        & + label { border-top: var(--hairline) solid var(--rule); }
+        & + label { box-shadow: 0 calc(var(--hairline) * -1) 0 0 var(--rule); }
         &:hover { background: var(--fill-hover); }
         &.s-selected {
           background: var(--fill);
@@ -389,10 +455,46 @@ export default function swiss({
     }
   }
 
-  /* ── Slider ── */
+  /* ── Slider — sharp rectilinear track + tick-mark thumb, no OS chrome.
+     A ruler-caliper reading: a thin filled rule for the track (the same
+     --rule hairline used for every row divider, just thicker) crossed by
+     a solid rectangular tick for the thumb. Zero radius, zero shadow,
+     one restrained red accent — same invariants as the rest of the grid. ── */
   .s-slider {
-    input[type="range"] { accent-color: var(--accent); }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: calc(var(--u) * 2);
+      margin: 0;
+      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--rule) var(--p, 0%));
+      border-radius: 0;
+      cursor: pointer;
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: calc(var(--u) * 2);
+        height: calc(var(--u) * 5);
+        margin-top: calc((var(--u) * 2 - var(--u) * 5) / 2);
+        background: var(--accent);
+        border-radius: 0;
+        cursor: pointer;
+      }
+      &::-moz-range-thumb {
+        width: calc(var(--u) * 2);
+        height: calc(var(--u) * 5);
+        background: var(--accent);
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+      }
+      /* outset, not inset like every other control: the track is only 2u
+         tall, so an inward ring (the usual calc(--hairline) * -1) would sit
+         entirely inside the fill and vanish. Outward keeps it legible while
+         still tracking the hairline axis. */
+      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * 2); }
+    }
     .s-readout {
+      font-family: var(--value-font);
       color: var(--dim);
       font-size: var(--size-readout);
       font-variant-numeric: tabular-nums;
@@ -405,18 +507,26 @@ export default function swiss({
     button {
       width: 100%;
       background: var(--fill);
-      border: var(--hairline) solid var(--rule);
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      /* outline, not border: a real border adds var(--hairline) on every
+         edge on top of the module-locked padding+leading box below. outline
+         never participates in layout, so the rendered height stays exact. */
+      outline: var(--hairline) solid var(--rule);
+      outline-offset: calc(var(--hairline) * -1);
       font-family: var(--title-font);
-      font-weight: 600;
+      font-weight: var(--weight-bold);
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: var(--tracking);
       font-size: var(--size-button);
+      line-height: var(--leading);
       padding: calc(var(--u) * 4) calc(var(--u) * 5);
       cursor: pointer;
       transition: background-color 120ms, filter 120ms, transform 120ms;
       &:hover { background: var(--fill-hover); }
       &:active { filter: brightness(.9); transform: scale(0.96); }
-      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+      &:focus-visible { outline-color: var(--accent); }
     }
     &.s-secondary button, button.s-secondary {
       background: transparent;
@@ -430,11 +540,16 @@ export default function swiss({
   .s-folder {
     > summary {
       font-family: var(--label-font);
-      font-weight: 600;
+      font-weight: var(--weight-bold);
       text-transform: uppercase;
-      letter-spacing: .04em;
+      letter-spacing: var(--tracking);
       font-size: var(--size-label);
-      border-bottom: var(--hairline) solid var(--rule);
+      line-height: var(--leading);
+      /* box-shadow, not border-bottom — keeps summary itself at exactly
+         --row, and its first child row already suppresses its own top
+         hairline above (.s-folder > .s-content > .s-control:first-child),
+         so the seam gets this one line, never two stacked. */
+      box-shadow: 0 var(--hairline) 0 0 var(--rule);
       padding: var(--pad);
       &::after { display: none; }
     }

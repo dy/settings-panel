@@ -13,7 +13,7 @@
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; }
     html { height: 100%; overflow: hidden; }
@@ -22,12 +22,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgb(79,75,83);
       padding: 2rem;
       font-size: 14px;
     }
     #panel {
-      width: min(100%, 340px);
+      width: min(100%, 460px);
     }
   </style>
 </head>
@@ -39,7 +38,7 @@
 
     const titleFont = `'Oswald', 'Arial Narrow', sans-serif`
     const labelFont = `'DM Sans', 'Helvetica', sans-serif`
-    const valueFont = `'DM Serif Display', 'Georgia', serif`
+    const valueFont = `'DM Sans', 'Helvetica', sans-serif`
 
     const schema = {
       'company': { type: 'text', value: 'Acme Co.', label: 'Company' },
@@ -49,7 +48,6 @@
       'desks': {
         type: 'number', value: 1, min: 1, max: 50,
         label: 'Number of Desks Needed',
-        style: '--label-w: 72%',
       },
       'founder': {
         type: 'select',
@@ -57,7 +55,6 @@
         value: 'Yes',
         options: ['No', 'Yes'],
         label: 'Startup Founder?',
-        style: '--label-w: 72%',
       },
       'needs': {
         type: 'select', variant: 'checkboxes', multiple: true,
@@ -69,7 +66,12 @@
           { value: 'events', label: 'A Space For Events' },
         ],
         label: 'Check All That Apply',
-        style: '--label-w: 40%',
+      },
+      'preferences': { type: 'folder', label: 'Preferences', collapsed: false },
+      'preferences.budget': {
+        type: 'slider', value: 800, min: 200, max: 2000, step: 50,
+        format: v => `$${v}`,
+        label: 'Monthly Budget',
       },
       'submit': { type: 'button', label: false, text: 'Send My Info', onClick: () => {} },
     }
@@ -84,6 +86,11 @@
         theme: () => swiss({ titleFont, labelFont, valueFont }),
         title: 'Be in Cahoots',
       })
+      // Body ground derives from the panel's own resolved --shade (panel itself
+      // stays --bg: transparent by design) — one literal, not two independently
+      // maintained colors.
+      const panelEl = container.querySelector('.s-panel')
+      document.body.style.background = getComputedStyle(panelEl).getPropertyValue('--shade').trim()
       const title = container.querySelector('.s-panel-title')
       if (title) {
         const sub = document.createElement('div')
