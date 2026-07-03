@@ -177,7 +177,7 @@ export default function figma({
         &:focus-visible { box-shadow: inset 0 0 0 1px var(--accent); }
         &.s-selected { background: var(--sel); box-shadow: 0 1px 2px var(--sel-shadow); color: var(--ink); }
         &.s-selected:focus-visible { box-shadow: 0 1px 2px var(--sel-shadow), inset 0 0 0 1px var(--accent); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 1.5); } label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 1.5); } .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
   }
 
   /* ── Boolean ── */

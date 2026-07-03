@@ -176,7 +176,7 @@ export default function apple({
         transition: background .12s var(--ease), box-shadow .12s var(--ease);
         &:not(.s-selected):hover { background: var(--segment-hover); }
         &.s-selected { background: var(--segment-selected); box-shadow: var(--shadow-pill); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); } label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); } .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
   }
 
   /* ── Boolean (iOS toggle) ── */

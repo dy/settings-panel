@@ -198,7 +198,7 @@ export default function controlkit({
       &:hover { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='${enc(selectArrow)}'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"), var(--chrome-hover); }
       option { background: var(--field); color: var(--text); } }
     &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: var(--field); border: 1px solid var(--void); color: var(--text); margin-left: -1px; padding: 2px; font: inherit; &:first-child { margin-left: 0; } &.s-selected { background: var(--accent); color: var(--ink); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 2px; } label { display: flex; align-items: center; gap: 5px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 2px; } .s-input label { display: flex; align-items: center; gap: 5px; cursor: pointer; } }
   }
 
   /* ── Boolean: small checkbox ── */

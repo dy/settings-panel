@@ -34,7 +34,7 @@ export default function leva({
   accent = '#007bff',    // accent2 — slider fill, thumb, checked boxes
   title = '#292d39',     // elevation1 — title bar / slider track / folder rule
   muted = '#8c92a4',     // highlight2 — labels, input values, select-arrow glyph
-  ink = '#fefefe',       // highlight3 — folder/button/monitor text, checkmark glyph
+  ink = '#fefefe',       // highlight3 — folder/button text, checkmark glyph
   dim = '#535760',       // title-bar text, folder chevron — dimmer than muted
 } = {}) {
   const acc = resolveAccent(accent, shade)
@@ -183,7 +183,7 @@ export default function leva({
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 9 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.8 4.4c.4.3 1 .3 1.4 0L8 1.7A1 1 0 007.4 0H1.6a1 1 0 00-.7 1.7l3 2.7z' fill='${enc(muted)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 9px 5px; padding-right: 22px;
       option { background: var(--field); color: var(--muted); } }
     &.s-segmented { .s-input { gap: 2px; } button { flex: 1; background: var(--field); border: none; color: var(--ink); border-radius: var(--r); padding: 4px; font: inherit; transition: background-color .1s; &:hover { background: var(--field-hover); } &.s-selected { background: var(--accent); color: var(--ink); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 4px; } label { display: flex; align-items: center; gap: 7px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 4px; } .s-input label { display: flex; align-items: center; gap: 7px; cursor: pointer; } }
   }
 
   /* ── Boolean: 16px square, blue when checked ── */
@@ -235,7 +235,7 @@ export default function leva({
   }
 
   /* ── Info / separator ── */
-  .s-info .s-monitor { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .s-info .s-monitor { color: var(--muted); font-variant-numeric: tabular-nums; }
   .s-separator { background: var(--title); opacity: 1; }
 }`
 

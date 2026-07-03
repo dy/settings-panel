@@ -148,7 +148,7 @@ export default function oui({
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; border-bottom: 1px solid var(--line);
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='${enc(hint)}' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1px center; background-size: 9px 6px; padding: 0 18px 0 2px; }
     &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: transparent; border: 1px solid var(--line); color: var(--text); margin-left: -1px; padding: 3px; font: inherit; &:first-child { margin-left: 0; } &:hover { color: var(--accent); } &.s-selected { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: flex-end; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: flex-end; gap: 3px; } .s-input label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
   }
 
   /* ── Boolean: native checkbox, right ── */

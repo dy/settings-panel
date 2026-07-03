@@ -261,10 +261,10 @@ export default function brutal({
     .s-input { cursor: pointer; }
     &.s-switch {
       .s-track {
-        width: calc(var(--u) * 11); height: calc(var(--u) * 6);
+        width: calc(var(--u) * 12); height: calc(1lh + var(--pad) * 2);
         background: var(--paper); border: var(--bw) solid var(--ink); border-radius: 0; position: relative;
         box-shadow: var(--groove);
-        &::after { content: ''; position: absolute; top: calc(var(--u) * .5); left: calc(var(--u) * .5); width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); background: var(--ink); transition: transform .12s; }
+        &::after { content: ''; position: absolute; top: var(--press-sm); left: var(--press-sm); width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); background: var(--ink); transition: transform .12s; }
       }
       &:has(input:checked) .s-track { background: var(--accent); &::after { transform: translateX(calc(var(--u) * 5)); } }
       &:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
@@ -321,7 +321,7 @@ export default function brutal({
     &.s-dropdown select { flex: 1; }
     &.s-segmented {
       .s-input { gap: 0; }
-      button { flex: 1; background: var(--paper); border: var(--bw) solid var(--ink); margin-left: calc(-1 * var(--bw)); color: var(--ink); text-transform: uppercase; padding: var(--pad);
+      button { flex: 1; height: calc(1lh + var(--pad) * 2); display: flex; align-items: center; justify-content: center; background: var(--paper); border: var(--bw) solid var(--ink); margin-left: calc(-1 * var(--bw)); color: var(--ink); text-transform: uppercase; padding: 0 var(--pad);
         position: relative; transition: transform .06s;
         &:first-child { margin-left: 0; }
         &:hover { background: color-mix(in oklab, var(--accent), var(--paper) 60%); }
@@ -330,18 +330,20 @@ export default function brutal({
         &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: calc(var(--bw) * -2); z-index: 2; } }
     }
     &.s-radio {
+      align-items: flex-start;
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing)); }
-      label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; font-weight: 600; }
+      .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; font-weight: 600; }
     }
     &.s-checkboxes {
+      align-items: flex-start;
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing)); }
-      label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; font-weight: 600; }
+      .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; font-weight: 600; }
       .s-track { width: calc(var(--u) * 5); height: calc(var(--u) * 5); flex-shrink: 0; background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
         box-shadow: var(--groove);
         &::after { content: ''; position: absolute; inset: var(--press-sm); background: transparent; } }
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-      label:has(input:checked) .s-track::after { background: var(--accent); }
-      label:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
+      .s-input label:has(input:checked) .s-track::after { background: var(--accent); }
+      .s-input label:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); }
     }
   }
 
@@ -349,9 +351,9 @@ export default function brutal({
   .s-color {
     &.s-picker .s-color-input {
       gap: var(--u);
-      input[type="color"] { position: static; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: var(--bw) solid var(--ink); box-shadow: var(--plate-sm); cursor: pointer;
+      input[type="color"] { position: static; font: inherit; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: var(--bw) solid var(--ink); cursor: pointer;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; }
-        &:focus-visible { outline: var(--bw) solid var(--ink); outline-offset: var(--focus-gap); } }
+        &:focus-visible { outline: none; box-shadow: var(--plate-sm); } }
       input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; }
     }
     &.s-swatches {

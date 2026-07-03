@@ -583,7 +583,7 @@ export default function lab01({
     }
 
     &.s-checkboxes {
-      label {
+      .s-input label {
         color: inherit;
         cursor: pointer;
       }

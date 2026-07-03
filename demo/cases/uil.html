@@ -17,6 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
     body {
       min-height: 100vh;
       display: flex;
@@ -49,8 +51,8 @@
       Number: { type: 'number', value: 70, min: -60, max: 200, label: 'Number' },
       Locked: { type: 'number', value: 42, min: 0, max: 100, label: 'Locked', disabled: true },
       Sel: { type: 'select', variant: 'segmented', value: '', options: ['A', 'B', 'C'], label: 'Sel' },
-      Knob: { type: 'knob', value: 40, min: 0, max: 100, label: 'Knob' },
-      Pad: { type: 'xy', value: [0.2, 0.5], min: [-1, 1], max: [1, -1], readout: true, format: ([x, y]) => +x.toFixed(2) + ',' + +y.toFixed(2), label: 'Pad' },
+      Knob: { type: 'knob', value: 40, min: 0, max: 100, mode: 'circular', label: 'Knob' },
+      Pad: { type: 'xy', value: [0.2, 0.5], min: [-1, 1], max: [1, -1], readout: true, format: ([x, y]) => x.toFixed(2) + ',' + y.toFixed(2), label: 'Pad' },
       More: { type: 'folder', label: 'More' },
       'More.Inside': { type: 'boolean', variant: 'switch', value: true, label: 'Inside' },
       Files: { type: 'button', variant: 'group', label: 'Files', buttons: { LOAD: () => {}, SAVE: () => {} } },

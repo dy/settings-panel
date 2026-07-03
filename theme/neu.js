@@ -254,7 +254,7 @@ export default function neu({
     }
     &.s-radio, &.s-checkboxes {
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * var(--spacing) * 1.5); }
-      label { display: flex; align-items: center; gap: calc(var(--u) * 2.5); cursor: pointer; }
+      .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2.5); cursor: pointer; }
     }
     &.s-checkboxes {
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }

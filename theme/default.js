@@ -290,7 +290,7 @@ const softCSS = (t) => `@layer s-soft {
     &.s-dropdown select { flex: 1; cursor: pointer; }
     &.s-radio {
       .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * var(--spacing)); }
-      label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
+      .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
     }
     &.s-segmented {
       align-items: center;
@@ -314,7 +314,7 @@ const softCSS = (t) => `@layer s-soft {
     }
     &.s-checkboxes {
       .s-input { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * var(--spacing)); }
-      label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
+      .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 1.5); cursor: pointer; }
       .s-track { display: none; }
     }
   }

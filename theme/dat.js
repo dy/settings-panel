@@ -148,7 +148,7 @@ export default function dat({
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='${enc(text)}'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; background-size: 6px 9px; padding: 0 1.75em 0 0.55em;
       option { background: var(--menu); color: var(--text); } }
     &.s-segmented { .s-input { gap: 1px; } button { flex: 1; background: var(--widget); border: none; color: var(--text); padding: 3px; &:hover { background: var(--widget-hover); } &.s-selected { background: var(--accent); color: var(--ink); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; padding: 3px 0; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; padding: 3px 0; } .s-input label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
   }
 
   /* ── Boolean: widget-colored square checkbox with a text-colored check ── */

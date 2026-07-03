@@ -52,10 +52,12 @@ export default function glass({
   const chevronFg = dark ? '#ccc' : '#555'
 
   // Backdrop tint: the milky density of the glass itself, scaled by `tint`
-  // (0 clear → 1 current frost). Saturate is the fixed optical constant that
+  // (0 clear → 1 current frost). Kept deliberately light — real Liquid Glass
+  // lets the scene glow *through* and lifts its colour, rather than smoking
+  // it out with a dense wash. Saturate is the fixed optical constant that
   // keeps whatever shows through the blur vivid rather than washed out.
-  const tintAlpha = op((dark ? 0.45 : 0.4) * tint)
-  const saturate = 1.7
+  const tintAlpha = op((dark ? 0.11 : 0.22) * tint)
+  const saturate = 2.2
 
   // Dispersion: real glass edges split light into a faint red/blue fringe
   // (chromatic aberration) — a hairline colour offset on opposing sides of the
@@ -64,12 +66,18 @@ export default function glass({
   const dispersionWarm = '255,90,90', dispersionCool = '90,150,255'
   const dispersionHard = op(0.12 * depth), dispersionSoft = op(0.08 * depth)
   const dispersion = `inset 1px 0 0 rgba(${dispersionWarm},${dispersionHard}), inset -1px 0 0 rgba(${dispersionCool},${dispersionHard}), inset 0 1px 0 rgba(${dispersionWarm},${dispersionSoft}), inset 0 -1px 0 rgba(${dispersionCool},${dispersionSoft})`
-  // Specular highlight: a soft diagonal sheen sweeping the upper glass plus a
-  // tighter hot-spot near the top-left corner — like a curved pane catching a
-  // single overhead light. Scales with `depth` alongside the dispersion fringe
+  // Specular highlight: one crisp light hugging the top edge (a wide, shallow
+  // ellipse) plus a smaller curved sheen near the corner — like a curved pane
+  // catching a single overhead light. Both fall off fast and stay inside the
+  // header band, so they read as light hitting glass, never as a wash smeared
+  // over the copy beneath. Scales with `depth` alongside the dispersion fringe
   // — both are the same physical property (how strongly the glass bends and
   // catches light), just expressed as rim-color vs. surface-sheen.
-  const specular = `radial-gradient(60% 40% at 22% 0%, ${lite(op((dark ? 0.22 : 0.65) * depth))} 0%, transparent 70%), linear-gradient(120deg, ${lite(op((dark ? 0.12 : 0.55) * depth))} 0%, ${lite(op(0.03 * depth))} 22%, transparent 46%, transparent 100%)`
+  const specular = `radial-gradient(80% 14% at 50% -2%, ${lite(op((dark ? 0.5 : 0.8) * depth))} 0%, transparent 68%), radial-gradient(30% 20% at 16% 0%, ${lite(op((dark ? 0.22 : 0.4) * depth))} 0%, transparent 76%)`
+  // Legibility halo: with the tint this light, bright backdrop can sit right
+  // behind bare label text — a soft dark halo (not a panel-wide wash) keeps
+  // every row readable without muddying the glass itself.
+  const halo = `0 1px 3px ${ink(dark ? 0.55 : 0.25)}, 0 1px 1px ${ink(dark ? 0.4 : 0.18)}`
   // Etched groove for fields — carved *into* the glass: dark top inner edge,
   // light bottom inner edge (inverse of a raised bevel).
   const etchShadow = `inset 0 1px 1px ${ink(dark ? 0.35 : 0.14)}, inset 0 -1px 0 ${lite(dark ? 0.1 : 0.7)}`
@@ -105,6 +113,7 @@ export default function glass({
   --thumb-bg: ${thumbBg};
   --dispersion: ${dispersion};
   --specular: ${specular};
+  --halo: ${halo};
   color-scheme: ${dark ? 'dark' : 'light'};
 
   position: relative;
@@ -165,7 +174,7 @@ export default function glass({
   }
 
   /* ── Header ── */
-  > summary, > .s-panel-title { font-weight: 600; font-size: larger; letter-spacing: -0.01em; text-shadow: 0 1px 2px ${sheet(0.4)}; }
+  > summary, > .s-panel-title { font-weight: 600; font-size: larger; letter-spacing: -0.01em; text-shadow: var(--halo); }
   .s-fold-icon { width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; flex-shrink: 0; display: inline-flex;
     i { width: 100%; height: 100%; background: currentColor; opacity: .7;
       -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -182,11 +191,12 @@ export default function glass({
   .s-panel-content { gap: calc(var(--pad) * 1.4); }
 
   /* ── Labels ── */
-  .s-label { font-weight: 500; }
-  .s-hint { color: var(--fg-muted); font-size: smaller; }
+  .s-label { font-weight: 500; text-shadow: var(--halo); }
+  .s-hint { color: var(--fg-muted); font-size: smaller; text-shadow: var(--halo); }
   .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; background: var(--field); border: 1px solid var(--stroke); font-size: 10px; cursor: help;
     &:hover + .s-title-text { opacity: 1; visibility: visible; } }
   .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 1.5); font-size: smaller; background: ${sheet(0.85)}; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--stroke); border-radius: calc(var(--r) * 0.5); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
+  .s-info .s-monitor { text-shadow: var(--halo); }
 
   /* ── Fields — etched into the glass: a shallow groove, dark on top, ── */
   /* ── a sliver of light catching the lower inner edge.               ── */
@@ -320,6 +330,13 @@ export default function glass({
       input[type="color"] { position: static; width: calc(var(--u) * 8); height: calc(1lh + var(--pad) * 2); padding: 0; border: 1px solid var(--stroke); box-shadow: var(--etch); border-radius: calc(var(--r) * 0.55); cursor: pointer; overflow: hidden;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
       input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; } }
+    /* rgba swatch — same etched-field language as every other input; the native
+       ::-webkit-color-swatch keeps its own border/inset by default, which reads
+       as a clunky double frame unless reset here too. */
+    &.s-rgba input[type="color"] {
+      border: 1px solid var(--stroke); box-shadow: var(--etch); border-radius: calc(var(--r) * 0.45); overflow: hidden;
+      &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; }
+    }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 1.5); }
       button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: 1px solid var(--stroke); box-shadow: 0 1px 1px ${lite(0.4)} inset, 0 2px 4px -2px ${ink(dark ? 0.45 : 0.25)}; border-radius: calc(var(--r) * 0.45); transition: transform .1s;
         &:hover { transform: translateY(-1px); }

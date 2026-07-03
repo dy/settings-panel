@@ -776,6 +776,23 @@ test('xy: renders pad + dot, keyboard moves value', () => {
 // KNOB
 // ─────────────────────────────────────────────────────────────────────────────
 
+test('knob: circular mode follows pointer angle around the dial', () => {
+  const c = mount()
+  const s = signal(0)
+  const ctrl = knob(s, { mode: 'circular', min: 0, max: 100, container: c })
+  const wrap = ctrl.el.querySelector('.s-knob-wrap')
+  // happy-dom rects are zero-sized → dial center is (0,0); angles from raw coords.
+  // pointer at 3 o'clock (dx>0, dy=0) = +90° on the -135..135 arc → 83.33
+  wrap.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true }), { clientX: 10, clientY: 0 }))
+  is(Math.round(s.value * 100) / 100, 83.33)
+  dispatchEvent(new Event('pointerup'))
+  // pointer at 9 o'clock = −90° → 16.67
+  wrap.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true }), { clientX: -10, clientY: 0 }))
+  is(Math.round(s.value * 100) / 100, 16.67)
+  dispatchEvent(new Event('pointerup'))
+  cleanup(ctrl, c)
+})
+
 test('knob: renders dial, keyboard adjusts value', () => {
   const c = mount()
   const s = signal(0.5)

@@ -183,7 +183,7 @@ export default function tweakpane({
       &:hover, &:focus { background-color: var(--hover); color: var(--bg); }
       option { background: var(--option-bg); color: var(--fg); } }
     &.s-segmented { .s-input { gap: 2px; } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: 3px; font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--bg); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } .s-input label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
   }
 
   /* ── XY pad (point2d) — native's floating picker: shade-bg card radius echoed via the

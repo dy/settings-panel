@@ -295,7 +295,7 @@ export default `@layer s-base {
     border-radius: var(--r);
     cursor: crosshair;
     touch-action: none;
-    &:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    &:focus-visible:not(:active) { outline: 2px solid var(--accent); outline-offset: 1px; }
     .s-pad-x, .s-pad-y { position: absolute; background: color-mix(in oklab, currentColor 12%, transparent); pointer-events: none; }
     .s-pad-x { left: 0; right: 0; top: 50%; height: 1px; }
     .s-pad-y { top: 0; bottom: 0; left: 50%; width: 1px; }
@@ -317,7 +317,10 @@ export default `@layer s-base {
   .s-knob-wrap {
     display: inline-flex; align-items: center; gap: calc(var(--u) * 2);
     cursor: ns-resize; touch-action: none;
-    &:focus-visible { outline: none; .s-knob-dial { outline: 2px solid var(--accent); outline-offset: 2px; } }
+    &:focus-visible { outline: none; }
+    /* ring only for keyboard focus — grab()'s programmatic focus() matches
+       :focus-visible during pointer drags; :active gates the flash out */
+    &:focus-visible:not(:active) .s-knob-dial { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
   .s-knob-dial {
     position: relative; flex: none;

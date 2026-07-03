@@ -131,7 +131,7 @@ export default function uil({
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg' fill='${enc(text)}'%3E%3Crect width='6' height='2'/%3E%3Crect y='4' width='6' height='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; background-size: 6px 6px; padding-right: 20px;
       option { background: var(--option-bg); color: var(--text); } }
     &.s-segmented { .s-input { gap: 3px; } button { flex: 1; background: var(--face); border: 1px solid var(--border); color: var(--text); border-radius: var(--r); padding: 3px; font: inherit; &:hover { background: var(--face-hover); } &.s-selected { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } .s-input label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
   }
 
   /* ── Boolean: pill toggle ── */
@@ -176,33 +176,33 @@ export default function uil({
     .s-content { gap: 0; padding-left: 0; }
   }
 
-  /* ── Knob / XY pad: uil renders these stacked (label above, control centered, value below) ── */
-  .s-knob, .s-xy {
-    flex-direction: column; align-items: center; gap: 2px; padding: 4px 0;
-    .s-label-group { width: auto; flex: none; padding: 0; }
-    .s-input { flex: none; justify-content: center; }
-  }
-  /* uil prints a live "x,y" readout flush under the pad, centered, same weight as labels;
-     tighten the row's slack so total height still lands on native's 130px now that the
-     readout occupies the space the old placeholder padding reserved for it. */
-  .s-xy { gap: 0; padding: 1px 0 0; }
-  .s-xy .s-input { gap: 0; }
-  .s-pad-val { flex-basis: 100%; text-align: center; font-size: 11px; line-height: 1.2; font-weight: 400; opacity: 1; color: var(--text); }
+  /* ── Knob / XY pad: label-left like every other row. native stacks the label above
+     the control instead — deliberate divergence here so the whole panel keeps one
+     consistent label column (owner's consistency call). Control + its live readout
+     stack together inside the value column, centered there the way native centers
+     them under its own label. */
+  .s-knob .s-input { justify-content: center; }
+  .s-xy .s-input { flex-direction: column; align-items: center; gap: 4px; }
+  .s-pad-val { text-align: center; font-size: 11px; line-height: 1.2; font-weight: 400; opacity: 1; color: var(--text); margin-bottom: 4px; }
   /* dial diam:40 in uil, but only the inner ~53% is the solid face — the rest is
      dead space for the tick ring; a 270° dash ring (9° step, 288° span → 9° gap
-     past each end-stop) rotates as one static-looking layer, the needle alone turns.
-     native draws the face as an SVG circle (r34) with a stroke (width 8, straddling
-     the fill/transparent edge — half sinks into the face, half spills past it) — an
-     inset+outset box-shadow pair of matching width reproduces that centered ring
-     without eating into the layout box the way a border would. Ticks then start
-     past a real gap beyond the ring's outer edge (never touching it): both figures
-     scale off the face radius at native's own ratio (stroke half ≈ 11.8% of r,
-     gap ≈ 5.9% of r), so a 24px dial gets a 1.41px ring and a ~0.7px gap before
-     the tick band (pushed out via the ::before inset, tick width unchanged). */
-  .s-knob-wrap { flex-direction: column; gap: 4px; }
-  .s-knob-dial {
-    width: 24px; height: 24px; background: var(--face); border: none; position: relative;
-    box-shadow: inset 0 0 0 1.41px var(--well-3), 0 0 0 1.41px var(--well-3);
+     past each end-stop) lives on the wrap — the one layer that never rotates — so
+     dragging spins only the dial+needle inside it, ticks stay put. native draws the
+     face as an SVG circle (r34) with a stroke (width 8, straddling the fill/transparent
+     edge — half sinks into the face, half spills past it) — an inset+outset box-shadow
+     pair of matching width reproduces that centered ring without eating into the
+     layout box the way a border would. Ticks then start past a real gap beyond the
+     ring's outer edge (never touching it): both figures scale off the face radius at
+     native's own ratio (stroke half ≈ 11.8% of r, gap ≈ 5.9% of r), so a 24px dial
+     gets a 1.41px ring and a ~0.7px gap before the tick band.
+     circular mode reads pointerdown's own currentTarget (the wrap) to find the
+     dial's center, so the readout is pulled out of flow (absolute, below) rather
+     than stacked in — otherwise its height would drag the wrap's bounding-box
+     center down past the dial's actual center and skew every angle. Pulling it
+     out also means the wrap's box IS the dial's box, so the tick ring can inset
+     off the wrap directly instead of computing an offset center by hand. */
+  .s-knob-wrap {
+    position: relative; margin-bottom: 24px;
     &::before { content: ''; position: absolute; inset: -4.12px; border-radius: 50%; pointer-events: none;
       background: repeating-conic-gradient(from -144deg, var(--text) 0 4deg, transparent 4deg 9deg);
       -webkit-mask:
@@ -214,16 +214,21 @@ export default function uil({
         conic-gradient(from -144deg, #000 0 288deg, transparent 288deg 360deg);
       mask-composite: intersect;
       opacity: .6; }
+  }
+  .s-knob-dial {
+    width: 24px; height: 24px; background: var(--face); border: none; position: relative;
+    box-shadow: inset 0 0 0 1.41px var(--well-3), 0 0 0 1.41px var(--well-3);
     i { background: var(--text); width: 2px; top: 12%; height: 9%; }
   }
-  .s-knob-val { font-size: 11px; opacity: 1; }
+  .s-knob-val {
+    position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); white-space: nowrap;
+    font-size: 11px; opacity: 1;
+  }
   /* same padding-box trick as the knob: the frame reads as native's dark rgba(0,0,0,.2)
      outline against the panel backdrop, not washed out over the face. native's own SVG
      (viewBox 256, rendered 100×100 → 0.3906 scale) draws the frame+face box at 78.125px
-     (200 units) with a 3.90625px (10-unit) frame around a 70.3125px (180-unit) face —
-     smaller than the 100px slot it sits in. Margin restores that slot so the row still
-     totals 130px like before. */
-  .s-pad { width: 78.125px; height: 78.125px; margin: 10.9375px 0; background: var(--face); background-clip: padding-box; border: 3.90625px solid var(--well-1); border-radius: 0; box-sizing: border-box;
+     (200 units) with a 3.90625px (10-unit) frame around a 70.3125px (180-unit) face. */
+  .s-pad { width: 78.125px; height: 78.125px; background: var(--face); background-clip: padding-box; border: 3.90625px solid var(--well-1); border-radius: 0; box-sizing: border-box;
     .s-pad-x, .s-pad-y { background: var(--well-1); }
     .s-pad-dot { width: 6px; height: 6px; background: transparent; border: 2px solid var(--text); box-shadow: none; }
   }

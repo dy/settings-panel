@@ -16,20 +16,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; }
-    html { height: 100%; overflow: hidden; }
+    html { height: 100%; overflow: hidden; scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
     body {
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      /* Reference backdrop: two dark tonal panels, sparse oversized plus marks,
-         and a soft diagonal light sweep — the transparent form reads through it. */
-      /* Wind-blown cloth: long taut streamlines sweeping low-left to high-right,
-         close-value tonal bands between them, thin crest light on each curve. */
+      /* Bounded flag: the wind-blown cloth (long taut streamlines sweeping
+         low-left to high-right, close-value tonal bands, thin crest light on
+         each curve) is clipped to a flag silhouette — a straight hoist on the
+         left, tapering into a soft rounded fly on the right — instead of
+         spanning the full viewport; plain charcoal fills the free background
+         around it. Darkened a step versus the original full-bleed streamlines. */
       background:
         linear-gradient(112deg, transparent 44%, rgba(255,255,255,.04) 49%, rgba(255,255,255,.012) 60%, transparent 66%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='800' height='900' fill='rgb(52,49,55)'/%3E%3Cpath d='M0 268 C210 258 380 212 560 158 C660 128 740 108 800 96 V0 H0 Z' fill='rgb(45,42,47)'/%3E%3Cpath d='M0 436 C190 420 370 372 545 316 C660 279 745 252 800 236 V96 C740 108 660 128 560 158 C380 212 210 258 0 268 Z' fill='rgb(57,54,61)'/%3E%3Cpath d='M0 630 C180 616 350 570 540 506 C665 464 750 434 800 418 V236 C745 252 660 279 545 316 C370 372 190 420 0 436 Z' fill='rgb(49,46,52)'/%3E%3Cpath d='M0 812 C170 802 360 756 550 690 C670 648 755 618 800 602 V418 C750 434 665 464 540 506 C350 570 180 616 0 630 Z' fill='rgb(60,57,64)'/%3E%3Cpath d='M0 900 H800 V602 C755 618 670 648 550 690 C360 756 170 802 0 812 Z' fill='rgb(46,43,48)'/%3E%3Cpath d='M0 268 C210 258 380 212 560 158 C660 128 740 108 800 96' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3Cpath d='M0 436 C190 420 370 372 545 316 C660 279 745 252 800 236' fill='none' stroke='rgba(255,255,255,0.065)' stroke-width='2.5'/%3E%3Cpath d='M0 630 C180 616 350 570 540 506 C665 464 750 434 800 418' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3Cpath d='M0 812 C170 802 360 756 550 690 C670 648 755 618 800 602' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1.5'/%3E%3Cpath d='M0 444 C190 428 370 380 545 324 C660 287 745 260 800 244 V252 C745 268 660 295 545 332 C370 388 190 436 0 452 Z' fill='rgba(0,0,0,0.14)'/%3E%3Cpath d='M0 638 C180 624 350 578 540 514 C665 472 750 442 800 426 V434 C750 450 665 480 540 522 C350 586 180 632 0 646 Z' fill='rgba(0,0,0,0.12)'/%3E%3C/svg%3E") center / cover no-repeat,
-        rgb(52,49,55);
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='800' height='900' fill='rgb(37,35,40)'/%3E%3Cdefs%3E%3CclipPath id='flag'%3E%3Cpath d='M100 90 L100 810 C320 800 560 660 740 560 C768 500 768 320 740 260 C560 150 300 70 100 90 Z'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg clip-path='url(%23flag)'%3E%3Cpath d='M0 268 C210 258 380 212 560 158 C660 128 740 108 800 96 V0 H0 Z' fill='rgb(32,30,34)'/%3E%3Cpath d='M0 436 C190 420 370 372 545 316 C660 279 745 252 800 236 V96 C740 108 660 128 560 158 C380 212 210 258 0 268 Z' fill='rgb(41,39,44)'/%3E%3Cpath d='M0 630 C180 616 350 570 540 506 C665 464 750 434 800 418 V236 C745 252 660 279 545 316 C370 372 190 420 0 436 Z' fill='rgb(35,33,37)'/%3E%3Cpath d='M0 812 C170 802 360 756 550 690 C670 648 755 618 800 602 V418 C750 434 665 464 540 506 C350 570 180 616 0 630 Z' fill='rgb(43,41,46)'/%3E%3Cpath d='M0 900 H800 V602 C755 618 670 648 550 690 C360 756 170 802 0 812 Z' fill='rgb(33,31,35)'/%3E%3Cpath d='M0 268 C210 258 380 212 560 158 C660 128 740 108 800 96' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3Cpath d='M0 436 C190 420 370 372 545 316 C660 279 745 252 800 236' fill='none' stroke='rgba(255,255,255,0.065)' stroke-width='2.5'/%3E%3Cpath d='M0 630 C180 616 350 570 540 506 C665 464 750 434 800 418' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2'/%3E%3Cpath d='M0 812 C170 802 360 756 550 690 C670 648 755 618 800 602' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1.5'/%3E%3Cpath d='M0 444 C190 428 370 380 545 324 C660 287 745 260 800 244 V252 C745 268 660 295 545 332 C370 388 190 436 0 452 Z' fill='rgba(0,0,0,0.14)'/%3E%3Cpath d='M0 638 C180 624 350 578 540 514 C665 472 750 442 800 426 V434 C750 450 665 480 540 522 C350 586 180 632 0 646 Z' fill='rgba(0,0,0,0.12)'/%3E%3C/g%3E%3Cpath d='M100 90 L100 810 C320 800 560 660 740 560 C768 500 768 320 740 260 C560 150 300 70 100 90 Z' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1.5'/%3E%3C/svg%3E") center / cover no-repeat,
+        rgb(37,35,40);
       padding: 2rem;
       font-size: 14px;
     }
