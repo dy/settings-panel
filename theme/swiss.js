@@ -411,7 +411,9 @@ export default function swiss({
       text-transform: uppercase;
       letter-spacing: .06em;
       font-size: var(--size-button);
-      padding: calc(var(--u) * 4) calc(var(--u) * 5);
+      /* optical lift: uppercase-only ink reads a hair low when geometrically
+         centred — raise it 1px (reference buttons carry the same correction) */
+      padding: calc(var(--u) * 4 - 1px) calc(var(--u) * 5) calc(var(--u) * 4 + 1px);
       cursor: pointer;
       transition: background-color 120ms, filter 120ms, transform 120ms;
       &:hover { background: var(--fill-hover); }

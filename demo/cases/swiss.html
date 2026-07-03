@@ -24,14 +24,12 @@
       justify-content: center;
       /* Reference backdrop: two dark tonal panels, sparse oversized plus marks,
          and a soft diagonal light sweep — the transparent form reads through it. */
+      /* Flowy backdrop — a waving-cloth surface (smooth fold bands, crest
+         highlights, trough shadows) whose curves contrast the panel's grid. */
       background:
-        linear-gradient(115deg, transparent 40%, rgba(255,255,255,.05) 45%, rgba(255,255,255,.018) 58%, transparent 64%),
-        url("data:image/svg+xml,%3Csvg width='520' height='520' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M260 30v460M30 260h460' stroke='rgba(255,255,255,0.045)' stroke-width='92'/%3E%3C/svg%3E") no-repeat -180px 55% / 520px 520px,
-        url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M320 40v560M40 320h560' stroke='rgba(0,0,0,0.12)' stroke-width='110'/%3E%3C/svg%3E") no-repeat calc(100% + 220px) -160px / 640px 640px,
-        url("data:image/svg+xml,%3Csvg width='420' height='420' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M210 20v380M20 210h380' stroke='rgba(255,255,255,0.03)' stroke-width='72'/%3E%3C/svg%3E") no-repeat 82% 108% / 420px 420px,
-        linear-gradient(rgba(0,0,0,.10), rgba(0,0,0,.10)) no-repeat 0 78% / 30% 34%,
-        linear-gradient(rgba(255,255,255,.025), rgba(255,255,255,.025)) no-repeat 66% 12% / 42% 30%,
-        linear-gradient(90deg, rgb(43,40,44) 0 38%, rgb(70,67,73) 38%);
+        linear-gradient(115deg, transparent 42%, rgba(255,255,255,.045) 47%, rgba(255,255,255,.015) 58%, transparent 63%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='800' height='900' fill='rgb(55,52,58)'/%3E%3Cpath d='M0 0 H800 V180 C620 260 520 120 340 200 C200 262 90 210 0 260 Z' fill='rgb(43,40,44)'/%3E%3Cpath d='M0 260 C90 210 200 262 340 200 C520 120 620 260 800 180 V330 C640 420 500 280 330 360 C190 424 80 372 0 420 Z' fill='rgb(63,60,66)'/%3E%3Cpath d='M0 420 C80 372 190 424 330 360 C500 280 640 420 800 330 V560 C610 650 480 500 310 585 C180 650 70 600 0 645 Z' fill='rgb(50,47,52)'/%3E%3Cpath d='M0 645 C70 600 180 650 310 585 C480 500 610 650 800 560 V760 C630 840 490 700 320 780 C190 840 80 795 0 835 Z' fill='rgb(70,67,73)'/%3E%3Cpath d='M0 835 C80 795 190 840 320 780 C490 700 630 840 800 760 V900 H0 Z' fill='rgb(47,44,49)'/%3E%3Cpath d='M0 260 C90 210 200 262 340 200 C520 120 620 260 800 180' fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='3'/%3E%3Cpath d='M0 420 C80 372 190 424 330 360 C500 280 640 420 800 330' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='2.5'/%3E%3Cpath d='M0 645 C70 600 180 650 310 585 C480 500 610 650 800 560' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='3'/%3E%3Cpath d='M0 835 C80 795 190 840 320 780 C490 700 630 840 800 760' fill='none' stroke='rgba(255,255,255,0.045)' stroke-width='2'/%3E%3Cpath d='M0 268 C90 218 200 270 340 208 C520 128 620 268 800 188 V196 C620 276 520 136 340 216 C200 278 90 226 0 276 Z' fill='rgba(0,0,0,0.18)'/%3E%3Cpath d='M0 653 C70 608 180 658 310 593 C480 508 610 658 800 568 V576 C610 666 480 516 310 601 C180 666 70 616 0 661 Z' fill='rgba(0,0,0,0.15)'/%3E%3C/svg%3E") center / cover no-repeat,
+        rgb(55,52,58);
       padding: 2rem;
       font-size: 14px;
     }
