@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground — settings-panel</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "sprae": "https://esm.sh/sprae@13",
+        "sprae/store": "https://esm.sh/sprae@13/store"
+      }
+    }
+    </script>
+    <!-- <script type="importmap">
+    {
+      "imports": {
+        "sprae": "../node_modules/sprae/sprae.js",
+        "sprae/store": "../node_modules/sprae/store.js"
+      }
+    }
+    </script> -->
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui;
+        /* Derive from panel's --bg, darken by 0.1 L */
+        background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="panel"></div>
+
+    <script type="module">
+      import settings from '../index.js'
+      import base from '../theme/default.js'
+      import skeu from '../theme/skeu.js'
+      import control from '../theme/control-panel.js'
+      import lab01 from '../theme/lab01.js'
+
+      const themes = { default: base, skeu, control, lab01 }
+      const axes = {
+        default: ['shade', 'accent', 'spacing', 'weight', 'roundness'],
+        skeu: ['shade', 'accent', 'spacing', 'weight', 'roundness', 'bevel', 'depth', 'grid'],
+      }
+
+      const paramKeys = ['shade', 'accent', 'weight', 'depth', 'roundness', 'spacing', 'bevel', 'grid']
+      const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
+
+      const rand = (lo, hi, step = 0) => {
+        const v = lo + Math.random() * (hi - lo)
+        return step ? Math.round(v / step) * step : v
+      }
+      const randHex = () => '#' + Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('')
+
+      const schema = {
+        foldable: false,
+        theme: { type: 'select', options: Object.keys(themes), value: 'skeu' },
+
+        'params.shade': '#f7f7f7',
+        'params.accent': '#2967fa',
+        'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 50, marks: true, snap: true },
+        'params.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
+        'params.depth': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
+        'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
+        'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
+        'params.grid': { type: 'select', variant: 'segmented', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
+
+        code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
+        actions: { type: 'button', label: '', variant: 'group', buttons: {
+          'Random': { variant: 'secondary', onclick: () => randomize() },
+          'Copy': () => navigator.clipboard.writeText(state?.code)
+        }}
+      }
+
+      let state
+      let curTheme, curFoldable
+
+      function create() {
+        state?.[Symbol.dispose]()
+        state = settings(schema, {
+          title: 'Settings',
+          collapsed: (s) => s.foldable ? false : undefined,
+          container: '#panel',
+          theme: (s) => { const t = themes[s.theme]; return typeof t === 'function' ? t(getParams(s)) : t },
+          persist: 'settings-panel',
+          onchange(s) {
+            s.code = JSON.stringify(getParams(s), null, 2)
+            if (s.theme !== curTheme || s.foldable !== curFoldable) {
+              curTheme = s.theme
+              curFoldable = s.foldable
+              requestAnimationFrame(create)
+              return
+            }
+            syncBg()
+          }
+        })
+        curTheme = state.theme
+        curFoldable = state.foldable
+        state.code = JSON.stringify(getParams(state), null, 2)
+        syncBg()
+        syncAxes(curTheme)
+      }
+
+      create()
+
+      const { parseColor, toHex } = await import('../theme/color.js')
+
+      function tweenColor(from, to, t) {
+        const a = parseColor(from), b = parseColor(to)
+        let dH = b.H - a.H
+        if (dH > 180) dH -= 360; else if (dH < -180) dH += 360
+        return toHex({
+          L: a.L + (b.L - a.L) * t,
+          C: a.C + (b.C - a.C) * t,
+          H: ((a.H + dH * t) % 360 + 360) % 360,
+        })
+      }
+
+      let tweenId = 0
+      function randomize() {
+        if (!state) return
+        tweenId++
+        const id = tweenId
+        const dur = 600
+        const from = {
+          shade: state.shade, accent: state.accent,
+          weight: state.weight, bevel: state.bevel, depth: state.depth,
+          roundness: state.roundness, spacing: state.spacing,
+        }
+        const newShade = randHex()
+        const { L: sL, C: sC } = parseColor(newShade)
+        const newAccent = toHex({
+          L: sL < 0.5 ? rand(0.6, 0.8) : rand(0.25, 0.45),
+          C: rand(0.12, 0.25),
+          H: rand(0, 360),
+        })
+        const to = {
+          shade: newShade, accent: newAccent,
+          weight: rand(100, 900, 100), bevel: rand(0, 2, 0.1), depth: rand(0, 2, 0.1),
+          roundness: rand(0, 2, 0.25), spacing: rand(0.5, 2, 0.25),
+        }
+        const steps = { weight: 100, bevel: 0.1, depth: 0.1, roundness: 0.25, spacing: 0.25 }
+        const snap = (v, step, t) => {
+          const raw = from[v] + (to[v] - from[v]) * t
+          return +(t < 1 ? raw.toFixed(2) : (Math.round(raw / step) * step).toFixed(2))
+        }
+        const t0 = performance.now()
+        const ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2  // ease in-out quad
+        ;(function tick(now) {
+          if (id !== tweenId) return
+          const t = ease(Math.min((now - t0) / dur, 1))
+          state.shade = tweenColor(from.shade, to.shade, t)
+          state.accent = tweenColor(from.accent, to.accent, t)
+          state.weight = snap('weight', steps.weight, t)
+          state.bevel = snap('bevel', steps.bevel, t)
+          state.depth = snap('depth', steps.depth, t)
+          state.roundness = snap('roundness', steps.roundness, t)
+          state.spacing = snap('spacing', steps.spacing, t)
+          if (t < 1) requestAnimationFrame(tick)
+        })(t0)
+      }
+
+      function syncBg() {
+        const el = document.querySelector('.s-panel')
+        if (!el) return
+        const bg = getComputedStyle(el).getPropertyValue('--bg')
+        if (bg) document.documentElement.style.setProperty('--bg', bg)
+      }
+
+      function syncAxes(theme) {
+        const supported = axes[theme]
+        const panel = document.querySelector('.s-panel')
+        if (!panel) return
+        for (const el of panel.querySelectorAll('[data-key]')) {
+          const key = el.dataset.key
+          if (!paramKeys.includes(key)) continue
+          const input = el.querySelector('.s-input')
+          if (input) input.disabled = supported ? !supported.includes(key) : false
+        }
+      }
+    </script>
+  </body>
+
+</html>

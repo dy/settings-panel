@@ -81,7 +81,7 @@ export default function figma({
   color: var(--ink);
   font: 11px/16px 'Inter', system-ui, -apple-system, sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1;
-  width: 240px;
+  width: min(100%, 240px);
   min-width: 0;
   max-width: 240px;
   border-radius: 0;
@@ -116,7 +116,7 @@ export default function figma({
   .s-control { gap: calc(var(--u) * 2); padding: 4px 16px; min-height: 32px; align-items: center; }
   .s-label-group { width: 64px; min-width: 0; max-width: none; padding: 0; }
   .s-label { color: var(--ink); font-weight: 400; }
-  .s-hint { color: var(--dim); font-size: 11px; }
+  .s-hint { opacity: 1; color: var(--dim); font-size: 11px; }
   .s-input { gap: calc(var(--u) * 1.5); align-items: center; }
 
   /* ── Ghost inputs (border only on hover/focus) ── */
@@ -141,7 +141,7 @@ export default function figma({
       transition: border-color .12s var(--ease), box-shadow .12s var(--ease);
       &:hover { border-color: var(--line); }
       &:focus-within { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); } }
-    .s-vec-label { color: var(--dim); font-size: 11px; width: 12px; }
+    .s-vec-label { opacity: 1; color: var(--dim); font-size: 11px; width: 12px; }
     input[type="number"] { border: none; box-shadow: none; padding: 0 4px; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:hover, &:focus { border: none; box-shadow: none; } &:focus { cursor: text; } }
   }
 

@@ -70,7 +70,7 @@ export default function leva({
   background: var(--title);
   color: var(--muted);
   font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace;
-  width: 280px;
+  width: min(100%, 280px);
   min-width: 0;
   max-width: 280px;
   border-radius: 10px;
@@ -104,9 +104,9 @@ export default function leva({
      so it never unbalances the centered title text regardless of its own content width) —
      the 20×20 magnifier glyph sits inset in the title bar's top-right corner, and opening
      it drops a full-width filter row directly beneath the title bar ── */
-  .s-search { position: absolute; inset: 0; margin: 0; justify-content: flex-end; align-items: center; padding-right: 10px; }
-  .s-search-btn { width: 20px; height: 20px; background: var(--dim); -webkit-mask: var(--search) center / contain no-repeat; mask: var(--search) center / contain no-repeat; }
-  .s-search-input { position: absolute; top: 39px; left: 0; right: 0; height: 30px; padding: 0 10px; background: var(--title); color: var(--ink); font: 10px/1 ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace; z-index: 1; outline: none; &::placeholder { color: var(--muted); } &::-webkit-search-cancel-button { filter: invert(1) opacity(.6); } }
+  .s-search { pointer-events: none; position: absolute; inset: 0; margin: 0; justify-content: flex-end; align-items: center; padding-right: 10px; }
+  .s-search-btn { pointer-events: auto; width: 20px; height: 20px; background: var(--dim); -webkit-mask: var(--search) center / contain no-repeat; mask: var(--search) center / contain no-repeat; }
+  .s-search-input { pointer-events: auto; position: absolute; top: 39px; left: 0; right: 0; height: 30px; padding: 0 10px; background: var(--title); color: var(--ink); font: 10px/1 ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace; z-index: 1; outline: none; &::placeholder { color: var(--muted); } &::-webkit-search-cancel-button { filter: invert(1) opacity(.6); } }
   &.s-searching .s-search-btn { background: var(--ink); }
   &.s-searching .s-panel-content { margin-top: 30px; }
 

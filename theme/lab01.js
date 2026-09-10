@@ -213,8 +213,9 @@ export default function lab01({
   --fs-head: 20px;               /* panel title */
   --tracking-head: -0.025em;
   --icon-size: 16px;             /* chevron glyph */
-  --pad-head: 1.5rem;            /* header padding — fixed, independent of --spacing */
-  --content-pad: 24px;           /* panel-content edge padding */
+  --pad-head: calc(var(--u) * (4 + 2 * var(--spacing)));            /* header padding — fixed, independent of --spacing */
+  --content-pad: var(--pad-head);
+  --row-gap: calc(var(--u) * (2 + 2 * var(--spacing))); /* space between controls */
   --bevel-w: 1px;                /* panel gradient-border width */
   --surface-bevel-w: 1.5px;      /* raised-surface rim width (buttons, thumb, fold icon) */
   --outline-w: 1.5px;            /* focus-ring width */
@@ -231,9 +232,9 @@ export default function lab01({
   --card-r: 12px;
   --card-inset: -3px;            /* image-card plate outset */
   --card-ring-w: 1.5px;
-  --card-label-gap: 16px;
+  --card-label-gap: calc(var(--u) * (2 + var(--spacing)));
   --group-gap: 12px;             /* button-group / image-card option gap */
-  --seg-pad: 12px;               /* segmented-button horizontal padding */
+  --seg-pad: calc(var(--u) * 1.5);               /* segmented-button horizontal padding */
   --btn-pad: 20px;               /* button-group button horizontal padding */
   --color-gap: 8px;
   /* ═════════════════════════════════════════════════════════════════════════ */
@@ -266,6 +267,7 @@ export default function lab01({
     border-radius: inherit;
     pointer-events: none;
     z-index: 10;
+    clip-path: inset(0 round var(--r));
     mix-blend-mode: screen;
     opacity: var(--noise-opacity);
     filter: ${noiseSvg} grayscale(100%);
@@ -326,7 +328,7 @@ export default function lab01({
 
   .s-panel-content {
     padding: 0 var(--content-pad) var(--content-pad);
-    gap: calc(var(--u) * 8);
+    gap: var(--row-gap);
   }
 
   /* ── Layout ── */
@@ -346,6 +348,7 @@ export default function lab01({
   .s-hint {
     font-size: var(--fs);
     color: var(--hint);
+    opacity: 1;
     text-shadow: var(--text-shadow);
   }
   .s-input { gap: calc(var(--u) * var(--spacing)); align-items: center; }
@@ -365,7 +368,7 @@ export default function lab01({
   }
   input[type="text"], input[type="number"], select {
     padding: var(--pad-i) calc(var(--pad));
-    height: auto;
+    height: var(--ctrl-h);
   }
   input[type="number"] { font-variant-numeric: tabular-nums; }
 
@@ -423,8 +426,14 @@ export default function lab01({
       &:active::-webkit-slider-thumb, &.s-scrubbing::-webkit-slider-thumb { box-shadow: var(--surface-active); transform: scale(0.96); }
       &:active::-moz-range-thumb, &.s-scrubbing::-moz-range-thumb { transform: scale(0.96); }
     }
-    .s-readout { color: inherit; font-size: var(--fs-sm); opacity: .7; font-variant-numeric: tabular-nums; }
-    .s-track { height: auto; }
+    .s-readout {
+      flex: 0 0 7ch; width: 7ch; min-width: 7ch; height: auto; padding: 0;
+      background: transparent; box-shadow: none; border: none; border-radius: 0;
+      color: inherit; font-size: var(--fs-sm); opacity: .85; font-variant-numeric: tabular-nums; text-align: right;
+      &:hover, &:focus { background: transparent; }
+      &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
+    }
+    .s-track { height: var(--ctrl-h); }
   }
 
   /* ── Boolean ── */
@@ -525,8 +534,15 @@ export default function lab01({
       appearance: none;
       -webkit-appearance: none;
       cursor: pointer;
+      flex: 1;
+      padding-right: calc(var(--u) * 8);
+      background-image: ${chevron(dark ? '%23ddd' : '%23333')};
+      background-position: right calc(var(--u) * 3) center;
+      background-size: calc(var(--u) * 3);
+      background-repeat: no-repeat;
     }
     &.s-segmented button {
+      min-width: 0;
       background: transparent;
       border-radius: calc(var(--r) * 0.5);
       padding: 0 var(--seg-pad);
@@ -553,8 +569,8 @@ export default function lab01({
     &.s-segmented:has(button[style*="background-image"]) {
       flex-direction: column;
       align-items: stretch;
-      margin-bottom: calc(var(--u) * 3);
-      .s-label-group { flex: none; width: auto; max-width: none; margin-bottom: var(--card-label-gap); }
+      gap: var(--card-label-gap);
+      .s-label-group { flex: none; width: auto; max-width: none; }
       .s-input { gap: var(--group-gap); }
       button {
         flex: 1;
@@ -632,7 +648,7 @@ export default function lab01({
 
   /* ── Number ── */
   .s-number {
-    input[type="number"] { width: var(--number-w); }
+    input[type="number"] { flex: 1; width: var(--number-w); }
     .s-step { display: none; }
   }
 
@@ -648,7 +664,7 @@ export default function lab01({
       padding: calc(var(--u) * var(--spacing) * 2) 0;
       opacity: 1;
     }
-    .s-content { gap: 0; }
+    .s-content { gap: var(--row-gap); padding-block: var(--row-gap); }
   }
 
   /* ── Footer separator (trailing action row) ── */

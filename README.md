@@ -50,7 +50,12 @@ settings({
 
 ## Themes
 
-Eight themes, all functions: `theme(axes?) → CSS string`.
+The [theme gallery](index.html) compares identical specimens and provides a live
+preview with time of day, accent, density, and supported corner/scale controls.
+Use theme exports the current JavaScript or CSS; the link button shares its axes.
+The original editor is available in the [playground](demo/playground.html).
+
+Ten themes, all functions: `theme(axes?) → CSS string`.
 
 | Import | Name | Character |
 |--------|------|-----------|
@@ -58,7 +63,9 @@ Eight themes, all functions: `theme(axes?) → CSS string`.
 | `settings-panel/theme/swiss` | **swiss** | No shadows, grid-pure, typographic hierarchy. |
 | `settings-panel/theme/skeu` | **skeu** | Realistic textures, directional lighting. |
 | `settings-panel/theme/brutal` | **brutal** | Hard offset shadows, thick borders, zero radius. |
+| `settings-panel/theme/terminal` | **terminal** | Monospace on a character-cell grid, inverse video, no depth. |
 | `settings-panel/theme/neu` | **neu** | Paired inset/outset shadows, same-surface color. |
+| `settings-panel/theme/porcelain` | **porcelain** | Glazed ceramic face, mineral rim, embossed relief. |
 | `settings-panel/theme/glass` | **glass** | `backdrop-filter` blur, translucent surfaces. |
 | `settings-panel/theme/lab01` | **lab01** | Frosted glass with gradient borders, noise texture. |
 | `settings-panel/theme/control-panel` | **control-panel** | freeman-lab/control-panel reproduction. |
@@ -72,7 +79,7 @@ settings(schema, {
 })
 ```
 
-Themes are functions: axes in, CSS out. Core axes: `shade`, `accent`, `spacing`, `size`, `weight`, `roundness`. Some themes add extras: `skeu`/`brutal` add `bevel`; `neu` adds `depth`; `glass` adds `blur`. See [axes](docs/axes.md).
+Themes are functions: axes in, CSS out. Core axes: `shade`, `accent`, `spacing`, `size`, `weight`, `roundness`. Some themes add extras: `skeu`/`brutal` add `bevel`; `neu` adds depth, diffusion, lighting contrast/direction, and matte grain; `porcelain` adds a ceramic lip and embossed relief; `glass` adds `blur`; `terminal` adds `leading`. See [axes](docs/axes.md).
 
 
 ## [Options](docs/options.md)

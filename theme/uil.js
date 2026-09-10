@@ -67,7 +67,7 @@ export default function uil({
   background: var(--row);
   color: var(--text);
   font: 11px/1.4 'Roboto Mono', ui-monospace, Menlo, Courier, monospace;
-  width: 240px;
+  width: min(100%, 240px);
   min-width: 0;
   max-width: 240px;
   border: 2px solid var(--bg);
@@ -150,9 +150,9 @@ export default function uil({
 
   /* ── Color: full-width tinted field with the hex over it (uil style) ── */
   .s-color {
-    &.s-picker .s-color-input { gap: 0; position: relative; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden;
-      input[type="color"] { position: absolute; inset: 0; width: 100%; height: 22px; padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
-      input[type="text"] { position: relative; flex: 1; background: transparent; color: var(--picker-fg); border: 0; mix-blend-mode: normal; font-family: 'Roboto Mono', monospace; padding-left: 8px; height: 22px; } }
+    &.s-picker .s-color-input { gap: 0; position: relative; background: var(--color); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden;
+      input[type="color"] { position: absolute; inset: 0 0 0 auto; width: 24px; height: 22px; padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
+      input[type="text"] { position: relative; flex: 1; margin-right: 24px; background: transparent; color: var(--picker-fg); border: 0; mix-blend-mode: normal; font-family: 'Roboto Mono', monospace; padding-left: 8px; height: 22px; } }
     &.s-rgba .s-color-input { gap: 4px; input[type="color"] { flex: none; width: 28px; height: 22px; border: 1px solid var(--border); border-radius: var(--r); } input[type="text"] { flex: 1; } }
     &.s-swatches button { width: 18px; height: 18px; border-radius: var(--r); border: 1px solid var(--border); &.s-selected { outline: 1px solid var(--accent); } }
   }

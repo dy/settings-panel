@@ -1,4 +1,6 @@
 const { min, max } = Math
+const number = '[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?'
+const oklchRE = new RegExp(`^\\s*oklch\\(\\s*(${number})\\s+(${number})\\s+(${number})(?:\\s*/\\s*(${number})%?)?\\s*\\)\\s*$`, 'i')
 
 export const lerp = (a, b, t) => a + (b - a) * t
 export const clamp = (v, lo, hi) => min(hi, max(lo, v))
@@ -19,13 +21,16 @@ export function normalizeHex(color) {
   return '#' + hex.toLowerCase()
 }
 
-export function parseColor(color) {
-  if (!color) return { L: 0.97, C: 0.01, H: 60 }
-  const oklch = color.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
-  if (oklch) return { L: +oklch[1], C: +oklch[2], H: +oklch[3] }
+/** Parse hex / numeric OKLCH; pass null as fallback to distinguish an unknown CSS color. */
+export function parseColor(color, fallback = { L: 0.97, C: 0.01, H: 60 }) {
+  if (typeof color !== 'string' || !color) return fallback
+  const oklch = color.match(oklchRE)
+  if (oklch && oklch.slice(1).every(n => n === undefined || Number.isFinite(+n))) {
+    return { L: +oklch[1], C: +oklch[2], H: +oklch[3] }
+  }
 
   const hex = normalizeHex(color)
-  if (hex.startsWith('#') && (hex.length === 7 || hex.length === 9)) {
+  if (/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(hex)) {
     const h = hex.slice(1, 7)
     const r = parseInt(h.slice(0, 2), 16) / 255
     const g = parseInt(h.slice(2, 4), 16) / 255
@@ -44,7 +49,7 @@ export function parseColor(color) {
     if (H < 0) H += 360
     return { L, C, H }
   }
-  return { L: 0.97, C: 0.01, H: 60 }
+  return fallback
 }
 
 export const resolveAccent = (accent, shade) => {
@@ -69,6 +74,18 @@ export function resolveRoles(shade = '#f5f4f2', accent, { contrast = 1 } = {}) {
   const nC = min(C, 0.03)               // neutral chroma — tint, don't saturate
   const at = (l, c = nC, a) => `oklch(${clamp(l, 0, 1).toFixed(3)} ${(+c).toFixed(4)} ${H.toFixed(1)}${a != null ? ` / ${a}` : ''})`
   const resolved = resolveAccent(accent, shade)
+  const accentColor = resolved || at(dark ? 0.7 : 0.5, max(C, 0.16))
+  // Unknown CSS colors keep the existing white ink; a parsing fallback is not
+  // evidence that an accent is light. Hex and OKLCH use actual fill luminance.
+  const tone = parseColor(accentColor, null)
+  let onAccent = '#fff'
+  if (tone) {
+    const [r, g, b] = toHex(tone).slice(1).match(/../g).map(h => {
+      const c = parseInt(h, 16) / 255
+      return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4
+    })
+    if (.2126 * r + .7152 * g + .0722 * b > .179) onAccent = '#000'
+  }
   return {
     dark, L, C, H, at,
     bg: shade,
@@ -78,8 +95,8 @@ export function resolveRoles(shade = '#f5f4f2', accent, { contrast = 1 } = {}) {
     fgMuted: at(dark ? 0.66 : 0.42),    // hints / secondary text
     border: at(L + sign * 0.16 * k),    // hairline / structural border
     divider: at(L + sign * 0.09 * k),
-    accent: resolved || at(dark ? 0.7 : 0.5, max(C, 0.16)),
-    onAccent: '#fff',                   // text on accent fill (themes may override)
+    accent: accentColor,
+    onAccent,
   }
 }
 

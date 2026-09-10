@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Material studies — Settings Panel</title>
+  <script type="importmap">
+    { "imports": { "sprae": "https://esm.sh/sprae@13", "sprae/store": "https://esm.sh/sprae@13/store" } }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 */
+    :root { --scene: #e9e8e3; --scene-ink: #52534f; }
+    * { box-sizing: border-box; margin: 0; }
+    body { min-height: 100svh; padding: 40px 20px; display: flex; background: var(--scene); color: var(--scene-ink); font: 13px/1.5 system-ui, sans-serif; }
+    main { width: min(100%, 388px); margin: auto; }
+    #panel { width: 100%; }
+    .caption { margin-top: 28px; display: flex; justify-content: space-between; gap: 12px; font-size: 11px; letter-spacing: .02em; }
+    .caption a { color: inherit; text-underline-offset: 3px; }
+    body[data-material="porcelain"] { --scene: #edf3f2; --scene-ink: #617f83; background-image: url(./marble.svg); background-size: 720px; }
+    body[data-material="chalk"] { --scene: #f1f2f4; --scene-ink: #646c77; }
+    body[data-material="amber"] { --scene: #deb375; --scene-ink: #70431f; }
+    body[data-material="frost"] { --scene: #b8c7c3; --scene-ink: #344945; background: radial-gradient(ellipse at 0 0, #eef1da, transparent 65%), linear-gradient(125deg, transparent 40%, #516e6c 40% 48%, transparent 48%), linear-gradient(155deg, #b8c7c3 30%, #7e9d97 65%, #e1d7bf); }
+    body[data-material="graphite"] { --scene: #292b2e; --scene-ink: #b7babf; }
+    body[data-material="soft"] { --scene: #c9c8c3; --scene-ink: #4e514e; }
+    body[data-material="silver"] { --scene: #aeb0b0; --scene-ink: #303537; background: radial-gradient(ellipse at 15% 0, #e4e6e5, transparent 70%), linear-gradient(145deg, #c4c7c6, #858b8c); }
+    body[data-material="ink"] { --scene: #dddcd3; --scene-ink: #41463c; }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="panel"></div>
+    <p class="caption"><span id="finish"></span><a href="./">All themes</a></p>
+  </main>
+  <script type="module">
+    import settings from '../../index.js'
+    import neu from '../../theme/neu.js'
+    import porcelain from '../../theme/porcelain.js'
+    import glass from '../../theme/glass.js'
+    import skeu from '../../theme/skeu.js'
+    import lab01 from '../../theme/lab01.js'
+    import brutal from '../../theme/brutal.js'
+
+    // Same working controls make differences in material and density comparable.
+    // The hash survives static hosts that redirect .html to a clean URL.
+    const finishes = {
+      porcelain: { name: 'Porcelain', theme: porcelain, axes: {} },
+      chalk: { name: 'Neu / Chalk', theme: neu, axes: { shade: '#f1f2f4', accent: '#485565', depth: .85, softness: 1.4, contrast: .8, roundness: 1.8, spacing: 1.3 } },
+      amber: { name: 'Neu / Amber', theme: neu, axes: { shade: '#deb375', accent: '#70431f', depth: 1.2, softness: 1, contrast: 1.25, roundness: 2, grain: .6, spacing: 1.3 } },
+      graphite: { name: 'Neu / Graphite', theme: neu, axes: { shade: '#292b2e', accent: '#cbd4e1', depth: 1.1, softness: 1.1, contrast: 1.15, roundness: 1.8, spacing: 1.3 } },
+      frost: { name: 'Glass / Frost', theme: glass, axes: { shade: '#edf3ee', accent: '#35685a', tint: .85, blur: 28, roundness: 1.3 } },
+      soft: { name: 'Skeu / Soft', theme: skeu, axes: { shade: '#dadbd6', accent: '#476254', spacing: 1.6, depth: .7, bevel: .8, roundness: 1.35 } },
+      silver: { name: 'Lab01 / Silver', theme: lab01, axes: { shade: '#c6cac9', accent: '#40574d', spacing: 1, roundness: 1.4 } },
+      ink: { name: 'Brutal / Ink', theme: brutal, axes: { shade: '#f4f3e9', accent: '#b7cd75', bevel: 2, offset: 3, spacing: .85 } },
+    }
+    const key = Object.hasOwn(finishes, location.hash.slice(1)) ? location.hash.slice(1) : 'porcelain'
+    const finish = finishes[key]
+    document.body.dataset.material = key
+    document.title = finish.name + ' — Settings Panel'
+    document.getElementById('finish').textContent = finish.name
+
+    const defaults = { preset: 'Daylight', exposure: .35, warmth: 56, softness: 32, quality: 'Fine', enabled: true, grain: 12, tint: '#b8c7ad' }
+    let panel, saved
+    const capture = () => Object.fromEntries(Object.keys(defaults).map(k => [k, panel[k]]))
+    const restore = () => {
+      Object.assign(panel, saved || defaults)
+      panel.status = saved ? 'Restored' : 'Default'
+    }
+    panel = settings({
+      preset: { type: 'select', value: defaults.preset, options: ['Daylight', 'Overcast', 'Evening'], label: 'Preset' },
+      exposure: { type: 'slider', value: defaults.exposure, min: -2, max: 2, step: .05, label: 'Exposure', unit: ' EV' },
+      warmth: { type: 'slider', value: defaults.warmth, min: 0, max: 100, step: 1, label: 'Warmth', unit: '%' },
+      softness: { type: 'slider', value: defaults.softness, min: 0, max: 100, step: 1, label: 'Softness', unit: '%' },
+      quality: { type: 'select', variant: 'segmented', value: defaults.quality, options: ['Draft', 'Fine', 'Ultra'], label: 'Quality' },
+      enabled: { type: 'boolean', variant: 'switch', value: defaults.enabled, label: 'Preview' },
+      detail: { type: 'folder', label: 'Fine adjustments', collapsed: true },
+      'detail.grain': { type: 'slider', value: defaults.grain, min: 0, max: 100, step: 1, label: 'Grain', unit: '%' },
+      'detail.tint': { type: 'color', value: defaults.tint, label: 'Tint' },
+      actions: { type: 'button', label: false, buttons: {
+        Reset: { variant: 'secondary', onClick: restore },
+        Save: { onClick() { saved = capture(); panel.status = 'Saved for this session' } },
+      } },
+      status: { type: 'info', value: 'Default', label: 'Status' },
+    }, {
+      container: '#panel', title: 'Light study', collapsed: false,
+      theme: () => finish.theme(finish.axes),
+    })
+    if (finish.theme === neu) document.body.style.backgroundImage = getComputedStyle(document.querySelector('.s-panel')).getPropertyValue('--neu-grain')
+  </script>
+</body>
+</html>

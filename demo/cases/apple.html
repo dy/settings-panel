@@ -24,7 +24,7 @@
       background: radial-gradient(120% 90% at 50% -10%, #ffffff 0%, #f2f2f7 55%, #e2e2e8 100%);
       font-size: 14px;
     }
-    #panel { margin: auto; }
+    #panel { width: min(100%, 340px); margin: auto; }
   </style>
 </head>
 <body>
@@ -52,7 +52,7 @@
     }, {
       container: '#panel',
       title: 'Displays',
-      theme: () => apple(),
+      theme: s => apple({ shade: s.appearance === 'Dark' ? '#1e1e20' : '#ffffff', accent: s.accentColor }),
     })
   </script>
 </body>

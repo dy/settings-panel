@@ -19,11 +19,13 @@
     body {
       min-height: 100vh;
       display: flex;
-      background: radial-gradient(120% 90% at 50% -10%, #f5f6fb 0%, #e6e7ee 55%, #d2d3dd 100%);
-      padding: 2rem;
+      /* The page IS the material: same flat color as the panel, so the panel
+         reads as molded out of the surface rather than laid on top of it. */
+      background: #e7e8ea;
+      padding: 32px 16px;
       font-size: 14px;
     }
-    #panel { width: min(100%, 360px); margin: auto; }
+    #panel { width: min(100%, 380px); margin: auto; }
   </style>
 </head>
 <body>
@@ -32,6 +34,7 @@
     import settings from '../../index.js'
     import neu from '../../theme/neu.js'
 
+    const shades = { Mist: '#e7e8ea', Chalk: '#f1f2f4', Graphite: '#292b2e', Amber: '#deb375' }
     settings({
       name: { type: 'text', value: 'Bloop', label: 'Name' },
       species: { type: 'select', value: 'Slime', options: ['Slime', 'Sprite', 'Golem'], label: 'Species' },
@@ -45,12 +48,23 @@
       'lore.origin': { type: 'text', value: 'Swamp', label: 'Origin' },
       'lore.age': { type: 'number', value: 3, min: 0, max: 99, label: 'Age' },
       save: { type: 'button', label: false, text: 'Summon' },
+      material: { type: 'folder', label: 'Material', collapsed: true },
+      'material.finish': { type: 'select', value: 'Mist', options: Object.keys(shades), label: 'Finish' },
+      'material.depth': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Depth' },
+      'material.softness': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Diffusion' },
+      'material.contrast': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Contrast' },
+      'material.light': { type: 'slider', value: 315, min: 0, max: 360, step: 15, label: 'Light', unit: '°' },
+      'material.grain': { type: 'slider', value: .3, min: 0, max: 1, step: .1, label: 'Grain' },
     }, {
       container: '#panel',
       title: 'Creature',
       collapsed: false,
       search: true,
-      theme: () => neu(),
+      theme: s => neu({ shade: shades[s.finish], depth: s.depth, softness: s.softness, contrast: s.contrast, light: s.light, grain: s.grain }),
+      onchange: s => {
+        document.body.style.backgroundColor = shades[s.finish]
+        document.body.style.backgroundImage = getComputedStyle(document.querySelector('.s-panel')).getPropertyValue('--neu-grain')
+      },
     })
   </script>
 </body>

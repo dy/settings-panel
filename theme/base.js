@@ -41,9 +41,9 @@ export default `@layer s-base {
   > summary:focus-visible, .s-folder > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Search (opt-in via search option; themes refine) ── */
-  .s-search { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
+  .s-search { margin-left: auto; min-width: 0; display: inline-flex; align-items: center; gap: 4px; }
   .s-search-btn {
-    width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
+    flex: none; width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
     background: currentColor;
     -webkit-mask: var(--s-search-icon) center / contain no-repeat;
     mask: var(--s-search-icon) center / contain no-repeat;
@@ -60,15 +60,17 @@ export default `@layer s-base {
     display: block;
     interpolate-size: allow-keywords;
     &::details-content {
-      content-visibility: visible;
+      content-visibility: hidden;
       height: 0;
       opacity: 0;
       overflow: clip;
-      transition: height 200ms, opacity 80ms;
+      transition: height 200ms, opacity 80ms, content-visibility 200ms allow-discrete;
     }
     &[open]::details-content {
+      content-visibility: visible;
       height: auto;
       opacity: 1;
+      overflow: visible;
       transition: height 200ms, opacity 150ms 150ms;
     }
   }
@@ -332,4 +334,10 @@ export default `@layer s-base {
   }
   .s-knob-val { font-size: smaller; opacity: .8; font-variant-numeric: tabular-nums; }
 }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s-panel, .s-panel *, .s-panel::details-content, .s-panel *::before, .s-panel *::after, .s-panel *::details-content {
+    transition: none !important;
+    animation: none !important;
+  }
 }`

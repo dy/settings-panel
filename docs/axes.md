@@ -32,15 +32,6 @@ The interactive/brand color. CSS color string, or a number 0–1 to derive from 
 Default: `'#2563eb'`.
 
 
-### `contrast` *(glass only)*
-
-Luminance spread between roles (bg → surface → dim → text). Passed through `resolveRoles`.
-
-0 = subtle, everything close together. 1 = stark, high-accessibility ratios.
-Below 0.3 may fail WCAG.
-Default: `1`. Range 0–2.
-
-
 ## Shape
 
 ### `spacing`
@@ -67,14 +58,15 @@ Default: `0.5`. Range 0–2.
 
 ## Surface
 
-### `depth` *(neu, skeu)*
+### `depth` *(neu, skeu, glass)*
 
 How much things lift off the surface. Same value, different physics per theme:
 
 | Theme | depth at 1 |
 |-------|-----------|
-| neu | ±5px paired light/dark shadows |
+| neu | 6px directional cast, close contact shadow, fine rim |
 | skeu | directional shadow, physical weight |
+| glass | edge rim and surface reflection intensity |
 
 Default: `1` (neu), `1` (skeu). Range 0–∞ (values > 1 amplify the effect).
 
@@ -84,18 +76,51 @@ Default: `1` (neu), `1` (skeu). Range 0–∞ (values > 1 amplify the effect).
 Font weight and icon stroke thickness. Affects title, labels, chevrons.
 
 100 = thin. 400 = normal. 900 = black.
-Default varies per theme (e.g. `400` for soft, `700` for brutal). Range 100–900.
+Default varies per theme (e.g. `400` for soft, `500` for brutal). Range 100–900.
 
 
-### `bevel` *(skeu, brutal)*
+### `bevel` *(skeu, brutal, porcelain)*
 
-Structural edge width. In `skeu` it controls the relief gradient intensity (0–∞, default `1`). In `brutal` it is the border thickness in px (default `3`).
+Structural edge width. In `skeu` it controls the relief gradient intensity (0–∞, default `1`). In `brutal` it is the border thickness in px (default `2`). In `porcelain` it scales the ceramic lip (default `1`, 5px at size 1).
 
 
 ### `blur` *(glass only)*
 
-`backdrop-filter: blur(${blur}px)`. Default `18`. Controls frosted-glass intensity.
+`backdrop-filter: blur(${blur}px)`. Default `24`. Controls frosted-glass intensity.
 
+
+### `tint` *(glass only)*
+
+Density of the shade-colored glass backing. 0 = clear, 1 = the default optical
+tint. Bright or busy scenes need enough tint to keep the text readable.
+
+### `softness` *(neu only)*
+
+Blur relative to shadow distance. Default `1`; lower values give a crisper
+molded edge, higher values a softer relief. It changes the broad shadows; the
+contact edge remains crisp. Depth and lighting contrast are independent.
+
+### `contrast` *(neu only)*
+
+Shadow and highlight strength, independent of depth. Default `1`, range 0–2.
+At `0` the lighting disappears; raised faces remain opaque.
+
+### `light` *(neu only)*
+
+Light-source direction in CSS degrees: 0 = top, 90 = right, 180 = bottom,
+270 = left. Default `315` (upper left); shadows fall in the opposite direction.
+Raised edges, inset wells, and face gradients share the same light.
+
+### `offset` *(brutal only)*
+
+Hard-shadow throw in px; control press travel derives from the same value.
+Default `4`.
+
+### `grain` *(brutal, neu, porcelain)*
+
+Texture intensity; `0` disables it. Brutal uses halftone dots (default `0`),
+Neu uses fine matte grain (default `.3`, range 0–1), and Porcelain uses flowing
+embossed relief (default `1`, range 0–2).
 
 ## Character
 
@@ -141,16 +166,22 @@ Theme-specific extras:
 
 | Axis | Themes | What it does |
 |------|--------|-------------|
-| depth | neu, skeu | shadow/elevation intensity |
-| bevel | skeu, brutal | relief intensity (skeu) or border width in px (brutal) |
+| depth | neu, skeu, glass | shadow/elevation or optical rim intensity |
+| bevel | skeu, brutal, porcelain | relief intensity, ink border width, or ceramic lip |
 | blur | glass | `backdrop-filter` blur radius in px |
-| contrast | glass | luminance spread between roles (via `resolveRoles`) |
+| leading | terminal | line height as a multiple of the type size — the cell height (default `1.6`) |
+| tint | glass | shade-colored backing density |
+| softness | neu | ambient diffusion relative to shadow distance |
+| contrast | neu | shadow/highlight strength |
+| light | neu | light-source direction in CSS degrees |
+| offset | brutal | hard-shadow throw in px |
+| grain | brutal, neu, porcelain | halftone, matte grain, or embossed relief |
 
 | Group | Axes |
 |-------|------|
 | Color | shade, accent |
 | Shape | spacing, size, roundness |
-| Surface | weight, depth, bevel, blur, contrast |
+| Surface | weight, depth, bevel, blur, tint, softness, contrast, light, offset, grain |
 
 
 ## Orthogonality

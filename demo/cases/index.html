@@ -19,12 +19,12 @@
 
     .gallery {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       border-top: 1px solid #222;
     }
 
     @media (max-width: 1100px) {
-      .gallery { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 640px) {
       .gallery { grid-template-columns: 1fr; }
@@ -36,7 +36,7 @@
       border-bottom: 1px solid #222;
       display: flex;
       flex-direction: column;
-      min-height: 66vmin;
+      min-height: 700px;
     }
     .cell:nth-child(3n) { border-right: none; }
 
@@ -47,7 +47,7 @@
       letter-spacing: .1em;
       text-align: center;
       padding: .5rem;
-      color: #555;
+      color: #aaa;
       background: #111;
       text-decoration: none ;
     }
@@ -74,7 +74,7 @@
 <div class="gallery" id="gallery">
   <div class="cell" :each="c in cases">
     <a :href="c.src || '#'" class="cell-label" :text="c.label"></a>
-    <iframe :if="c.src" :src="c.src"></iframe>
+    <iframe :if="c.src" :src="c.src" :title="c.label" loading="lazy"></iframe>
     <div :if="!c.src" class="cell-placeholder" :text="c.label + ' — not yet'"></div>
   </div>
 </div>
@@ -88,12 +88,21 @@
 
   sprae(gallery, { cases: [
     { label: 'lab01', src: dir + 'lab01.html' },
+    { label: 'lab01 / silver', src: dir + 'variants.html#silver' },
+    { label: 'skeu / soft', src: dir + 'variants.html#soft' },
+    { label: 'porcelain', src: dir + 'variants.html#porcelain' },
+    { label: 'neu / chalk', src: dir + 'variants.html#chalk' },
+    { label: 'neu / amber', src: dir + 'variants.html#amber' },
+    { label: 'neu / graphite', src: dir + 'variants.html#graphite' },
+    { label: 'glass / frost', src: dir + 'variants.html#frost' },
+    { label: 'brutal / ink', src: dir + 'variants.html#ink' },
     { label: 'glass', src: dir + 'glass.html' },
     { label: 'neu', src: dir + 'neu.html' },
     { label: 'brutal', src: dir + 'brutal.html' },
     { label: 'swiss', src: dir + 'swiss.html' },
     { label: 'control-panel', src: dir + 'control-panel.html' },
     { label: 'skeu', src: dir + 'skeu.html' },
+    { label: 'terminal', src: dir + 'terminal.html' },
     { label: 'dat.gui', src: dir + 'dat.html' },
     { label: 'tweakpane', src: dir + 'tweakpane.html' },
     { label: 'leva', src: dir + 'leva.html' },

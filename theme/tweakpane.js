@@ -263,7 +263,7 @@ export default function tweakpane({
     .s-content { gap: var(--u); padding: var(--u) 0 var(--u) var(--u); }
     /* Match native's fold timing: height+padding ease-in-out, opacity fades in lockstep on close,
        only after fully expanded on open (avoids an empty box collapsing/expanding visibly) */
-    &:is(details)::details-content { transition: height .2s ease-in-out, opacity .2s linear, padding .2s ease-in-out; }
+    &:is(details)::details-content { transition: height .2s ease-in-out, opacity .2s linear, padding .2s ease-in-out, content-visibility .2s allow-discrete; }
     &:is(details)[open]::details-content { transition: height .2s ease-in-out, opacity .2s linear .2s, padding .2s ease-in-out; }
   }
   /* Adjacent folders: each folder already ends in 4px of bottom padding, so the panel's
@@ -273,6 +273,7 @@ export default function tweakpane({
   /* ── Info / separator ── */
   .s-info .s-monitor { background: var(--well); border-radius: var(--r); padding: 0 var(--u); height: var(--row); line-height: var(--row); color: var(--monitor); font-variant-numeric: tabular-nums; }
   .s-separator { min-height: 0; height: var(--track); background: var(--field); opacity: 1; margin: 0; }
+  .s-separator-labeled { height: auto; background: none; }
 }`
 
   return baseCSS + '\n' + overrides

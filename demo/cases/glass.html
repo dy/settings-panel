@@ -14,45 +14,40 @@
   </script>
   <style>
     * { box-sizing: border-box; margin: 0; }
-    html { height: 100%; overflow: hidden; scrollbar-width: none; }
+    html { min-height: 100%; scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
     body {
-      height: 100%;
+      min-height: 100svh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
+      padding: 32px 16px;
       font-size: 14px;
       position: relative;
-      overflow: hidden;
-      background: #15121f;
+      isolation: isolate;
+      background: #120e1c;
     }
-    /* Vivid, high-frequency backdrop: a hairline grid (the clearest tell for lens
-       bending — straight lines visibly curve where the glass refracts) layered
-       over drifting colour blobs, so the panel reads as a lens ON the scene,
-       not a blurred sheet floating above it. */
+    /* Backdrop: broad mineral colour fields, so the pane has colour to
+       lift and bend inside it. A single thin light streak crosses under the
+       panel — a straight line is the clearest tell that the rim refracts. */
     body::before, body::after {
-      content: ''; position: absolute; inset: -10%; z-index: 0; pointer-events: none;
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
     }
     body::before {
       background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,.14) 0 1px, transparent 1px 56px),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 1px, transparent 1px 56px);
-      animation: lg-drift 30s ease-in-out infinite alternate;
+        radial-gradient(42rem 34rem at 22% 18%, #698f89 0%, transparent 62%),
+        radial-gradient(38rem 32rem at 82% 16%, #344d62 0%, transparent 62%),
+        radial-gradient(44rem 36rem at 74% 88%, #528590 0%, transparent 62%),
+        radial-gradient(34rem 30rem at 18% 86%, #b7a483 0%, transparent 58%),
+        radial-gradient(30rem 24rem at 50% 52%, #2c444a 0%, transparent 65%);
+
     }
     body::after {
       background:
-        radial-gradient(34rem 26rem at 18% 20%, #ff7eb3 0%, transparent 60%),
-        radial-gradient(30rem 26rem at 85% 22%, #7367f0 0%, transparent 60%),
-        radial-gradient(34rem 30rem at 72% 92%, #21d4fd 0%, transparent 60%),
-        radial-gradient(26rem 26rem at 22% 88%, #ffd86f 0%, transparent 55%);
-      animation: lg-drift 22s ease-in-out infinite alternate-reverse;
+        linear-gradient(112deg, transparent 48.2%, rgba(255,255,255,.32) 49.7%, rgba(255,255,255,.32) 50.3%, transparent 51.8%),
+        linear-gradient(112deg, transparent 59%, rgba(255,255,255,.14) 60.6%, rgba(255,255,255,.14) 61%, transparent 62.6%);
+      mix-blend-mode: screen;
+
     }
-    @keyframes lg-drift {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(-3%, 2%) scale(1.06); }
-    }
-    #panel { width: min(100%, 360px); position: relative; z-index: 1; }
+    #panel { margin: auto; width: min(100%, 380px); position: relative; z-index: 1; }
   </style>
 </head>
 <body>
@@ -84,10 +79,10 @@
       <filter id="lg-refraction" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="lg-map"
           href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='gx' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='rgb(0,0,64)'/%3E%3Cstop offset='0.22' stop-color='rgb(64,0,64)'/%3E%3Cstop offset='0.78' stop-color='rgb(64,0,64)'/%3E%3Cstop offset='1' stop-color='rgb(255,0,64)'/%3E%3C/linearGradient%3E%3ClinearGradient id='gy' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='rgb(0,0,64)'/%3E%3Cstop offset='0.22' stop-color='rgb(0,64,64)'/%3E%3Cstop offset='0.78' stop-color='rgb(0,64,64)'/%3E%3Cstop offset='1' stop-color='rgb(0,255,64)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23gx)'/%3E%3Crect width='100' height='100' fill='url(%23gy)' style='mix-blend-mode:plus-lighter'/%3E%3C/svg%3E" />
-        <feGaussianBlur in="lg-map" stdDeviation="3" result="lg-map-soft" />
-        <feDisplacementMap in="SourceGraphic" in2="lg-map-soft" scale="58" xChannelSelector="R" yChannelSelector="G" result="lg-bent" />
-        <feGaussianBlur in="lg-bent" stdDeviation="1.2" result="lg-blur" />
-        <feColorMatrix in="lg-blur" type="saturate" values="1.35" />
+        <feGaussianBlur in="lg-map" stdDeviation="4" result="lg-map-soft" />
+        <feDisplacementMap in="SourceGraphic" in2="lg-map-soft" scale="34" xChannelSelector="R" yChannelSelector="G" result="lg-bent" />
+        <feGaussianBlur in="lg-bent" stdDeviation="1" result="lg-blur" />
+        <feColorMatrix in="lg-blur" type="saturate" values="1.25" />
       </filter>
     </defs>
   </svg>
@@ -95,6 +90,8 @@
   <script type="module">
     import settings from '../../index.js'
     import glass from '../../theme/glass.js'
+
+    if (location.hash === '#lens') document.getElementById('panel').style.setProperty('--glass-refraction', 'url(#lg-refraction)')
 
     settings({
       title: { type: 'text', value: 'Northern Lights', label: 'Title' },
@@ -112,7 +109,7 @@
       title: 'Layer',
       collapsed: false,
       search: true,
-      theme: () => glass(),
+      theme: () => glass({ shade: '#1e3035', accent: '#b6d9cf' }),
     })
   </script>
 </body>

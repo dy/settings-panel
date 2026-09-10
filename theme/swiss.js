@@ -237,6 +237,13 @@ export default function swiss({
 
   /* ── Boolean ── */
   .s-boolean {
+    &.s-switch .s-input, &.s-toggle .s-input { align-items: center; padding: var(--pad) calc(var(--u) * 4); }
+    &.s-switch .s-track { position: relative; flex: none; width: calc(var(--u) * 10); height: calc(var(--u) * 5);
+      &::after { content: ''; position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(var(--u) * 4 - 2px); transition: left 120ms; }
+    }
+    &.s-switch:has(input:checked) .s-track::after { left: calc(var(--u) * 6 - 2px); }
+    &.s-toggle .s-track { padding: 3px 12px; &::after { content: 'Off'; background: none; } }
+    &.s-toggle:has(input:checked) .s-track::after { content: 'On'; background: none; }
     .s-track {
       background: transparent;
       border: var(--hairline) solid var(--rule);
@@ -391,8 +398,10 @@ export default function swiss({
 
   /* ── Slider ── */
   .s-slider {
-    input[type="range"] { accent-color: var(--accent); }
+    .s-track { min-width: 0; }
+    input[type="range"] { accent-color: var(--accent); width: 100%; min-width: 0; }
     .s-readout {
+      flex: none; width: 6ch; padding: var(--pad) calc(var(--u) * 2); text-align: right;
       color: var(--dim);
       font-size: var(--size-readout);
       font-variant-numeric: tabular-nums;
@@ -445,6 +454,10 @@ export default function swiss({
 
   /* ── Color ── */
   .s-color {
+    &.s-picker .s-color-input {
+      input[type="color"] { position: static; flex: none; width: calc(var(--u) * 6); height: calc(var(--u) * 6); margin-left: calc(var(--u) * 4); }
+      input[type="text"] { width: 0; }
+    }
     .s-color-input {
       input[type="text"] { font-family: ui-monospace, monospace; }
       input[type="color"] { border: var(--hairline) solid var(--rule); padding: 0; }

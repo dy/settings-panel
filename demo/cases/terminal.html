@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal — Uplink</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      padding: 2rem;
+      font-size: 13px;
+      /* the screen: near-black with a faint cell grid, the same grid the panel lays out on */
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgba(91,228,155,.06), transparent 60%),
+        repeating-linear-gradient(0deg, transparent 0 19px, rgba(255,255,255,.035) 19px 20px),
+        #0e1013;
+    }
+    /* the mono face here too: the 52ch width must be measured in the panel's own cell */
+    #panel { width: min(100%, 52ch); margin: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import terminal from '../../theme/terminal.js'
+
+    const state = settings({
+      callsign: { type: 'text', value: 'KX7-DELTA', label: 'callsign' },
+      band: { type: 'select', variant: 'segmented', value: 'VHF', options: ['HF', 'VHF', 'UHF'], label: 'band' },
+      freq: { type: 'slider', value: 146.52, min: 30, max: 300, step: 0.01, unit: ' MHz', scale: 'log', label: 'frequency' },
+      gain: { type: 'slider', value: 0.72, min: 0, max: 1, step: 0.01, label: 'gain' },
+      wave: { type: 'select', value: 'sine', options: ['sine', 'square', 'saw', 'noise'], label: 'waveform' },
+      carrier: { type: 'boolean', variant: 'switch', value: true, label: 'carrier' },
+      squelch: { type: 'boolean', variant: 'checkbox', value: false, label: 'squelch' },
+      led: { type: 'color', value: '#5be49b', label: 'led' },
+      link: { type: 'folder', label: 'link', collapsed: false },
+      'link.mod': { type: 'select', variant: 'radio', value: 'FM', options: ['AM', 'FM', 'PM'], label: 'modulation' },
+      'link.power': { type: 'number', value: 25, min: 1, max: 100, step: 1, label: 'power W' },
+      'link.window': { type: 'slider', multiple: true, value: [6, 22], min: 0, max: 24, step: 1, unit: 'h', label: 'window' },
+      div: { type: 'separator', label: 'status' },
+      snr: { type: 'info', value: 34, format: v => v + ' dB', label: 'snr' },
+      tx: { type: 'button', label: false, buttons: { transmit: () => {}, halt: { variant: 'secondary', onclick: () => {} } } },
+    }, {
+      container: '#panel',
+      title: 'uplink',
+      collapsed: false,
+      search: true,
+      theme: () => terminal(),
+    })
+  </script>
+</body>
+</html>

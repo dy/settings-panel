@@ -16,6 +16,7 @@ const cases = [
   { name: 'brutal', path: '/demo/cases/brutal.html' },
   { name: 'neu', path: '/demo/cases/neu.html' },
   { name: 'glass', path: '/demo/cases/glass.html' },
+  { name: 'terminal', path: '/demo/cases/terminal.html' },
   { name: 'dat', path: '/demo/cases/dat.html' },
   { name: 'tweakpane', path: '/demo/cases/tweakpane.html' },
   { name: 'leva', path: '/demo/cases/leva.html' },
@@ -24,6 +25,14 @@ const cases = [
   { name: 'oui', path: '/demo/cases/oui.html' },
   { name: 'figma', path: '/demo/cases/figma.html' },
   { name: 'apple', path: '/demo/cases/apple.html' },
+  { name: 'porcelain', path: '/demo/cases/variants#porcelain' },
+  { name: 'chalk', path: '/demo/cases/variants#chalk' },
+  { name: 'amber', path: '/demo/cases/variants#amber' },
+  { name: 'graphite', path: '/demo/cases/variants#graphite' },
+  { name: 'frost', path: '/demo/cases/variants#frost' },
+  { name: 'soft', path: '/demo/cases/variants#soft' },
+  { name: 'silver', path: '/demo/cases/variants#silver' },
+  { name: 'ink', path: '/demo/cases/variants#ink' },
 ]
 
 test.describe('interval slider readout keyboard', () => {
@@ -184,6 +193,40 @@ test.describe('search filter', () => {
     await expect(page.locator('.s-panel')).not.toHaveClass(/s-searching/)
     await expect(page.locator('.s-control[data-key=number]')).toBeVisible()
   })
+})
+
+// Theme sheets are unlayered and cascade over the base layer, so a theme's own
+// `.s-separator { height }` or `.s-vec-axis { padding }` can silently break the
+// labeled-separator and vector layouts base gets right. Every theme in the
+// controls gallery must keep a label inside its separator and digits visible
+// in every vector axis.
+test('controls gallery: separators, vector axes and row widths hold their layout in every theme', async ({ page }) => {
+  await page.goto('/demo/controls.html')
+  await page.waitForLoadState('networkidle')
+  const themes = await page.locator('#theme-picker option').allTextContents()
+  expect(themes.length).toBeGreaterThan(5)
+  for (const theme of themes) {
+    await page.selectOption('#theme-picker', theme)
+    await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.removeAttribute('name'); d.open = true }))
+    await page.waitForTimeout(150)
+    const bad = await page.evaluate(() => {
+      const out = []
+      for (const sep of document.querySelectorAll('.s-separator-labeled')) {
+        const l = sep.querySelector('.s-separator-label')
+        if (l && l.getBoundingClientRect().height > sep.getBoundingClientRect().height + 1) out.push('separator label overflows')
+      }
+      for (const inp of document.querySelectorAll('.s-vec-axis input')) {
+        if (inp.getBoundingClientRect().width < 20) out.push(`vector axis ${inp.value} squeezed to ${inp.getBoundingClientRect().width}px`)
+      }
+      const panel = document.querySelector('.s-panel').getBoundingClientRect()
+      for (const row of document.querySelectorAll('.s-control')) {
+        const r = row.getBoundingClientRect()
+        if (r.width && r.right > panel.right + 1) out.push(`row ${row.dataset.key} spills ${Math.round(r.right - panel.right)}px past the panel`)
+      }
+      return out
+    })
+    expect(bad, theme).toEqual([])
+  }
 })
 
 for (const { name, path } of cases) {

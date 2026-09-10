@@ -2,7 +2,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 
 ## Docs (source of truth)
 - `docs/axes.md` — theme axes (core + per-theme extras)
-- `docs/themes.md` — themes: 8 shipped + planned (research doc with Status column)
+- `docs/themes.md` — themes: 10 shipped + planned (research doc with Status column)
 - `docs/options.md` — panel options
 - `docs/controls.md` — **research/design doc**; has "Implemented today" banner at top
 - `docs/signals.md` — signals pattern
@@ -52,6 +52,6 @@ Panel flow: `settings() → theme <style> + panel el + controls + onchange effec
 - `onchange`/`onChange` both accepted
 
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.
-- `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles` + `hardShadow`)
+- `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles`; one plate-shadow helper)
 - New themes: `brutal`, `neu`, `glass` use `resolveRoles` + mixins from `theme/color.js` + `theme/mixins.js`
 - Package: v2.0.0. Dependency: `sprae ^13.3.8` only (`sube` removed).

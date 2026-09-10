@@ -21,6 +21,8 @@ const templates = {
       :each="opt in options"
       :style="opt.style || null"
       :class="{ 's-selected': multiple ? (value || []).includes(opt.value) : opt.value == value }"
+      :aria-label="opt.title || opt.label || String(opt.value)"
+      :aria-pressed="String(multiple ? (value || []).includes(opt.value) : opt.value == value)"
       :onclick="toggle(opt.value)"
       :text="opt.label"
     ></button>

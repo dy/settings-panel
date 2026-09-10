@@ -14,7 +14,7 @@
   "scripts": {
     "start": "npx serve .",
     "test": "npm run test:unit && npm run test:e2e",
-    "test:unit": "node test/infer.js && node test/signals.js && node test/settings.js && node test/color.js && node test/controls.js",
+    "test:unit": "node test/infer.js && node test/signals.js && node test/settings.js && node test/color.js && node test/controls.js && node test/theme.js",
     "test:e2e": "npx playwright test"
   },
   "repository": {
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/dfcreative/settings-panel#readme",
   "dependencies": {
-    "sprae": "^13.3.8"
+    "sprae": "^13.9.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",

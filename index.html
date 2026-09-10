@@ -1,196 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore settings-panel themes. Compare the same controls, adjust the light and material, and take the code with you.">
+  <title>Themes — settings-panel</title>
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <link rel="stylesheet" href="./tokens.css">
+  <link rel="stylesheet" href="./demo/gallery.css">
+</head>
+<body>
+  <a class="skip-link" href="#preview" :onclick.prevent="focusPreview()">Skip to live preview</a>
+  <div class="app">
+    <header class="site-header">
+      <a class="wordmark" href="./">settings-panel<span class="brand-dot" aria-hidden="true"></span></a>
+      <nav aria-label="Main navigation">
+        <a href="./" aria-current="page">Themes</a>
+        <a href="./demo/playground.html">Playground</a>
+        <a href="./docs/themes.md">Docs</a>
+      </nav>
+      <a class="repository icon-button" href="https://github.com/dfcreative/settings-panel" aria-label="Source on GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.64.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+      </a>
+    </header>
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>settings-panel</title>
-    <script type="importmap">
-    {
-      "imports": {
-        "sprae": "https://esm.sh/sprae@13",
-        "sprae/store": "https://esm.sh/sprae@13/store"
-      }
-    }
-    </script>
-    <!-- <script type="importmap">
-    {
-      "imports": {
-        "sprae": "../node_modules/sprae/sprae.js",
-        "sprae/store": "../node_modules/sprae/store.js"
-      }
-    }
-    </script> -->
-    <style>
-      * {
-        box-sizing: border-box;
-      }
+    <main class="workspace">
+      <section class="catalog" aria-labelledby="gallery-title">
+        <div class="catalog-heading">
+          <div><h1 id="gallery-title">Find your panel.</h1><p>Same controls. A different feel.</p></div>
+          <span id="theme-count" :text="count + (count === 1 ? ' theme' : ' themes')" class="theme-count" aria-live="polite"></span>
+        </div>
+        <div class="catalog-tools">
+          <label class="search-field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+            <input id="theme-search" :value="query" :change="v => query = v" type="search" placeholder="Search themes…" aria-label="Search themes" autocomplete="off">
+          </label>
+          <div class="segments filters" role="group" aria-label="Theme category">
+            <button type="button" data-filter="all" :aria-pressed="String(filter === 'all')" :onclick="filter = 'all'">All</button>
+            <button type="button" data-filter="original" :aria-pressed="String(filter === 'original')" :onclick="filter = 'original'">Originals</button>
+            <button type="button" data-filter="classic" :aria-pressed="String(filter === 'classic')" :onclick="filter = 'classic'">Classics</button>
+          </div>
+        </div>
+        <div id="theme-grid" class="theme-grid">
+          <article class="theme-card" :each="theme in themes" :data-theme="theme.id" :class="{ selected: options.theme === theme.id }" :hidden="!matches(theme)">
+            <div class="thumbnail" inert aria-hidden="true" :mount="el => mountThumbnail(el, theme)"><div class="mini-stage"></div></div>
+            <button class="theme-choice" type="button" :aria-pressed="String(options.theme === theme.id)" :aria-label="'Preview ' + theme.name" :onclick="selectTheme(theme.id)"><span :text="theme.name"></span><span class="card-category" :text="theme.classic ? 'Classic' : 'Original'"></span></button>
+            <span class="selection-mark" :hidden="options.theme !== theme.id"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8 3 3 5-6"/></svg></span>
+          </article>
+        </div>
+        <div id="empty-state" :hidden="count > 0" class="empty-state" hidden><p>No matching themes.</p><button class="ui-button" id="clear-filters" :onclick="clearFilters()">Clear filters</button></div>
+        <p class="gallery-footnote">Small controls, real interactions. <a href="./demo/cases/">Explore the demo cases <span aria-hidden="true">↗</span></a></p>
+      </section>
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: system-ui;
-        /* Derive from panel's --bg, darken by 0.1 L */
-        background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
-      }
-    </style>
-  </head>
+      <aside id="preview" class="inspector" aria-labelledby="preview-title" tabindex="-1">
+        <div class="inspector-heading"><div><span class="eyebrow">YOUR PREVIEW</span><h2 id="preview-title" :text="selected.name">Glass</h2></div><span id="palette-note" :text="selected.tone ? (selected.tone === 'dark' ? 'Dark' : 'Light') + ' palette' : 'Light &amp; dark'" class="palette-note"></span></div>
+        <p id="theme-description" :text="selected.description" class="theme-description"></p>
+        <div id="preview-scene" class="preview-scene" data-surface="glass">
+          <svg class="landscape" viewBox="0 0 700 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="sky" x2="0" y2="1"><stop class="sky-top"/><stop class="sky-bottom" offset="1"/></linearGradient>
+              <radialGradient id="sun"><stop class="sun-core"/><stop class="sun-edge" offset="1" stop-opacity="0"/></radialGradient>
+              <filter id="haze"><feGaussianBlur stdDeviation="8"/></filter>
+            </defs>
+            <path fill="url(#sky)" d="M0 0h700v650H0z"/>
+            <ellipse cx="125" cy="265" rx="330" ry="270" fill="url(#sun)"/>
+            <g filter="url(#haze)">
+              <path class="ridge-far" d="M-30 470 45 325 92 347 174 289 234 338 290 323 342 389 399 305 440 327 490 249 563 322 616 277 730 354V680H-30Z"/>
+              <path class="ridge-mid" d="M-30 469 52 432 116 479 184 393 251 449 306 431 399 502 468 409 516 442 606 393 730 471V680H-30Z"/>
+              <path class="ridge-near" d="M-30 590 95 536 163 555 231 520 354 582 416 541 527 588 619 537 730 595V680H-30Z"/>
+            </g>
+          </svg>
+          <div class="scene-toolbar">
+            <label class="time-control"><svg id="time-icon" viewBox="0 0 24 24" aria-hidden="true"></svg><select id="time-select" :value="options.time" :change="v => options.time = v" aria-label="Time of day"><option value="predawn">Pre-dawn</option><option value="sunrise">Sunrise</option><option value="day">Daytime</option><option value="dusk" selected>Dusk</option><option value="sunset">Sunset</option><option value="night">Night</option></select></label>
+            <button id="reset-preview" :onclick="resetPreview()" class="scene-reset" aria-label="Reset preview values" title="Reset preview values"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
+          </div>
+          <div id="live-panel" class="live-panel"></div>
+          <span id="preview-feedback" :text="feedback" class="preview-feedback" role="status"></span>
+        </div>
 
-  <body>
-    <div id="panel"></div>
-
-    <script type="module">
-      import settings from './index.js'
-      import base from './theme/default.js'
-      import skeu from './theme/skeu.js'
-      import control from './theme/control-panel.js'
-      import lab01 from './theme/lab01.js'
-
-      const themes = { default: base, skeu, control, lab01 }
-      const axes = {
-        default: ['shade', 'accent', 'spacing', 'weight', 'roundness'],
-        skeu: ['shade', 'accent', 'spacing', 'weight', 'roundness', 'bevel', 'depth', 'grid'],
-      }
-
-      const paramKeys = ['shade', 'accent', 'weight', 'depth', 'roundness', 'spacing', 'bevel', 'grid']
-      const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
-
-      const rand = (lo, hi, step = 0) => {
-        const v = lo + Math.random() * (hi - lo)
-        return step ? Math.round(v / step) * step : v
-      }
-      const randHex = () => '#' + Array.from({ length: 3 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('')
-
-      const schema = {
-        foldable: false,
-        theme: { type: 'select', options: Object.keys(themes), value: 'skeu' },
-
-        'params.shade': '#f7f7f7',
-        'params.accent': '#2967fa',
-        'params.weight': { type: 'slider', value: 400, min: 100, max: 900, step: 50, marks: true, snap: true },
-        'params.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
-        'params.depth': { type: 'slider', value: 1, min: 0, max: 2, step: 0.1, marks: true },
-        'params.roundness': { type: 'slider', value: 1, min: 0, max: 2, marks: true, step: 0.25 },
-        'params.spacing': { type: 'slider', value: 1, min: 0.5, max: 2, step: 0.25, marks: true },
-        'params.grid': { type: 'select', variant: 'segmented', multiple: true, options: ['dots', 'lines', 'crosses'], value: [] },
-
-        code: { type: 'textarea', variant: 'code', label: '', value: '', readonly: true },
-        actions: { type: 'button', label: '', variant: 'group', buttons: {
-          'Random': { variant: 'secondary', onclick: () => randomize() },
-          'Copy': () => navigator.clipboard.writeText(state?.code)
-        }}
-      }
-
-      let state
-      let curTheme, curFoldable
-
-      function create() {
-        state?.[Symbol.dispose]()
-        state = settings(schema, {
-          title: 'Settings',
-          collapsed: (s) => s.foldable ? false : undefined,
-          container: '#panel',
-          theme: (s) => { const t = themes[s.theme]; return typeof t === 'function' ? t(getParams(s)) : t },
-          persist: 'settings-panel',
-          onchange(s) {
-            s.code = JSON.stringify(getParams(s), null, 2)
-            if (s.theme !== curTheme || s.foldable !== curFoldable) {
-              curTheme = s.theme
-              curFoldable = s.foldable
-              requestAnimationFrame(create)
-              return
-            }
-            syncBg()
-          }
-        })
-        curTheme = state.theme
-        curFoldable = state.foldable
-        state.code = JSON.stringify(getParams(state), null, 2)
-        syncBg()
-        syncAxes(curTheme)
-      }
-
-      create()
-
-      const { parseColor, toHex } = await import('./theme/color.js')
-
-      function tweenColor(from, to, t) {
-        const a = parseColor(from), b = parseColor(to)
-        let dH = b.H - a.H
-        if (dH > 180) dH -= 360; else if (dH < -180) dH += 360
-        return toHex({
-          L: a.L + (b.L - a.L) * t,
-          C: a.C + (b.C - a.C) * t,
-          H: ((a.H + dH * t) % 360 + 360) % 360,
-        })
-      }
-
-      let tweenId = 0
-      function randomize() {
-        if (!state) return
-        tweenId++
-        const id = tweenId
-        const dur = 600
-        const from = {
-          shade: state.shade, accent: state.accent,
-          weight: state.weight, bevel: state.bevel, depth: state.depth,
-          roundness: state.roundness, spacing: state.spacing,
-        }
-        const newShade = randHex()
-        const { L: sL, C: sC } = parseColor(newShade)
-        const newAccent = toHex({
-          L: sL < 0.5 ? rand(0.6, 0.8) : rand(0.25, 0.45),
-          C: rand(0.12, 0.25),
-          H: rand(0, 360),
-        })
-        const to = {
-          shade: newShade, accent: newAccent,
-          weight: rand(100, 900, 100), bevel: rand(0, 2, 0.1), depth: rand(0, 2, 0.1),
-          roundness: rand(0, 2, 0.25), spacing: rand(0.5, 2, 0.25),
-        }
-        const steps = { weight: 100, bevel: 0.1, depth: 0.1, roundness: 0.25, spacing: 0.25 }
-        const snap = (v, step, t) => {
-          const raw = from[v] + (to[v] - from[v]) * t
-          return +(t < 1 ? raw.toFixed(2) : (Math.round(raw / step) * step).toFixed(2))
-        }
-        const t0 = performance.now()
-        const ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2  // ease in-out quad
-        ;(function tick(now) {
-          if (id !== tweenId) return
-          const t = ease(Math.min((now - t0) / dur, 1))
-          state.shade = tweenColor(from.shade, to.shade, t)
-          state.accent = tweenColor(from.accent, to.accent, t)
-          state.weight = snap('weight', steps.weight, t)
-          state.bevel = snap('bevel', steps.bevel, t)
-          state.depth = snap('depth', steps.depth, t)
-          state.roundness = snap('roundness', steps.roundness, t)
-          state.spacing = snap('spacing', steps.spacing, t)
-          if (t < 1) requestAnimationFrame(tick)
-        })(t0)
-      }
-
-      function syncBg() {
-        const el = document.querySelector('.s-panel')
-        if (!el) return
-        const bg = getComputedStyle(el).getPropertyValue('--bg')
-        if (bg) document.documentElement.style.setProperty('--bg', bg)
-      }
-
-      function syncAxes(theme) {
-        const supported = axes[theme]
-        const panel = document.querySelector('.s-panel')
-        if (!panel) return
-        for (const el of panel.querySelectorAll('[data-key]')) {
-          const key = el.dataset.key
-          if (!paramKeys.includes(key)) continue
-          const input = el.querySelector('.s-input')
-          if (input) input.disabled = supported ? !supported.includes(key) : false
-        }
-      }
-    </script>
-  </body>
-
+        <div class="inspector-controls">
+          <fieldset class="axis-row" id="accent-row" :hidden="!supported(selected, 'accent')"><legend>Accent</legend><div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets"><button class="swatch" type="button" :each="accent in accents" :aria-label="accent[0]" :title="accent[0]" :data-color="accent[1]" :style="{ '--swatch': accent[1] }" :aria-pressed="String(options.accent === accent[1])" :onclick="options.accent = accent[1]"></button></div><label class="custom-accent" title="Custom accent"><input id="custom-accent" :value="options.accent" :change="v => options.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></label></fieldset>
+          <fieldset class="axis-row" id="density-row" :hidden="!supported(selected, 'spacing')"><legend>Density</legend><div class="segments" id="density-options" role="group" aria-label="Density"><button data-density="0.65" :aria-pressed="String(options.spacing === 0.65)" :onclick="options.spacing = 0.65">Compact</button><button data-density="1" :aria-pressed="String(options.spacing === 1)" :onclick="options.spacing = 1">Comfortable</button><button data-density="1.5" :aria-pressed="String(options.spacing === 1.5)" :onclick="options.spacing = 1.5">Roomy</button></div></fieldset>
+          <details class="more-axes" id="more-axes" :hidden="!supported(selected, 'roundness') &amp;&amp; !supported(selected, 'size')"><summary>More controls<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="extra-axes">
+            <label class="range-axis" id="roundness-row" :hidden="!supported(selected, 'roundness')">Corners<input id="roundness" :value="options.roundness" :change="v => options.roundness = v" type="range" min="0" max="2" step="0.1" value="1.4"><output for="roundness" id="roundness-value" :text="options.roundness">1.4</output></label>
+            <label class="range-axis" id="size-row" :hidden="!supported(selected, 'size')">Scale<input id="size" :value="options.size" :change="v => options.size = v" type="range" min="0.8" max="1.2" step="0.05" value="1"><output for="size" id="size-value" :text="options.size + '×'">1×</output></label>
+          </div></details>
+        </div>
+        <div class="export-row"><a id="control-link" href="./demo/controls.html">Explore all controls <span aria-hidden="true">↗</span></a><button id="use-theme" :onclick="showCode()" class="ui-button primary">Use theme <span aria-hidden="true">↗</span></button><button id="copy-link" :onclick="copyLink()" class="icon-button" aria-label="Copy preview link" title="Copy preview link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 2-2 2a4 4 0 0 0 6 6l2-2m-4-12 2-2a4 4 0 0 1 6 6l-2 2"/></svg></button></div>
+        <p id="copy-status" :text="copyStatus" class="copy-status" role="status"></p>
+      </aside>
+    </main>
+  </div>
+  <dialog id="code-dialog" aria-labelledby="code-title"><div class="dialog-heading"><h2 id="code-title" :text="link ? 'Preview link' : 'Use ' + selected.name">Use Glass</h2><button id="close-dialog" :onclick="closeCode()" class="icon-button" aria-label="Close code"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><p>Your current theme and axes, ready for a panel.</p><div class="segments code-tabs" :hidden="!!link" role="group" aria-label="Code format"><button data-format="js" :aria-pressed="String(format === 'js')" :onclick="format = 'js'; codeStatus = ''">JavaScript</button><button data-format="css" :aria-pressed="String(format === 'css')" :onclick="format = 'css'; codeStatus = ''">CSS</button></div><pre tabindex="0"><code id="theme-code" :text="code"></code></pre><div class="dialog-footer"><span id="code-status" :text="codeStatus" role="status"></span><button id="copy-code" :onclick="copyCode()" class="ui-button primary">Copy code</button></div></dialog>
+  <noscript><p class="noscript">Enable JavaScript to explore the interactive themes. <a href="./docs/themes.md">Read the theme documentation.</a></p></noscript>
+  <script type="module" src="./demo/gallery.js"></script>
+</body>
 </html>

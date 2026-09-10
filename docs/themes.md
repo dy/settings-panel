@@ -26,9 +26,13 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 **`resolveRoles(shade, accent, { contrast })`** returns semantic tokens:
 `dark`, `bg`, `surface`, `surface2`, `fg`, `fgMuted`, `border`, `divider`, `accent`, `onAccent`.
 
+`onAccent` chooses black or white from hex / numeric-OKLCH fill luminance.
+CSS colors outside the parser's supported formats pass through unchanged and
+retain white ink; their contrast must be supplied by the theme or host.
+
 **Mixins** (`theme/mixins.js`): `bevel(grad, w)`, `bevelRing(grad, w)`, `hardShadow(x, y, color)`, `neuShadow(dist, blur, dark, light)`, `neuInset(dist, blur, dark, light)`.
 
-`brutal.js` is the simplest complete example: ~250 lines, uses `resolveRoles` + `hardShadow`.
+`brutal.js` is the simplest complete example: one control height, one plate-shadow helper, `resolveRoles` for color.
 
 
 ## The Foundational Themes
@@ -39,25 +43,27 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 | 2 | **swiss** | ✅ shipped | `theme/swiss` | No shadows, grid-pure, typographic hierarchy only | Braun, Stripe, FabFilter |
 | 3 | **skeu** | ✅ shipped | `theme/skeu` | Realistic textures, directional lighting, physical affordances | iOS 1-6, Universal Audio |
 | 4 | **brutal** | ✅ shipped | `theme/brutal` | Hard offset shadows (no blur), thick borders | Gumroad |
-| 5 | **neu** | ✅ shipped | `theme/neu` | Paired shadows (light+dark), same-surface color, no borders | Neumorphism / claymorphism |
+| 5 | **neu** | ✅ shipped | `theme/neu` | Directional rim, contact + ambient shadows, one molded material | Neumorphism / claymorphism |
 | 6 | **glass** | ✅ shipped | `theme/glass` | backdrop-filter blur, transparency, thin light borders | macOS Big Sur, Windows 11 |
 | 7 | **lab01** | ✅ shipped | `theme/lab01` | Frosted glass + gradient borders + noise texture | lab01.dev |
 | 8 | **control-panel** | ✅ shipped | `theme/control-panel` | freeman-lab/control-panel reproduction | control-panel |
 | 9 | **classic** | 🔲 planned | — | Serif typography, rule lines, print margins | Notion, iA Writer, The New Yorker |
-| 10 | **terminal** | 🔲 planned | — | Monospace, 0 radius, 1px borders, max density | Bloomberg, vim, Ableton |
+| 10 | **terminal** | ✅ shipped | `theme/terminal` | Monospace on a character-cell grid, inverse video, no depth | Bloomberg, vim, Ableton |
 | 11 | **industrial** | 🔲 planned | — | Exposed structure, functional labels, accent = interaction | Teenage Engineering, Nothing |
 | 12 | **retro** | 🔲 planned | — | Inset/outset bevel borders, system colors, pixel-crisp | Windows 95/98, classic GTK |
+| 13 | **porcelain** | ✅ shipped | `theme/porcelain` | Glazed ceramic lip, embossed face, mineral frame | Porcelain / ceramic relief |
 
 ### What each structurally owns (can't be faked by another)
 
 - **soft**: the *mainstream default* — nothing extreme, everything gentle
 - **swiss**: *absence* of depth is the statement — shadows would break it
-- **classic**: *serif* — the only theme where serif is the right call
-- **terminal**: *monospace everywhere* — not just code, all text
+- **classic**: *print hierarchy* — serif typography and rule lines
+- **terminal**: *the character-cell grid* — every size is a whole number of `ch` × lines; no depth, state is inverse video
 - **industrial**: *the label IS the decoration* — POWER, SYNC, modular grid
 - **brutal**: *hard offset shadow* (4px 4px 0 black) — unique depth model
 - **glass**: *backdrop-filter* — unique CSS mechanism, unique depth
-- **neu**: *paired inset/outset shadows on same-color surface* — unique
+- **neu**: *directional relief in one molded material* — rim, contact and ambient lighting
+- **porcelain**: *a glazed face seated in a mineral frame* — ceramic lip and embossed relief
 - **skeu**: *real material textures* (leather, brushed metal) — unique surface
 - **retro**: *bevel via border-color* (light top-left, dark bottom-right) — unique border model
 
@@ -110,11 +116,11 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 6. **glass** — backdrop-filter, frosted surfaces
 7. **lab01** — frosted + gradient border + noise
 8. **control-panel** — dat.gui-era reproduction
+9. **terminal** — character-cell grid, inverse video
 
 **Planned**
 
-9. **classic** — serif, editorial
-10. **terminal** — monospace + density
+10. **classic** — serif, editorial
 11. **industrial** — label-as-decoration
 12. **retro** — bevel border model
 
@@ -151,14 +157,15 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 - Margins: generous, controlled line length (~66ch)
 - Feel: centuries of print wisdom, scholarly, timeless
 
-### terminal *(planned)*
-- Shadows: none
-- Borders: 1px solid, or none
+### terminal
+- Shadows: none — state is inverse video (selected, pressed) and a cursor bar (focus)
+- Borders: one 1px frame, the title cut into its top edge; folders indent behind a tree guide
 - Radius: 0 (enforced)
-- Typography: **monospace everywhere**, small size (12px)
-- Surface: solid, dark default
-- Color: semantic only (green=ok, red=error, yellow=warn, cyan=info)
-- Density: maximum
+- Typography: **monospace everywhere**; every dimension a whole number of `ch` × lines (`leading` axis sets the cell height)
+- Surface: solid; dark default, a light shade gives a paper terminal
+- Color: text, dim, line and well are one contrast ladder off the shade; accent is the phosphor (on, selected, live values)
+- Glyphs: `[x]` checkbox, `( )` / `(•)` radio, `[ RUN ]` button, `[+]` / `[-]` fold
+- Density: one line per row
 - Feel: every pixel earns its place
 
 ### industrial *(planned)*
@@ -191,14 +198,19 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 - Feel: airy, premium, modern depth
 
 ### neu
-- Shadows: **paired** — dark shadow (bottom-right) + light shadow (top-left)
-- Borders: **none** (shadows define edges)
-- Radius: very high (12-20px)
-- Typography: medium weight sans
-- Surface: **same color as background** (elements extrude from surface)
-- Contrast: low (accessibility risk — must be careful)
-- Inset state: invert shadow direction for pressed/active
-- Feel: soft plastic, clay, quiet
+- Shadows: thin edge highlight, close contact shadow, broad cast and reflected light
+- Material: the same shade on the page, panel, buttons, and knobs
+- Typography: clear system sans, distinct primary and secondary ink
+- Raised controls have opaque, slightly curved faces; fields and pressed controls use inset lighting
+- Depth, diffusion, lighting contrast, direction, and grain can be tuned independently
+- The [Neu demo](../demo/cases/neu.html) has a live Material folder for these axes
+
+### porcelain
+- A white ceramic face with subtle flowing relief, seated in a pale mineral frame
+- A crisp beveled lip catches the light; recessed fields and glazed thumbs share that construction
+- Serif labels and blue-grey ink, with explicit keyboard focus outlines
+- `shade` tints the body, `accent` the ink/actions, `bevel` scales the lip, `grain` the relief
+- All panel textures are embedded SVG; the demo's marble background is a local SVG asset
 
 ### skeu
 - Shadows: **directional, realistic** (consistent light source, usually top-left)
@@ -250,3 +262,57 @@ export default function myTheme({ shade = '#f5f4f2', accent, size = 1, ...rest }
 | classic GTK | retro | Raised/sunken border model |
 | Tailwind UI | soft | Gentle shadows, generous radius |
 | Radix / shadcn | soft | Subtle depth, smooth transitions |
+
+
+## Material studies
+
+The [demo gallery](../demo/cases/index.html) includes Porcelain and seven material presets, using the same light-adjustment controls for comparison:
+
+| Case | Theme | Axes |
+|------|-------|------|
+| [Porcelain](../demo/cases/variants.html#porcelain) | porcelain | glazed ceramic face, mineral rim, embossed relief |
+| [Chalk](../demo/cases/variants.html#chalk) | neu | pale grey, depth .85, diffusion 1.4, contrast .8 |
+| [Amber](../demo/cases/variants.html#amber) | neu | warm ochre, depth 1.2, contrast 1.25, matte grain .6 |
+| [Graphite](../demo/cases/variants.html#graphite) | neu | charcoal, pale steel accent, depth 1.1, diffusion 1.1 |
+| [Frost](../demo/cases/variants.html#frost) | glass | light mineral tint, blur 28, tint .85 |
+| [Soft](../demo/cases/variants.html#soft) | skeu | matte silver, green accent, spacing 1.6, depth .7 |
+| [Silver](../demo/cases/variants.html#silver) | lab01 | silver tint, compact segments, consistent row spacing |
+| [Ink](../demo/cases/variants.html#ink) | brutal | off-white stock, lime accent, 2px borders, 3px offset |
+
+Save keeps a snapshot for the current session; Reset restores it (or the initial
+values before the first Save). Porcelain is a separate theme; the other cases are axis presets. Skeu / Soft uses
+the current Skeu engine. Studio is reserved for a future design.
+
+Glass works without page-provided SVG filters. Its shade tints the backdrop to
+support readable text; blur controls the frost. The experimental lens remains
+available in [the glass demo](../demo/cases/glass.html#lens) through the optional
+`--glass-refraction` CSS property. A host may override `--glass-backdrop` too.
+
+Lab01 uses `--row-gap` for sibling controls and folder contents, a smaller
+`--card-label-gap` between a card picker and its label, and shared header/content
+edge padding. All three track the spacing axis. Open panel content allows
+shadows and keyboard focus rings to extend beyond its layout box.
+
+
+## Gallery and live preview
+
+The [main gallery](../index.html) renders one shared miniature specimen for every
+engine: **Layer**, Blend select, Opacity slider, Enabled toggle, Apply effect button.
+The larger preview adds Name and Tint. Values survive theme and axis changes;
+Reset preview values restores the specimen while keeping the selected axes.
+
+The daytime menu offers pre-dawn, sunrise, daytime, dusk, sunset, and night. It
+changes the scene and casts a subtle color tint on adaptable materials. Neu also
+moves its light source. Native fixed palettes stay intact; their badge identifies
+them. Axis controls appear only when the selected engine supports them.
+
+Search and Originals/Classics filters compose. Use theme provides JavaScript and
+CSS, and Copy preview link stores the theme and axes in the URL (not edited sample
+values). Desktop columns scroll independently; selecting a card on mobile returns
+to the preview. The [playground](../demo/playground.html) retains the original editor.
+
+The gallery shell uses Sprae for lists, filters, selection, axis bindings, and
+export state. Inputs pair `:value` with `:change`; ARIA states use explicit strings.
+Theme navigation batches state and history updates so synchronous effects preserve
+the Back stack. Preview mounting runs untracked, keeping edits from remounting the
+panel; replacing a preview disposes its controls and stylesheet.
