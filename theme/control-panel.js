@@ -8,7 +8,7 @@
  * color or falls back to a lightness shift off shade.
  *
  * Every size below is a multiple of --u (the 5px grid unit, already used
- * for spacing) or one of two named leftover constants (--fs the fixed
+ * for spacing) or one of two named leftover constants (--fs the baseline
  * 11px type size, --line the 1px focus-ring/hairline weight) — so the
  * whole control layer scales together off one grid rather than scattered
  * literals. Colors were already tokenized (--bg/--bg2/--fg/--text/--dim/
@@ -25,6 +25,7 @@
  * controlPanel(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { parseColor, resolveAccent, clamp } from './color.js'
 
@@ -33,7 +34,9 @@ export default function controlPanel({
   accent,
   spacing = 1,
   weight = 400,
-  roundness = 0
+  roundness = 0,
+  size = 1,
+  font,
 } = {}) {
   const { L, C, H } = parseColor(shade)
   const dark = L < .6
@@ -52,7 +55,8 @@ export default function controlPanel({
   const dimColor = `oklch(${clamp(dimL, 0, 1).toFixed(3)} ${C.toFixed(4)} ${H.toFixed(1)})`
 
   const overrides = `.s-panel {
-  --u: 5px;
+  ${metrics({ size, spacing, font }, {unit: 5, fontSize: 11, fontFamily: "'Hack', monospace", lineHeight: 20, controlHeight: 20, inset: 4, rowGap: 5, columnGap: 5, sectionGap: 5, panelPadding: 15})}
+
   --bg: ${bg1};
   --bg2: ${bg2};
   --bg2h: ${bg2h};
@@ -60,7 +64,7 @@ export default function controlPanel({
   --text: ${text1};
   --dim: color-mix(in oklab, var(--text), var(--bg2) 15%);
   --accent: ${resolved};
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: ${roundness};
   --r: 0;
@@ -68,10 +72,9 @@ export default function controlPanel({
 
   /* ── Derived tokens (size) — every control dimension is one of these,
      itself a multiple of --u, so overriding --u rescales the whole panel.
-     --fs / --line are the two fixed leftovers (native's type size and
-     hairline weight) that aren't unit multiples. ── */
-  --fs: 11px;
-  --line: 1px;
+     --fs follows the shared type size; --line is the scaled hairline. ── */
+  --fs: var(--font-size);
+  --line: calc(1 * var(--length));
   --gap: calc(var(--u) * var(--spacing));
   --lh-tight: calc(var(--u) * 3);   /* 15px — input/textarea line-height */
   --thumb: calc(var(--u) * 2);      /* 10px — slider thumb / checkbox+switch dot */
@@ -82,14 +85,18 @@ export default function controlPanel({
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background-color: var(--bg);
-  font-family: 'Hack', monospace;
-  font-size: var(--fs);
+
+
   line-height: var(--lh);
   color: var(--text);
   border-radius: 0;
-  padding: calc(var(--u) * (2 + 1 * var(--spacing)));
+  padding: var(--panel-padding);
   min-width: 0;
   -webkit-font-smoothing: antialiased;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Panel header ── */
   > summary, > .s-panel-title {
@@ -107,13 +114,13 @@ export default function controlPanel({
     &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
 
-  .s-panel-content { gap: var(--gap); padding: 0; }
+  .s-panel-content { gap: var(--row-gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
-    padding-top: calc(var(--u) * var(--spacing));
+    padding-top: var(--section-gap);
   }
 
   /* ── Layout ── */
-  .s-control { gap: var(--gap); padding: 0; position: relative; align-items: center; }
+  .s-control { gap: var(--column-gap); padding: 0; position: relative; align-items: center; }
   .s-label-group {
     min-width: 0;
     width: 36%;

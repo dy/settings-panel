@@ -19,6 +19,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
   - `theme/color.js` — `resolveRoles`, `resolveAccent`, `parseColor`, `normalizeHex`
   - `theme/mixins.js` — `bevel`, `bevelRing`, `hardShadow`, `neuShadow`, `neuInset`
   - `theme/base.js` — shared structural reset
+  - `theme/metrics.js` — shared size, spacing, and body-font tokens; themes provide their baselines
 - `/index.js` — `settings()`, `infer()`, `register()`.
 - `/signals.js` — decorators + re-exports: `signal`, `effect`, `computed`, `batch`, `untracked`, `store`, `use`.
 
@@ -40,7 +41,7 @@ Controls are signal decorators: `factory(sig, opts) → sig` with `.el`, `[Symbo
 - `control.js` wraps template with label/hint/title structure, mounts, handles dispose
 - Controls pass state explicitly: `value: sig, set: v => { sig.value = v }`
 - No implicit injection — control.js knows nothing about value/set
-- Sprae auto-unwraps signals in templates. `:value` is two-way for inputs.
+- Sprae auto-unwraps signals in templates. `:value` writes state to input properties; `:change` or explicit input/change handlers write back.
 - Colon variant syntax parsed in `settings()` factory loop: `'select:segmented'` → `type='select', variant='segmented'`
 
 Panel flow: `settings() → theme <style> + panel el + controls + onchange effect`
@@ -54,4 +55,4 @@ Panel flow: `settings() → theme <style> + panel el + controls + onchange effec
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.
 - `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles`; one plate-shadow helper)
 - New themes: `brutal`, `neu`, `glass` use `resolveRoles` + mixins from `theme/color.js` + `theme/mixins.js`
-- Package: v2.0.0. Dependency: `sprae ^13.3.8` only (`sube` removed).
+- Package: v2.0.0. Dependency: `sprae ^13.9.2` only (`sube` removed).

@@ -51,8 +51,11 @@ settings({
 ## Themes
 
 The [theme gallery](index.html) compares identical specimens and provides a live
-preview with time of day, accent, density, and supported corner/scale controls.
+preview with colormap, accent, density, and supported corner/scale controls.
 Use theme exports the current JavaScript or CSS; the link button shares its axes.
+Every theme supports size, density, and body-font tuning through
+[shared dimensional tokens](docs/axes.md#shared-dimensional-tokens). The
+[DevTools case](demo/cases/devtools.html) presents editable, syntax-colored declarations.
 The original editor is available in the [playground](demo/playground.html).
 
 Ten themes, all functions: `theme(axes?) → CSS string`.

@@ -20,6 +20,7 @@
  * skeu(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import defaultCSS from './default.js'
 import { parseColor, resolveAccent, lerp, clamp } from './color.js'
 
@@ -44,7 +45,9 @@ export default function skeu({
   weight = 400,
   depth = 1,
   roundness = 1,
-  bevel: bevelOpt = 1
+  bevel: bevelOpt = 1,
+  size = 1,
+  font,
 } = {}) {
 
   const isFunc = typeof shade === 'function'
@@ -163,9 +166,11 @@ export default function skeu({
   const engrave = dark ? `0 -1px 0 ${lo(.5)}` : `0 1px 0 ${hi(.8)}`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {panelPadding: 20, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif"})}
+
   --bg: ${$(sL)};
   --accent: ${$(aL, aC, aH)};
-  --spacing: ${spacing};
+
   --roundness: ${roundness};
   --weight: ${weight};
   color-scheme: ${dark ? 'dark' : 'light'};
@@ -195,7 +200,10 @@ export default function skeu({
   text-shadow: ${engrave};
   position: relative;
   isolation: isolate;
-  font-family: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   &, *, *::before, *::after { background-origin: border-box; }
 
@@ -519,5 +527,5 @@ export default function skeu({
   }
 }`
 
-  return defaultCSS() + '\n' + overrides
+  return defaultCSS({ size, spacing, font }) + '\n' + overrides
 }

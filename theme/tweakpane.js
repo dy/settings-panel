@@ -1,6 +1,8 @@
 /**
  * tweakpane — calibrated to Tweakpane's default dark theme
  *
+ * Custom shades derive missing color roles; explicit role axes take precedence.
+ *
  * Signatures: monospace throughout, a fully greyscale blue-grey palette (no hue
  * accent — states shift only lightness), a razor-thin 2px slider track with a
  * 12px square knob, light-grey buttons with dark text, and a two-bar grip
@@ -23,13 +25,23 @@
  * tweakpane(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
+import { resolveRoles, toHex, parseColor } from './color.js'
 
 export default function tweakpane({
   shade = '#28292e',     // panel bg ≈ hsl(228 8% 17%) — matches Tweakpane's rgb(40,41,46)
-  fg = '#bbbcc4',        // input-fg / slider fill / label ink ≈ hsl(228 8% 75%)
-  button = '#adafb8',    // button bg ≈ hsl(228 7% 70%)
+  fg,        // input-fg / slider fill / label ink ≈ hsl(228 8% 75%)
+  button,    // button bg ≈ hsl(228 7% 70%),
+  size = 1,
+  spacing = 1,
+  font,
 } = {}) {
+  const native = shade === '#28292e'
+  const roles = resolveRoles(shade)
+  fg ??= native ? '#bbbcc4' : toHex(parseColor(roles.fg))
+  button ??= native ? '#adafb8' : toHex(parseColor(roles.fg))
+
   const enc = c => encodeURIComponent(c)   // any CSS color, safe inside an SVG data-URI
   const rgbOf = (hex, fallback) => { const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(hex); return m ? [1, 2, 3].map(i => parseInt(m[i], 16)) : fallback }
   const c255 = v => Math.max(0, Math.min(255, Math.round(v)))
@@ -40,6 +52,8 @@ export default function tweakpane({
   const wash = a => `rgba(${fgR},${fgG},${fgB},${a})`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace", lineHeight: 15.4, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 4, sectionGap: 4, panelPadding: 4})}
+
   /* ── axes ── */
   --bg: ${shade};
   --fg: ${fg};
@@ -49,7 +63,7 @@ export default function tweakpane({
   /* ── derived tokens ── */
   --field: ${wash(0.1)};
   --field-hover: ${wash(0.16)};
-  --label: ${wash(0.7)};
+  --label: ${wash(native ? .7 : .9)};
   --monitor: var(--label);
   --grip: var(--label);
   --pad-fill: ${wash(0.2)};
@@ -59,46 +73,49 @@ export default function tweakpane({
   --option-bg: rgb(${c255(shR + 7)},${c255(shG + 6)},${c255(shB + 5)});
   --well: rgba(0,0,0,.2);
   --shadow: 0 2px 4px var(--well);
-  --tooltip-bg: #000;
+  --tooltip-bg: ${roles.dark ? '#000' : '#fff'};
+  --on-button: ${native ? shade : resolveRoles(shade, button).onAccent};
 
-  --u: 4px;
-  --spacing: 1;
   --weight: 400;
-  --r: 2px;
-  --row: 20px;
-  --thumb: 12px;
-  --track: 2px;
-  --radius-lg: 6px;
-  --width: 256px;
-  --vec-pad: 128px;
-  color-scheme: dark;
+  --r: calc(2 * var(--length));
+  --row: var(--control-height);
+  --thumb: calc(12 * var(--length));
+  --track: calc(2 * var(--length));
+  --radius-lg: calc(6 * var(--length));
+  --width: calc(256 * var(--length));
+  --vec-pad: calc(128 * var(--space));
+  color-scheme: ${roles.dark ? 'dark' : 'light'};
 
   background: var(--bg);
   color: var(--fg);
-  font: 11px/1.4 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
   width: var(--width);
   min-width: 0;
   max-width: var(--width);
   border-radius: var(--radius-lg);
-  padding: var(--u);
+  padding: var(--panel-padding);
   box-shadow: var(--shadow);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Title ── */
   > summary, > .s-panel-title {
     color: var(--label);
     font-weight: 500;
-    padding: var(--u) var(--u) 6px;
-    &::after { content: ''; width: 6px; height: 6px; margin-left: auto; border: 1px solid currentColor; opacity: .5; transition: transform .15s; }
+    padding: var(--u) var(--u) calc(6 * var(--space));
+    &::after { content: ''; width: calc(6 * var(--length)); height: calc(6 * var(--length)); margin-left: auto; border: 1px solid currentColor; opacity: .5; transition: transform .15s; }
   }
   &[open] > summary::after { transform: rotate(45deg); }
-  .s-panel-content { gap: var(--u); padding: 0; }
+  .s-panel-content { gap: var(--row-gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
   /* ── Row ── */
-  .s-control { gap: var(--u); padding: 0; min-height: var(--row); align-items: center; &:has(> .s-input[inert]) > .s-label-group { opacity: .5; } }
+  .s-control { gap: var(--column-gap); padding: 0; min-height: var(--row); align-items: center; &:has(> .s-input[inert]) > .s-label-group { opacity: .5; } }
   .s-label-group { width: 34%; min-width: 0; max-width: none; padding: 0 var(--u); line-height: 1.3; }
   .s-label { color: var(--label); font-weight: 500; }
-  .s-hint { color: var(--label); opacity: .7; font-size: 10px; }
+  .s-hint { color: var(--label); opacity: .7; font-size: calc(10 * var(--length)); }
   .s-input { gap: var(--u); align-items: center; }
 
   /* ── Fields ── */
@@ -117,16 +134,16 @@ export default function tweakpane({
   /* ── Vector: bare per-axis number fields, native's collapsed {x,y} layout ── */
   .s-vector {
     position: relative;
-    .s-input { position: relative; gap: 2px; }
+    .s-input { position: relative; gap: calc(2 * var(--length)); }
     .s-vec-axis { gap: 0; }
     input[type="number"] { text-align: right; cursor: ew-resize; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:focus { cursor: text; }
       /* native's tp-txtv-num left guide bar — same accent glyph as the slider's .s-readout */
       background: var(--field) linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), color-mix(in srgb, var(--fg) 10%, transparent)) 3px center / 2px 16px no-repeat; }
     /* Expand button: native's point2d picker glyph — a plus-shaped reticle with a corner dot,
        dark-on-light like the select's arrow, filling a 20px field-height square. margin-right
-       widens the button→field gap to native's measured 4px (.tp-p2dv_b margin-right: 4px) —
+       widens the button→field gap to native's measured 4px (.tp-p2dv_b margin-right: calc(4 * var(--space))) —
        the 2px flex gap plus this 2px margin. */
-    .s-vec-expand { -webkit-mask: none; mask: none; opacity: 1; width: var(--row); height: var(--row); margin-right: 2px; border-radius: var(--r);
+    .s-vec-expand { -webkit-mask: none; mask: none; opacity: 1; width: var(--row); height: var(--row); margin-right: calc(2 * var(--length)); border-radius: var(--r);
       background: var(--button) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 4v8M4 8h8' stroke='${enc(shade)}' stroke-width='2' fill='none'/%3E%3Ccircle cx='12' cy='12' r='1.2' fill='${enc(shade)}'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
       &:hover, &.s-open { background-color: var(--hover); } }
     /* Picker: native opens the pad as a floating popup (.tp-popv) anchored to the expand
@@ -149,10 +166,10 @@ export default function tweakpane({
   /* ── Slider: 2px track + 2px fill + 12px square knob ── */
   .s-slider {
     align-items: center;
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 12px; }
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
     .s-track { height: var(--row); margin: 0; }
     input[type="range"] {
-      width: 100%; height: 16px; -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
+      width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
       background-image:
         linear-gradient(to right, var(--fg) 0 var(--p, 0%), transparent var(--p, 0%)),
         linear-gradient(var(--field) 0 0);
@@ -164,13 +181,13 @@ export default function tweakpane({
       &:focus-visible { outline: none; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: 10px; color: var(--label); white-space: nowrap; }
-    .s-readout { position: relative; flex: 0 0 auto; width: 52px; min-width: 52px; text-align: right; color: var(--fg); border: none; border-radius: var(--r); height: var(--row); padding: 0 var(--u); font-variant-numeric: tabular-nums; cursor: ew-resize;
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--label); white-space: nowrap; }
+    .s-readout { position: relative; flex: 0 0 auto; width: calc(52 * var(--length)); min-width: calc(52 * var(--length)); text-align: right; color: var(--fg); border: none; border-radius: var(--r); height: var(--row); padding: 0 var(--u); font-variant-numeric: tabular-nums; cursor: ew-resize;
       background: var(--field) linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), color-mix(in srgb, var(--fg) 10%, transparent)) 3px center / 2px 16px no-repeat;
       &:hover, &:focus { background-color: var(--field-hover); outline: none; }
       &:focus { cursor: text; } }
-    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 2px; background: var(--tooltip-bg); color: var(--fg); padding: 1px 5px; border-radius: var(--r); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: var(--track); margin: 9px 0; background: var(--field); position: relative; overflow: visible;
+    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--tooltip-bg); color: var(--fg); padding: calc(1 * var(--length)) calc(5 * var(--space)); border-radius: var(--r); white-space: nowrap; }
+    &.s-multiple .s-interval-track { height: var(--track); margin: calc(9 * var(--space)) 0; background: var(--field); position: relative; overflow: visible;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--fg); }
       input[type="range"]::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); }
       input[type="range"]::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); } }
@@ -178,12 +195,12 @@ export default function tweakpane({
 
   /* ── Select ── */
   .s-select {
-    &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; background-color: var(--button); color: var(--bg); font-weight: 700;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7h6l-3 3z' fill='${enc(shade)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right var(--u) center; background-size: 16px 16px; padding-right: 20px;
-      &:hover, &:focus { background-color: var(--hover); color: var(--bg); }
+    &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; background-color: var(--button); color: var(--on-button); font-weight: 700;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7h6l-3 3z' fill='${enc(shade)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right var(--u) center; background-size: calc(16 * var(--length)) calc(16 * var(--length)); padding-right: calc(20 * var(--space));
+      &:hover, &:focus { background-color: var(--hover); color: var(--on-button); }
       option { background: var(--option-bg); color: var(--fg); } }
-    &.s-segmented { .s-input { gap: 2px; } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: 3px; font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--bg); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: 3px; } .s-input label { display: flex; align-items: center; gap: 6px; cursor: pointer; } }
+    &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: calc(3 * var(--space)); font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--on-button); } } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
   /* ── XY pad (point2d) — native's floating picker: shade-bg card radius echoed via the
@@ -205,13 +222,13 @@ export default function tweakpane({
       background-image:
         repeating-linear-gradient(to right, var(--field) 0 1px, transparent 1px 2px),
         repeating-linear-gradient(to bottom, var(--field) 0 1px, transparent 1px 2px);
-      background-size: 100% 1px, 1px 100%; background-position: center, center; background-repeat: no-repeat, no-repeat; }
+      background-size: 100% calc(1 * var(--length)), calc(1 * var(--length)) 100%; background-position: center, center; background-repeat: no-repeat, no-repeat; }
     .s-pad-x, .s-pad-y { background: none; }
-    .s-pad-x { top: 50%; left: 50%; right: auto; width: var(--dist, 0%); height: 1px;
+    .s-pad-x { top: 50%; left: 50%; right: auto; width: var(--dist, 0%); height: calc(1 * var(--length));
       transform-origin: left center; transform: rotate(var(--angle, 0rad));
       background-image: repeating-linear-gradient(to right, var(--pad-axis) 0 1px, transparent 1px 2px); }
     .s-pad-y { display: none; }
-    .s-pad-dot { width: 5px; height: 5px; background: var(--fg); box-shadow: none; } }
+    .s-pad-dot { width: calc(5 * var(--length)); height: calc(5 * var(--length)); background: var(--fg); box-shadow: none; } }
 
   /* ── Boolean: input-bg square with a check ── */
   .s-boolean {
@@ -237,29 +254,29 @@ export default function tweakpane({
       &::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--row); height: var(--row); pointer-events: none; border-radius: var(--r);
         background: linear-gradient(var(--color), var(--color)), conic-gradient(#ddd 90deg, #fff 0 180deg, #ddd 0 270deg, #fff 0) 0 0 / 8px 8px; }
       .s-alpha { display: none; } input[type="text"] { flex: 1; min-width: 0; } }
-    &.s-swatches button { width: 18px; height: 18px; border-radius: var(--r); border: none; &.s-selected { outline: 1px solid var(--fg); } }
+    &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: none; &.s-selected { outline: 1px solid var(--fg); } }
   }
 
   /* ── Button: light pill, dark text ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
-    button { width: 100%; background: var(--button); color: var(--bg); border: none; border-radius: var(--r); height: var(--row); font-weight: 700; &:hover { background: var(--hover); } &:active { background: var(--active); } }
+    button { width: 100%; background: var(--button); color: var(--on-button); border: none; border-radius: var(--r); height: var(--row); font-weight: 700; &:hover { background: var(--hover); } &:active { background: var(--active); } }
     &.s-secondary button, button.s-secondary { background: var(--field); color: var(--fg); &:hover { background: var(--field-hover); } }
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: 40px; max-height: 50vh; padding: 4px 6px; } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)) calc(6 * var(--space)); } }
 
   /* ── Folder: full-bleed header bar breaking out of panel padding + two-bar grip marker ── */
   .s-folder {
     position: relative;
-    > summary { background: var(--field); color: var(--label); font-weight: 500; height: 24px; line-height: 24px; padding: 0 6px; margin: 0 calc(var(--u) * -1); width: calc(100% + var(--u) * 2); border-radius: 0; transition: background-color .1s;
+    > summary { background: var(--field); color: var(--label); font-weight: 500; height: calc(24 * var(--length)); line-height: 24px; padding: 0 calc(6 * var(--space)); margin: 0 calc(var(--u) * -1); width: calc(100% + var(--u) * 2); border-radius: 0; transition: background-color .1s;
       &:hover { background: var(--field-hover); }
-      &::after { content: ''; width: 6px; height: 6px; border-radius: var(--r); margin-left: auto; opacity: .5; transform: rotate(90deg);
+      &::after { content: ''; width: calc(6 * var(--length)); height: calc(6 * var(--length)); border-radius: var(--r); margin-left: auto; opacity: .5; transform: rotate(90deg);
         background: linear-gradient(to left, var(--grip) 0px, var(--grip) 2px, transparent 2px, transparent 4px, var(--grip) 4px); transition: transform .15s; } }
     &[open] > summary::after { transform: none; }
     /* Nesting rail: header-colored 4px band along the left edge of the open content */
-    &[open]::before { content: ''; position: absolute; top: 24px; bottom: 0; left: calc(var(--u) * -1); width: var(--u); background: var(--field); }
+    &[open]::before { content: ''; position: absolute; top: calc(24 * var(--length)); bottom: 0; left: calc(var(--u) * -1); width: var(--u); background: var(--field); }
     .s-content { gap: var(--u); padding: var(--u) 0 var(--u) var(--u); }
     /* Match native's fold timing: height+padding ease-in-out, opacity fades in lockstep on close,
        only after fully expanded on open (avoids an empty box collapsing/expanding visibly) */

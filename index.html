@@ -8,6 +8,8 @@
   <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
   <link rel="stylesheet" href="./tokens.css">
   <link rel="stylesheet" href="./demo/gallery.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 </head>
 <body>
   <a class="skip-link" href="#preview" :onclick.prevent="focusPreview()">Skip to live preview</a>
@@ -53,7 +55,7 @@
       </section>
 
       <aside id="preview" class="inspector" aria-labelledby="preview-title" tabindex="-1">
-        <div class="inspector-heading"><div><span class="eyebrow">YOUR PREVIEW</span><h2 id="preview-title" :text="selected.name">Glass</h2></div><span id="palette-note" :text="selected.tone ? (selected.tone === 'dark' ? 'Dark' : 'Light') + ' palette' : 'Light &amp; dark'" class="palette-note"></span></div>
+        <div class="inspector-heading"><div><span class="eyebrow">YOUR PREVIEW</span><h2 id="preview-title" :text="selected.name">Glass</h2></div></div>
         <p id="theme-description" :text="selected.description" class="theme-description"></p>
         <div id="preview-scene" class="preview-scene" data-surface="glass">
           <svg class="landscape" viewBox="0 0 700 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -71,7 +73,7 @@
             </g>
           </svg>
           <div class="scene-toolbar">
-            <label class="time-control"><svg id="time-icon" viewBox="0 0 24 24" aria-hidden="true"></svg><select id="time-select" :value="options.time" :change="v => options.time = v" aria-label="Time of day"><option value="predawn">Pre-dawn</option><option value="sunrise">Sunrise</option><option value="day">Daytime</option><option value="dusk" selected>Dusk</option><option value="sunset">Sunset</option><option value="night">Night</option></select></label>
+            <label class="colormap-control"><span class="scheme-swatch" aria-hidden="true"></span><select id="colormap-select" :value="options.colormap" :change="v => options.colormap = v" aria-label="Colormap"><option :each="map, id in colormaps" :value="id" :text="map.name"></option></select></label>
             <button id="reset-preview" :onclick="resetPreview()" class="scene-reset" aria-label="Reset preview values" title="Reset preview values"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
           </div>
           <div id="live-panel" class="live-panel"></div>
@@ -79,9 +81,10 @@
         </div>
 
         <div class="inspector-controls">
-          <fieldset class="axis-row" id="accent-row" :hidden="!supported(selected, 'accent')"><legend>Accent</legend><div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets"><button class="swatch" type="button" :each="accent in accents" :aria-label="accent[0]" :title="accent[0]" :data-color="accent[1]" :style="{ '--swatch': accent[1] }" :aria-pressed="String(options.accent === accent[1])" :onclick="options.accent = accent[1]"></button></div><label class="custom-accent" title="Custom accent"><input id="custom-accent" :value="options.accent" :change="v => options.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></label></fieldset>
+          <fieldset class="axis-row" id="accent-row" :hidden="!supported(selected, 'accent')"><legend>Accent</legend><div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets"><button class="swatch" type="button" :each="swatch in accents" :aria-label="swatch[0]" :title="swatch[0]" :data-color="swatch[1]" :style="{ '--swatch': swatch[1] }" :aria-pressed="String(accent === swatch[1])" :onclick="options.accent = swatch[1]"></button></div><button type="button" class="auto-accent" :aria-pressed="String(options.accent === null)" :onclick="options.accent = null" title="Use colormap accent">Auto</button><label class="custom-accent" title="Custom accent"><input id="custom-accent" :value="accent" :change="v => options.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></label></fieldset>
           <fieldset class="axis-row" id="density-row" :hidden="!supported(selected, 'spacing')"><legend>Density</legend><div class="segments" id="density-options" role="group" aria-label="Density"><button data-density="0.65" :aria-pressed="String(options.spacing === 0.65)" :onclick="options.spacing = 0.65">Compact</button><button data-density="1" :aria-pressed="String(options.spacing === 1)" :onclick="options.spacing = 1">Comfortable</button><button data-density="1.5" :aria-pressed="String(options.spacing === 1.5)" :onclick="options.spacing = 1.5">Roomy</button></div></fieldset>
           <details class="more-axes" id="more-axes" :hidden="!supported(selected, 'roundness') &amp;&amp; !supported(selected, 'size')"><summary>More controls<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="extra-axes">
+            <label class="range-axis font-axis">Body font<select id="font-select" :value="options.font" :change="v => options.font = v"><option value="theme">Theme font</option><option value="system">System</option><option value="mono">Monospace</option></select></label>
             <label class="range-axis" id="roundness-row" :hidden="!supported(selected, 'roundness')">Corners<input id="roundness" :value="options.roundness" :change="v => options.roundness = v" type="range" min="0" max="2" step="0.1" value="1.4"><output for="roundness" id="roundness-value" :text="options.roundness">1.4</output></label>
             <label class="range-axis" id="size-row" :hidden="!supported(selected, 'size')">Scale<input id="size" :value="options.size" :change="v => options.size = v" type="range" min="0.8" max="1.2" step="0.05" value="1"><output for="size" id="size-value" :text="options.size + '×'">1×</output></label>
           </div></details>

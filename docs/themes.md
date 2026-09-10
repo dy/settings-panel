@@ -140,13 +140,13 @@ retain white ink; their contrast must be supplied by the theme or host.
 - Feel: approachable, safe, mainstream
 
 ### swiss
-- Shadows: none (depth=0 enforced)
+- Shadows: none
 - Borders: 1px functional (informational, not decorative)
-- Radius: subtle (2-4px) or none
-- Typography: geometric sans (Inter, Helvetica), weight carries hierarchy
-- Surface: solid, whitespace is active design element
+- Radius: 0 (enforced)
+- Typography: condensed sans titles (Oswald), sans labels (DM Sans), serif values (DM Serif Display)
+- Surface: transparent; the host background remains visible through fields and rows
 - Grid: mathematical, visible in alignment
-- Feel: invisible design — if you notice the UI, it failed
+- Feel: an outlined form over its surroundings, with deliberate typographic contrast
 
 ### classic *(planned)*
 - Shadows: none or hairline rule
@@ -298,13 +298,37 @@ shadows and keyboard focus rings to extend beyond its layout box.
 
 The [main gallery](../index.html) renders one shared miniature specimen for every
 engine: **Layer**, Blend select, Opacity slider, Enabled toggle, Apply effect button.
-The larger preview adds Name and Tint. Values survive theme and axis changes;
+The larger preview adds Name, Tint, toggle help text, and a secondary Reset action. Values survive theme and axis changes;
 Reset preview values restores the specimen while keeping the selected axes.
 
-The daytime menu offers pre-dawn, sunrise, daytime, dusk, sunset, and night. It
-changes the scene and casts a subtle color tint on adaptable materials. Neu also
-moves its light source. Native fixed palettes stay intact; their badge identifies
-them. Axis controls appear only when the selected engine supports them.
+The colormap selector runs from dark to light: Dark, Graphite, Slate, Copper, Gold,
+Gray, Sage, Silver, Ivory, Chalk, and Light. Light is pure white (`#ffffff`) with
+a blue accent, matching the native DevTools light palette; Chalk stays off-white
+(`#f1f2f4`). Dark uses Lab01’s near-black `#111111`; Graphite keeps its lighter
+charcoal `#292b2e`. Each map sets the surface palette and suggests an accent;
+choosing a custom accent keeps it across maps, and Auto restores the map's accent.
+Themes interpret the colors through their own materials: Swiss remains transparent,
+while Glass reveals the palette-colored backdrop. Silver and Gold supply color,
+not an added metallic finish. Classic themes adapt their text and field roles;
+their standalone native defaults remain unchanged. Lighting direction stays fixed.
+Shared links store `colormap`; older `time` links map to the nearest palette.
+Axis controls appear only when the selected engine supports them.
+
+All engines now expose size, density, and body font using the
+[shared dimensional tokens](axes.md#shared-dimensional-tokens). Native typefaces
+and compact baselines remain theme defaults. The gallery surround is deliberately
+distinct from panel fills so flat themes retain visible edges. Swiss intentionally
+stays transparent, placing rules and typography over the host background; its
+`shade` selects the ink contrast. UIL uses flexible label/value columns; Apple uses a continuous sheet
+with inset fields and hairline row dividers.
+
+**DevTools** (`theme/devtools.js`) defaults to Chrome's white Styles-pane palette:
+red property names, neutral CSS values, inline punctuation, and compact monospace rows.
+Its palette follows Chromium's [design tokens](https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/design_system_tokens.css).
+The [declaration editor](../demo/cases/devtools.html) switches between native Light
+(`#ffffff`) and Dark (`#282828`) without resetting edits; gallery colormaps tint
+these surfaces. Native sliders, checkboxes, and action buttons remain interactive.
+Use `devtools()` for Light or `devtools({ shade: '#282828' })` for Dark.
 
 Search and Originals/Classics filters compose. Use theme provides JavaScript and
 CSS, and Copy preview link stores the theme and axes in the URL (not edited sample

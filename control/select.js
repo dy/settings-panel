@@ -7,12 +7,12 @@ import control from './control.js'
 const templates = {
   dropdown: `
     <select :id="label || null" :name="label || null" :value="value" :onchange="e => set(e.target.value)">
-      <option :each="opt in options" :value="opt.value" :selected="opt.value == value" :text="opt.label"></option>
+      <option :each="opt in options" :value="opt.value" :text="opt.label"></option>
     </select>
   `,
   radio: `
     <label :each="opt in options" :style="opt.style || null" :class="{ 's-selected': opt.value == value }">
-      <input type="radio" :name="label || radioName" :value="opt.value" :checked="opt.value == value" :onchange="set(opt.value)" />
+      <input type="radio" :name="label || radioName" :="{ value: String(opt.value) }" :value="String(value)" :onchange="set(opt.value)" />
       <span :text="opt.label"></span>
     </label>
   `,
@@ -29,7 +29,7 @@ const templates = {
   `,
   checkboxes: `
     <label :each="opt in options" :style="opt.style || null">
-      <input type="checkbox" :name="label || null" :checked="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
+      <input type="checkbox" :name="label || null" :value="(value || []).includes(opt.value)" :onchange="toggle(opt.value)" />
       <span class="s-track"></span>
       <span :text="opt.label"></span>
     </label>

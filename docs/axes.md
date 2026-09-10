@@ -1,13 +1,14 @@
 # Theme axes
 
 Theme = function(axes?) → CSS string.
-Every theme is a function accepting an optional axes object. Each interprets axes differently.
-Support varies per theme — see the table at the bottom.
+Every theme is a function accepting an optional axes object. Size, spacing, and
+body-font customization share a contract; material and palette axes vary by theme.
 
 
 ## Core axes (all themes)
 
-The six axes below are accepted by every theme. Per-theme extras are noted in each theme's signature.
+Every theme accepts `size`, `spacing`, and `font`. Other axes depend on the theme;
+the gallery exposes the supported controls. Fixed native palettes retain their colors.
 
 
 ## Color
@@ -44,7 +45,8 @@ Default: `1`. Range 0.5–2.
 
 ### `size`
 
-Overall scale — type size, control dimensions, layout grid unit.
+Overall scale — type size, control dimensions, layout grid unit. At `1`, each
+theme uses its native baseline; `1.2` scales its type by 20%.
 
 Orthogonal to spacing: size scales elements, spacing scales the gaps.
  Default: `1`. Range 0.5–2.
@@ -130,10 +132,12 @@ Pattern overlaid on backgrounds: flat, dots, crosses, grid, paper.
 Default: `flat`.
 
 
-### `font` (planned)
+### `font`
 
-Typographic family: geometric, humanist, mono, serif.
-Default: `geometric`.
+Body font family as a CSS font-family string. Omit it to retain the theme's face;
+for example `font: 'system-ui, sans-serif'`. Display headings and specialized code
+fields can keep their own typography. The gallery offers Theme font, System, and
+Monospace. This changes the family, independently of size and spacing.
 
 
 ## Time
@@ -151,7 +155,7 @@ Default: `0.5`. Range 0–1.
 
 ## Summary
 
-Core axes (accepted by all themes):
+Axes (palette and shape support varies):
 
 | Axis | Range | Default (soft) | What it does |
 |------|-------|----------------|-------------|
@@ -159,6 +163,7 @@ Core axes (accepted by all themes):
 | accent | color or 0–1 | `#2563eb` | interactive/brand hue |
 | spacing | 0.5–2 | `1` | air between elements |
 | size | 0.5–2 | `1` | element and type scale (`--u = 4*size px`) |
+| font | CSS font-family | theme default | body typeface |
 | roundness | 0–2 | `1` | corner radius |
 | weight | 100–900 | `400` | font weight |
 
@@ -203,3 +208,34 @@ Each axis moves one thing:
 | light direction | only skeu needs it — theme-specific |
 | layout/width | responsive concern, not visual style |
 | type scale | folds into size |
+
+## Shared dimensional tokens
+
+`theme/metrics.js` turns a theme's pixel baseline into the same CSS variables.
+The themes remain peers; they supply their baseline next to their color tokens.
+No runtime stylesheet rewriting or CSS zoom is involved.
+
+| Token | Meaning |
+|-------|---------|
+| `--size`, `--spacing` | independent scale factors, clamped to 0.5–2 |
+| `--length` | one baseline pixel multiplied by size |
+| `--space` | one baseline pixel multiplied by size and spacing |
+| `--u` | theme grid unit multiplied by size |
+| `--font-family`, `--font-size`, `--line-height` | body typography |
+| `--control-height` | line height plus density-scaled internal space |
+| `--inset` | padding inside a control |
+| `--row-gap`, `--column-gap` | space between controls and between label/value columns |
+| `--section-gap` | separation between header, content, and actions |
+| `--panel-padding` | panel edge inset |
+
+Legacy `--pad` and `--lh` alias the common inset and line height. Theme-specific
+geometry (bevels, switch proportions, Swiss display type, Terminal character cells)
+remains local. Terminal derives its line height from its `leading` axis and snaps
+the cell to its character grid.
+
+Baselines intentionally differ: OUI uses 10px type, dat.gui/Tweakpane/Figma 11px,
+DevTools 12px, Apple/Lab01 13px, and the material themes 14px. A native inspector
+can have zero row gap while Neu has a 16px gap for its shadows. At `size: 1,
+spacing: 1`, those are ordinary baseline parameters. Density changes their space,
+never their font size. Hosts can override individual role tokens without replacing
+the theme's colors or material rules.

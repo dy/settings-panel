@@ -79,14 +79,14 @@ export default `@layer s-base {
   .s-panel-content {
     display: flex;
     flex-direction: column;
-    gap: var(--pad);
+    gap: var(--row-gap, var(--pad));
   }
 
   /* ── Control row ── */
   .s-control {
     display: flex;
     align-items: baseline;
-    gap: calc(var(--u) * (1 + var(--spacing)));
+    gap: var(--column-gap, calc(var(--u) * (1 + var(--spacing))));
     margin: 0;
     padding: 0;
     border: 0;

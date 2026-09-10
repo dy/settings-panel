@@ -18,6 +18,7 @@
  * glass(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles, clamp } from './color.js'
 import { bevel } from './mixins.js'
@@ -32,6 +33,7 @@ export default function glass({
   size = 1,
   depth = 1,
   tint = 1,
+  font,
 } = {}) {
   const { dark, fg, accent: acc, onAccent } = resolveRoles(shade, accent)
   const fgMuted = `color-mix(in oklab, ${fg}, transparent ${dark ? 32 : 40}%)`
@@ -71,6 +73,8 @@ export default function glass({
   const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5.5 L4.5 8.5 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif"})}
+
   --bg: ${shade};
   --accent: ${acc};
   --on-accent: ${onAccent};
@@ -82,13 +86,13 @@ export default function glass({
   --pane-shadow-hover: ${paneShadowHover};
   --piece: ${piece};
   --piece-shadow: ${pieceShadow};
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: ${roundness};
-  --u: ${4 * size}px;
+
   --r: calc(var(--u) * var(--roundness) * 4.5);
   --r-pane: calc(var(--u) * var(--roundness) * 1.8);
-  --h: calc(var(--u) * 8.5);
+  --h: var(--control-height);
   --blur: ${blur}px;
   --saturate: ${saturate};
   --body: ${body};
@@ -101,17 +105,21 @@ export default function glass({
   position: relative;
   isolation: isolate;
   color: var(--fg);
-  --font: ui-sans-serif, system-ui, -apple-system, sans-serif;
-  font-family: var(--font);
+  --font: var(--font-family);
+
   font-weight: var(--weight);
   border-radius: var(--r);
   /* the surface reflection sits on the panel itself, unwarped, above the bent backdrop */
   background: var(--specular);
   box-shadow: ${contactShadow};
-  padding: calc(var(--u) * (3.5 + 2 * var(--spacing)));
+  padding: var(--panel-padding);
   min-width: 0;
   max-width: calc(var(--u) * 112);
   -webkit-font-smoothing: antialiased;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── The glass itself: a dedicated layer behind all content ── */
   &::after {
@@ -134,8 +142,8 @@ export default function glass({
   /* ── Header ── */
   > summary, > .s-panel-title { font-weight: 600; font-size: 1.2em; letter-spacing: -0.01em; text-shadow: var(--halo); gap: calc(var(--u) * 2); min-height: var(--h); }
   > summary::after { display: none; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(var(--u) * (1.5 + 2 * var(--spacing))); }
-  .s-panel-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: var(--section-gap); }
+  .s-panel-content { gap: var(--row-gap); }
 
   /* round pane buttons: fold + search */
   .s-fold-icon, .s-search-btn {
@@ -168,7 +176,7 @@ export default function glass({
   &.s-searching .s-search:focus-within { box-shadow: var(--pane-shadow), ${focus}; }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: calc(var(--u) * 3); }
+  .s-control { align-items: center; gap: var(--column-gap); }
   .s-input { align-items: center; }
   .s-label-group { min-width: 0; width: 30%; }
   .s-label { font-weight: 500; text-shadow: var(--halo); }

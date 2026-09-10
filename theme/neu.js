@@ -5,6 +5,7 @@
  * lighting strength, softness controls diffusion, light sets its angle (CSS
  * degrees, 315 = upper left), and grain adds a fine matte surface.
  */
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles } from './color.js'
 
@@ -20,6 +21,7 @@ export default function neu({
   light = 315,
   grain = .3,
   size = 1,
+  font,
 } = {}) {
   const { dark, at, fgMuted, accent: acc } = resolveRoles(shade, accent)
   const fg = at(dark ? .94 : .32)
@@ -69,18 +71,20 @@ export default function neu({
   const selectArrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${enc(fgMuted)}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {controlHeight: 36, rowGap: 16, sectionGap: 16, panelPadding: 24, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
+
   --bg: ${shade};
   --neu-grain: ${noise};
   --accent: ${acc};
   --fg: ${fg};
   --fg-muted: ${fgMuted};
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: ${roundness};
-  --u: ${4 * size}px;
+
   --r: calc(var(--u) * var(--roundness) * 2.2);
   --r-panel: calc(var(--u) * var(--roundness) * 5);
-  --h: calc(var(--u) * 9);
+  --h: var(--control-height);
   --knob: calc(var(--u) * 5.5);
   --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
   color-scheme: ${dark ? 'dark' : 'light'};
@@ -88,21 +92,25 @@ export default function neu({
   background: var(--bg);
   background-image: var(--neu-grain);
   color: var(--fg);
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-family: var(--font);
+  --font: var(--font-family);
+
   font-weight: var(--weight);
   border-radius: var(--r-panel);
   box-shadow: ${raisedLg};
-  padding: calc(var(--u) * (4 + 2 * var(--spacing)));
+  padding: var(--panel-padding);
   min-width: 0;
   max-width: calc(var(--u) * 110);
   -webkit-font-smoothing: antialiased;
 
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+
   /* ── Header ── */
   > summary, > .s-panel-title { font-weight: 650; font-size: 1.3em; letter-spacing: -0.01em; gap: calc(var(--u) * 2); min-height: var(--h); }
   > summary::after { display: none; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(var(--u) * (2 + 2 * var(--spacing))); }
-  .s-panel-content { gap: calc(var(--u) * (2 + 2 * var(--spacing))); }
+  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: var(--section-gap); }
+  .s-panel-content { gap: var(--row-gap); }
 
   /* round raised knob shared by the fold + search buttons */
   .s-fold-icon, .s-search-btn {
@@ -136,7 +144,7 @@ export default function neu({
   &.s-searching .s-search:focus-within { box-shadow: ${sunken}, ${focus}; }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: calc(var(--u) * 3); }
+  .s-control { align-items: center; gap: var(--column-gap); }
   .s-input { align-items: center; }
   .s-label-group { min-width: 0; width: 30%; }
   .s-label { font-weight: 500; }

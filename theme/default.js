@@ -4,30 +4,37 @@
  */
 
 export { lerp, clamp, parseColor, resolveAccent, normalizeHex } from './color.js'
+import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveAccent } from './color.js'
+import { resolveAccent, parseColor } from './color.js'
 
 const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
 const softCSS = (t) => `@layer s-soft {
 .s-panel {
+  ${metrics(t, {panelPadding: 20, fontFamily: "system-ui, -apple-system, sans-serif"})}
+
   --bg: ${t.shade};
   --accent: ${t.accent};
   --roundness: ${t.roundness};
-  --spacing: ${t.spacing};
+
   --weight: ${t.weight};
-  --u: ${4 * t.size}px;
+
   --r: calc(var(--u) * var(--roundness));
 
   background-color: var(--bg);
-  color-scheme: light;
+  color-scheme: ${parseColor(t.shade).L < .5 ? 'dark' : 'light'};
   color: color-mix(in oklab, var(--bg), light-dark(black, white) 85%);
-  padding: calc(var(--u) * (3 + 2 * var(--spacing)));
+  padding: var(--panel-padding);
   border-radius: var(--r);
-  font-family: system-ui, -apple-system, sans-serif;
+
   min-width: 27ch;
   max-width: calc(var(--u) * 108);
   -webkit-font-smoothing: antialiased;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   > summary, > .s-panel-title {
     font-weight: calc(var(--weight) + 300);
@@ -49,7 +56,7 @@ const softCSS = (t) => `@layer s-soft {
   &[open] > summary::after { transform: rotate(-180deg); }
 
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
-    padding-top: calc(var(--u) * (1 + 2 * var(--spacing)));
+    padding-top: var(--section-gap);
   }
 
   .s-title {
@@ -428,6 +435,7 @@ export default function soft({
   weight = 400,
   roundness = 1,
   size = 1,
+  font,
 } = {}) {
-  return baseCSS + '\n' + softCSS({ shade, accent: resolveAccent(accent, shade), spacing, weight, roundness, size })
+  return baseCSS + '\n' + softCSS({ shade, accent: resolveAccent(accent, shade), spacing, weight, roundness, size, font })
 }

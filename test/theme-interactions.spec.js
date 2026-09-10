@@ -61,6 +61,127 @@ test('Lab image options expose names and selected state; collapse preserves the 
   await expect(page.getByRole('button', { name: 'Gold', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })
 
+test('Lab01 inputs share the inactive toggle track; fonts, color editing and slider endpoints survive palette changes', async ({ page }) => {
+  await page.goto('/#theme=lab01&colormap=graphite')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.evaluate(() => document.fonts.ready)
+  expect(await page.evaluate(() => ['Geist', 'Geist Mono'].every(font => document.fonts.check(`13px "${font}"`)))).toBe(true)
+  const live = page.locator('#live-panel')
+  await expect(live.locator('.s-panel')).toHaveCSS('font-family', /Geist Mono/)
+  await expect(live.locator('.s-panel > summary')).toHaveCSS('font-family', /Geist/)
+  const range = live.locator('[data-key=opacity] input[type=range]')
+  await range.press('Home')
+  await expect(range).toHaveValue('0')
+  await range.press('End')
+  await expect(range).toHaveValue('100')
+  const text = live.locator('[data-key=tint] input[type=text]')
+  await text.fill('#ff6688')
+  await text.press('Tab')
+  const toggle = live.locator('[data-key=enabled] input')
+  await live.locator('[data-key=enabled] .s-track').click()
+  for (const map of ['graphite', 'graphite', 'dark', 'gray', 'gold', 'silver', 'chalk', 'graphite']) {
+    await page.locator('#colormap-select').selectOption(map)
+    await expect(range).toHaveValue('100')
+    const swatch = live.locator('input[type=color]')
+    await expect(swatch).toHaveValue('#ff6688')
+    await swatch.focus()
+    await expect(swatch).toBeFocused()
+    expect(await swatch.evaluate(el => {
+      const r = el.getBoundingClientRect(), field = el.nextElementSibling.getBoundingClientRect()
+      return r.width >= 30 && r.height >= 30 && r.right <= field.left && document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === el
+    })).toBe(true)
+    await swatch.blur()
+    await expect(toggle).not.toBeChecked()
+    const recesses = await page.evaluate(() => {
+      const panel = document.querySelector('#live-panel .s-panel')
+      const read = el => { const style = getComputedStyle(el); return [style.backgroundColor, style.boxShadow] }
+      const expected = read(panel.querySelector('[data-key=enabled] .s-track'))
+      const actual = ['[data-key=name] input', '[data-key=blend] select', '[data-key=opacity] input[type=range]', '[data-key=tint] input[type=text]', '[data-key=tint] input[type=color]'].map(selector => read(panel.querySelector(selector)))
+      return { expected, actual }
+    })
+    for (const actual of recesses.actual) expect(actual).toEqual(recesses.expected)
+  }
+  await page.getByRole('button', { name: 'Reset preview values' }).click()
+  await expect(range).toHaveValue('82')
+  await expect(toggle).toBeChecked()
+  await expect(live.locator('input[type=color]')).toHaveValue('#8b80f9')
+})
+
+test('Lab01 gallery materials show matching thumbs and recessed controls', async ({ page }) => {
+  for (const map of ['dark', 'graphite', 'gray', 'gold']) {
+    await page.goto('/#theme=lab01&colormap=' + map)
+    await page.evaluate(() => document.fonts.ready)
+    await expect(page.locator('#live-panel')).toHaveScreenshot(`lab01-${map}.png`, { animations: 'disabled', maxDiffPixelRatio: .01 })
+  }
+})
+
+test('Lab01 focused fields share the selected image-card ring for dark and light materials', async ({ page }) => {
+  for (const map of ['dark', 'gold', 'chalk']) {
+    await page.goto('/#theme=lab01&colormap=' + map)
+    const expected = await page.evaluate(async () => {
+      const { default: settings } = await import('/index.js')
+      const { default: lab01 } = await import('/theme/lab01.js')
+      const host = document.createElement('div'); document.body.append(host)
+      const shade = getComputedStyle(document.querySelector('#live-panel .s-panel')).getPropertyValue('--bg').trim()
+      const panel = settings({ plate: { type: 'select', variant: 'segmented', value: 'a', options: [{ value: 'a', label: 'A', style: 'background-image:linear-gradient(black,white)' }] } }, { container: host, theme: lab01({ shade }) })
+      const shadow = getComputedStyle(host.querySelector('button.s-selected'), '::before').boxShadow
+      panel[Symbol.dispose](); host.remove()
+      return shadow
+    })
+    for (const selector of ['[data-key=name] input', '[data-key=blend] select', '[data-key=opacity] .s-readout', '[data-key=tint] input[type=text]', '[data-key=tint] input[type=color]']) {
+      const field = page.locator('#live-panel ' + selector)
+      const resting = await field.evaluate(el => getComputedStyle(el).boxShadow)
+      await field.focus()
+      await expect(field).toHaveCSS('box-shadow', expected)
+      await expect(field).toHaveCSS('outline-style', 'none')
+      await field.evaluate(el => el.blur())
+      await expect(field).toHaveCSS('box-shadow', resting)
+    }
+  }
+})
+
+test('Lab01 RGBA stays readable and switches stay centered at size and density boundaries', async ({ page }) => {
+  await page.goto('/')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const issues = await page.evaluate(async () => {
+    const { default: settings } = await import('/index.js')
+    const { default: lab01 } = await import('/theme/lab01.js')
+    const host = document.createElement('div'); host.style.width = '288px'; document.body.append(host)
+    const issues = []
+    for (const axes of [{ size: .8, spacing: .65 }, { size: 1.2, spacing: 1.5 }]) {
+      const panel = settings({ tint: { type: 'color', variant: 'rgba', value: '#ff668880' }, enabled: { type: 'boolean', variant: 'switch', value: false } }, { container: host, theme: lab01(axes) })
+      const text = host.querySelector('input[type=text]'), swatch = host.querySelector('input[type=color]')
+      if (text.getBoundingClientRect().width < parseFloat(getComputedStyle(text).fontSize) * 5) issues.push('RGBA readout squeezed')
+      const bounds = host.getBoundingClientRect()
+      for (const input of host.querySelectorAll('input')) {
+        const r = input.getBoundingClientRect()
+        if (r.width && (r.left < bounds.left || r.right > bounds.right + 1)) issues.push(`${input.type} outside host`)
+      }
+      const alpha = host.querySelector('.s-alpha')
+      for (const value of ['0', '1', '0']) {
+        alpha.value = value; alpha.dispatchEvent(new Event('input', { bubbles: true }))
+        await new Promise(requestAnimationFrame)
+        if (panel.tint !== (value === '0' ? '#ff668800' : '#ff6688')) issues.push('alpha edit lost color channels')
+        if (swatch.value !== '#ff6688') issues.push('swatch lost RGB')
+      }
+      for (const checked of [false, true, false]) {
+        panel.enabled = checked
+        await new Promise(requestAnimationFrame)
+        const track = host.querySelector('.s-switch .s-track'), thumb = getComputedStyle(track, '::before')
+        const inset = parseFloat(thumb.top), size = parseFloat(thumb.height)
+        if (Math.abs(track.getBoundingClientRect().height - size - inset * 2) > .1) issues.push('thumb off center')
+        const x = new DOMMatrix(thumb.transform).m41 + parseFloat(thumb.left)
+        const expected = checked ? track.getBoundingClientRect().width - size - inset : inset
+        if (Math.abs(x - expected) > .1) issues.push('thumb misses endpoint')
+      }
+      panel[Symbol.dispose]()
+    }
+    host.remove()
+    return issues
+  })
+  expect(issues).toEqual([])
+})
+
 for (const name of variants) {
   test(`${name}: keyboard edits, folder, save and reset`, async ({ page }) => {
     const errors = []

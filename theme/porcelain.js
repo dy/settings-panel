@@ -3,12 +3,14 @@
  * The rim is structural; the flowing relief is baked into the face, not glass.
  * bevel scales the lip, grain the relief, and shade tints the ceramic body.
  */
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles } from './color.js'
 
 export default function porcelain({
   shade = '#f4f6f5', accent = '#526e73', spacing = 1.2,
   weight = 500, roundness = 1, size = 1, bevel = 1, grain = 1,
+  font,
 } = {}) {
   const { dark, fg, fgMuted, accent: acc, onAccent } = resolveRoles(shade, accent)
   const svg = (body, width = 240) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${width}">${body}</svg>`)}")`
@@ -25,24 +27,30 @@ export default function porcelain({
 
   return baseCSS + `
 .s-panel {
+  ${metrics({ size, spacing, font }, {controlHeight: 34, rowGap: 20, sectionGap: 20, panelPadding: 24, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
+
   --bg: ${shade}; --accent: ${acc}; --fg: color-mix(in oklab, ${fg}, ${acc} 45%); --fg-muted: ${fgMuted};
   --label-ink: ${dark ? `color-mix(in oklab, ${acc}, white 50%)` : acc};
-  --u: ${4 * size}px; --spacing: ${spacing}; --weight: ${weight}; --roundness: ${roundness};
+ --spacing: ${spacing}; --weight: ${weight}; --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 1.5);
   --r-panel: calc(var(--u) * var(--roundness) * 5);
-  --h: calc(var(--u) * 8.5);
+  --h: var(--control-height);
   --glaze: ${dark ? 'oklch(from var(--bg) calc(l + .09) c h)' : '#fff'};
   --well: color-mix(in oklab, var(--bg), var(--fg) 4%);
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-family: var(--font); font-weight: var(--weight); color: var(--fg);
+  --font: var(--font-family);
+   font-weight: var(--weight); color: var(--fg);
   color-scheme: ${dark ? 'dark' : 'light'};
   position: relative; isolation: isolate; min-width: 0;
-  padding: calc(var(--u) * (4 + var(--spacing) * 2));
+  padding: var(--panel-padding);
   border: calc(var(--u) * 2.25) solid transparent;
   border-radius: var(--r-panel);
   background: ${relief} padding-box, linear-gradient(var(--bg), var(--bg)) padding-box,
     ${mineral} border-box, linear-gradient(135deg, #cbd8d3, #eef2e6 38%, #b7cac8 70%, #d5ddd0) border-box;
   box-shadow: inset 0 0 0 1px var(--glaze), 0 1px 1px #fff, 0 -1px 2px #6f888a66, 0 4px 10px #617f8314;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+
   &::before { content: ''; position: absolute; inset: 0; pointer-events: none;
     border: ${lip} solid var(--glaze); border-right-color: var(--well); border-bottom-color: var(--well);
     border-radius: max(0px, calc(var(--r-panel) - var(--u) * 2.25));
@@ -50,9 +58,9 @@ export default function porcelain({
   }
   > summary, > .s-panel-title { min-height: var(--h); gap: calc(var(--u) * 2); font: 600 1.4em/1.2 Georgia, serif; letter-spacing: -.025em; color: var(--label-ink); text-shadow: 0 1px var(--glaze); }
   > summary { flex-wrap: wrap; }
-  .s-panel-content { gap: calc(var(--u) * (3 + var(--spacing) * 2)); }
+  .s-panel-content { gap: var(--row-gap); }
   > .s-panel-content { padding-top: calc(var(--u) * 5); }
-  .s-control { align-items: center; gap: calc(var(--u) * 3); }
+  .s-control { align-items: center; gap: var(--column-gap); }
   .s-label-group { min-width: 0; width: 29%; }
   .s-label { font-family: Georgia, serif; color: var(--label-ink); font-size: 1.1em; text-shadow: 0 1px var(--glaze); }
   .s-hint { color: var(--fg-muted); opacity: 1; }

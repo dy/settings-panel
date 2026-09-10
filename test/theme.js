@@ -1,12 +1,35 @@
 import './register.js'
 import test, { is, ok } from 'tst'
 import { readdirSync } from 'node:fs'
+import metrics from '../theme/metrics.js'
+
+test('metrics: invalid axes fall back, finite axes clamp, and font defaults survive empty overrides', () => {
+  const token = (css, name) => css.match(new RegExp(`--${name}: ([^;]+);`))[1]
+  for (const value of [undefined, null, '', '2', NaN, Infinity, -Infinity]) {
+    const css = metrics({ size: value, spacing: value })
+    is(token(css, 'size'), '1')
+    is(token(css, 'spacing'), '1')
+  }
+  for (const [value, expected] of [[-1, '.5'], [0, '.5'], [.5, '.5'], [1, '1'], [2, '2'], [3, '2']]) {
+    const css = metrics({ size: value, spacing: value })
+    is(Number(token(css, 'size')), Number(expected))
+    is(Number(token(css, 'spacing')), Number(expected))
+  }
+  for (const font of [undefined, null, '', '   ', 12]) {
+    is(token(metrics({ font }, { fontFamily: 'monospace' }), 'font-family'), 'monospace')
+  }
+  is(token(metrics({ font: 'Georgia, serif' }), 'font-family'), 'Georgia, serif')
+  const initial = metrics()
+  is(metrics({}), initial)
+  metrics({ size: 2, spacing: .5, font: 'serif' })
+  is(metrics(), initial)
+})
 
 // Every theme is a pure function: axes in, one scoped stylesheet out. A theme
 // module that fails to import (a stray backtick inside its CSS template) or
 // returns a sheet without the panel root only surfaces in the browser otherwise.
 const names = readdirSync(new URL('../theme/', import.meta.url))
-  .filter(f => f.endsWith('.js') && !['base.js', 'color.js', 'mixins.js'].includes(f))
+  .filter(f => f.endsWith('.js') && !['base.js', 'color.js', 'mixins.js', 'metrics.js'].includes(f))
   .map(f => f.slice(0, -3))
 
 const themes = Object.fromEntries(await Promise.all(names.map(async n => [n, (await import(`../theme/${n}.js`)).default])))

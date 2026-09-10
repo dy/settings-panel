@@ -19,6 +19,7 @@
  * terminal(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles } from './color.js'
 
@@ -29,6 +30,7 @@ export default function terminal({
   weight = 400,
   size = 1,
   leading = 1.6,
+  font,
 } = {}) {
   const { dark, fg, accent: acc } = resolveRoles(shade, accent)
   const phosphor = accent != null ? acc : dark ? '#5be49b' : '#0b7f5c'
@@ -37,6 +39,8 @@ export default function terminal({
   const mix = pct => `color-mix(in oklab, var(--fg) ${pct}%, var(--bg))`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace", lineHeight: 20, controlHeight: 20, rowGap: 10})}
+
   --bg: ${shade};
   --fg: ${fg};
   --accent: ${phosphor};
@@ -44,25 +48,28 @@ export default function terminal({
   --line: ${mix(22)};
   --well: ${mix(dark ? 8 : 6)};
   --well-hi: ${mix(dark ? 14 : 10)};
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
   /* the cell: type size × leading, snapped to whole pixels, is one line; --u is a quarter line */
-  --fs: ${13 * size}px;
+  --fs: var(--font-size);
   --u: round(nearest, calc(var(--fs) * ${leading} / 4), 1px);
-  --pad: 1ch;
-  --pad-i: 1ch;
+
+  --line-height: calc(var(--u) * 4);
+  --control-height: var(--line-height);
+  --inset: calc(1ch * var(--spacing));
+  --pad-i: var(--inset);
   --label-w: 12ch;
-  --row-gap: calc(var(--lh) * 0.5 * var(--spacing));
+
   --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 2 L8 8 M8 2 L2 8' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
   color-scheme: ${dark ? 'dark' : 'light'};
 
   position: relative;
   background: var(--bg);
   color: var(--fg);
-  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: var(--fs);
+
+
   font-weight: var(--weight);
   line-height: var(--lh);
   font-variant-numeric: tabular-nums;
@@ -73,6 +80,10 @@ export default function terminal({
   max-width: 72ch;
   -webkit-font-smoothing: antialiased;
   ::selection { background: var(--accent); color: var(--bg); }
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Title — cut into the top edge of the frame ── */
   > summary, > .s-panel-title {
@@ -109,7 +120,7 @@ export default function terminal({
       -webkit-mask: var(--s-clear-icon) center / contain no-repeat; mask: var(--s-clear-icon) center / contain no-repeat; &:hover { background: var(--fg); } } }
 
   /* ── Rows — one line high, one cell apart ── */
-  .s-control { min-height: var(--lh); align-items: center; gap: 1ch; }
+  .s-control { min-height: var(--lh); align-items: center; gap: var(--column-gap); }
   .s-input { gap: 1ch; align-items: center; }
   .s-label-group { width: var(--label-w); min-width: var(--label-w); max-width: none; line-height: var(--lh); gap: 0; }
   .s-label { color: var(--fg); }

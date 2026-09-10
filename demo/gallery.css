@@ -60,7 +60,6 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .inspector-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
 .eyebrow { font-size: 9px; letter-spacing: .15em; font-weight: 600; color: var(--color-muted); }
 .inspector h2 { font-size: 28px; line-height: 1.2; letter-spacing: -.9px; font-weight: 650; margin-top: 5px; }
-.palette-note { font-size: 10px; border: 1px solid var(--color-rule); border-radius: 20px; padding: 4px 8px; color: var(--color-muted); white-space: nowrap; }
 .theme-description { font-size: 13px; color: var(--color-muted); margin-top: 8px; margin-bottom: 20px; }
 .preview-scene { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 470px; padding: 72px 28px 48px; border-radius: 9px; background: var(--material-bg); isolation: isolate; }
 .landscape { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; stroke: none; border-radius: inherit; overflow: hidden; display: none; }
@@ -73,10 +72,10 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .ridge-near { fill: var(--scene-near); }
 .preview-scene[data-surface=porcelain] { background-image: url('./cases/marble.svg'); background-size: 600px; }
 .scene-toolbar { position: absolute; top: 18px; left: 20px; right: 20px; display: flex; align-items: center; justify-content: space-between; z-index: 2; color: var(--scene-ink); }
-.time-control { display: flex; align-items: center; gap: 7px; padding-left: 9px; border-radius: 6px; background: color-mix(in srgb, var(--material-bg), transparent 40%); }
-.time-control svg { width: 17px; height: 17px; }
-.time-control select { appearance: auto; max-width: 150px; background: transparent; color: inherit; border: 0; font-size: 11px; padding: 7px 7px 7px 0; border-radius: 4px; }
-.time-control option { background: var(--color-paper); color: var(--color-ink); }
+.colormap-control { display: flex; align-items: center; gap: 7px; padding-left: 9px; border-radius: 6px; background: color-mix(in srgb, var(--material-bg), transparent 40%); }
+.scheme-swatch { width: 17px; height: 17px; border-radius: 50%; background: var(--scheme-swatch); border: 1px solid color-mix(in srgb, var(--scene-ink), transparent 65%); }
+.colormap-control select { appearance: auto; max-width: 150px; background: transparent; color: inherit; border: 0; font-size: 11px; padding: 7px 7px 7px 0; border-radius: 4px; }
+.colormap-control option { background: var(--color-paper); color: var(--color-ink); }
 .scene-reset { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid color-mix(in srgb, var(--scene-ink), transparent 78%); background: color-mix(in srgb, var(--material-bg), transparent 60%); border-radius: 6px; color: inherit; }
 .scene-reset:hover { background: color-mix(in srgb, var(--material-bg), transparent 20%); }
 .scene-reset svg { width: 15px; height: 15px; }
@@ -185,3 +184,8 @@ dialog pre { overflow: auto; max-height: 45svh; background: var(--color-subtle);
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+.font-axis select { margin-left: auto; padding: 5px 8px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-paper); color: var(--color-ink); font: inherit; }
+
+.auto-accent { background: transparent; color: var(--color-muted); border: 1px solid var(--color-rule); border-radius: 5px; padding: 7px; font-size: 11px; }
+.auto-accent[aria-pressed=true] { background: var(--color-selected); color: var(--color-accent); }

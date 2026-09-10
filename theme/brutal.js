@@ -15,6 +15,7 @@
  * brutal(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles } from './color.js'
 
@@ -25,8 +26,9 @@ export default function brutal({
   weight = 500,
   bevel = 2,              // border weight in px
   offset = 4,             // hard-shadow throw in px (plate depth, press distance)
-  grain = 0,              // halftone texture intensity, 0 disables
+  grain = 0,              // halftone texture intensity, 0 disables,
   size = 1,
+  font,
 } = {}) {
   const { dark, bg, accent: acc } = resolveRoles(shade, accent)
   const ink = dark ? '#ffffff' : '#000000'
@@ -43,6 +45,8 @@ export default function brutal({
   const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5 L4.5 8 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='square'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {controlHeight: 36, rowGap: 14, columnGap: 16, panelPadding: 24, fontFamily: "'Space Grotesk', 'Archivo', ui-sans-serif, system-ui, sans-serif"})}
+
   /* ── Roles (shade/accent axes) ── */
   --bg: ${bg};
   --ink: ${ink};
@@ -54,12 +58,12 @@ export default function brutal({
   color-scheme: ${dark ? 'dark' : 'light'};
 
   /* ── Scale ── */
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
-  --u: ${4 * size}px;
-  --h: calc(var(--u) * 9);            /* one control height */
+
+  --h: var(--control-height);            /* one control height */
   --box: calc(var(--u) * 7);           /* checkbox / knob square */
 
   /* ── Border weight (bevel axis) ── */
@@ -74,7 +78,7 @@ export default function brutal({
   --plate-hover: ${plate(offset)};
   --plate-xs: ${plate(offset / 3)};
   --groove: inset var(--press) var(--press) 0 rgba(var(--ink-rgb), .14);
-  --focus-gap: 3px;
+  --focus-gap: calc(3 * var(--space));
 
   /* ── Grain (texture axis) ── */
   --grain-bg: ${halftone(.05)};
@@ -84,16 +88,20 @@ export default function brutal({
   background-image: var(--grain-bg);
   color: var(--ink);
   --font: 'Space Grotesk', 'Archivo', ui-sans-serif, system-ui, sans-serif;
-  font-family: var(--font);
+
   font-weight: ${weight};
   border: var(--bw) solid var(--ink);
   border-radius: 0;
   box-shadow: var(--plate);
-  padding: calc(var(--u) * (3 + 2 * var(--spacing)));
+  padding: var(--panel-padding);
   min-width: 0;
   max-width: calc(var(--u) * 110);
   position: relative;
   -webkit-font-smoothing: antialiased;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Header ── */
   > summary, > .s-panel-title {
@@ -111,7 +119,7 @@ export default function brutal({
   > summary { cursor: pointer; user-select: none; }
   > summary:focus-visible { outline: none; .s-fold-icon { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); } }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(var(--u) * (2 + 2 * var(--spacing))); }
-  .s-panel-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); }
+  .s-panel-content { gap: var(--row-gap); }
 
   /* square plate buttons in the header: fold + search */
   .s-fold-icon, .s-search-btn {
@@ -157,7 +165,7 @@ export default function brutal({
   }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: calc(var(--u) * 4); }
+  .s-control { align-items: center; gap: var(--column-gap); }
   .s-label { font-weight: 700; }
   .s-label-group { min-width: 0; width: 32%; }
   .s-hint { opacity: .65; font-weight: 500; }

@@ -13,6 +13,7 @@
  * lab01(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import defaultCSS from './default.js'
 import { parseColor, resolveAccent, clamp } from './color.js'
 
@@ -29,6 +30,8 @@ export default function lab01({
   weight = 400,
   roundness = 1.5,
   noise = true,
+  size = 1,
+  font,
 } = {}) {
 
   const { L, C } = parseColor(shade)
@@ -52,7 +55,6 @@ export default function lab01({
   // sunken / secondary surface — a saturated, slightly-lighter tone of the background
   const surface2 = dark ? 'oklch(from var(--bg) 0.14 c h)' : 'oklch(from var(--bg) calc(l - 0.06) c h)'
   const panelGlass = `hsl(from var(--bg) h s l / .85)`
-  const field = `hsl(from black h s l / ${dark ? '.3' : '.06'})` // sunken input/checkbox fill
 
   // Text (a light/dark TONE of the bg, applied later with alpha)
   const inkBase = `oklch(from var(--bg) ${dark ? '0.95' : '0.23'} ${colored ? 'calc(c * 0.55)' : 'c'} h)`
@@ -116,7 +118,7 @@ export default function lab01({
     : `radial-gradient(300px 280px at 58px 20px, ${glareTL('.5')}, transparent 72%), radial-gradient(420px 330px at 102% 102%, ${glareCol('.36')}, transparent 72%)`
 
   // Sunken recess bevel (groove) — a dark bg-derived inset + a faint top lip.
-  // Shared by the switch track and the theme-card plate so both read identically.
+  // Shared by image-card plates, fields, slider grooves, and switch tracks.
   const sink = (a) => `oklch(from var(--bg) calc(l - 0.11) c h / ${a})`
   const trackBevel = `inset 0 1px 1px ${sink('.55')}, inset 0 1px 4px ${sink('.35')}, 0 1px 0 hsl(from white h s l / ${dark ? '.1' : '.25'})`
 
@@ -128,8 +130,11 @@ export default function lab01({
   // ── Helpers (reference tokens, not raw values) ──
   const fg = (a) => `oklch(from var(--ink) l c h / ${a})`        // primary text @ alpha
   const muteFg = (a) => `oklch(from var(--ink-mute) l c h / ${a})` // muted text @ alpha
-  // Raised surface shorthand — primary button, collapse circle, switch thumb share it
+  // Raised surface shorthand — primary button and collapse circle share it
   const surface = `background: var(--surface-bg); box-shadow: var(--surface-shadow);`
+  // Native range thumbs cannot carry pseudo-elements, so both thumb types use
+  // the same layered face and gradient border, with no extra bevel element.
+  const thumbSurface = `box-sizing: border-box; background: var(--thumb-bg); border: var(--surface-bevel-w) solid transparent; box-shadow: var(--thumb-shadow);`
   // Gradient-border bevel mixin (background-origin/clip must be border-box)
   const bevelRing = (grad, w = 'var(--bevel-w)', blend = overlay) => `
     border: ${w} solid transparent;
@@ -149,6 +154,8 @@ export default function lab01({
   const ovl = 'mix-blend-mode: overlay;' // raised-button bevel always blends overlay
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {fontSize: 13, controlHeight: 38, inset: 12, rowGap: 16, sectionGap: 24, panelPadding: 24, fontFamily: "'Geist Mono', 'Geist', system-ui, sans-serif"})}
+
   /* ════════════════ Design tokens — override any to retheme ════════════════ */
   /* Palette */
   --bg: ${shade};                /* panel surface */
@@ -170,8 +177,8 @@ export default function lab01({
   /* Lines & fields */
   --ring: black;                 /* button outline ring (used with alpha) */
   --focus-ring: ${ink};          /* focus-visible outline colour */
-  --field: ${field};             /* sunken input / checkbox fill */
-  --field-hover: hsl(from black h s l / ${dark ? '.4' : '.1'}); /* input hover/focus fill */
+  --field: var(--surface-2);              /* shared inactive track / input fill */
+  --field-hover: color-mix(in srgb, var(--field), var(--bg) 12%); /* input hover/focus fill */
   --divider: ${divider};         /* separators */
   --footer-hi: ${dark ? 'hsl(from white h s l / .11)' : 'hsl(from white h s l / .2)'}; /* footer-divider top highlight */
 
@@ -183,60 +190,62 @@ export default function lab01({
   --surface-bevel: ${btnBevel};  /* gradient for the ::after bevel */
   --panel-bevel: ${panelBevel};  /* the panel's own gradient border */
   --glare: ${glare};
-  --thumb-shadow: ${dark ? 'var(--surface-shadow), 0 0 0 1px oklch(from var(--bg) 0.04 c h)' : 'var(--surface-shadow)'}; /* switch thumb — dark gets an extra contrast ring */
+  --thumb-bg: radial-gradient(ellipse at 20% 0, hsl(from white h s l / ${dark ? '.08' : '.25'}), transparent) padding-box, linear-gradient(var(--bg-light), var(--bg-light)) padding-box, var(--surface-bevel) border-box;
+  --thumb-shadow: ${dark ? 'var(--surface-shadow), 0 0 0 1px oklch(from var(--bg) 0.04 c h)' : 'var(--surface-shadow)'}; /* slider and switch thumbs — dark gets an extra contrast ring */
   --switch-glow: ${switchGlow};  /* checked-switch ambient glow (dark theme only) */
   --switch-on-bg: ${dark ? 'hsl(from white h s l / .83)' : 'hsl(from black h s l / .85)'};
   --seg-bg: ${dark ? 'hsl(from black h s l / .58)' : 'hsl(from black h s l / .1)'}; /* segmented unselected fill */
   --btn-secondary-fg: ${(dark || colored) ? 'hsl(from white h s l / .9)' : fg('.83')};
-  --track-bevel: ${trackBevel};  /* recessed groove — switch track & card plate */
+  --track-bevel: ${trackBevel};  /* recessed groove — fields, tracks, swatches & card plates */
   --card-frame: ${cardFrame};    /* recessed plate behind image-card photos */
+  --field-selected: var(--track-bevel), 0 0 0 var(--card-ring-w) var(--card-ring);
   --card-ring: ${cardRing};      /* image-card selection ring */
 
   /* Geometry & type */
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: ${r};
   --r: ${radius};
-  --pad: calc(var(--u) * (2 + 1 * var(--spacing)));
+
   --pad-i: max(var(--pad), calc(var(--r) / 2));
-  --track-w: 44px;
-  --track-h: 22px;
-  --thumb: 16px;
-  --thumb-inset: 3px;
-  --fold: 34px;
-  --font: 'Geist Mono', 'Geist', system-ui, sans-serif;
+  --track-w: calc(44 * var(--length));
+  --track-h: calc(22 * var(--length));
+  --thumb: calc(16 * var(--length));
+  --thumb-inset: calc(3 * var(--length));
+  --fold: calc(34 * var(--length));
+  --font: var(--font-family);
   --font-head: 'Geist', system-ui, sans-serif;
-  --blur: 20px;                  /* backdrop-filter glass blur */
+  --blur: calc(20 * var(--length));                  /* backdrop-filter glass blur */
   --noise-opacity: ${dark ? '.1' : '.15'};
-  --fs: 13px;                    /* base type size */
-  --fs-sm: 12px;                 /* slider readout */
-  --fs-head: 20px;               /* panel title */
+  --fs: var(--font-size);                    /* base type size */
+  --fs-sm: calc(12 * var(--length));                 /* slider readout */
+  --fs-head: calc(20 * var(--length));               /* panel title */
   --tracking-head: -0.025em;
-  --icon-size: 16px;             /* chevron glyph */
-  --pad-head: calc(var(--u) * (4 + 2 * var(--spacing)));            /* header padding — fixed, independent of --spacing */
+  --icon-size: calc(16 * var(--length));             /* chevron glyph */
+  --pad-head: calc(var(--u) * (4 + 2 * var(--spacing)));            /* header padding — stable through collapse */
   --content-pad: var(--pad-head);
-  --row-gap: calc(var(--u) * (2 + 2 * var(--spacing))); /* space between controls */
-  --bevel-w: 1px;                /* panel gradient-border width */
-  --surface-bevel-w: 1.5px;      /* raised-surface rim width (buttons, thumb, fold icon) */
-  --outline-w: 1.5px;            /* focus-ring width */
-  --outline-gap: 2px;            /* focus-ring offset — default */
-  --outline-gap-track: 1.5px;    /* focus-ring offset — boolean track */
-  --outline-gap-card: 6px;       /* focus-ring offset — image-card button */
-  --ctrl-h: 38px;                /* button / segmented-button height */
-  --slider-h: 6px;
-  --slider-thumb: 18px;
-  --checkbox: 18px;
-  --checkbox-fill: 10px;
-  --number-w: 70px;
-  --card-h: 90px;
-  --card-r: 12px;
-  --card-inset: -3px;            /* image-card plate outset */
-  --card-ring-w: 1.5px;
+ /* space between controls */
+  --bevel-w: calc(1 * var(--length));                /* panel gradient-border width */
+  --surface-bevel-w: calc(1.5 * var(--length));      /* raised-surface rim width (buttons, thumb, fold icon) */
+  --outline-w: calc(1.5 * var(--length));            /* focus-ring width */
+  --outline-gap: calc(2 * var(--length));            /* focus-ring offset — default */
+  --outline-gap-track: calc(1.5 * var(--length));    /* focus-ring offset — boolean track */
+  --outline-gap-card: calc(6 * var(--space));       /* focus-ring offset — image-card button */
+  --ctrl-h: var(--control-height);                /* button / segmented-button height */
+  --slider-h: calc(6 * var(--length));
+  --slider-thumb: var(--thumb);
+  --checkbox: calc(18 * var(--length));
+  --checkbox-fill: calc(10 * var(--length));
+  --number-w: calc(70 * var(--length));
+  --card-h: calc(90 * var(--length));
+  --card-r: calc(12 * var(--length));
+  --card-inset: calc(-3 * var(--length));            /* image-card plate outset */
+  --card-ring-w: calc(1.5 * var(--length));
   --card-label-gap: calc(var(--u) * (2 + var(--spacing)));
-  --group-gap: 12px;             /* button-group / image-card option gap */
+  --group-gap: calc(12 * var(--space));             /* button-group / image-card option gap */
   --seg-pad: calc(var(--u) * 1.5);               /* segmented-button horizontal padding */
-  --btn-pad: 20px;               /* button-group button horizontal padding */
-  --color-gap: 8px;
+  --btn-pad: var(--inset);                         /* button-group button horizontal padding */
+  --color-gap: calc(8 * var(--space));
   /* ═════════════════════════════════════════════════════════════════════════ */
 
   color-scheme: ${dark ? 'dark' : 'light'};
@@ -246,15 +255,19 @@ export default function lab01({
   backdrop-filter: blur(var(--blur));
   border-radius: var(--r);
   max-width: calc(var(--u) * 111);
-  font-family: var(--font);
+
   font-weight: calc(var(--weight) + 100);
-  font-size: var(--fs);
+
   line-height: calc(var(--u) * 4);
   color: ${fg('.83')};
   padding: 0;
   min-width: 0;
   -webkit-font-smoothing: antialiased;
   isolation: isolate;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Gradient border (bevel) ── */
   &::after { ${bevel('var(--panel-bevel)')} }
@@ -332,7 +345,7 @@ export default function lab01({
   }
 
   /* ── Layout ── */
-  .s-control { gap: calc(var(--u) * var(--spacing)); align-items: center; }
+  .s-control { gap: var(--column-gap); align-items: center; }
   .s-label-group {
     min-width: 0;
     flex: 0 0 auto;
@@ -356,15 +369,15 @@ export default function lab01({
   /* ── Interactive elements ── */
   input[type="text"], input[type="number"], textarea, select {
     background: var(--field);
+    box-shadow: var(--track-bevel);
     border: none;
     border-radius: calc(var(--r) * 0.5);
     color: inherit;
     font-family: inherit;
     font-size: var(--fs);
     &::placeholder { color: hsl(from currentColor h s l / .4); }
-    &:hover { background: var(--field-hover); }
-    &:focus { background: var(--field-hover); outline: none; }
-    &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
+    &:hover { background-color: var(--field-hover); }
+    &:focus { background-color: var(--field); box-shadow: var(--field-selected); outline: none; }
   }
   input[type="text"], input[type="number"], select {
     padding: var(--pad-i) calc(var(--pad));
@@ -396,42 +409,47 @@ export default function lab01({
     &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); transition: none; }
   }
 
+  /* Opacity and color-alpha sliders share the switch's raised thumb. */
+  .s-slider input[type="range"], .s-color .s-alpha {
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: var(--slider-thumb); height: var(--slider-thumb);
+      border-radius: 50%;
+      ${thumbSurface}
+      cursor: pointer;
+      transition: filter 120ms, box-shadow 120ms;
+    }
+    &::-moz-range-thumb {
+      width: var(--slider-thumb); height: var(--slider-thumb);
+      border-radius: 50%;
+      ${thumbSurface}
+      cursor: pointer;
+      transition: filter 120ms, box-shadow 120ms;
+    }
+    &:hover::-webkit-slider-thumb { filter: brightness(1.08); }
+    &:hover::-moz-range-thumb { filter: brightness(1.08); }
+    &:active::-webkit-slider-thumb, &.s-scrubbing::-webkit-slider-thumb { box-shadow: var(--surface-active); }
+    &:active::-moz-range-thumb, &.s-scrubbing::-moz-range-thumb { box-shadow: var(--surface-active); }
+  }
+
   /* ── Slider ── */
   .s-slider {
     input[type="range"] {
       background: var(--field);
+      box-shadow: var(--track-bevel);
       border-radius: calc(var(--r) * 0.5);
       appearance: none;
       -webkit-appearance: none;
       height: var(--slider-h);
       &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: var(--slider-thumb); height: var(--slider-thumb);
-        border-radius: 50%;
-        ${surface}
-        cursor: pointer;
-        border: none;
-        transition: background 120ms, box-shadow 120ms, transform 120ms;
-      }
-      &::-moz-range-thumb {
-        width: var(--slider-thumb); height: var(--slider-thumb);
-        border-radius: 50%;
-        background: var(--bg-light);
-        border: 1px solid hsl(from var(--focus-ring) h s l / .15);
-        cursor: pointer;
-        transition: background 120ms, transform 120ms;
-      }
-      &:hover::-webkit-slider-thumb { background: var(--surface-bg-hover); }
-      &:active::-webkit-slider-thumb, &.s-scrubbing::-webkit-slider-thumb { box-shadow: var(--surface-active); transform: scale(0.96); }
-      &:active::-moz-range-thumb, &.s-scrubbing::-moz-range-thumb { transform: scale(0.96); }
+
     }
     .s-readout {
       flex: 0 0 7ch; width: 7ch; min-width: 7ch; height: auto; padding: 0;
       background: transparent; box-shadow: none; border: none; border-radius: 0;
       color: inherit; font-size: var(--fs-sm); opacity: .85; font-variant-numeric: tabular-nums; text-align: right;
       &:hover, &:focus { background: transparent; }
-      &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); }
+      &:focus { box-shadow: var(--field-selected); outline: none; }
     }
     .s-track { height: var(--ctrl-h); }
   }
@@ -458,8 +476,8 @@ export default function lab01({
         box-shadow: var(--track-bevel);
         transition: background .2s, box-shadow .2s;
 
-        /* Thumb: fill (::before) + shared gradient bevel ring (::after), concentric. */
-        &::before, &::after {
+        /* One raised face, shared with both native slider thumbs. */
+        &::before {
           content: '';
           position: absolute;
           left: var(--thumb-inset); top: var(--thumb-inset);
@@ -468,18 +486,16 @@ export default function lab01({
           border-radius: 50%;
           transform: translateX(0);
           transition: transform .2s;
+          ${thumbSurface}
         }
-        /* thumb fill = shared surface, plus (dark theme) an extra dark border so the
-           dark thumb reads against the white on-state track */
-        &::before { background: var(--surface-bg); box-shadow: var(--thumb-shadow); }
-        &::after { pointer-events: none; ${bevelRing('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} }
-        &:hover::before { background: var(--surface-bg-hover); } /* same hover as buttons */
+        &::after { content: none; }
+        &:hover::before { filter: brightness(1.08); }
+        &:active::before { box-shadow: var(--surface-active); }
       }
       &:has(input:checked) .s-track {
         background: var(--switch-on-bg);
         box-shadow: var(--switch-glow);
         &::before { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); }
-        &::after { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); }
       }
     }
 
@@ -594,7 +610,7 @@ export default function lab01({
           transition: box-shadow .14s;
         }
         &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap-card); }
-        &.s-selected::before { box-shadow: var(--track-bevel), 0 0 0 var(--card-ring-w) var(--card-ring); }
+        &.s-selected::before { box-shadow: var(--field-selected); }
       }
     }
 
@@ -612,17 +628,36 @@ export default function lab01({
   }
 
   /* ── Color ── */
-  .s-color.s-picker .s-color-input {
+  .s-color:is(.s-picker, .s-rgba) .s-color-input {
     gap: var(--color-gap);
-    input[type="color"] { position: static; }
-    input[type="text"] { flex: 1; min-width: 0; }
+    input[type="color"] {
+      position: static; flex: none;
+      width: var(--ctrl-h); height: var(--ctrl-h);
+      padding: calc(var(--u));
+      appearance: none; -webkit-appearance: none;
+      background: var(--field); box-shadow: var(--track-bevel);
+      border: none; border-radius: calc(var(--r) * 0.5);
+      cursor: pointer;
+      &::-webkit-color-swatch-wrapper { padding: 0; }
+      &::-webkit-color-swatch { border: none; border-radius: calc(var(--r) * 0.3); }
+      &::-moz-color-swatch { border: none; border-radius: calc(var(--r) * 0.3); }
+      &:focus { box-shadow: var(--field-selected); outline: none; }
+    }
+    input[type="text"] { flex: 1; min-width: 0; width: 0; padding: 0 var(--pad); }
+  }
+
+  .s-color.s-rgba .s-color-input {
+    flex-wrap: wrap;
+    input[type="text"] { min-width: 10ch; }
   }
 
   /* ── Button group ── */
   .s-button {
-    .s-input { flex: 1; gap: var(--group-gap); }
+    .s-input { flex: 1; gap: var(--group-gap); flex-wrap: wrap; }
     button {
       flex: 1;
+      min-width: min-content;
+      white-space: nowrap;
       padding: 0 var(--btn-pad);
       ${surface}
       color: ${fg('.83')};
@@ -675,12 +710,12 @@ export default function lab01({
       content: '';
       position: absolute;
       left: 0; right: 0;
-      height: 1px;
+      height: calc(1 * var(--length));
     }
     &::before { top: 0; background: var(--divider); }
-    &::after { top: 1px; background: var(--footer-hi); mix-blend-mode: overlay; }
+    &::after { top: calc(1 * var(--length)); background: var(--footer-hi); mix-blend-mode: overlay; }
   }
 }`
 
-  return defaultCSS() + '\n' + overrides
+  return defaultCSS({ size, spacing, font }) + '\n' + overrides
 }

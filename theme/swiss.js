@@ -1,7 +1,7 @@
 /**
  * Swiss theme — International Typographic Style
  *
- * Grid rows, hairline rules, typographic hierarchy. No radius, no shadow.
+ * Transparent grid rows, hairline rules, typographic hierarchy. No radius, no shadow.
  * Axes: shade/accent (ink + selection color), spacing, weight, size (grid
  * unit), hairline (rule weight), scale (type-size ramp), plus the three
  * font-role slots (title/label/value). Every rule, size, and font-size below
@@ -9,6 +9,7 @@
  * swiss(axes?) → CSS string
  */
 
+import metrics from './metrics.js'
 import baseCSS from './base.js'
 import { parseColor, resolveAccent } from './color.js'
 
@@ -28,32 +29,35 @@ export default function swiss({
   scale = 1,      // typographic scale multiplier
   titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
   labelFont = `'DM Sans', 'Helvetica', sans-serif`,
-  valueFont = `'DM Serif Display', 'Georgia', serif`
+  valueFont = `'DM Serif Display', 'Georgia', serif`,
+  font,
 } = {}) {
   const { L } = parseColor(shade)
   const dark = L < .6
 
   const overrides = `.s-panel {
+  ${metrics({ size, spacing, font }, {inset: 8, rowGap: 0, columnGap: 0, sectionGap: 56, panelPadding: 0, fontFamily: "system-ui, -apple-system, sans-serif"})}
+
   /* ── Tokens ── */
   --bg: transparent;
   --accent: ${resolveAccent(accent, shade)};
-  --spacing: ${spacing};
+
   --weight: ${weight};
   --roundness: 0;
   --r: 0;
-  --u: calc(4px * ${size});
+
   --hairline: ${hairline}px;
   --scale: ${scale};
   /* type scale — every font-size in the theme is one of these six steps */
-  --size-title: calc(2.625rem * var(--scale));
-  --size-subtitle: calc(0.9375rem * var(--scale));
-  --size-label: calc(0.75rem * var(--scale));
-  --size-value: calc(1rem * var(--scale));
-  --size-readout: calc(0.875rem * var(--scale));
-  --size-button: calc(1.2rem * var(--scale));
+  --size-title: calc(2.625rem * var(--scale) * var(--size));
+  --size-subtitle: calc(0.9375rem * var(--scale) * var(--size));
+  --size-label: calc(0.75rem * var(--scale) * var(--size));
+  --size-value: calc(1rem * var(--scale) * var(--size));
+  --size-readout: calc(0.875rem * var(--scale) * var(--size));
+  --size-button: calc(1.2rem * var(--scale) * var(--size));
   --title-font: ${titleFont};
-  --label-font: ${labelFont};
-  --value-font: ${valueFont};
+  --label-font: ${font || labelFont};
+  --value-font: ${font || valueFont};
   color-scheme: ${dark ? 'dark' : 'light'};
   color: light-dark(black, white);
 
@@ -64,14 +68,18 @@ export default function swiss({
   --check-mark: ${checkMark};
   --chev-up: ${chevUp};
   --chev-down: ${chevDown};
-  --pad: calc(var(--u) * 2 * var(--spacing));
+
   --label-w: 28%;
 
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: inherit;
+
   border-radius: 0;
-  padding: 0;
+  padding: var(--panel-padding);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 
   /* ── Panel header ── */
   > summary, > .s-panel-title {
@@ -98,7 +106,7 @@ export default function swiss({
   }
 
   .s-panel-content {
-    gap: 0;
+    gap: var(--row-gap);
     padding: calc(var(--u) * 13) 0 0;
   }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
@@ -109,7 +117,7 @@ export default function swiss({
   .s-control {
     border-top: var(--hairline) solid var(--rule);
     padding: 0;
-    gap: 0;
+    gap: var(--column-gap);
     align-items: stretch;
   }
 
@@ -410,7 +418,7 @@ export default function swiss({
 
   /* ── Button ── */
   .s-button {
-    padding: calc(var(--u) * 14) 0 calc(var(--u) * 4);
+    padding: var(--section-gap) 0 calc(var(--inset) * 2);
     button {
       width: 100%;
       background: var(--fill);

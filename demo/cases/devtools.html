@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevTools — settings-panel</title>
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-content: center; padding: 32px 16px; box-sizing: border-box; background: #e8eaed; font: 12px system-ui; gap: 12px; }
+    .appearance { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+    .appearance select { font: inherit; padding: 4px 8px; }
+    #panel { width: min(380px, calc(100vw - 32px)); }
+  </style>
+</head>
+<body>
+  <label class="appearance">Appearance <select id="appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import { signal } from '../../signals.js'
+    import devtools from '../../theme/devtools.js'
+    const appearance = document.querySelector('#appearance')
+    appearance.value = location.hash === '#dark' ? 'dark' : 'light'
+    const mode = signal(appearance.value)
+    const theme = () => devtools({ shade: mode.value === 'dark' ? '#282828' : '#ffffff' })
+    const defaults = { display: 'grid', 'font-size': 14, opacity: .85, color: '#1a73e8', visible: true, transform: 'translateY(0)', gap: 16, 'align-items': 'center' }
+    const panel = settings({
+      display: { options: ['grid', 'flex', 'block', 'none'], value: defaults.display },
+      'font-size': { type: 'number', value: defaults['font-size'], min: 8, max: 48, unit: 'px' },
+      opacity: { type: 'slider', value: defaults.opacity, min: 0, max: 1, step: .01 },
+      color: defaults.color,
+      visible: { type: 'boolean', value: defaults.visible },
+      transform: { type: 'text', value: defaults.transform },
+      layout: { type: 'folder', label: 'layout', collapsed: true },
+      'layout.gap': { type: 'number', value: defaults.gap, unit: 'px' },
+      'layout.align-items': { options: ['center', 'start', 'end', 'stretch'], value: defaults['align-items'] },
+      reset: { type: 'button', label: false, text: 'Reset declarations', onClick() { Object.assign(panel, defaults) } },
+    }, { container: '#panel', title: 'element.style', collapsed: false, theme })
+    appearance.addEventListener('change', () => {
+      mode.value = appearance.value
+      history.replaceState(null, '', '#' + appearance.value)
+    })
+  </script>
+</body>
+</html>
