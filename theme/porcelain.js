@@ -5,7 +5,7 @@
  */
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles } from './color.js'
+import { resolveRoles, parseColor, toHex, ink } from './color.js'
 
 export default function porcelain({
   shade = '#f4f6f5', accent = '#526e73', spacing = 1.2,
@@ -24,6 +24,11 @@ export default function porcelain({
   const well = 'inset 0 1px 2px color-mix(in oklab, var(--fg), transparent 77%), 0 1px 0 var(--glaze)'
   const raised = 'inset 0 1px 0 var(--glaze), inset 0 -1px 0 color-mix(in oklab, var(--fg), transparent 90%), 0 1px 2px color-mix(in oklab, var(--fg), transparent 85%)'
   const arrow = svg(`<path d="m3 4 3 3 3-3" fill="none" stroke="${fgMuted}" stroke-width="1.3"/>`, 12)
+  // Placeholders: the browser's grey (#757575, 3.9:1 on the field) held to 4.5:1 on the field's well,
+  // the shade with 4% of the ink (itself 45% accent), mixed in OKLab as color-mix() does
+  const lab = c => { const { L, C, H } = parseColor(c), h = H * Math.PI / 180; return [L, C * Math.cos(h), C * Math.sin(h)] }
+  const mix = (a, b, t) => { const [L, A, B] = lab(a).map((v, i) => v + (lab(b)[i] - v) * t); return toHex({ L, C: Math.hypot(A, B), H: Math.atan2(B, A) * 180 / Math.PI }) }
+  const placeholder = ink(mix(shade, mix(fg, acc, .45), .04), 4.5, '#757575')
 
   return baseCSS + `
 .s-panel {
@@ -37,6 +42,7 @@ export default function porcelain({
   --h: var(--control-height);
   --glaze: ${dark ? 'oklch(from var(--bg) calc(l + .09) c h)' : '#fff'};
   --well: color-mix(in oklab, var(--bg), var(--fg) 4%);
+  --placeholder: ${placeholder};
   --font: var(--font-family);
    font-weight: var(--weight); color: var(--fg);
   color-scheme: ${dark ? 'dark' : 'light'};
@@ -72,7 +78,8 @@ export default function porcelain({
   :is(input, select, textarea, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   input[type=text], input[type=number], textarea, select { flex: 1; background: var(--well); border: 1px solid color-mix(in oklab, var(--fg), transparent 89%); border-radius: var(--r); box-shadow: ${well}; }
   input[type=text], input[type=number], select { height: var(--h); padding: 0 calc(var(--u) * 2.5); }
-  .s-number input[type=number] { appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { appearance: none; margin: 0; } }
+  :is(input, textarea)::placeholder { color: var(--placeholder); }
+  :is(.s-number, .s-vector) input[type=number] { appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { appearance: none; margin: 0; } }
   textarea { resize: vertical; min-height: calc(var(--h) * 2); padding: calc(var(--u) * 2); }
   select { appearance: none; background-image: ${arrow}; background-position: right 8px center; background-size: 12px; background-repeat: no-repeat; padding-right: 26px; }
   select option { background: var(--bg); }
@@ -150,6 +157,6 @@ export default function porcelain({
   }
   .s-title { cursor: help; font-size: 11px; }
   .s-title-text { position: absolute; top: 100%; left: 0; z-index: 10; padding: 8px; width: max-content; max-width: 25ch; background: var(--glaze); border: 1px solid var(--well); box-shadow: ${raised}; opacity: 0; visibility: hidden; pointer-events: none; }
-  .s-title:hover + .s-title-text { opacity: 1; visibility: visible; }
+  .s-title:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; }
 }`
 }

@@ -21,7 +21,7 @@ const tmplNative = `
   </details>
 `
 
-export default ({ label, collapsed = false, name, variant, container }) => {
+export default ({ label, collapsed = false, name, variant, style, container }) => {
   const wrapper = document.createElement('div')
   const native = !!name
 
@@ -38,6 +38,7 @@ export default ({ label, collapsed = false, name, variant, container }) => {
   sprae(wrapper, state)
 
   const el = wrapper.firstElementChild
+  if (style) el.setAttribute('style', style)
   if (native && !collapsed) el.open = true
   const content = el.querySelector('.s-content')
 

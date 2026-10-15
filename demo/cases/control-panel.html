@@ -35,13 +35,14 @@
   <script type="module">
     import settings from '../../index.js'
     import controlPanel from '../../theme/control-panel.js'
+    import { nativeToggle } from './native-toggle.js'
 
     // Read hash params: #shade=ebebeb&accent=5b99f5
     const params = Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(s => s.split('=')))
     const accent = params.accent ? '#' + params.accent : undefined
 
-    // Dark / light shades — toggled live by the in-panel switch
-    const DARK = '#232323', LIGHT = '#ebebeb'
+    // Dark / light shades: native background1 of control-panel's two themes, toggled live by the in-panel switch
+    const DARK = '#232323', LIGHT = '#e3e3e3'
     const isLight = (hex) => {
       const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16))
       return (r + g + b) / 3 > 128
@@ -53,14 +54,20 @@
     const setBodyBg = (dark) => document.body.style.background = dark ? DARK_BG : LIGHT_BG
     setBodyBg(initialDark)
 
+    // format: 'rgb' in native prints tinycolor's toRgbString(): rgb(100, 200, 100)
+    const rgb = v => { const n = parseInt(v.slice(1), 16); return `rgb(${n >> 16}, ${n >> 8 & 255}, ${n & 255})` }
+    const hex = v => { const c = v.match(/\d+/g); return c?.length >= 3 ? '#' + c.slice(0, 3).map(x => (+x).toString(16).padStart(2, '0')).join('') : v }
+
     settings({
       'dark': { type: 'boolean', variant: 'switch', value: initialDark, label: 'dark mode' },
       'range slider': { type: 'slider', value: 20, min: 0, max: 100, step: 1, label: 'range slider' },
-      'stepped slider': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, label: 'stepped slider' },
+      // native prints min + step·round(v/step), float noise included (0.6000000000000001),
+      // into a value box four characters wide: the reader sees 0.2, 0.4, 0.60, 0.8
+      'stepped slider': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, format: v => String(0.2 * Math.round(v / 0.2)).slice(0, 4), label: 'stepped slider' },
       'interval': { type: 'slider', multiple: true, value: [25, 50], min: 0, max: 100, step: 1, label: 'interval' },
       'text': { type: 'text', value: 'my setting', label: 'text' },
       'checkbox': { type: 'boolean', variant: 'checkbox', value: true, label: 'checkbox' },
-      'color rgb': { type: 'color', value: '#64c864', label: 'color rgb' },
+      'color rgb': { type: 'color', value: '#64c864', label: 'color rgb', formatText: rgb, parseText: hex },
       'color hex': { type: 'color', value: '#30b2ba', label: 'color hex' },
       'gimme an alert': { type: 'button', text: 'gimme an alert', label: '', onClick: () => alert('hello!') },
       'selection': { type: 'select', options: ['option 1', 'option 2'], value: 'option 1', label: 'selection' },
@@ -80,6 +87,8 @@
       title: 'example panel',
       onchange(s) { setBodyBg(s.dark) },
     })
+
+    nativeToggle({ ref: '../_ref/cp-ref.html' + location.hash })
   </script>
 </body>
 </html>

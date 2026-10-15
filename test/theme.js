@@ -29,7 +29,7 @@ test('metrics: invalid axes fall back, finite axes clamp, and font defaults surv
 // module that fails to import (a stray backtick inside its CSS template) or
 // returns a sheet without the panel root only surfaces in the browser otherwise.
 const names = readdirSync(new URL('../theme/', import.meta.url))
-  .filter(f => f.endsWith('.js') && !['base.js', 'color.js', 'mixins.js', 'metrics.js'].includes(f))
+  .filter(f => f.endsWith('.js') && !['base.js', 'color.js', 'mixins.js', 'metrics.js', 'texture.js'].includes(f))
   .map(f => f.slice(0, -3))
 
 const themes = Object.fromEntries(await Promise.all(names.map(async n => [n, (await import(`../theme/${n}.js`)).default])))
@@ -82,4 +82,44 @@ test('theme: skeu accepts a ramp function as shade', () => {
   const css = themes.skeu({ shade: ramp, grid: ['dots', 'crosses'] })
   ok(css.includes('.s-panel {'), 'skeu builds from a ramp function')
   ok(!/NaN|undefined/.test(css), 'ramp-driven sheet emits no NaN/undefined')
+})
+
+// Soft-light shows less of a texture on lighter surfaces; surface() compensates along the
+// lightness stops it was calibrated on (graphite, bronze, chalk), so contrast rises with L.
+test('texture: surface layers follow the material and rise with lightness', async () => {
+  const { surface } = await import('../theme/texture.js')
+  is(surface(undefined, '#fff'), null)
+  is(surface('paper', '#fff'), null, 'unknown textures draw nothing')
+  const grain = surface('grain', '#808080'), wood = surface('wood', '#ca9d63')
+  is(grain.blend, 'soft-light')
+  is(wood.blend, 'soft-light, soft-light', 'wood is speckle over streaks')
+  ok(wood.image.includes('240px 120px') && grain.image.includes('160px'), 'layers carry their tile sizes')
+  const slope = css => +decodeURIComponent(css).match(/values='([\d.]+) 0 0 0/)[1]
+  const k = ['#111111', '#1e1e1e', '#808080', '#ca9d63', '#f1f2f4', '#ffffff'].map(shade => slope(surface('grain', shade).image))
+  for (let i = 1; i < k.length; i++) ok(k[i] >= k[i - 1], `contrast does not fall as the surface lightens (${k})`)
+  is(k[0], k[1], 'below the darkest stop the contrast holds')
+  is(k[4], k[5], 'above the lightest stop the contrast holds')
+  const at = amount => slope(surface('grain', '#ca9d63', amount).image)
+  ok(Math.abs(at(2) - 2 * at(1)) < .002 && Math.abs(at(.5) - at(1) / 2) < .002, 'amount scales the calibrated contrast')
+  for (const amount of [0, -1, NaN]) is(surface('wood', '#ca9d63', amount), null, `amount ${amount} draws nothing`)
+})
+
+// A colormap reaches a theme as axes: the surface always; its ink and texture only where the
+// theme declares them, so a theme never receives an axis it would ignore or misread.
+test('gallery: a colormap carries shade to every theme, ink and texture only where declared', async () => {
+  const { material, colormaps, byId } = await import('../demo/themes.js')
+  const { bronze, gold, chalk } = colormaps
+  is(material(byId.soft, bronze), { shade: '#ca9d63', ink: '#603415', texture: 'wood' })
+  is(material(byId.glass, bronze), { shade: '#ca9d63', ink: '#603415' }, 'glass has no surface of its own to texture')
+  is(material(byId.lab01, bronze), { shade: '#ca9d63' }, 'undeclared axes stay out')
+  is(material(byId.soft, gold), { shade: '#ba965a' }, 'a map without ink or texture carries only its surface')
+  is(material(byId.neu, chalk), { shade: '#f1f2f4', ink: '#4a5362', texture: 'grain' })
+  const a = material(byId.soft, bronze)
+  Object.assign(a, { shade: '#000', accent: '#000' })
+  is(material(byId.soft, bronze), { shade: '#ca9d63', ink: '#603415', texture: 'wood' }, 'each call returns a fresh object')
+  is([bronze.shade, bronze.accent], ['#ca9d63', '#603415'], 'mutating the axes leaves the map untouched')
+  for (const map of Object.values(colormaps)) for (const theme of Object.values(byId)) {
+    const axes = material(theme, map)
+    ok(Object.keys(axes).every(k => k === 'shade' || theme.axes.split(' ').includes(k)), `${theme.id} × ${map.name}: only declared axes`)
+  }
 })

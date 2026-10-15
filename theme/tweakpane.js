@@ -10,9 +10,10 @@
  * Ref: https://tweakpane.github.io/docs/
  *
  * Axes: shade (panel bg), fg (input-fg / slider fill / label ink), button
- * (light control fill). Everything else — field / field-hover, label, monitor,
- * grip, the button hover/active states, the select's option background, and
- * the shared shadow/tooltip/well colors — derives from these three (parsed to
+ * (light control fill). Everything else (the field wash and its hover/focus/
+ * active steps, label, monitor, the button hover/focus/active states (native's
+ * own derivation: button lightness +5/+10/+15%), the select's option background, and
+ * the shared shadow/tooltip/well colors) derives from these three (parsed to
  * r,g,b and recombined as plain rgba()/rgb() strings — color-mix()/relative-
  * color rgb(from ...) were tried first but Chromium serializes their result
  * through a `color(srgb ...)` code path that composites/rounds a channel-value
@@ -27,7 +28,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, toHex, parseColor } from './color.js'
+import { resolveRoles, toHex, parseColor, ink } from './color.js'
 
 export default function tweakpane({
   shade = '#28292e',     // panel bg ≈ hsl(228 8% 17%) — matches Tweakpane's rgb(40,41,46)
@@ -43,16 +44,37 @@ export default function tweakpane({
   button ??= native ? '#adafb8' : toHex(parseColor(roles.fg))
 
   const enc = c => encodeURIComponent(c)   // any CSS color, safe inside an SVG data-URI
+  const check = c => `url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 8l4 4l8 -8' fill='none' stroke='${enc(c)}' stroke-width='2'/%3E%3C/svg%3E")`
   const rgbOf = (hex, fallback) => { const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(hex); return m ? [1, 2, 3].map(i => parseInt(m[i], 16)) : fallback }
   const c255 = v => Math.max(0, Math.min(255, Math.round(v)))
 
   const [fgR, fgG, fgB] = rgbOf(fg, [187, 188, 196])
-  const [btnR, btnG, btnB] = rgbOf(button, [173, 175, 184])
   const [shR, shG, shB] = rgbOf(shade, [40, 41, 46])
   const wash = a => `rgba(${fgR},${fgG},${fgB},${a})`
+  // Text Tweakpane never drew, at 4.5:1 (WCAG 1.4.3): the hint (the label wash at 70%, 3.0:1) and a
+  // separator's label (fg at 60%, 3.7:1) keep their tone, lifted to pass
+  const washed = a => '#' + [[fgR, shR], [fgG, shG], [fgB, shB]].map(([f, s]) => c255(s + (f - s) * a).toString(16).padStart(2, '0')).join('')
+  const hint = ink(shade, 4.5, washed((native ? .7 : .9) * .7))
+  const sepLabel = ink(shade, 4.5, washed(.6))
+  // and a placeholder, the label's wash laid over the field's (3.9:1), lifted to pass on the field
+  const placeholder = ink(washed(.1), 4.5, washed(.1 + .9 * (native ? .7 : .9)))
+  // Native's button states are its button fill lightened 5/10/15% in HSL (#bbbcc4/#c8cad0/#d6d7db
+  // from hsl(230 7% 70%)); the defaults take native's exact literals, which rounding the 8-bit
+  // fill back through HSL misses by one blue step on the active state.
+  const lighten = (hex, dl) => {
+    const [r, g, b] = rgbOf(hex, [173, 175, 184]).map(v => v / 255), M = Math.max(r, g, b), m = Math.min(r, g, b), d = M - m
+    const l = Math.min(1, (M + m) / 2 + dl), s = d && d / (1 - Math.abs(M + m - 1))
+    const h = !d ? 0 : M === r ? ((g - b) / d + 6) % 6 : M === g ? (b - r) / d + 2 : (r - g) / d + 4
+    const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(h % 2 - 1)), o = l - c / 2
+    const [R, G, B] = [[c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]][Math.floor(h) % 6]
+    return `rgb(${[R, G, B].map(v => c255((v + o) * 255)).join(',')})`
+  }
+  const [hover, focus, active] = native ? ['#bbbcc4', '#c8cad0', '#d6d7db'] : [.05, .1, .15].map(d => lighten(button, d))
 
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace", lineHeight: 15.4, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 4, sectionGap: 4, panelPadding: 4})}
+  /* native --bs-ff verbatim: where Roboto Mono isn't installed or loaded (native's page loads no
+     webfont) both fall through to Menlo on macOS; weight 500 like native's root (Menlo Regular) */
+  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Roboto Mono', 'Source Code Pro', Menlo, Courier, monospace", lineHeight: 15.4, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 4})}
 
   /* ── axes ── */
   --bg: ${shade};
@@ -62,21 +84,23 @@ export default function tweakpane({
 
   /* ── derived tokens ── */
   --field: ${wash(0.1)};
-  --field-hover: ${wash(0.16)};
+  --field-hover: ${wash(0.15)};
+  --field-focus: ${wash(0.2)};
+  --field-active: ${wash(0.25)};
   --label: ${wash(native ? .7 : .9)};
   --monitor: var(--label);
-  --grip: var(--label);
   --pad-fill: ${wash(0.2)};
   --pad-axis: ${wash(0.5)};
-  --hover: rgb(${c255(btnR + 21)},${c255(btnG + 19)},${c255(btnB + 16)});
-  --active: rgb(${c255(btnR + 37)},${c255(btnG + 35)},${c255(btnB + 32)});
+  --hover: ${hover};
+  --focus: ${focus};
+  --active: ${active};
   --option-bg: rgb(${c255(shR + 7)},${c255(shG + 6)},${c255(shB + 5)});
   --well: rgba(0,0,0,.2);
   --shadow: 0 2px 4px var(--well);
   --tooltip-bg: ${roles.dark ? '#000' : '#fff'};
   --on-button: ${native ? shade : resolveRoles(shade, button).onAccent};
 
-  --weight: 400;
+  --weight: 500;
   --r: calc(2 * var(--length));
   --row: var(--control-height);
   --thumb: calc(12 * var(--length));
@@ -84,6 +108,12 @@ export default function tweakpane({
   --radius-lg: calc(6 * var(--length));
   --width: calc(256 * var(--length));
   --vec-pad: calc(128 * var(--space));
+  --value: calc(160 * var(--length));   /* native --bld-vw: fixed value column, label takes the rest */
+  --header: calc(24 * var(--length));   /* native cnt-usz + 4px: panel title and folder header */
+  /* native .tp-txtv_k drag bar: 2px, row − 4px tall, 1px-rounded, fg at .1 (the field wash) */
+  --guide: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1' fill='${enc(wash(0.1))}'/%3E%3C/svg%3E") var(--u) center / var(--track) calc(var(--row) - 4 * var(--length)) no-repeat;
+  /* native .tp-fldv_m / .tp-rotv_m: two 2px bars of fg at half opacity, 11px in from the header's right edge */
+  --grip: linear-gradient(to left, var(--fg), var(--fg) 2px, transparent 2px, transparent 4px, var(--fg) 4px);
   color-scheme: ${roles.dark ? 'dark' : 'light'};
 
   background: var(--bg);
@@ -100,52 +130,66 @@ export default function tweakpane({
   font-size: var(--font-size);
   line-height: var(--line-height);
 
-  /* ── Title ── */
+  /* ── Title: native .tp-rotv_b, a full-bleed 24px bar with centered text, square-bottomed while open ── */
   > summary, > .s-panel-title {
-    color: var(--label);
-    font-weight: 500;
-    padding: var(--u) var(--u) calc(6 * var(--space));
-    &::after { content: ''; width: calc(6 * var(--length)); height: calc(6 * var(--length)); margin-left: auto; border: 1px solid currentColor; opacity: .5; transition: transform .15s; }
+    position: relative; justify-content: center;
+    height: var(--header); line-height: var(--header); padding: 0 calc(var(--panel-padding) + var(--row) + var(--u));
+    margin: calc(var(--panel-padding) * -1) calc(var(--panel-padding) * -1) var(--panel-padding);
+    background: var(--field); color: var(--fg); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  &[open] > summary::after { transform: rotate(45deg); }
+  > summary {
+    border-radius: var(--radius-lg); transition: border-radius .2s ease-in-out .2s;
+    &:hover { background: var(--field-hover); } &:focus { background: var(--field-focus); outline: none; } &:active { background: var(--field-active); }
+    &::after { content: ''; position: absolute; top: 0; bottom: 0; right: calc(var(--panel-padding) + 7 * var(--length)); margin: auto; width: calc(6 * var(--length)); height: calc(6 * var(--length)); border-radius: var(--r); background: var(--grip); opacity: .5; transform: rotate(90deg); transition: transform .2s ease-in-out; }
+  }
+  /* collapsed: the bar is the whole panel, so it takes the panel's full radius and swallows its bottom padding */
+  &:not([open]) > summary { margin-bottom: calc(var(--panel-padding) * -1); }
+  &[open] > summary { border-radius: var(--radius-lg) var(--radius-lg) 0 0; transition-duration: 0s; transition-delay: 0s; &::after { transform: none; } }
   .s-panel-content { gap: var(--row-gap); padding: 0; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
-  /* ── Row ── */
+  /* ── Row: native .tp-lblv, label flexes, value column fixed at 160px ── */
   .s-control { gap: var(--column-gap); padding: 0; min-height: var(--row); align-items: center; &:has(> .s-input[inert]) > .s-label-group { opacity: .5; } }
-  .s-label-group { width: 34%; min-width: 0; max-width: none; padding: 0 var(--u); line-height: 1.3; }
-  .s-label { color: var(--label); font-weight: 500; }
-  .s-hint { color: var(--label); opacity: .7; font-size: calc(10 * var(--length)); }
-  .s-input { gap: var(--u); align-items: center; }
+  .s-label-group { flex: 1 1 0; width: auto; min-width: 0; max-width: none; padding: 0 calc(16 * var(--length)) 0 var(--u); line-height: 1.3; overflow: hidden; hyphens: auto; }
+  .s-label { color: var(--label); }
+  .s-hint { color: ${hint}; opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-input { flex: 0 0 var(--value); gap: var(--u); align-items: center; }
+  .s-label-group[hidden] + .s-input { flex: 1; }
 
-  /* ── Fields ── */
+  /* ── Fields: native .tp-txtv_i, input-bg wash stepping .1 / .15 hover / .2 focus / .25 active ── */
   input[type="text"], input[type="number"], select, textarea {
-    background: var(--field); color: var(--fg); border: none; border-radius: var(--r);
-    height: var(--row); padding: 0 var(--u); font: inherit;
-    &::placeholder { color: var(--label); }
-    &:hover { background: var(--field-hover); }
-    &:focus { background: var(--field-hover); outline: none; }
+    -webkit-appearance: none; appearance: none; background-color: var(--field); color: var(--fg); border: none; border-radius: var(--r);
+    height: var(--row); padding: 0 var(--u); font: inherit; line-height: var(--row);
+    &::placeholder { color: ${placeholder}; }
+    &:hover { background-color: var(--field-hover); }
+    &:focus { background-color: var(--field-focus); outline: none; }
+    &:active { background-color: var(--field-active); }
   }
   .s-text input[type="text"] { flex: 1; }
+  /* numeric fields (native .tp-txtv-num): right-aligned, drag-scrubbed, with the drag bar at the left */
+  .s-number input[type="number"], .s-vector input[type="number"], .s-slider .s-readout {
+    text-align: right; cursor: ew-resize; background: var(--guide); background-color: var(--field);
+    -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    &:hover { background-color: var(--field-hover); } &:focus { background-color: var(--field-focus); cursor: text; } &:active { background-color: var(--field-active); }
+  }
 
   /* ── Number ── */
-  .s-number { input[type="number"] { flex: 1; text-align: right; cursor: ew-resize; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:focus { cursor: text; } } .s-step { display: none; } }
+  .s-number { input[type="number"] { flex: 1; } .s-step { display: none; } }
 
-  /* ── Vector: bare per-axis number fields, native's collapsed {x,y} layout ── */
+  /* ── Vector: native point2d's collapsed row, joined per-axis fields (inner corners square) ── */
   .s-vector {
     position: relative;
     .s-input { position: relative; gap: calc(2 * var(--length)); }
     .s-vec-axis { gap: 0; }
-    input[type="number"] { text-align: right; cursor: ew-resize; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:focus { cursor: text; }
-      /* native's tp-txtv-num left guide bar — same accent glyph as the slider's .s-readout */
-      background: var(--field) linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), color-mix(in srgb, var(--fg) 10%, transparent)) 3px center / 2px 16px no-repeat; }
+    .s-vec-axis:has(+ .s-vec-axis) input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .s-vec-axis + .s-vec-axis input { border-top-left-radius: 0; border-bottom-left-radius: 0; }
     /* Expand button: native's point2d picker glyph — a plus-shaped reticle with a corner dot,
        dark-on-light like the select's arrow, filling a 20px field-height square. margin-right
        widens the button→field gap to native's measured 4px (.tp-p2dv_b margin-right: calc(4 * var(--space))) —
        the 2px flex gap plus this 2px margin. */
     .s-vec-expand { -webkit-mask: none; mask: none; opacity: 1; width: var(--row); height: var(--row); margin-right: calc(2 * var(--length)); border-radius: var(--r);
-      background: var(--button) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 4v8M4 8h8' stroke='${enc(shade)}' stroke-width='2' fill='none'/%3E%3Ccircle cx='12' cy='12' r='1.2' fill='${enc(shade)}'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
-      &:hover, &.s-open { background-color: var(--hover); } }
+      background: var(--button) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 4v8M4 8h8' stroke='${enc(shade)}' stroke-width='2' fill='none'/%3E%3Ccircle cx='12' cy='12' r='1.2' fill='${enc(shade)}'/%3E%3C/svg%3E") center / calc(16 * var(--length)) no-repeat;
+      &:hover { background-color: var(--hover); } &:focus, &.s-open { background-color: var(--focus); outline: none; } &:active { background-color: var(--active); } }
     /* Picker: native opens the pad as a floating popup (.tp-popv) anchored to the expand
        BUTTON, not the row — measured live (button.getBoundingClientRect() vs the opened
        .tp-popv): top === button bottom (zero gap) and left ≈ button left (native bleeds the
@@ -174,21 +218,26 @@ export default function tweakpane({
         linear-gradient(to right, var(--fg) 0 var(--p, 0%), transparent var(--p, 0%)),
         linear-gradient(var(--field) 0 0);
       background-size: calc(100% - var(--thumb)) var(--track), calc(100% - var(--thumb)) var(--track); background-position: center; background-repeat: no-repeat;
+      /* native's groove and fill are 1px-rounded bars; gradients can't round, so a mask keeps the
+         groove's rounded shape plus the knob's strip (a --thumb-wide layer at --p lands exactly
+         where the knob travels: p × (width − thumb)) */
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
       &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); cursor: pointer; }
       &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); border: none; background: var(--button); cursor: pointer; }
-      &:hover::-webkit-slider-thumb, &:focus-visible::-webkit-slider-thumb { background: var(--hover); }
-      &:hover::-moz-range-thumb, &:focus-visible::-moz-range-thumb { background: var(--hover); }
-      &:focus-visible { outline: none; }
+      /* native .tp-sldv_t knob states: hover / focus (any focus, as native's tabindex div takes it on click) / active */
+      &:hover::-webkit-slider-thumb { background: var(--hover); } &:focus::-webkit-slider-thumb { background: var(--focus); } &:active::-webkit-slider-thumb { background: var(--active); }
+      &:hover::-moz-range-thumb { background: var(--hover); } &:focus::-moz-range-thumb { background: var(--focus); } &:active::-moz-range-thumb { background: var(--active); }
+      &:focus { outline: none; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--label); white-space: nowrap; }
-    .s-readout { position: relative; flex: 0 0 auto; width: calc(52 * var(--length)); min-width: calc(52 * var(--length)); text-align: right; color: var(--fg); border: none; border-radius: var(--r); height: var(--row); padding: 0 var(--u); font-variant-numeric: tabular-nums; cursor: ew-resize;
-      background: var(--field) linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), color-mix(in srgb, var(--fg) 10%, transparent)) 3px center / 2px 16px no-repeat;
-      &:hover, &:focus { background-color: var(--field-hover); outline: none; }
-      &:focus { cursor: text; } }
+    /* native .tp-sldtxtv: slider flex 2 : text flex 1 with a 4px gap → 104 + 4 + 52 in the 160px column */
+    .s-readout { position: relative; flex: 0 0 auto; width: calc(52 * var(--length)); min-width: calc(52 * var(--length)); color: var(--fg); border: none; border-radius: var(--r); height: var(--row); padding: 0 var(--u); font-variant-numeric: tabular-nums; }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--tooltip-bg); color: var(--fg); padding: calc(1 * var(--length)) calc(5 * var(--space)); border-radius: var(--r); white-space: nowrap; }
     &.s-multiple .s-interval-track { height: var(--track); margin: calc(9 * var(--space)) 0; background: var(--field); position: relative; overflow: visible;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--fg); }
+      input[type="range"] { top: 50%; translate: 0 -50%; background: none; -webkit-mask: none; mask: none; }
       input[type="range"]::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); }
       input[type="range"]::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); } }
   }
@@ -196,8 +245,8 @@ export default function tweakpane({
   /* ── Select ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; background-color: var(--button); color: var(--on-button); font-weight: 700;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7h6l-3 3z' fill='${enc(shade)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right var(--u) center; background-size: calc(16 * var(--length)) calc(16 * var(--length)); padding-right: calc(20 * var(--space));
-      &:hover, &:focus { background-color: var(--hover); color: var(--on-button); }
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7h6l-3 3z' fill='${enc(shade)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(2 * var(--length)) center; background-size: calc(16 * var(--length)) calc(16 * var(--length)); padding-right: calc(20 * var(--length));
+      &:hover { background-color: var(--hover); } &:focus { background-color: var(--focus); } &:active { background-color: var(--active); }
       option { background: var(--option-bg); color: var(--fg); } }
     &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: calc(3 * var(--space)); font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--on-button); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
@@ -231,28 +280,34 @@ export default function tweakpane({
     .s-pad-dot { width: calc(5 * var(--length)); height: calc(5 * var(--length)); background: var(--fg); box-shadow: none; } }
 
   /* ── Boolean: input-bg square with a check ── */
+  .s-boolean input[type="checkbox"], .s-checkboxes .s-track { -webkit-appearance: none; appearance: none; flex: none; width: var(--row); height: var(--row); margin: 0; border-radius: var(--r); background: var(--field) none center / calc(16 * var(--length)) no-repeat; cursor: pointer; }
   .s-boolean {
     align-items: center;
-    input[type="checkbox"] { -webkit-appearance: none; appearance: none; position: static; opacity: 1; width: var(--row); height: var(--row); margin: 0; border-radius: var(--r); background: var(--field); cursor: pointer;
-      &:hover { background: var(--field-hover); }
-      &:checked { background: var(--field) url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='${enc(fg)}' stroke-width='2'/%3E%3C/svg%3E") center / 11px no-repeat; } }
+    /* native .tp-ckbv_w: its 16px 'M2 8l4 4l8 -8' check stroked 2px in input-fg, centered */
+    input[type="checkbox"] { position: static; opacity: 1;
+      &:checked { background-image: ${check(fg)}; }
+      &:hover { background-color: var(--field-hover); } &:focus { background-color: var(--field-focus); outline: none; } &:active { background-color: var(--field-active); } }
     .s-track { display: none; }
   }
+  /* the checkboxes list draws the same box on .s-track; its check is a mask, so --s-color can ink it */
+  .s-checkboxes {
+    label:hover .s-track { background-color: var(--field-hover); } input:focus + .s-track { background-color: var(--field-focus); } label:active .s-track { background-color: var(--field-active); }
+    input:checked + .s-track::before { content: ''; display: block; height: 100%; background: var(--s-color, var(--fg)); -webkit-mask: ${check('#000')} center / calc(16 * var(--length)) no-repeat; mask: ${check('#000')} center / calc(16 * var(--length)) no-repeat; } }
 
-  /* ── Color: full rgba swatch — native's checkerboard + color-wash technique.
-     The native input[type=color] is made invisible-but-clickable (opacity 0); a ::before
-     paints the checker (bottom layer) with the full --color, alpha included, washed over it
-     (top layer) — so partial alpha lets the checker show through, like native's swatch. ── */
+  /* ── Color: native .tp-colv_h, a 20px swatch + 4px gap + text field, alpha or not.
+     The native input[type=color] is made invisible-but-clickable (opacity 0); ::before paints
+     native's .tp-colswv checker (#fff under two offset #ddd diagonal-quarter layers, 10px tile
+     → 5px squares), ::after the full --color, alpha included, over it. ── */
   .s-color {
-    &.s-picker .s-color-input { gap: 0; position: relative;
-      input[type="color"] { position: static; width: var(--row); height: var(--row); padding: 0; border: none; border-radius: var(--r) 0 0 var(--r); cursor: pointer; opacity: 0; }
-      &::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--row); height: var(--row); pointer-events: none; border-radius: var(--r) 0 0 var(--r);
-        background: linear-gradient(var(--color), var(--color)), conic-gradient(#ddd 90deg, #fff 0 180deg, #ddd 0 270deg, #fff 0) 0 0 / 8px 8px; }
-      input[type="text"] { flex: 1; min-width: 0; border-radius: 0 var(--r) var(--r) 0; } }
-    &.s-rgba .s-color-input { gap: var(--u); position: relative;
-      input[type="color"] { width: var(--row); height: var(--row); padding: 0; border: none; border-radius: var(--r); cursor: pointer; opacity: 0; }
-      &::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--row); height: var(--row); pointer-events: none; border-radius: var(--r);
-        background: linear-gradient(var(--color), var(--color)), conic-gradient(#ddd 90deg, #fff 0 180deg, #ddd 0 270deg, #fff 0) 0 0 / 8px 8px; }
+    &.s-picker .s-color-input, &.s-rgba .s-color-input { gap: var(--u); position: relative;
+      input[type="color"] { position: static; flex: none; width: var(--row); height: var(--row); padding: 0; border: none; border-radius: var(--r); cursor: pointer; opacity: 0; }
+      /* checker and color wash on separate rounded boxes, like native's .tp-colswv + clipped .tp-colswv_sw */
+      &::before, &::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--row); height: var(--row); pointer-events: none; border-radius: var(--r); }
+      &::before { background:
+          linear-gradient(to top right, #ddd 25%, transparent 25% 75%, #ddd 75%) 0 0 / calc(10 * var(--length)) calc(10 * var(--length)),
+          linear-gradient(to top right, #ddd 25%, transparent 25% 75%, #ddd 75%) calc(5 * var(--length)) calc(5 * var(--length)) / calc(10 * var(--length)) calc(10 * var(--length)),
+          #fff; }
+      &::after { background: var(--color); }
       .s-alpha { display: none; } input[type="text"] { flex: 1; min-width: 0; } }
     &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: none; &.s-selected { outline: 1px solid var(--fg); } }
   }
@@ -260,24 +315,27 @@ export default function tweakpane({
   /* ── Button: light pill, dark text ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
-    button { width: 100%; background: var(--button); color: var(--on-button); border: none; border-radius: var(--r); height: var(--row); font-weight: 700; &:hover { background: var(--hover); } &:active { background: var(--active); } }
-    &.s-secondary button, button.s-secondary { background: var(--field); color: var(--fg); &:hover { background: var(--field-hover); } }
+    button { width: 100%; background: var(--button); color: var(--on-button); border: none; border-radius: var(--r); height: var(--row); padding: 0; font-weight: 700; &:hover { background: var(--hover); } &:focus { background: var(--focus); outline: none; } &:active { background: var(--active); } }
+    &.s-secondary button, button.s-secondary { background: var(--field); color: var(--fg); &:hover { background: var(--field-hover); } &:focus { background: var(--field-focus); } &:active { background: var(--field-active); } }
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)) calc(6 * var(--space)); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; line-height: var(--line-height); padding: calc(4 * var(--space)) calc(6 * var(--space)); } }
 
-  /* ── Folder: full-bleed header bar breaking out of panel padding + two-bar grip marker ── */
+  /* ── Folder: native .tp-fldv, a full-bleed header (breaks out of the row inset on both sides)
+     in container fg, title aligned with the row labels, the two-bar grip 11px from its right edge ── */
   .s-folder {
     position: relative;
-    > summary { background: var(--field); color: var(--label); font-weight: 500; height: calc(24 * var(--length)); line-height: 24px; padding: 0 calc(6 * var(--space)); margin: 0 calc(var(--u) * -1); width: calc(100% + var(--u) * 2); border-radius: 0; transition: background-color .1s;
-      &:hover { background: var(--field-hover); }
-      &::after { content: ''; width: calc(6 * var(--length)); height: calc(6 * var(--length)); border-radius: var(--r); margin-left: auto; opacity: .5; transform: rotate(90deg);
-        background: linear-gradient(to left, var(--grip) 0px, var(--grip) 2px, transparent 2px, transparent 4px, var(--grip) 4px); transition: transform .15s; } }
+    > summary { background: var(--field); color: var(--fg); height: var(--header); line-height: var(--header); padding: 0 calc(var(--panel-padding) + 7 * var(--length)) 0 calc(var(--panel-padding) + var(--u)); margin: 0 calc(var(--panel-padding) * -1); width: calc(100% + var(--panel-padding) * 2); border-radius: 0; transition: border-radius .2s ease-in-out .2s;
+      &:hover { background: var(--field-hover); } &:focus { background: var(--field-focus); outline: none; } &:active { background: var(--field-active); }
+      &::after { content: ''; flex: none; width: calc(6 * var(--length)); height: calc(6 * var(--length)); border-radius: var(--r); margin-left: auto; opacity: .5; transform: rotate(90deg); background: var(--grip); transition: transform .2s ease-in-out; } }
     &[open] > summary::after { transform: none; }
-    /* Nesting rail: header-colored 4px band along the left edge of the open content */
-    &[open]::before { content: ''; position: absolute; top: calc(24 * var(--length)); bottom: 0; left: calc(var(--u) * -1); width: var(--u); background: var(--field); }
-    .s-content { gap: var(--u); padding: var(--u) 0 var(--u) var(--u); }
+    /* Nesting rail (native .tp-fldv_i): 4px band of the header's own wash, following its states */
+    &[open]::before { content: ''; position: absolute; top: var(--header); bottom: 0; left: calc(var(--panel-padding) * -1); width: var(--u); background: var(--field); }
+    &:has(> summary:hover)::before { background: var(--field-hover); }
+    &:has(> summary:focus)::before { background: var(--field-focus); }
+    &:has(> summary:active)::before { background: var(--field-active); }
+    .s-content { gap: var(--row-gap); padding: var(--panel-padding) 0 var(--panel-padding) var(--u); }
     /* Match native's fold timing: height+padding ease-in-out, opacity fades in lockstep on close,
        only after fully expanded on open (avoids an empty box collapsing/expanding visibly) */
     &:is(details)::details-content { transition: height .2s ease-in-out, opacity .2s linear, padding .2s ease-in-out, content-visibility .2s allow-discrete; }
@@ -285,12 +343,20 @@ export default function tweakpane({
   }
   /* Adjacent folders: each folder already ends in 4px of bottom padding, so the panel's
      row gap would double it — native collapses the gap between two consecutive blades. */
-  .s-folder + .s-folder { margin-top: calc(var(--u) * -1); }
+  .s-folder + .s-folder { margin-top: calc(var(--row-gap) * -1); }
+  /* Edge folders meet the panel's rounded edge (native .tp-v-fst without a title / .tp-v-lst):
+     they swallow the panel padding and take its radius on the outer corners */
+  &:not(:has(> summary, > .s-panel-title)) > .s-panel-content > .s-folder:first-child { margin-top: calc(var(--panel-padding) * -1); > summary { border-radius: var(--radius-lg) var(--radius-lg) 0 0; } }
+  > .s-panel-content > .s-folder:last-child { margin-bottom: calc(var(--panel-padding) * -1); &::before { border-bottom-left-radius: var(--radius-lg); }
+    &:not([open]) > summary { border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); } }
 
   /* ── Info / separator ── */
-  .s-info .s-monitor { background: var(--well); border-radius: var(--r); padding: 0 var(--u); height: var(--row); line-height: var(--row); color: var(--monitor); font-variant-numeric: tabular-nums; }
-  .s-separator { min-height: 0; height: var(--track); background: var(--field); opacity: 1; margin: 0; }
-  .s-separator-labeled { height: auto; background: none; }
+  /* native .tp-sglv_i is a readonly input at line-height normal: its text box centers in the 20px well */
+  .s-info .s-monitor { display: flex; align-items: center; opacity: 1; background: var(--well); border-radius: var(--r); padding: 0 var(--u); height: var(--row); line-height: normal; color: var(--monitor); font-variant-numeric: tabular-nums; }
+  /* native .tp-sprv_r: a 2px groove across the full panel width */
+  .s-separator { min-height: 0; height: var(--track); background: var(--field); opacity: 1; margin: 0 calc(var(--panel-padding) * -1); }
+  .s-separator-labeled { height: auto; background: none; margin: 0; }
+  .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 
   return baseCSS + '\n' + overrides

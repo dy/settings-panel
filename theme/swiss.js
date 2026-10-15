@@ -11,7 +11,11 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent } from './color.js'
+import { parseColor, resolveAccent, toHex, contrast } from './color.js'
+
+// `over(a, b, t)`: b laid at opacity t over a, composited in sRGB as the browser does.
+const rgb = c => toHex(parseColor(c)).slice(1).match(/../g).map(h => parseInt(h, 16))
+const over = (a, b, t) => { const y = rgb(b); return '#' + rgb(a).map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('') }
 
 const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5L5 1.5L8.5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
 const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1L5 4.5L8.5 1' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
@@ -34,6 +38,12 @@ export default function swiss({
 } = {}) {
   const { L } = parseColor(shade)
   const dark = L < .6
+  // Secondary text is the ink at part alpha over the ground the transparent panel sits on (its
+  // shade): dim 45% black or 50% white as drawn, hints and section labels at base's 60%, vector
+  // axis letters at its 55%; each raised as far as it needs to read 4.5:1 there.
+  const ink = dark ? '#ffffff' : '#000000'
+  const reads = a => { while (a < 100 && contrast(over(shade, ink, a / 100), shade) < 4.5) a++; return a }
+  const [dimLight, dimDark] = dark ? [45, reads(50)] : [reads(45), 50]
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {inset: 8, rowGap: 0, columnGap: 0, sectionGap: 56, panelPadding: 0, fontFamily: "system-ui, -apple-system, sans-serif"})}
@@ -62,7 +72,7 @@ export default function swiss({
   color: light-dark(black, white);
 
   --rule: light-dark(color-mix(in srgb, black 12%, transparent), white);
-  --dim: light-dark(color-mix(in srgb, black 45%, transparent), color-mix(in srgb, white 50%, transparent));
+  --dim: light-dark(color-mix(in srgb, black ${dimLight}%, transparent), color-mix(in srgb, white ${dimDark}%, transparent));
   --fill: light-dark(color-mix(in srgb, black 7%, transparent), color-mix(in srgb, white 10%, transparent));
   --fill-hover: light-dark(color-mix(in srgb, black 11%, transparent), color-mix(in srgb, white 16%, transparent));
   --check-mark: ${checkMark};
@@ -134,6 +144,12 @@ export default function swiss({
     line-height: var(--lh);
   }
 
+  .s-title-text {
+    padding: var(--u) calc(var(--u) * 2);
+    background: light-dark(black, white); color: light-dark(white, black);
+    font-family: var(--label-font); font-size: var(--size-label); line-height: 1.5;
+  }
+
   .s-label {
     font-family: var(--label-font);
     font-weight: 600;
@@ -142,6 +158,8 @@ export default function swiss({
     line-height: 1.57;
     font-size: var(--size-label);
   }
+  /* base dims these by opacity; raised to read on the ground */
+  .s-hint, .s-separator-label { opacity: ${reads(60) / 100}; }
 
   .s-input {
     gap: 0;
@@ -252,6 +270,14 @@ export default function swiss({
     &.s-switch:has(input:checked) .s-track::after { left: calc(var(--u) * 6 - 2px); }
     &.s-toggle .s-track { padding: 3px 12px; &::after { content: 'Off'; background: none; } }
     &.s-toggle:has(input:checked) .s-track::after { content: 'On'; background: none; }
+    /* checkbox: one row of the checkboxes list, a gutter cell that fills and takes the check mark */
+    &.s-checkbox {
+      input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+      .s-track { position: relative; flex: none; width: calc(var(--u) * 7); border: none; border-right: var(--hairline) solid var(--rule); cursor: pointer;
+        &::after { content: ''; position: absolute; inset: 0; -webkit-mask: var(--check-mark) center / 14px no-repeat; mask: var(--check-mark) center / 14px no-repeat; opacity: 0; transform: scale(.25); transition: opacity 140ms, transform 140ms; } }
+      .s-input:hover .s-track { background: var(--fill-hover); }
+      &:has(input:checked) .s-track::after { opacity: 1; transform: scale(1); }
+    }
     .s-track {
       background: transparent;
       border: var(--hairline) solid var(--rule);
@@ -390,6 +416,9 @@ export default function swiss({
     &.s-radio {
       .s-input { flex-direction: column; gap: 0; align-items: stretch; padding: 0; }
       .s-input label {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--u) * 1.5);
         font-family: var(--value-font);
         padding: var(--pad) calc(var(--u) * 4);
         cursor: pointer;
@@ -409,10 +438,27 @@ export default function swiss({
     .s-track { min-width: 0; }
     input[type="range"] { accent-color: var(--accent); width: 100%; min-width: 0; }
     .s-readout {
-      flex: none; width: 6ch; padding: var(--pad) calc(var(--u) * 2); text-align: right;
+      flex: none; width: 6ch; min-width: 6ch; padding: var(--pad) calc(var(--u) * 2); text-align: right;
+      @supports (field-sizing: content) { field-sizing: content; width: auto; }
       color: var(--dim);
       font-size: var(--size-readout);
       font-variant-numeric: tabular-nums;
+    }
+    /* tooltip readout: set in reverse above the thumb, so it reads over whatever row it overhangs */
+    .s-tooltip {
+      position: absolute; bottom: calc(50% + var(--u) * 3); transform: translateX(-50%); z-index: 2;
+      padding: var(--u) calc(var(--u) * 1.5);
+      background: light-dark(black, white); color: light-dark(white, black);
+      font-family: var(--value-font); font-size: var(--size-readout); line-height: 1;
+      font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none;
+    }
+    /* interval: the native slider's outlined groove, squared, the span between the thumbs in its fill;
+       the groove contrasts the accent as the native one does, dark under a light accent, light under a dark one */
+    &.s-multiple .s-interval-track {
+      align-self: center; height: calc(var(--u) * 2);
+      border: var(--hairline) solid var(--rule);
+      background: oklch(from var(--accent) clamp(.352, (.75 - l) * 100, .952) 0 0);
+      &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); }
     }
   }
 
@@ -459,6 +505,10 @@ export default function swiss({
     }
     .s-content { gap: 0; }
   }
+
+  /* ── Vector: axis letters start one value inset off the column rule ── */
+  .s-vector .s-input { padding-left: calc(var(--u) * 4); }
+  .s-vec-label { opacity: ${reads(55) / 100}; }
 
   /* ── Color ── */
   .s-color {

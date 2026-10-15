@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Palette row harness</title>
+  <script type="importmap">
+    { "imports": { "sprae": "https://esm.sh/sprae@13", "sprae/store": "https://esm.sh/sprae@13/store" } }
+  </script>
+  <style>
+    /* Calibration harness: one theme in one palette, a reference-shaped button on the panel
+       surface. #theme=neu&palette=bronze&word=Search[&size=1] */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body { background: var(--surface); padding: 80px; font: 13px system-ui; }
+    #panel { width: 460px; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import { byId, colormaps, material } from '../../demo/themes.js'
+    const q = new URLSearchParams(location.hash.slice(1))
+    const theme = byId[q.get('theme') || 'neu'], map = colormaps[q.get('palette') || 'chalk']
+    const word = q.get('word') || 'Search'
+    const axes = { ...material(theme, map), accent: map.accent }
+    if (q.get('size')) axes.size = +q.get('size')
+    document.body.style.setProperty('--surface', map.shade)
+    settings({
+      specimen: { type: 'button', label: false, text: word },
+      blank: { type: 'button', label: false, text: ' ' },
+    }, { container: '#panel', title: word, collapsed: false, theme: theme.fn(axes) })
+    // The reference pills are ~3.3 heights wide; give both buttons that proportion.
+    requestAnimationFrame(() => {
+      for (const b of document.querySelectorAll('.s-button button')) {
+        b.style.flex = 'none'
+        b.style.width = b.getBoundingClientRect().height * 3.3 + 'px'
+      }
+      // Keep neighbours out of the measured button's halo and shadow.
+      document.querySelector('[data-key=blank]').style.margin = '90px 0'
+      document.body.dataset.ready = ''
+    })
+  </script>
+</body>
+</html>

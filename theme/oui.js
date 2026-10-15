@@ -2,26 +2,27 @@
  * oui — calibrated to wearekuva/oui
  *
  * Signatures: a minimal white panel with Menlo monospace at a small size, a red
- * (#ff5252) slider fill with no visible thumb, and borderless inputs that show
+ * slider fill with no visible thumb (oui's #ff5252, deepened to read 3:1 on its
+ * #d2d2d2 track), and borderless inputs that show
  * only a bottom rule (turning red on focus). Clinical, code-editor restraint.
  * Ref: https://github.com/wearekuva/oui
  *
  * Axes: shade (panel bg — light by default, flips the whole neutral ramp dark
  * below L 0.5) and accent (slider fill / focus rule / selected state). Every
  * other color is a derived token — text/line/hint/placeholder ink, the fill
- * used by elevated chips (readout box, select options), and the tint used by
+ * used by elevated chips (select options), and the tint used by
  * recessed surfaces (button, open-folder body) — computed off the shade's own
  * OKLCH lightness/chroma/hue so they reproduce oui's exact literals in light
- * mode and flip coherently if shade goes dark. The native checkbox accent
- * (#1a73e8, macOS system blue) is a fixed signature, independent of the panel's
- * own accent — still a named, overridable token.
+ * mode and flip coherently if shade goes dark. The checkbox keeps the browser's
+ * default accent (oui sets none), independent of the panel's own accent; still
+ * a named, overridable token.
  *
  * oui(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, toHex, clamp } from './color.js'
+import { parseColor, resolveAccent, toHex, clamp, ink } from './color.js'
 
 export default function oui({
   shade = '#fafafa',
@@ -46,23 +47,31 @@ export default function oui({
   // Light defaults: text #424242, line #d2d2d2, hint #999, placeholder #aaa, fill #fff.
   const text = $(dark ? 0.92 : 0.379)
   const line = $(dark ? 0.32 : 0.864)
-  const hint = $(dark ? 0.56 : 0.683)
-  const placeholder = $(dark ? 0.46 : 0.738)
+  const hint = ink(shade, 4.5, $(dark ? 0.56 : 0.683))   // oui #999, 2.7:1: hints and mark labels are text
+  const placeholder = ink(shade, 4.5, $(dark ? 0.46 : 0.738))   // oui #aaa, 2.2:1: a placeholder is text
   const fill = $(dark ? clamp(surfaceL + 0.16, 0, 1) : 1)
-  const tint = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)'
+  const rule = dark ? 'rgba(255,255,255,.05)' : 'rgba(1,1,1,.05)' // header hr, drawn inset like the UA hr
+  const tint = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.044)' // #efefef (UA buttonface) over #fafafa
   const tint2 = dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.04)'
   const tooltipFg = dark ? $(0.12) : '#ffffff'
   const onAccent = accentDark ? '#ffffff' : '#1a1a1a'
-  const nativeAccent = '#1a73e8' // OS checkbox blue — fixed signature, independent of the panel's own accent
+  // the selected fill under lettering, lifted only as far as 4.5:1 needs (white on #ff5252, 3.2:1),
+  // and a labeled separator's label (text at 60% on its line-colored band, 2.8:1)
+  const action = ink(onAccent, 4.5, acc)
+  const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
+  const sepLabel = ink(line, 4.5, '#' + ch(text).map((v, i) => Math.round(v * .6 + ch(line)[i] * .4).toString(16).padStart(2, '0')).join(''))
+  const nativeAccent = 'auto' // oui leaves the checkbox to the browser default (Chromium #0075ff)
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {fontSize: 10, fontFamily: "Menlo, Inconsolata, Consolas, ui-monospace, monospace", lineHeight: 16, controlHeight: 20, inset: 4, rowGap: 2, columnGap: 8, sectionGap: 8, panelPadding: 10})}
 
   --bg: ${shade};
-  --accent: ${acc};
+  --accent: ${ink(line, 3, acc)};   /* the fill reads 3:1 on its track (WCAG 1.4.11): oui's #ff5252 gives 2.1:1 on #d2d2d2 */
   --on-accent: ${onAccent};
+  --action: ${action};
   --text: ${text};
   --line: ${line};
+  --rule: ${rule};
   --hint: ${hint};
   --placeholder: ${placeholder};
   --fill: ${fill};
@@ -89,14 +98,14 @@ export default function oui({
   font-size: var(--font-size);
   line-height: var(--line-height);
 
-  /* ── Title ── */
-  > summary, > .s-panel-title {
-    color: var(--text); font-weight: 400; height: calc(22 * var(--length)); padding: 0 0 calc(11 * var(--space)); border-bottom: 1px solid var(--line);
-    &::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); margin-left: auto; background: var(--text); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s; transform: rotate(-180deg); }
-  }
-  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
+  /* ── Title: 11px label line over a 1px inset rule, 5px either side (native header > div + hr) ── */
+  > summary, > .s-panel-title { color: var(--text); font-weight: 400; line-height: calc(11 * var(--length)); align-items: flex-start; padding: 0 0 calc(5 * var(--space)); border-bottom: 1px inset var(--rule); }
+  > summary::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); margin-left: auto; background: var(--text); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transform: rotate(-180deg); }
+  &:not([open]) > summary { padding-bottom: 0; border-bottom: none; }
+  /* oui's chevron glyph (40-unit viewBox, open = down; the collapsed "up" path is its 180deg turn) */
+  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m27.7 14.3l2.3 2.3-10 10-10-10 2.3-2.3 7.7 7.7z'/%3E%3C/svg%3E");
   &[open] > summary::after { transform: rotate(0deg); }
-  .s-panel-content { gap: var(--row-gap); padding: calc(7 * var(--space)) 0 0; }
+  .s-panel-content { gap: var(--row-gap); padding: calc(7 * var(--space)) 0 calc(2 * var(--space)); }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(7 * var(--space)); }
 
   /* ── Row ── */
@@ -104,7 +113,7 @@ export default function oui({
   .s-boolean { min-height: calc(24 * var(--length)); }
   .s-label-group { width: 50%; min-width: 0; max-width: none; padding: 0; }
   .s-label { color: var(--text); font-weight: 400; }
-  .s-hint { color: var(--hint); font-size: calc(9 * var(--length)); }
+  .s-hint { color: var(--hint); opacity: 1; font-size: calc(9 * var(--length)); }
   .s-input { gap: calc(6 * var(--space)); align-items: center; justify-content: flex-end; }
 
   /* ── Fields: borderless, bottom rule only ── */
@@ -126,46 +135,62 @@ export default function oui({
   /* ── Number ── */
   .s-number { input[type="number"] { flex: 1; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
 
-  /* ── Slider: light track, red fill, invisible thumb ── */
+  /* ── Slider: label + readout line, 2px, then the 10px svg bar (two rx=2 rects, invisible thumb) ── */
   .s-slider {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 0;
-    min-height: calc(32 * var(--length));
+    gap: calc(2 * var(--space)) 0;
     align-items: start;
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
-    .s-label-group { grid-column: 1; grid-row: 1; width: auto; line-height: 20px; }
+    .s-label-group { grid-column: 1; grid-row: 1; width: auto; line-height: var(--control-height); align-self: baseline; }
     .s-input { display: contents; }
     .s-track { grid-column: 1 / 3; grid-row: 2; height: calc(10 * var(--length)); margin: 0; }
     input[type="range"] {
-      width: 100%; height: calc(10 * var(--length)); -webkit-appearance: none; appearance: none; cursor: pointer; border-radius: 0; outline: none;
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--line) var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: transparent; cursor: ew-resize; }
-      &::-moz-range-thumb { width: calc(10 * var(--length)); height: calc(10 * var(--length)); border: none; background: transparent; cursor: ew-resize; }
+      width: 100%; height: calc(10 * var(--length)); -webkit-appearance: none; appearance: none; cursor: default; border-radius: var(--r); outline: none;
+      /* track = the input's own r=2 box; fill = oui's second rx=2 rect ending at p: a body to p - r, a band with its edge at p,
+         and two corner discs at p - r. The band stops short of the disc rows so their AA edges don't stack; --aa ramps an edge
+         over one device px at 2x, like the svg's */
+      --aa: .25px; --x: calc(var(--p, 0%) - var(--r));
+      background:
+        linear-gradient(to right, var(--accent) var(--x), #0000 0),
+        linear-gradient(to right, var(--accent) calc(var(--p, 0%) - var(--aa)), #0000 calc(var(--p, 0%) + var(--aa))) 0 50% / 100% calc(100% - 2 * var(--r) - 2 * var(--aa)) no-repeat,
+        radial-gradient(circle calc(var(--r) + var(--aa)) at var(--x) var(--r), var(--accent) calc(var(--r) - var(--aa)), #0000),
+        radial-gradient(circle calc(var(--r) + var(--aa)) at var(--x) calc(100% - var(--r)), var(--accent) calc(var(--r) - var(--aa)), #0000)
+        var(--line);
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: transparent; cursor: default; }
+      &::-moz-range-thumb { width: calc(10 * var(--length)); height: calc(10 * var(--length)); border: none; background: transparent; cursor: default; }
       &:focus-visible { box-shadow: inset 0 0 0 1px var(--accent); }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(9 * var(--length)); color: var(--hint); white-space: nowrap; }
-    .s-readout { grid-column: 2; grid-row: 1; flex: 0 0 auto; width: calc(28 * var(--length)); min-width: calc(28 * var(--length)); text-align: center; background: var(--fill); color: var(--text); border: 1px solid var(--line); border-radius: var(--r); height: calc(15 * var(--length)); padding: 0 calc(2 * var(--length)); font-variant-numeric: tabular-nums; &:focus { outline: none; border-color: var(--accent); } }
+    /* native number input: UA padding and line-height, left-aligned, baseline-aligned to the label */
+    /* the original's 28px box; a longer value ('0.75', '440 Hz') widens it */
+    .s-readout { grid-column: 2; grid-row: 1; align-self: baseline; flex: 0 0 auto; width: calc(28 * var(--length)); min-width: calc(28 * var(--length)); text-align: left; background: transparent; color: var(--text); border: 1px solid var(--line); border-radius: var(--r); height: auto; line-height: normal; padding: calc(1 * var(--length)) calc(2 * var(--length)); font-variant-numeric: tabular-nums; &:focus { outline: none; border-color: var(--accent); }
+      @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--text); color: var(--tooltip-fg); padding: calc(1 * var(--length)) calc(5 * var(--space)); border-radius: calc(2 * var(--length)); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(4 * var(--length)); margin: calc(8 * var(--space)) 0; background: var(--line); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); } }
+    /* interval: both readouts on the label line, the bar under them carrying the band as oui's fill rect */
+    &.s-multiple { grid-template-columns: 1fr auto auto; column-gap: calc(4 * var(--space)); }
+    &.s-multiple .s-readout-hi { grid-column: 3; }
+    &.s-multiple .s-interval-track { grid-column: 1 / -1; grid-row: 2; height: calc(10 * var(--length)); margin: 0; background: var(--line); border-radius: var(--r); position: relative;
+      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: inherit; }
+      input[type="range"] { background: none; } }
   }
 
   /* ── Select ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; border-bottom: 1px solid var(--line);
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='${enc(hint)}' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1px center; background-size: calc(9 * var(--length)) calc(6 * var(--length)); padding: 0 calc(18 * var(--space)) 0 calc(2 * var(--length)); }
-    &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: transparent; border: 1px solid var(--line); color: var(--text); margin-left: calc(-1 * var(--length)); padding: calc(3 * var(--space)); font: inherit; &:first-child { margin-left: 0; } &:hover { color: var(--accent); } &.s-selected { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } } }
+    &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: transparent; border: 1px solid var(--line); color: var(--text); margin-left: calc(-1 * var(--length)); padding: calc(3 * var(--space)); font: inherit; &:first-child { margin-left: 0; } &:hover { color: var(--accent); } &.s-selected { background: var(--action); color: var(--on-accent); border-color: var(--action); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: flex-end; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
-  /* ── Boolean: native checkbox, right ── */
+  /* ── Boolean: native checkbox, right; the checkboxes list shows the same native box ── */
+  .s-boolean input[type="checkbox"], .s-checkboxes input[type="checkbox"] { -webkit-appearance: auto; appearance: auto; position: static; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0 calc(3 * var(--length)) 0 0; accent-color: var(--s-color, var(--native-accent)); cursor: pointer; }
+  :is(.s-boolean, .s-checkboxes) .s-track { display: none; }
+  .s-checkboxes .s-input label { flex-direction: row-reverse; }
   .s-boolean {
     align-items: center;
     .s-input { justify-content: flex-end; }
-    input[type="checkbox"] { -webkit-appearance: auto; appearance: auto; position: static; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; accent-color: var(--native-accent); cursor: pointer; }
-    .s-track { display: none; }
   }
 
   /* ── Color: circular swatch ── */
@@ -192,16 +217,17 @@ export default function oui({
   /* ── Folder ── */
   .s-folder {
     > summary { color: var(--text); font-weight: 400; height: var(--control-height); padding: 0;
-      &::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); margin-left: auto; background: var(--text); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .15s; transform: rotate(-180deg); } }
+      &::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); margin-left: auto; background: var(--text); -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transform: rotate(-180deg); } }
     &[open] > summary::after { transform: rotate(0deg); }
-    &[open] { margin-bottom: calc(2 * var(--length)); }
-    &[open] > .s-content { background: var(--tint-2); border-radius: var(--r); padding: calc(10 * var(--space)); }
-    .s-content { gap: calc(6 * var(--space)); }
+    /* native body: 1em padding around rows that keep their 2px margins (collapsed to one row gap between) */
+    &[open] > .s-content { background: var(--tint-2); border-radius: var(--r); padding: calc(10 * var(--space) + var(--row-gap)) calc(10 * var(--space)); }
+    .s-content { gap: var(--row-gap); }
   }
 
   /* ── Info / separator ── */
   .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: var(--text); font-variant-numeric: tabular-nums; } }
   .s-separator { background: var(--line); opacity: 1; }
+  .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 
   return baseCSS + '\n' + overrides

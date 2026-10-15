@@ -60,8 +60,13 @@ const setQuery = mode => {
   history.replaceState(null, '', url)
 }
 
+// The originals are rendered by demo/_ref, a local harness kept out of the published site: the switch
+// appears only where its reference loads.
 export function nativeToggle({ ref, nativeLabel = 'native' }) {
-  if (!ref) return
+  if (ref) fetch(ref, { method: 'HEAD' }).then(r => r.ok && mount(ref, nativeLabel), () => {})
+}
+
+function mount(ref, nativeLabel) {
   ensureStyle()
 
   let iframe

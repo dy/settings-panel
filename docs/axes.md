@@ -33,6 +33,15 @@ The interactive/brand color. CSS color string, or a number 0–1 to derive from 
 Default: `'#2563eb'`.
 
 
+### `ink` *(neu, glass, soft, skeu)*
+
+The lettering color: labels, values, titles. A palette can carry its own ink, as a
+printed material does (Chalk's slate `#4a5362`, Bronze's brown `#603415`, Graphite's
+white `#f8f9fa`); the gallery passes it with the palette. Omit it and the theme
+derives text from `shade` as before. In those palettes the accent is the ink too, so
+on-states stay in the material's own color.
+
+
 ## Shape
 
 ### `spacing`
@@ -66,8 +75,8 @@ How much things lift off the surface. Same value, different physics per theme:
 
 | Theme | depth at 1 |
 |-------|-----------|
-| neu | 6px directional cast, close contact shadow, fine rim |
-| skeu | directional shadow, physical weight |
+| neu | rim, halo, crease, contact and cast shadow at the study's relief |
+| skeu | key height: front wall, face relief and shadow throw |
 | glass | edge rim and surface reflection intensity |
 
 Default: `1` (neu), `1` (skeu). Range 0–∞ (values > 1 amplify the effect).
@@ -83,7 +92,7 @@ Default varies per theme (e.g. `400` for soft, `500` for brutal). Range 100–90
 
 ### `bevel` *(skeu, brutal, porcelain)*
 
-Structural edge width. In `skeu` it controls the relief gradient intensity (0–∞, default `1`). In `brutal` it is the border thickness in px (default `2`). In `porcelain` it scales the ceramic lip (default `1`, 5px at size 1).
+Structural edge width. In `skeu` it sets edge contrast from `0` to `1`, then widens the rim from 1 to 2 units up to `2` (default `1`). In `brutal` it is the border thickness in px (default `2`). In `porcelain` it scales the ceramic lip (default `1`, 5px at size 1).
 
 
 ### `blur` *(glass only)*
@@ -110,7 +119,8 @@ At `0` the lighting disappears; raised faces remain opaque.
 ### `light` *(neu only)*
 
 Light-source direction in CSS degrees: 0 = top, 90 = right, 180 = bottom,
-270 = left. Default `315` (upper left); shadows fall in the opposite direction.
+270 = left. Default `0`, straight above, as in the material study it reproduces;
+shadows fall in the opposite direction.
 Raised edges, inset wells, and face gradients share the same light.
 
 ### `offset` *(brutal only)*
@@ -121,15 +131,28 @@ Default `4`.
 ### `grain` *(brutal, neu, porcelain)*
 
 Texture intensity; `0` disables it. Brutal uses halftone dots (default `0`),
-Neu uses fine matte grain (default `.3`, range 0–1), and Porcelain uses flowing
+Neu scales its surface texture (default `.3` is the calibrated strength, `0`
+removes it, range 0–1), and Porcelain uses flowing
 embossed relief (default `1`, range 0–2).
 
 ## Character
 
-### `texture` (planned)
+### `hues` *(synth only)*
 
-Pattern overlaid on backgrounds: flat, dots, crosses, grid, paper.
-Default: `flat`.
+The colours a panel's folders take in turn, one per group, as the original colours each module by
+its function. Default: the four function colours. `[]` gives every folder the accent; a folder's own
+`style: '--accent: …'` overrides its turn.
+
+### `texture` *(neu, soft, skeu)*
+
+The material the surface is cut from: `'grain'` (a fine matte speckle) or `'wood'`
+(long fine grain on the surface; raised faces show the pale figure of a planed
+board). Omit it for the theme's own default. Palettes name their texture (Chalk and
+Graphite `grain`, Bronze `wood`). The images come from `theme/texture.js`: neutral
+grey turbulence laid over the surface with `soft-light`, so one texture fits any shade.
+`surface(texture, shade)` returns the layers for a surface, their contrast rising with
+lightness (soft-light shows less on light surfaces), calibrated so Graphite, Bronze and
+Chalk carry the grain of the study's own backgrounds.
 
 
 ### `font`
@@ -161,13 +184,15 @@ Axes (palette and shape support varies):
 |------|-------|----------------|-------------|
 | shade | hex/oklch | `#f5f4f2` | background color; L < 0.5 → dark mode |
 | accent | color or 0–1 | `#2563eb` | interactive/brand hue |
+| ink | color | derived from shade | lettering color (neu, glass, soft, skeu) |
+| texture | `grain`, `wood` | none | surface material (neu, soft, skeu) |
 | spacing | 0.5–2 | `1` | air between elements |
 | size | 0.5–2 | `1` | element and type scale (`--u = 4*size px`) |
 | font | CSS font-family | theme default | body typeface |
 | roundness | 0–2 | `1` | corner radius |
 | weight | 100–900 | `400` | font weight |
 
-Theme-specific extras:
+Theme-specific extras (the gallery exposes them as the selected theme's Theme controls):
 
 | Axis | Themes | What it does |
 |------|--------|-------------|
@@ -181,12 +206,18 @@ Theme-specific extras:
 | light | neu | light-source direction in CSS degrees |
 | offset | brutal | hard-shadow throw in px |
 | grain | brutal, neu, porcelain | halftone, matte grain, or embossed relief |
+| hues | synth | colours cycled over the panel's folders in order (default `#23b2fe`, `#00d692`, `#febc2d`, `#e4525a`: oscillator, amplitude, filter, modulation); `[]` gives every folder the accent |
+| hairline | swiss | rule and border weight in px (default `1`) |
+| scale | swiss | multiplies the type ramp, independent of `size` (default `1`) |
+| noise | lab01 | surface noise texture on or off (default `true`) |
+| rule | editorial | hairline row-rule weight in px; the masthead rule is always 3× (default `1`) |
 
 | Group | Axes |
 |-------|------|
-| Color | shade, accent |
+| Color | shade, accent, ink |
 | Shape | spacing, size, roundness |
-| Surface | weight, depth, bevel, blur, tint, softness, contrast, light, offset, grain |
+| Surface | weight, depth, bevel, blur, tint, softness, contrast, light, offset, grain, noise, texture |
+| Print | hairline, scale, rule, leading |
 
 
 ## Orthogonality
@@ -233,8 +264,7 @@ geometry (bevels, switch proportions, Swiss display type, Terminal character cel
 remains local. Terminal derives its line height from its `leading` axis and snaps
 the cell to its character grid.
 
-Baselines intentionally differ: OUI uses 10px type, dat.gui/Tweakpane/Figma 11px,
-DevTools 12px, Apple/Lab01 13px, and the material themes 14px. A native inspector
+Baselines intentionally differ: OUI uses 10px type, dat.gui/Tweakpane/Figma/DevTools 11px, Apple/Lab01 13px, and the material themes 14px. A native inspector
 can have zero row gap while Neu has a 16px gap for its shadows. At `size: 1,
 spacing: 1`, those are ordinary baseline parameters. Density changes their space,
 never their font size. Hosts can override individual role tokens without replacing

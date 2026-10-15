@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./tokens.css">
   <link rel="stylesheet" href="./demo/gallery.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <a class="skip-link" href="#preview" :onclick.prevent="focusPreview()">Skip to live preview</a>
@@ -25,6 +25,62 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.64.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
       </a>
     </header>
+
+    <div class="look-bar" role="region" aria-label="Look">
+      <div class="look-cluster look-light">
+        <span class="look-tag">Light</span>
+        <div class="light-strip" role="radiogroup" aria-label="Light">
+          <label class="light-swatch light-native" :class="{ selected: look.colormap === 'native' }" title="Native: each theme's own light">
+            <input type="radio" name="light" value="native" :value="look.colormap" :change="v => look.colormap = v" aria-label="Native">
+            <svg class="light-glyph" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 0 0 0 14z" fill="#17181c"/><path d="M8 1a7 7 0 0 1 0 14z" fill="#f6f4ef"/><circle cx="8" cy="8" r="6.4" fill="none" stroke="#00000030"/></svg>
+          </label>
+          <label class="light-swatch" :each="map, id in colormaps" :style="{ '--swatch': map.shade }" :class="{ selected: look.colormap === id }" :title="map.name">
+            <input type="radio" name="light" :="{ value: id }" :value="look.colormap" :change="v => look.colormap = v" :aria-label="map.name">
+          </label>
+        </div>
+      </div>
+
+      <div class="look-cluster" id="accent-row" role="group" aria-label="Accent">
+        <span class="look-tag">Accent</span>
+        <div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets">
+          <button class="swatch" type="button" :each="swatch in accents" :aria-label="swatch[0]" :title="swatch[0]" :data-color="swatch[1]" :style="{ '--swatch': swatch[1] }" :aria-pressed="String(look.accent === swatch[1])" :onclick="look.accent = swatch[1]"></button>
+        </div>
+        <button type="button" class="auto-accent" :aria-pressed="String(look.accent === null)" :onclick="look.accent = null" title="Use the theme or colormap accent">Auto</button>
+        <label class="custom-accent" title="Custom accent">
+          <input id="custom-accent" :value="accent" :change="v => look.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </label>
+      </div>
+
+      <div class="look-cluster" id="density-row" role="group" aria-label="Density">
+        <span class="look-tag">Density</span>
+        <div class="segments" id="density-options" role="group" aria-label="Density">
+          <button data-density="0.65" :aria-pressed="String(look.spacing === 0.65)" :onclick="look.spacing = 0.65">Compact</button>
+          <button data-density="1" :aria-pressed="String(look.spacing === 1)" :onclick="look.spacing = 1">Comfortable</button>
+          <button data-density="1.5" :aria-pressed="String(look.spacing === 1.5)" :onclick="look.spacing = 1.5">Roomy</button>
+        </div>
+      </div>
+
+      <label class="look-cluster range-axis"><span class="look-tag">Corners</span>
+        <input id="roundness" :value="look.roundness ?? nativeRoundness" :change="v => look.roundness = v" type="range" min="0" max="2" step="0.1">
+        <output for="roundness" id="roundness-value" :text="look.roundness ?? nativeRoundness">1.4</output>
+      </label>
+
+      <label class="look-cluster range-axis"><span class="look-tag">Scale</span>
+        <input id="size" :value="look.size ?? 1" :change="v => look.size = v" type="range" min="0.8" max="1.2" step="0.05">
+        <output for="size" id="size-value" :text="(look.size ?? 1) + '×'">1×</output>
+      </label>
+
+      <label class="look-cluster font-axis"><span class="look-tag">Body font</span>
+        <select id="font-select" :value="look.font" :change="v => look.font = v">
+          <option value="theme">Theme font</option>
+          <option value="system">System</option>
+          <option value="mono">Monospace</option>
+        </select>
+      </label>
+
+      <button id="reset-look" type="button" class="look-cluster icon-button" :onclick="resetLook()" aria-label="Reset look" title="Reset look"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
+    </div>
 
     <main class="workspace">
       <section class="catalog" aria-labelledby="gallery-title">
@@ -44,10 +100,10 @@
           </div>
         </div>
         <div id="theme-grid" class="theme-grid">
-          <article class="theme-card" :each="theme in themes" :data-theme="theme.id" :class="{ selected: options.theme === theme.id }" :hidden="!matches(theme)">
-            <div class="thumbnail" inert aria-hidden="true" :mount="el => mountThumbnail(el, theme)"><div class="mini-stage"></div></div>
-            <button class="theme-choice" type="button" :aria-pressed="String(options.theme === theme.id)" :aria-label="'Preview ' + theme.name" :onclick="selectTheme(theme.id)"><span :text="theme.name"></span><span class="card-category" :text="theme.classic ? 'Classic' : 'Original'"></span></button>
-            <span class="selection-mark" :hidden="options.theme !== theme.id"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8 3 3 5-6"/></svg></span>
+          <article class="theme-card" :each="t in themes" :data-theme="t.id" :class="{ selected: theme === t.id }" :hidden="!matches(t)">
+            <div class="thumbnail" inert aria-hidden="true" :mount="el => mountThumbnail(el, t)"><div class="mini-stage"></div></div>
+            <button class="theme-choice" type="button" :aria-pressed="String(theme === t.id)" :aria-label="'Preview ' + t.name" :onclick="selectTheme(t.id)"><span :text="t.name"></span><span class="card-category" :text="t.classic ? 'Classic' : 'Original'"></span></button>
+            <span class="selection-mark" :hidden="theme !== t.id"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8 3 3 5-6"/></svg></span>
           </article>
         </div>
         <div id="empty-state" :hidden="count > 0" class="empty-state" hidden><p>No matching themes.</p><button class="ui-button" id="clear-filters" :onclick="clearFilters()">Clear filters</button></div>
@@ -73,22 +129,30 @@
             </g>
           </svg>
           <div class="scene-toolbar">
-            <label class="colormap-control"><span class="scheme-swatch" aria-hidden="true"></span><select id="colormap-select" :value="options.colormap" :change="v => options.colormap = v" aria-label="Colormap"><option :each="map, id in colormaps" :value="id" :text="map.name"></option></select></label>
             <button id="reset-preview" :onclick="resetPreview()" class="scene-reset" aria-label="Reset preview values" title="Reset preview values"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
           </div>
           <div id="live-panel" class="live-panel"></div>
           <span id="preview-feedback" :text="feedback" class="preview-feedback" role="status"></span>
         </div>
 
-        <div class="inspector-controls">
-          <fieldset class="axis-row" id="accent-row" :hidden="!supported(selected, 'accent')"><legend>Accent</legend><div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets"><button class="swatch" type="button" :each="swatch in accents" :aria-label="swatch[0]" :title="swatch[0]" :data-color="swatch[1]" :style="{ '--swatch': swatch[1] }" :aria-pressed="String(accent === swatch[1])" :onclick="options.accent = swatch[1]"></button></div><button type="button" class="auto-accent" :aria-pressed="String(options.accent === null)" :onclick="options.accent = null" title="Use colormap accent">Auto</button><label class="custom-accent" title="Custom accent"><input id="custom-accent" :value="accent" :change="v => options.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></label></fieldset>
-          <fieldset class="axis-row" id="density-row" :hidden="!supported(selected, 'spacing')"><legend>Density</legend><div class="segments" id="density-options" role="group" aria-label="Density"><button data-density="0.65" :aria-pressed="String(options.spacing === 0.65)" :onclick="options.spacing = 0.65">Compact</button><button data-density="1" :aria-pressed="String(options.spacing === 1)" :onclick="options.spacing = 1">Comfortable</button><button data-density="1.5" :aria-pressed="String(options.spacing === 1.5)" :onclick="options.spacing = 1.5">Roomy</button></div></fieldset>
-          <details class="more-axes" id="more-axes" :hidden="!supported(selected, 'roundness') &amp;&amp; !supported(selected, 'size')"><summary>More controls<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="extra-axes">
-            <label class="range-axis font-axis">Body font<select id="font-select" :value="options.font" :change="v => options.font = v"><option value="theme">Theme font</option><option value="system">System</option><option value="mono">Monospace</option></select></label>
-            <label class="range-axis" id="roundness-row" :hidden="!supported(selected, 'roundness')">Corners<input id="roundness" :value="options.roundness" :change="v => options.roundness = v" type="range" min="0" max="2" step="0.1" value="1.4"><output for="roundness" id="roundness-value" :text="options.roundness">1.4</output></label>
-            <label class="range-axis" id="size-row" :hidden="!supported(selected, 'size')">Scale<input id="size" :value="options.size" :change="v => options.size = v" type="range" min="0.8" max="1.2" step="0.05" value="1"><output for="size" id="size-value" :text="options.size + '×'">1×</output></label>
-          </div></details>
-        </div>
+        <section class="theme-extras" aria-label="Theme controls">
+          <div class="extras-heading"><h3>Theme controls</h3><button type="button" class="extras-reset" :hidden="!extrasChanged" :onclick="resetExtras()">Reset</button></div>
+          <p class="extras-empty" :hidden="themeExtras.length">This theme has no controls of its own.</p>
+          <div class="extras-grid" :hidden="!themeExtras.length">
+            <div class="extra-row" :each="ex in themeExtras" :data-extra="ex.key">
+              <label class="range-axis" :if="!ex.type"><span :text="ex.label"></span>
+                <input type="range" :min="ex.min" :max="ex.max" :step="ex.step" :value="extraValues[ex.key] ?? ex.default" :change="v => extraValues[ex.key] = v">
+                <output :text="(extraValues[ex.key] ?? ex.default) + (ex.unit || '')"></output>
+              </label>
+              <label class="range-axis extra-boolean" :if="ex.type === 'boolean'"><span :text="ex.label"></span>
+                <span class="extra-switch"><input type="checkbox" :value="extraValues[ex.key] ?? ex.default" :change="v => extraValues[ex.key] = v"><span class="extra-track"></span></span>
+              </label>
+              <label class="range-axis extra-select" :if="ex.type === 'select'"><span :text="ex.label"></span>
+                <select :value="extraValues[ex.key] ?? ex.default" :change="v => extraValues[ex.key] = v"><option :each="opt in ex.options" :value="opt" :text="opt"></option></select>
+              </label>
+            </div>
+          </div>
+        </section>
         <div class="export-row"><a id="control-link" href="./demo/controls.html">Explore all controls <span aria-hidden="true">↗</span></a><button id="use-theme" :onclick="showCode()" class="ui-button primary">Use theme <span aria-hidden="true">↗</span></button><button id="copy-link" :onclick="copyLink()" class="icon-button" aria-label="Copy preview link" title="Copy preview link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 2-2 2a4 4 0 0 0 6 6l2-2m-4-12 2-2a4 4 0 0 1 6 6l-2 2"/></svg></button></div>
         <p id="copy-status" :text="copyStatus" class="copy-status" role="status"></p>
       </aside>

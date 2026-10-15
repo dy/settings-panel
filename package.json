@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
+    "axe-core": "^4.10.3",
     "happy-dom": "^20.5.0",
     "tst": "^9.2.2"
   }

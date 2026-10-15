@@ -19,10 +19,10 @@
     body {
       min-height: 100vh;
       display: flex;
-      /* The page IS the material: same flat color as the panel, so the panel
-         reads as molded out of the surface rather than laid on top of it. */
-      background: #e7e8ea;
-      padding: 32px 16px;
+      /* The page IS the material: the panel's own surface and texture, so the panel reads as
+         molded out of the page rather than laid on top of it. */
+      background: #ca9d63;
+      padding: 48px 16px 64px;
       font-size: 14px;
     }
     #panel { width: min(100%, 380px); margin: auto; }
@@ -33,9 +33,18 @@
   <script type="module">
     import settings from '../../index.js'
     import neu from '../../theme/neu.js'
+    import { colormaps } from '../themes.js'
 
-    const shades = { Mist: '#e7e8ea', Chalk: '#f1f2f4', Graphite: '#292b2e', Amber: '#deb375' }
-    settings({
+    // The three finishes of the material study, as the gallery's colormaps define them.
+    const finishes = Object.fromEntries(['bronze', 'chalk', 'graphite'].map(id => [colormaps[id].name, colormaps[id]]))
+    // The page wears the panel's own surface, texture and all.
+    const mirror = s => {
+      const css = getComputedStyle(document.querySelector('.s-panel'))
+      const texture = css.getPropertyValue('--neu-texture').trim()
+      document.body.style.background = `${texture === 'none' ? '' : texture + ', '}${finishes[s.finish].shade}`
+      document.body.style.backgroundBlendMode = css.getPropertyValue('--neu-blend').trim()
+    }
+    const state = settings({
       name: { type: 'text', value: 'Bloop', label: 'Name' },
       species: { type: 'select', value: 'Slime', options: ['Slime', 'Sprite', 'Golem'], label: 'Species' },
       charm: { type: 'slider', value: 0.65, min: 0, max: 1, label: 'Charm' },
@@ -49,23 +58,24 @@
       'lore.age': { type: 'number', value: 3, min: 0, max: 99, label: 'Age' },
       save: { type: 'button', label: false, text: 'Summon' },
       material: { type: 'folder', label: 'Material', collapsed: true },
-      'material.finish': { type: 'select', value: 'Mist', options: Object.keys(shades), label: 'Finish' },
+      'material.finish': { type: 'select', value: 'Bronze', options: Object.keys(finishes), label: 'Finish' },
       'material.depth': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Depth' },
       'material.softness': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Diffusion' },
       'material.contrast': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Contrast' },
-      'material.light': { type: 'slider', value: 315, min: 0, max: 360, step: 15, label: 'Light', unit: '°' },
-      'material.grain': { type: 'slider', value: .3, min: 0, max: 1, step: .1, label: 'Grain' },
+      'material.light': { type: 'slider', value: 0, min: 0, max: 360, step: 15, label: 'Light', unit: '°' },
+      'material.grain': { type: 'slider', value: .3, min: 0, max: 1, step: .05, label: 'Grain' },
     }, {
       container: '#panel',
       title: 'Creature',
       collapsed: false,
       search: true,
-      theme: s => neu({ shade: shades[s.finish], depth: s.depth, softness: s.softness, contrast: s.contrast, light: s.light, grain: s.grain }),
-      onchange: s => {
-        document.body.style.backgroundColor = shades[s.finish]
-        document.body.style.backgroundImage = getComputedStyle(document.querySelector('.s-panel')).getPropertyValue('--neu-grain')
+      theme: s => {
+        const { shade, accent, ink, texture } = finishes[s.finish]
+        return neu({ shade, accent, ink, texture, depth: s.depth, softness: s.softness, contrast: s.contrast, light: s.light, grain: s.grain })
       },
+      onchange: mirror,
     })
+    mirror(state)
   </script>
 </body>
 </html>

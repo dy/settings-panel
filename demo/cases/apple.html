@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apple — calibration</title>
-  <!-- macOS System Settings style · ref: Apple Human Interface Guidelines -->
+  <!-- macOS 26 System Settings · ref: SwiftUI Form(.grouped) rendered by AppKit, Apple HIG -->
   <script type="importmap">
   {
     "imports": {
@@ -17,11 +17,12 @@
     * { box-sizing: border-box; margin: 0; }
     html { scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
+    /* The grouped sheet sits on the window background (NSColor.windowBackgroundColor) */
     body {
       min-height: 100vh;
       display: flex;
       padding: 2.5rem 1rem;
-      background: radial-gradient(120% 90% at 50% -10%, #ffffff 0%, #f2f2f7 55%, #e2e2e8 100%);
+      background: light-dark(#ffffff, #1e1e1e);
       font-size: 14px;
     }
     #panel { width: min(100%, 340px); margin: auto; }
@@ -30,10 +31,14 @@
 <body>
   <div id="panel"></div>
   <script type="module">
+    import { effect } from 'sprae'
     import settings from '../../index.js'
     import apple from '../../theme/apple.js'
 
-    settings({
+    // Auto follows the system appearance, as in macOS
+    const dark = a => a === 'Dark' || a === 'Auto' && matchMedia('(prefers-color-scheme: dark)').matches
+
+    const s = settings({
       appearance: { type: 'select', variant: 'segmented', value: 'Auto', options: ['Light', 'Dark', 'Auto'], label: 'Appearance' },
       accentColor: { type: 'color', value: '#007aff', label: 'Accent color' },
       wallpaper: { type: 'select', value: 'Sonoma', options: ['Sonoma', 'Sequoia', 'Ventura', 'Solid'], label: 'Wallpaper' },
@@ -52,8 +57,9 @@
     }, {
       container: '#panel',
       title: 'Displays',
-      theme: s => apple({ shade: s.appearance === 'Dark' ? '#1e1e20' : '#ffffff', accent: s.accentColor }),
+      theme: s => apple({ shade: dark(s.appearance) ? '#1e1e1e' : '#ffffff', accent: s.accentColor }),
     })
+    effect(() => { document.documentElement.style.colorScheme = dark(s.appearance) ? 'dark' : 'light' })
   </script>
 </body>
 </html>

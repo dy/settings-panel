@@ -24,7 +24,8 @@
       background: radial-gradient(120% 90% at 50% -10%, #313134 0%, #1d1d1f 55%, #101012 100%);
       font-size: 14px;
     }
-    #panel { margin: auto; }
+    /* centered like the native ref (.oui: left/top 50%, translate -50%) so both paint on the same device pixels */
+    #panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
   </style>
 </head>
 <body>

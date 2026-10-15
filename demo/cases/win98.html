@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows 98 — calibration</title>
+  <!-- Replica of Windows 98 Control Panel › Keyboard Properties, Speed tab
+       · ref: test/calibration/win98-*.png, captured in parts from Windows 98 in v86 (https://copy.sh/v86/?profile=windows98) by capture.mjs -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    /* the Windows 98 desktop; the dialog stays on whole pixels (top-aligned, even width) */
+    body { min-height: 100vh; padding: 48px 16px; background: #008080; }
+    #panel { margin: 0 auto; width: min(404px, 100%); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import retro from '../../theme/retro.js'
+
+    // a tick on every position, captions on the two ends
+    const ends = (max, lo, hi) => Object.fromEntries(Array.from({ length: max + 1 }, (_, i) => [i, i === 0 ? lo : i === max ? hi : '']))
+
+    settings({
+      repeat: { type: 'folder', variant: 'section', label: 'Character repeat' },
+      'repeat.delay': { type: 'slider', label: 'Repeat delay:', value: 3, min: 0, max: 3, step: 1, marks: ends(3, 'Long', 'Short'), readout: false },
+      'repeat.rate': { type: 'slider', label: 'Repeat rate:', value: 15, min: 0, max: 31, step: 1, marks: ends(31, 'Slow', 'Fast'), readout: false },
+      // #typed: the field after typing into it (test/calibration/win98-typed.png)
+      'repeat.test': { type: 'text', label: 'Click here and hold down a key to test repeat rate:', value: location.hash === '#typed' ? 'hello world' : '' },
+      blink: { type: 'folder', variant: 'section', label: 'Cursor blink rate' },
+      'blink.speed': { type: 'slider', label: false, value: 7, min: 0, max: 10, step: 1, marks: ends(10, 'Slow', 'Fast'), readout: false },
+      actions: { type: 'button', label: false, buttons: { OK: () => {}, Cancel: { variant: 'secondary', onclick: () => {} }, Apply: { variant: 'secondary', disabled: true, onclick: () => {} } } },
+    }, {
+      container: '#panel',
+      title: 'Keyboard Properties',
+      collapsed: false,
+      theme: () => retro(),
+    })
+  </script>
+</body>
+</html>

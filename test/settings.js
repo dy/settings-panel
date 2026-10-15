@@ -143,6 +143,22 @@ test('persist: restores falsy values (false, 0)', async () => {
 // SEPARATOR (structural)
 // ─────────────────────────────────────────────────────────────────────────────
 
+test('style: a folder carries its own, like a control (a group hue for the synth theme)', () => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const state = settings({
+    osc: { type: 'folder', label: 'Oscillator', style: '--accent: #23b2fe' },
+    'osc.amp': { type: 'slider', value: .5, style: '--accent: #e4525a' },
+    plain: { type: 'folder', label: 'Plain' },
+  }, { container })
+  const [osc, plain] = container.querySelectorAll('.s-folder')
+  is(osc.getAttribute('style'), '--accent: #23b2fe')
+  is(osc.querySelector('.s-slider').getAttribute('style'), '--accent: #e4525a')
+  is(plain.getAttribute('style'), null)
+  state[Symbol.dispose]()
+  container.remove()
+})
+
 test('separator: structural — renders but creates no state key', () => {
   const container = document.createElement('div')
   document.body.appendChild(container)

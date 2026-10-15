@@ -103,6 +103,26 @@ export default `@layer s-base {
   }
   .s-label-row { display: flex; align-items: center; gap: calc(var(--u) * 1.5); position: relative; }
   .s-hint { font-size: smaller; opacity: .6; }
+
+  /* ── Label tooltip (title option): structure only, so a theme that paints it keeps its look;
+     the text stays out of the flow and hidden until the ? is hovered or focused ── */
+  .s-title { cursor: help; }
+  .s-title-text {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 10;
+    width: max-content;
+    max-width: 30ch;
+    padding: var(--u) calc(var(--u) * 2);
+    white-space: normal;
+    background: var(--bg);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .s-title:is(:hover, :focus-visible) + .s-title-text { visibility: visible; }
+  .s-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
   .s-input {
     flex: 1;
     min-width: 0;
@@ -116,6 +136,8 @@ export default `@layer s-base {
   }
 
   /* ── Input flex safety ── */
+  /* themes fit placeholder ink to contrast at full strength; Firefox would otherwise dim it to .54 */
+  ::placeholder { opacity: 1; }
   input[type="text"], input[type="number"], textarea, select {
     width: 0;
     min-width: 0;
@@ -154,6 +176,12 @@ export default `@layer s-base {
     input[type="text"] { flex: 1; min-width: 0; }
   }
 
+  /* ── Swatches: each keeps its own size; a long palette wraps rather than shrinks ── */
+  .s-color.s-swatches {
+    .s-input { flex-wrap: wrap; }
+    button { flex: none; }
+  }
+
   /* ── rgba color layout (swatch + alpha + text) ── */
   .s-color.s-rgba .s-input { min-width: 0; }
   .s-color.s-rgba .s-color-input {
@@ -188,6 +216,13 @@ export default `@layer s-base {
     position: relative;
     display: flex;
     align-items: center;
+  }
+  .s-slider .s-tooltip {
+    position: absolute;
+    bottom: 100%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    pointer-events: none;
   }
   .s-slider.s-multiple .s-interval-track {
     flex: 1;
@@ -267,9 +302,14 @@ export default `@layer s-base {
   /* ── Vector (multiple axis inputs) ── */
   .s-vector {
     .s-input { gap: calc(var(--u) * 1.5); flex-wrap: wrap; }
-    .s-vec-axis { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--u); }
+    /* an axis keeps room for its value; when the axes no longer fit, the row wraps */
+    .s-vec-axis { flex: 1; display: flex; align-items: center; gap: var(--u); }
     .s-vec-label { flex: none; font-size: smaller; opacity: .55; }
-    input[type="number"] { flex: 1; width: 0; min-width: 0; text-align: right; }
+    input[type="number"] {
+      flex: 1; width: 0; min-width: 0; text-align: right; appearance: textfield;
+      &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+      @supports (field-sizing: content) { field-sizing: content; width: auto; min-width: auto; }
+    }
     /* expandable 2D pad (pad option) — dot-in-corners glyph toggle, pad on its own row */
     .s-vec-expand {
       flex: none; width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
@@ -333,6 +373,22 @@ export default `@layer s-base {
     i { position: absolute; left: 50%; top: 9%; width: 2px; height: 30%; border-radius: 1px; background: var(--accent); transform: translateX(-50%); }
   }
   .s-knob-val { font-size: smaller; opacity: .8; font-variant-numeric: tabular-nums; }
+
+  /* ── Forced colours (Windows contrast themes): backgrounds, shadows and masks are replaced by system
+     colours, so state drawn with them vanishes. The native inputs carry state instead, selection takes
+     Highlight, and colour content keeps its colours. Important in this first layer outranks every theme. ── */
+  @media (forced-colors: active) {
+    input:is([type="checkbox"], [type="radio"]) {
+      appearance: auto !important; display: inline-block !important; position: static !important; opacity: 1 !important;
+      width: auto !important; height: auto !important; margin: 0 !important; flex: none !important;
+    }
+    input[type="range"] { appearance: auto !important; opacity: 1 !important; }
+    :is(.s-boolean, .s-checkboxes) .s-track, :is(.s-radio, .s-checkboxes) .s-input label::before { display: none !important; }
+    :is(.s-segmented button, .s-swatches button).s-selected, button[aria-pressed="true"] {
+      forced-color-adjust: none; background: Highlight !important; color: HighlightText !important;
+    }
+    .s-swatches button:not(.s-selected), input[type="color"], .s-pad-dot, .s-knob-dial i { forced-color-adjust: none; }
+  }
 }
 }
 @media (prefers-reduced-motion: reduce) {

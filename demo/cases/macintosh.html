@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Macintosh – settings-panel</title>
+  <!-- Replica of System 7.0's Easy Access control panel on a 1-bit Mac Plus, captured in Infinite Mac
+       (https://infinitemac.org/1991/System%207.0?machine=Mac%20Plus) · ref: test/calibration/macintosh-*.png -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    /* the desktop: System 7's 50% grey pattern, one pixel per pixel */
+    body {
+      min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 48px 16px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h1v1H0zM1 1h1v1H1z'/%3E%3C/svg%3E") 0 0 / 2px 2px, #fff;
+      image-rendering: pixelated;
+    }
+    #panel { width: 276px; max-width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import bitmap from '../../theme/bitmap.js'
+
+    const steps = n => Array.from({ length: n }, (_, i) => ({ value: i + 1, label: '' }))
+    const onOff = ['On', 'Off']
+
+    settings({
+      feedback: { type: 'boolean', variant: 'checkbox', value: true, label: 'Use On/Off audio feedback' },
+      rule1: { type: 'separator' },
+
+      mouse: { type: 'folder', variant: 'section', label: 'Mouse Keys:' },
+      'mouse.mouseKeys': { type: 'select', variant: 'radio', options: onOff, value: 'Off', label: false },
+      'mouse.initialDelay': { type: 'select', variant: 'radio', options: steps(5), value: 3, label: 'Initial Delay :' },
+      'mouse.maximumSpeed': { type: 'select', variant: 'radio', options: steps(8), value: 3, label: 'Maximum Speed :' },
+      rule2: { type: 'separator' },
+
+      slow: { type: 'folder', variant: 'section', label: 'Slow Keys:' },
+      'slow.slowKeys': { type: 'select', variant: 'radio', options: onOff, value: 'Off', label: false },
+      'slow.acceptanceDelay': { type: 'select', variant: 'radio', options: steps(5), value: 3, label: 'Acceptance Delay :' },
+      'slow.keyClick': { type: 'boolean', variant: 'checkbox', value: true, label: 'Use key click sound' },
+      rule3: { type: 'separator' },
+
+      sticky: { type: 'folder', variant: 'section', label: 'Sticky Keys:' },
+      'sticky.stickyKeys': { type: 'select', variant: 'radio', options: onOff, value: 'Off', label: false },
+      'sticky.beep': { type: 'boolean', variant: 'checkbox', value: true, label: 'Beep when modifier key is set' },
+    }, {
+      container: '#panel',
+      title: 'Easy Access',
+      collapsed: false,
+      theme: () => bitmap(),
+    })
+  </script>
+</body>
+</html>

@@ -128,3 +128,55 @@ test('parseColor: complete numeric literals and repeated fallback calls preserve
     ok(!/NaN|Infinity/.test(JSON.stringify(roles)))
   }
 })
+
+// Reference ratios from the WebAIM contrast checker (WCAG 2.x formula):
+// https://webaim.org/resources/contrastchecker/ – #767676 on #ffffff is the
+// lightest grey passing AA (4.54:1); #777777 fails it (4.48:1).
+test('contrast: WCAG ratios match the reference checker', async () => {
+  const { contrast, luminance } = await import('../theme/color.js')
+  is(contrast('#000000', '#ffffff'), 21)
+  is(contrast('#ffffff', '#ffffff'), 1)
+  ok(Math.abs(contrast('#767676', '#ffffff') - 4.54) < .01, '#767676 on white is 4.54:1')
+  ok(Math.abs(contrast('#777777', '#ffffff') - 4.48) < .01, '#777777 on white is 4.48:1')
+  is(contrast('#ffffff', '#000000'), contrast('#000000', '#ffffff'), 'symmetric')
+  is(luminance('#ffffff'), 1)
+  is(luminance('red'), null)
+  is(contrast('red', '#fff'), null)
+})
+
+test('ink: passing tones return unchanged; failing tones move just past the ratio, keeping hue', async () => {
+  const { ink, contrast, parseColor } = await import('../theme/color.js')
+  const maps = ['#111111', '#1e1e1e', '#384957', '#b87959', '#ba965a', '#ca9d63', '#b4b4b4', '#c0cbb9', '#c6cac9', '#f4ecdc', '#f1f2f4', '#ffffff']
+  for (const bg of maps) {
+    for (const ratio of [3, 4.5, 7]) {
+      const muted = ink(bg, ratio), best = Math.max(contrast('#000000', bg), contrast('#ffffff', bg))
+      if (best < ratio) { is(contrast(muted, bg), best, `${bg}: unreachable ${ratio} returns the best extreme`); continue }
+      ok(contrast(muted, bg) >= ratio, `${bg}: muted ink reaches ${ratio}`)
+      ok(contrast(muted, bg) < ratio + .35, `${bg}: muted ink stays near ${ratio} (${contrast(muted, bg).toFixed(2)})`)
+    }
+    // A tone on the wrong side of the background still resolves outward.
+    const wrong = parseColor(bg).L < .5 ? '#000000' : '#ffffff'
+    ok(contrast(ink(bg, 4.5, wrong), bg) >= 4.5, `${bg}: wrong-side tone resolves`)
+  }
+  is(ink('#ffffff', 4.5, '#000000'), '#000000', 'already-passing tone is kept')
+  const tinted = ink('#384957', 4.5, 'oklch(.5 .1 30)')
+  ok(contrast(tinted, '#384957') >= 4.5, 'tinted tone reaches AA on slate')
+  ok(Math.abs(parseColor(tinted).H - 30) < 6, 'hue is preserved while lightness moves')
+  is(ink('#808080', 21), '#000000', 'unreachable ratios return the best extreme')
+  is(ink('var(--bg)', 4.5, '#333'), '#333', 'unparseable backgrounds pass the tone through')
+})
+
+test('ink: tone forms, trivial ratios, and output format', async () => {
+  const { ink, contrast, parseColor } = await import('../theme/color.js')
+  is(ink('#ffffff', 4.5, 'red'), 'red', 'unparseable tone passes through unchanged')
+  const tone = { L: .5, C: .08, H: 250 }
+  const fromObject = ink('#ffffff', 4.5, tone), fromString = ink('#ffffff', 4.5, 'oklch(.5 .08 250)')
+  is(fromObject, fromString, 'an {L, C, H} tone and its oklch() string resolve identically')
+  ok(contrast(fromObject, '#ffffff') >= 4.5, 'object tone reaches the ratio')
+  is(ink('#292b2e', 1, '#2a2c2f'), '#2a2c2f', 'ratio 1 accepts any tone, even one matching bg')
+  for (const bg of ['#111111', '#b87959', '#ffffff']) for (const t of [undefined, '#777777', tone]) {
+    const out = ink(bg, 3, t)
+    ok(/^#[0-9a-f]{6}$/.test(out), `${bg}: parseable input yields #rrggbb (${out})`)
+    ok(parseColor(out, null), 'output parses back')
+  }
+})

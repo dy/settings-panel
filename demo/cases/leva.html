@@ -35,7 +35,7 @@
     import { nativeToggle } from './native-toggle.js'
 
     settings({
-      number: { type: 'slider', value: 10, min: 0, max: 100, step: 0.25, label: 'number' },
+      number: { type: 'slider', value: 10, min: 0, max: 100, step: 0.25, format: v => v.toFixed(2), label: 'number' },
       select: { type: 'select', value: 'y', options: ['x', 'y', 'z', 'w', 'v'], label: 'select' },
       interval: { type: 'slider', multiple: true, value: [10, 15], min: -100, max: 100, step: 1, label: 'interval' },
       boolean: { type: 'boolean', variant: 'checkbox', value: true, label: 'boolean' },
@@ -50,7 +50,7 @@
       'folder2.color2': { type: 'color', value: '#ffffff', label: 'color2' },
       colorObj: { type: 'color', value: '#010203', label: 'colorObj' },
       folder3: { type: 'folder', label: 'folder3', collapsed: true },
-      'folder3.scale': { type: 'slider', value: 1, min: 0.1, max: 4, step: 0.1, label: 'scale' },
+      'folder3.scale': { type: 'slider', value: 1, min: 0.1, max: 4, step: 0.1, format: v => v.toFixed(1), label: 'scale' },
       'folder3.tag': { type: 'text', value: 'v2', label: 'tag' },
     }, {
       container: '#panel',

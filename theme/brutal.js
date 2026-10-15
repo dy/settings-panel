@@ -17,7 +17,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles } from './color.js'
+import { resolveRoles, parseColor, toHex, ink as legible } from './color.js'
 
 export default function brutal({
   shade = '#f2eddf',
@@ -34,6 +34,9 @@ export default function brutal({
   const ink = dark ? '#ffffff' : '#000000'
   const inkRGB = dark ? '255,255,255' : '0,0,0'
   const paper = dark ? 'oklch(from var(--bg) calc(l + 0.07) c h)' : '#fffdf8'
+  // Placeholders: the ink at 45% on paper (3.4:1) moved to 4.5:1 there, in the paper's own hue
+  const tone = parseColor(bg)
+  const placeholder = legible(dark ? toHex({ ...tone, L: Math.min(tone.L + .07, 1) }) : '#fffdf8', 4.5)
 
   // Hard offset shadow — solid ink, zero blur. `d` in px.
   const plate = d => `${+d.toFixed(1)}px ${+d.toFixed(1)}px 0 var(--ink)`
@@ -52,6 +55,7 @@ export default function brutal({
   --ink: ${ink};
   --ink-rgb: ${inkRGB};
   --paper: ${paper};
+  --placeholder: ${placeholder};
   --accent: ${acc};
   --accent-soft: color-mix(in oklab, var(--accent), var(--paper) 65%);
   --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' stroke='${encodeURIComponent(ink)}' stroke-width='2.5' stroke-linecap='square'%3E%3Cpath d='M3 3 L13 13 M13 3 L3 13'/%3E%3C/svg%3E");
@@ -150,7 +154,7 @@ export default function brutal({
     border: var(--bw) solid var(--ink); background: var(--paper); color: var(--ink);
     padding: 0 calc(var(--u) * 2); height: calc(var(--u) * 9); width: calc(var(--u) * 32); margin-left: calc(var(--u) * 2);
     font-weight: 600;
-    &::placeholder { color: color-mix(in oklab, var(--ink), transparent 55%); }
+    &::placeholder { color: var(--placeholder); }
     &:focus-visible { outline: none; box-shadow: var(--plate-sm); }
     &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration { display: none; }
     &::-webkit-search-cancel-button {
@@ -173,7 +177,7 @@ export default function brutal({
     display: inline-flex; align-items: center; justify-content: center;
     width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5);
     border: 2px solid var(--ink); font-size: 10px; font-weight: 700; line-height: 1; cursor: help;
-    &:hover + .s-title-text { opacity: 1; visibility: visible; }
+    &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; }
   }
   .s-title-text {
     position: absolute; left: 0; top: 100%; margin-top: var(--u);
@@ -192,7 +196,7 @@ export default function brutal({
     font: inherit;
     font-weight: 600;
     transition: box-shadow .08s, background-color .08s;
-    &::placeholder { color: color-mix(in oklab, var(--ink), transparent 55%); font-weight: 500; }
+    &::placeholder { color: var(--placeholder); font-weight: 500; }
     &:focus-visible { outline: none; box-shadow: var(--plate-sm); }
   }
   input[type="text"], input[type="number"], select { height: var(--h); padding: 0 calc(var(--u) * 3); }
@@ -297,11 +301,9 @@ export default function brutal({
       background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--paper) var(--p, 0%));
       border: var(--bw) solid var(--ink); cursor: ew-resize;
       box-shadow: var(--groove);
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--paper); border: var(--bw) solid var(--ink); box-shadow: inset var(--press) var(--press) 0 rgba(var(--ink-rgb), .14); cursor: ew-resize; }
-      &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--paper); border: var(--bw) solid var(--ink); border-radius: 0; cursor: ew-resize; }
-      &:hover::-webkit-slider-thumb { background: var(--accent-soft); }
-      &:active::-webkit-slider-thumb { background: var(--ink); }
-      &:active::-moz-range-thumb { background: var(--ink); }
+      /* The handle is a solid ink block, the switch knob's vocabulary: never read as more track. */
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; cursor: ew-resize; }
+      &::-moz-range-thumb { width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; border-radius: 0; cursor: ew-resize; }
       &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); }
     }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }

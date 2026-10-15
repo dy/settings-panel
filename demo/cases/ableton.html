@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Synth — settings-panel</title>
+  <!-- Replica of Ableton Learning Synths, the Playground · ref: https://learningsynths.ableton.com/en/playground
+       Six columns of cards, as the page lays them out from 1192px: one panel per column, one folder per card.
+       The original draws a live graph above each synth card's sliders; the panel has no graph control. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400&display=swap" rel="stylesheet">
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 64px 16px; background: #f3f3f6; }
+    body.dark { background: #0c0c0d; }
+    /* the page's own grid: 192px cards, 8px apart, up to six columns */
+    .synth { display: grid; grid-template-columns: repeat(auto-fill, 192px); gap: 8px; justify-content: center; align-items: start; max-width: 1192px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="synth"></div>
+
+  <script type="module">
+    import settings from '../../index.js'
+    import synth from '../../theme/synth.js'
+
+    // The page's function colours (styles.min.css): --color-oscillator, --color-amplitude,
+    // --color-filter, --color-modulation; utility cards use the ink (--color-foreground).
+    const blue = '#23b2fe', green = '#00d692', yellow = '#febc2d', red = '#e4525a', ink = 'var(--ink)'
+    const mod = '--accent: ' + red  // a modulation row inside another function's card
+
+    const pct = v => v.toFixed(1) + '%'
+    const ms = v => v.toFixed(2) + ' ms'
+    const unit = u => v => v.toFixed(2) + ' ' + u
+    const card = label => ({ type: 'folder', variant: 'section', label })
+    const percent = (value, style) => ({ type: 'slider', value, min: 0, max: 100, step: .1, format: pct, style })
+    const amount = (value, style, format = pct, range = 100) => ({ type: 'slider', value, min: -range, max: range, step: .1, format, style })
+    // Times follow the original's thumb positions: attack/decay ∝ position³ up to 5 s, release ∝ position⁵.
+    const time = (value, max = 5000, curve = 3) => ({ type: 'slider', value, min: 0, max, step: .01, curve, format: ms })
+    const sustain = value => ({ type: 'slider', value, min: 0, max: 100, step: .1, curve: .8, format: pct })
+
+    const wave = d => `--icon: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 19'><path d='${d}' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/></svg>`)}")`
+    const shapes = [
+      { value: 'sine', title: 'Sine', d: 'M2 11C4 4 5.5 2 7.5 2s3.5 3 5.5 9 3.5 8 6 8 4-3 5-8' },
+      { value: 'saw', title: 'Saw', d: 'M2 10 13 2v17l11-8' },
+      { value: 'square', title: 'Square', d: 'M2 3h11v15h11' },
+      { value: 'random', title: 'Random', d: 'M1 18h4v-6h4V3h4v15h4v-7h4V5h4' },
+    ].map(({ d, ...o }) => ({ ...o, label: '', style: wave(d) }))
+
+    const columns = [
+      [ink, {
+        perform: card('Perform'),
+        'perform.xy': { type: 'xy', value: [.5, .5], label: false },
+        record: card('Record'),
+        export: card('Export'),
+        sequence: card('Sequence'),
+        'sequence.pattern': { type: 'select', label: false, value: 'none', options: [{ value: 'none', label: 'No downbeat (with drums)' }, { value: 'downbeat', label: 'Downbeat' }] },
+        presets: card('Presets'),
+        'presets.preset': { type: 'select', label: false, value: 'default', options: [{ value: 'default', label: 'Default' }, { value: 'wowbass', label: '“Wow” bass' }, { value: 'pluck', label: 'Plucked bass' }] },
+        keyboard: card('Keyboard'),
+        'keyboard.help': { type: 'info', label: false, value: 'You can play this synth by pressing the letter and number keys on your computer keyboard.' },
+      }],
+      [blue, {
+        square: card('Square Oscillator'),
+        'square.squareAmp': { ...percent(100), label: 'Amplitude' },
+        'square.width': { ...amount(0, null, pct, 50), label: 'Width' },
+        'square.squareLfo': { ...amount(0, mod), label: 'LFO Amount' },
+        'square.squareEnv': { ...amount(0, mod), label: 'Envelope Amount' },
+        pitch: card('Pitch'),
+        'pitch.pitchOffset': { ...amount(0, null, unit('st'), 24), label: 'Pitch Offset' },
+        'pitch.pitchLfo': { ...amount(0, mod, unit('st'), 24), label: 'LFO Amount' },
+        'pitch.pitchEnv': { ...amount(0, mod, unit('st'), 24), label: 'Envelope Amount' },
+        'pitch.glide': { ...time(0, 1000, 1), label: 'Glide' },
+      }],
+      [blue, {
+        saw: card('Saw Oscillator'),
+        'saw.sawAmp': { ...percent(0), label: 'Amplitude' },
+        'saw.fine': { ...amount(0, null, unit('ct'), 50), label: 'Detune Fine' },
+        'saw.coarse': { ...amount(0, null, unit('st'), 24), label: 'Detune Coarse' },
+        noise: card('Noise'),
+        'noise.noiseAmp': { ...percent(0), label: 'Amplitude' },
+      }],
+      [green, {
+        ampenv: card('Amplitude Envelope'),
+        'ampenv.attack': { ...time(30), label: 'Attack' },
+        'ampenv.decay': { ...time(200), label: 'Decay' },
+        'ampenv.sustain': { ...sustain(50), label: 'Sustain' },
+        'ampenv.release': { ...time(300, 90000, 5), label: 'Release' },
+        amp: card('Amplitude'),
+        'amp.ampLevel': { ...percent(100), label: 'Amplitude' },
+        'amp.ampLfo': { ...amount(0, mod), label: 'LFO Amount' },
+      }],
+      [yellow, {
+        filter: card('Low-Pass Filter'),
+        'filter.frequency': { type: 'slider', value: 3000, min: 20, max: 20000, scale: 'log', format: v => (v / 1000).toFixed(2) + ' kHz', label: 'Frequency' },
+        'filter.filterLfo': { ...amount(0, mod), label: 'LFO Amount' },
+        'filter.filterEnv': { ...amount(0, mod), label: 'Envelope Amount' },
+        'filter.resonance': { ...percent(20), label: 'Resonance' },
+      }],
+      [red, {
+        lfo: card('LFO'),
+        'lfo.shape': { type: 'select', variant: 'segmented', value: 'sine', options: shapes, label: 'Shape' },
+        'lfo.rate': { type: 'slider', value: 1, min: .1, max: 25, scale: 'log', format: unit('Hz'), label: 'Frequency' },
+        'lfo.lfoEnv': { ...amount(0, mod), label: 'Envelope Amount' },
+        env: card('Envelope'),
+        'env.attack': { ...time(100), label: 'Attack' },
+        'env.decay': { ...time(500), label: 'Decay' },
+        'env.sustain': { ...sustain(50), label: 'Sustain' },
+        'env.release': { ...time(150, 90000, 5), label: 'Release' },
+      }],
+    ]
+
+    const dark = location.hash === '#dark'
+    document.body.classList.toggle('dark', dark)
+    const host = document.querySelector('.synth')
+    for (const [accent, schema] of columns) {
+      const column = host.appendChild(document.createElement('div'))
+      settings(schema, { container: column, theme: () => synth({ accent, hues: [], ...(dark && { shade: '#1b1b1d' }) }) })
+    }
+  </script>
+</body>
+</html>

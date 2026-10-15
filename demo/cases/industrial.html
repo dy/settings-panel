@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Industrial – settings-panel</title>
+  <!-- Replica of "DMX-FIELD", a lighting-desk mockup in the Teenage Engineering OP-1 field idiom: an image the
+       owner supplied (author unknown; no live original found) · ref: test/calibration/industrial-*.png.
+       One panel is the chassis, its two folders the modules: the control column and the mixer bank.
+       The panel has no element for the speaker grille or the waveform on the screen. -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; padding: 20px 16px; background: #f2f3f5; }
+    body.dark { background: #161617; }
+    #device { width: min(928px, 100%); margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="device"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import industrial from '../../theme/industrial.js'
+
+    const press = () => {}
+    const fader = (label, value) => ({ type: 'slider', label, value, min: 0, max: 1, step: .01 })
+    const led = value => ({ type: 'boolean', label: false, value, style: '--accent: #49f629' })
+
+    settings({
+      control: { type: 'folder', variant: 'section', label: 'Control' },
+      'control.util': { type: 'button', label: false, buttons: { '●': press, '−': press } },
+      'control.head': { type: 'info', label: 'DMX-FIELD', value: 'UNI:1 ACTIVE' },
+      'control.foot': { type: 'info', label: 'WAVE: SINE', value: 'SYNC: INT' },
+      'control.page': { type: 'select', variant: 'segmented', label: false, options: ['PAGE 1', 'PAGE 2'], value: 'PAGE 1' },
+      'control.keys': { type: 'button', label: false, buttons: {
+        M1: press, M2: press, rec: press, play: { variant: 'primary', onclick: press }, '▶': press, '⏹': press, loop: press, shift: press,
+      } },
+
+      mixer: { type: 'folder', variant: 'section', label: 'Mixer' },
+      // the OP-1 field's encoder caps: navy, tan, grey; the fourth is the accent
+      'mixer.pan': { type: 'knob', label: 'Pan', value: .5, style: '--accent: #273a4b' },
+      'mixer.tilt': { type: 'knob', label: 'Tilt', value: .5, style: '--accent: #b0915c' },
+      'mixer.dimmer': { type: 'knob', label: 'Dimmer', value: .8, style: '--accent: #848484' },
+      'mixer.rate': { type: 'knob', label: 'FX Rate', value: .3 },
+      'mixer.master': { type: 'knob', label: 'Master', value: .75, style: '--accent: #ececec' },
+      'mixer.seam': { type: 'separator' },
+      'mixer.ch1': fader('01', .7), 'mixer.ch2': fader('02', .55), 'mixer.ch3': fader('03', .9), 'mixer.ch4': fader('04', .2),
+      'mixer.ch5': fader('05', .3), 'mixer.ch6': fader('06', .1), 'mixer.ch7': fader('07', .65), 'mixer.main': { ...fader('', 1), label: false },
+      'mixer.on1': led(false), 'mixer.on2': led(false), 'mixer.on3': led(false), 'mixer.on4': led(false),
+      'mixer.on5': led(false), 'mixer.on6': led(false), 'mixer.on7': led(false), 'mixer.onMain': led(true),
+    }, {
+      container: '#device',
+      theme: () => industrial(location.hash === '#dark' ? { shade: '#2a2a2c' } : {}),
+    })
+    document.body.classList.toggle('dark', location.hash === '#dark')
+  </script>
+</body>
+</html>

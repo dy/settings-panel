@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio — settings-panel</title>
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-content: center; padding: 64px 16px;
+      font: 13px -apple-system, system-ui, sans-serif; gap: 16px; background: #1a1a1a; transition: background .3s;
+    }
+    body.light {
+      /* soft photographic backdrop – CSS gradients only, echoing image 1's blurred diagonal cloth */
+      background:
+        radial-gradient(120% 90% at 85% 90%, rgba(255, 176, 59, .55), transparent 60%),
+        radial-gradient(90% 70% at 8% 6%, rgba(60, 90, 70, .5), transparent 55%),
+        repeating-linear-gradient(115deg, rgba(255,255,255,.9) 0 4%, rgba(210, 225, 205, .55) 4% 9%, rgba(120, 140, 110, .35) 9% 14%, rgba(255,255,255,.85) 14% 22%),
+        linear-gradient(160deg, #eef1ea, #fafafa 45%, #f3ede3);
+      filter: blur(0px);
+    }
+    .backdrop-blur { position: fixed; inset: 0; z-index: 0; backdrop-filter: blur(38px) saturate(1.15); -webkit-backdrop-filter: blur(38px) saturate(1.15); }
+    .bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+      padding: 10px 16px; font: 12px system-ui; color: #ddd; background: rgba(0,0,0,.35); backdrop-filter: blur(6px);
+    }
+    .bar select { font: inherit; padding: 3px 8px; }
+    #panel { position: relative; z-index: 1; width: min(380px, calc(100vw - 32px)); }
+  </style>
+</head>
+<body>
+  <div class="backdrop-blur"></div>
+  <div class="bar">
+    <label>Appearance <select id="appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  </div>
+  <div id="panel"></div>
+
+  <script type="module">
+    import settings from '../../index.js'
+    import studio from '../../theme/studio.js'
+
+    const appearance = document.querySelector('#appearance')
+    appearance.value = location.hash === '#dark' ? 'dark' : 'light'
+
+    // Light – image 1: Text / Layout / Path, static uppercase group titles
+    const lightSchema = () => ({
+      text: { type: 'separator', label: 'Text' },
+      content: { type: 'text', value: 'Curve Text', label: 'Content' },
+      size: { type: 'slider', value: 48, min: 8, max: 120, step: 1, label: 'Size' },
+      textColor: { type: 'color', value: '#7ac37f', label: 'Color' },
+
+      layout: { type: 'separator', label: 'Layout' },
+      offset: { type: 'slider', value: 0, min: 0, max: 100, step: 1, label: 'Offset' },
+      letterSpacing: { type: 'slider', value: 14, min: -10, max: 40, step: 1, label: 'Letter Spacing' },
+      flip: { type: 'boolean', variant: 'switch', value: false, label: 'Flip' },
+
+      path: { type: 'separator', label: 'Path' },
+      shape: { type: 'select', variant: 'dropdown', options: ['Circle', 'Square', 'Triangle'], value: 'Circle', label: 'Shape' },
+      width: { type: 'slider', value: 3, min: 1, max: 10, step: 1, marks: true, label: 'Width' },
+      pathColor: { type: 'color', value: '#f2c14e', label: 'Color' },
+      radius: { type: 'slider', value: 324, min: 0, max: 400, step: 1, label: 'Radius' },
+    })
+
+    // Dark – image 2: top-level timing sliders, Enter / Exit / Dividers folders
+    const darkSchema = () => ({
+      labelAnimMs: { type: 'slider', value: 400, min: 0, max: 1000, step: 1, label: 'Label Animation Ms' },
+      labelDelayMs: { type: 'slider', value: 160, min: 0, max: 500, step: 1, label: 'Label Enter Delay Ms' },
+
+      enter: { type: 'folder', label: 'Enter', collapsed: false },
+      'enter.enterTranslatePx': { type: 'slider', value: 4.0, min: 0, max: 20, step: 0.1, label: 'Translate Px' },
+      'enter.enterScale': { type: 'slider', value: 0.96, min: 0, max: 1, step: 0.01, label: 'Scale' },
+      'enter.enterBlurPx': { type: 'slider', value: 0.5, min: 0, max: 10, step: 0.1, label: 'Blur Px' },
+
+      exit: { type: 'folder', label: 'Exit', collapsed: false },
+      'exit.exitTranslatePx': { type: 'slider', value: 8.0, min: 0, max: 20, step: 0.1, label: 'Translate Px' },
+      'exit.exitScale': { type: 'slider', value: 0.64, min: 0, max: 1, step: 0.01, label: 'Scale' },
+      'exit.exitBlurPx': { type: 'slider', value: 4.0, min: 0, max: 10, step: 0.1, label: 'Blur Px' },
+
+      dividers: { type: 'folder', label: 'Dividers', collapsed: false },
+      'dividers.enabled': { type: 'boolean', variant: 'segmented', value: true, label: 'Enabled' },
+      'dividers.fadeMs': { type: 'slider', value: 80, min: 0, max: 300, step: 1, label: 'Fade Ms' },
+      'dividers.hideMs': { type: 'slider', value: 80, min: 0, max: 300, step: 1, label: 'Hide Ms' },
+    })
+
+    let panel
+    function mount() {
+      panel?.[Symbol.dispose]?.()
+      document.querySelector('#panel').innerHTML = ''
+      const dark = appearance.value === 'dark'
+      document.body.classList.toggle('light', !dark)
+      document.querySelector('.backdrop-blur').style.display = dark ? 'none' : ''
+      panel = settings(dark ? darkSchema() : lightSchema(), {
+        container: '#panel',
+        theme: () => studio({ shade: dark ? '#212121' : '#fafafa', roundness: 1.5 }),
+      })
+    }
+    mount()
+    appearance.addEventListener('change', () => { mount(); history.replaceState(null, '', '#' + appearance.value) })
+  </script>
+</body>
+</html>

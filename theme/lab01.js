@@ -14,7 +14,7 @@
  */
 
 import metrics from './metrics.js'
-import defaultCSS from './default.js'
+import { form } from './default.js'
 import { parseColor, resolveAccent, clamp } from './color.js'
 
 // Chevron collapse icon — color is url-encoded (%23fff / %23000)
@@ -36,105 +36,131 @@ export default function lab01({
 
   const { L, C } = parseColor(shade)
   const dark = L < 0.6
-  const colored = C > 0.03 // chromatic shade → tint bevels & shadows with its hue
+  const colored = C > 0.015 // any visible hue (slate, sage, ivory, gold) tints; near-greys stay neutral
+  // The source ships three palettes (lab01.dev/experiments/01, experiment-01.css):
+  // dark (#111 panel, #1F1F1F controls, white ink), light (oklch 77%, black ink) and
+  // gold (#BA965A, #2F2212 ink). Dark shades take the dark recipe, greys the light one
+  // and light shades with a hue the gold one. Gold's colours are written relative to
+  // the shade (lightness offset, chroma ratio, hue offset from #BA965A), so #BA965A
+  // renders the source values exactly and every other hue keeps their relationships.
+  const gold = !dark && colored
   const resolved = resolveAccent(accent, shade) || shade
-  const ink = dark ? 'white' : 'black' // focus-ring colour
 
   const r = clamp(roundness, 0, 2)
   const radius = `calc(var(--u) * ${r} * 4)` // 24px at default roundness 1.5
   const chevronMask = chevron('%23000') // shape only — filled via mask
-  const overlay = dark ? '' : 'mix-blend-mode: overlay;' // light & colored bevels blend
+  const overlay = dark ? '' : 'mix-blend-mode: overlay;' // light & gold bevels blend
+
+  const white = a => `hsl(from white h s l / ${a})`
+  const black = a => `hsl(from black h s l / ${a})`
+  const signed = n => `${n < 0 ? '-' : '+'} ${Math.abs(n)}`
+  // A gold-palette colour relative to the shade: tone(0, 1, 0) is the shade itself.
+  const tone = (dL, kC, dH, a = 1) => `oklch(from var(--bg) calc(l ${signed(dL)}) calc(c * ${kC}) calc(h ${signed(dH)})${a < 1 ? ` / ${a}` : ''})`
 
   // ─────────────────────────────────────────────────────────────────────────
-  //  TOKEN VALUES — derived from the shade. Each is assigned to a CSS custom
-  //  property in the token block; the rest of the sheet references the vars.
+  //  TOKEN VALUES: each is assigned to a CSS custom property in the token
+  //  block; the rest of the sheet references the vars.
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Surfaces
-  const bgLight = colored ? shade : (dark ? '#1F1F1F' : 'oklch(77% 0 0)')
-  // sunken / secondary surface — a saturated, slightly-lighter tone of the background
-  const surface2 = dark ? 'oklch(from var(--bg) 0.14 c h)' : 'oklch(from var(--bg) calc(l - 0.06) c h)'
+  // Surfaces: controls sit on --bg-light, a lighter step of a dark shade (#111 → #1F1F1F)
+  // and the shade itself otherwise, under the panel's translucent glass.
+  const bgLight = dark ? 'oklch(from var(--bg) calc(l + 0.0616) c h)' : 'var(--bg)'
   const panelGlass = `hsl(from var(--bg) h s l / .85)`
 
-  // Text (a light/dark TONE of the bg, applied later with alpha)
-  const inkBase = `oklch(from var(--bg) ${dark ? '0.95' : '0.23'} ${colored ? 'calc(c * 0.55)' : 'c'} h)`
-  const inkMuteBase = `oklch(from var(--bg) ${dark ? '0.88' : '0.18'} ${colored ? 'calc(c * 0.95)' : 'c'} h)`
-  const embossCol = dark ? `oklch(from var(--bg) calc(l - 0.1) c h)` : `hsl(from white h s l / ${colored ? '.3' : '.2'})`
+  // Ink: the source's contrast-higher (text) and contrast-highest (focus, switch on).
+  const inkBase = dark ? 'white' : gold ? 'oklch(from var(--bg) 0.2631 calc(c * 0.375) calc(h - 8))' : 'black'
+  const inkHighest = dark ? 'white' : gold ? '#101010' : 'black'
+  const textShadow = dark ? 'none' : `0 1px 0 ${white(gold ? '.15' : '.2')}`
+  const titleShadow = dark ? 'none' : `0 1px 0 ${white('.2')}`
+  const btnTextShadow = dark ? `0 -1px 0 ${black('.5')}` : `0 1px 0 ${white(gold ? '.3' : '.2')}`
+  // Fold icon: the glyph's embossed copy (the source's drop-shadow on the svg)
+  const embossCol = dark ? black('.5') : white(gold ? '.5' : '.4')
   const embossOffset = dark ? '-1px' : '1px'
 
-  // Lines
-  const divider = `oklch(from var(--bg) calc(l - 0.04) c h)`
+  // Secondary (sunken) button: a plate under the label. Gold's white label reads on
+  // its mid-tone plate; a light shade with a hue gets a light plate, which takes ink.
+  const secondaryBg = dark ? black('.58') : gold ? tone(-0.1134, 0.825, -4.3, .78) : black('.1')
+  const plateDark = gold && L - 0.1134 < 0.66
+  const secondaryFg = plateDark ? white('.8') : 'hsl(from var(--ink) h s l / .83)'
+  const secondaryShadow = plateDark ? `0 -1px 0 ${black('.15')}` : dark ? 'none' : `0 1px 0 ${white('.2')}`
 
-  // Raised glass surface (button / collapse circle / switch thumb)
-  const btnBg = colored
-    ? `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.25), hsl(from white h s l / 0)), oklch(from var(--bg-light) calc(l + 0.04) calc(c + 0.008) calc(h + 5))`
-    : dark
-    ? `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.05), hsl(from white h s l / 0)), hsl(from var(--bg-light) h s l / .8)`
-    : `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.2), hsl(from white h s l / 0)), hsl(from var(--bg-light) h s l / .95)`
-  const btnBgHover = colored
-    ? `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.3), hsl(from white h s l / 0)), oklch(from var(--bg-light) calc(l + 0.08) calc(c + 0.008) calc(h + 5))`
-    : dark
-    ? `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.08), hsl(from white h s l / 0)), hsl(from var(--bg-light) h s l / .95)`
-    : `radial-gradient(ellipse at -20px top, hsl(from white h s l / 0.28), hsl(from white h s l / 0)), hsl(from var(--bg-light) h s l / 1)`
+  // Raised glass surface (primary button, fold circle, switch and slider thumbs).
+  const glow = a => `radial-gradient(ellipse at -20px top, ${white(a)}, ${white('0')})`
+  const btnBg = dark ? `${glow('0.05')}, hsl(from var(--bg-light) h s l / .8)`
+    : gold ? `${glow('0.25')}, var(--bg-light)` : `${glow('0.2')}, hsl(from var(--bg-light) h s l / .95)`
+  const btnBgHover = `${glow(dark ? '0.1' : gold ? '0.35' : '0.3')}, var(--bg-light)`
 
-  // Cast shadows — a warm brown tint for chromatic shades (like the source #88612E),
-  // plain black otherwise. The ring is plain low-opacity black (as in the source).
-  const sh = (a) => colored ? `oklch(from var(--bg) calc(l - 0.18) c calc(h - 7) / ${a})` : `hsla(0 0% 0% / ${a})`
-  const ring = (a) => `hsl(from var(--ring) h s l / ${a})`
-  const btnShadow = colored
-    ? `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px ${ring('.15')}, 0px 40px 11px ${sh('.01')}, 0px 26px 10px ${sh('.05')}, 0px 14px 9px ${sh('.17')}, 0px 6px 6px ${sh('.29')}, 0px 2px 4px ${sh('.33')}`
-    : dark
-    ? `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px ${ring('.45')}, 0px 40px 11px rgba(0,0,0,0.01), 0px 26px 10px rgba(0,0,0,0.025), 0px 14px 9px rgba(0,0,0,0.1), 0px 6px 6px rgba(0,0,0,0.15), 0px 2px 4px rgba(0,0,0,0.25)`
-    : `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px ${ring('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 4.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 18px 18px -9px hsla(0 0% 0% / 0.25)`
-  const btnActive = colored
-    ? `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px hsla(0 0% 0% / .15), 0px 8px 10px ${sh('.1')}, 0px 4px 6px ${sh('.2')}, 0px 1px 2px ${sh('.33')}`
-    : dark
-    ? `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px hsl(from black h s l / .15), 0px 20px 10px rgba(0,0,0,0.01), 0px 12px 10px rgba(0,0,0,0.05), 0px 6px 9px rgba(0,0,0,0.17), 0px 2px 4px rgba(0,0,0,0.29), 0px 1px 2px rgba(0,0,0,0.33)`
-    : `inset 0 0 0 1px hsl(from white h s l / .04), 0 0 0 1px hsl(from black h s l / .15), 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 2.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 8px 18px -9px hsla(0 0% 0% / 0.25)`
+  // Cast shadows: black, or gold's warm brown (#88612E) relative to the shade.
+  const sh = a => gold ? tone(-0.1704, 0.945, -7.9, a) : `rgba(0, 0, 0, ${a})`
+  const edge = ring => `inset 0 0 0 1px ${white('.04')}, 0 0 0 1px ${black(ring)}`
+  const btnShadow = dark
+    ? `${edge('.45')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.025)}, 0px 14px 9px ${sh(0.1)}, 0px 6px 6px ${sh(0.15)}, 0px 2px 4px ${sh(0.25)}`
+    : gold
+    ? `${edge('.15')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.05)}, 0px 14px 9px ${sh(0.17)}, 0px 6px 6px ${sh(0.29)}, 0px 2px 4px ${sh(0.33)}`
+    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 4.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 18px 18px -9px hsla(0 0% 0% / 0.25)`
+  const btnActive = dark || gold
+    ? `${edge('.15')}, 0px 20px 10px ${sh(0.01)}, 0px 12px 10px ${sh(0.05)}, 0px 6px 9px ${sh(0.17)}, 0px 2px 4px ${sh(0.29)}, 0px 1px 2px ${sh(0.33)}`
+    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 2.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 8px 18px -9px hsla(0 0% 0% / 0.25)`
 
-  // Bevels (gradient borders) — highlights/shadows toned toward the background.
-  const beHi = (a) => `oklch(from var(--bg) 0.96 c h / ${a})`
-  const beLo = (a) => `oklch(from var(--bg) ${dark ? '0.12' : '0.3'} c h / ${a})`
-  const brown = (l) => `oklch(from var(--bg) ${l} c h`
-  const btnBevel = colored
-    ? `linear-gradient(180deg, ${beHi('.65')}, ${brown(0.38)} / .68) 41%, ${brown(0.5)} / .46) 75%, ${beHi('.25')})`
-    : `linear-gradient(180deg, ${beHi('.75')}, ${beLo(dark ? '.48' : '.25')} 41%, ${beLo(dark ? '.26' : '.25')} 75%, ${beHi(dark ? '.25' : '.35')})`
-  const panelBevel = colored
-    ? `linear-gradient(160deg, oklch(from var(--bg) 0.92 c h / .97), oklch(from var(--bg) 0.28 c h / .46) 19%, oklch(from var(--bg) 0.5 c h) 70%, oklch(from var(--bg) 0.92 c h / .37))`
-    : dark
-    ? `linear-gradient(160deg, hsl(from white h s l / .30), hsl(from white h s l / .02) 37%, hsl(from white h s l / 0.05) 70%, hsl(from white h s l / .1))`
-    : `linear-gradient(160deg, hsl(from white h s l / .77), hsl(from white h s l / 0.2) 19%, hsl(from white h s l / 0.2) 70%, hsl(from white h s l / .3))`
+  // Bevels (gradient borders)
+  const btnBevel = dark
+    ? `linear-gradient(180deg, ${white('.75')}, ${black('.48')} 41%, ${black('.26')} 75%, ${white('.25')})`
+    : gold
+    ? `linear-gradient(180deg, ${white('.65')}, ${tone(-0.2707, 0.492, -1, .68)} 41%, ${tone(-0.1622, 0.651, -1.8, .46)} 75%, ${white('.25')})`
+    : `linear-gradient(180deg, ${white('.75')}, ${black('.25')} 41%, ${black('.25')} 75%, ${white('.35')})`
+  const panelBevel = dark
+    ? `linear-gradient(160deg, ${white('.30')}, ${white('.02')} 37%, ${white('0.05')} 70%, ${white('.1')})`
+    : gold
+    ? `linear-gradient(160deg, ${tone(0.2276, 1.211, 12.4, .97)}, ${tone(-0.3859, 0.272, -4.6, .46)} 19%, ${tone(-0.1429, 0.675, -7.8)} 70%, ${tone(0.2276, 1.211, 12.4, .37)})`
+    : `linear-gradient(160deg, ${white('.77')}, ${white('0.2')} 19%, ${white('0.2')} 70%, ${white('.3')})`
 
-  // Switch glow when checked
-  const switchGlow = dark
-    ? `rgba(255,255,255,0.082) 0px 5.8px 5.5px -5px, rgba(255,255,255,0.12) 0px 16px 15px -5px`
-    : `none`
+  // Switch and slider thumbs share the source's switch marker: the raised surface,
+  // its bevel baked into the border (thumbs cannot carry a pseudo-element). Dark
+  // lifts the checked marker to a solid face with a deeper rim.
+  const thumbFace = (a, fill, rim) => `${glow(a)} padding-box, linear-gradient(${fill}, ${fill}) padding-box, ${rim} border-box`
+  const thumbBg = dark ? thumbFace('0.15', 'hsl(from var(--bg-light) h s l / .8)', btnBevel)
+    : thumbFace(gold ? '0.25' : '0.2', gold ? 'var(--bg-light)' : 'hsl(from var(--bg-light) h s l / .95)', btnBevel)
+  const thumbBgOn = dark ? thumbFace('0', 'var(--bg-light)', `linear-gradient(180deg, ${white('0.4')}, ${black('.88')} 41%, ${black('.46')} 75%, ${white('.25')})`) : thumbBg
+  const thumbShadowOn = dark ? `0 0 0 1px ${black('0.85')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.025)}, 0px 14px 9px ${sh(0.1)}, 0px 6px 6px ${sh(0.15)}, 0px 2px 4px ${sh(0.25)}` : btnShadow
 
-  // Light orbs (glare) — fixed-size, hue-shifted toward the sky; lighter top-left.
-  const glareCol = (a) => `oklch(from var(--bg) 0.92 calc(c * 1.18) calc(h + 28) / ${a})`
-  const glareTL = (a) => `oklch(from var(--bg) 0.95 calc(c * 0.85) calc(h + 28) / ${a})`
-  const glare = dark
-    ? `radial-gradient(300px 280px at 58px 20px, ${glareTL('.16')}, transparent 72%), radial-gradient(420px 330px at 102% 102%, ${glareCol('.1')}, transparent 72%)`
-    : `radial-gradient(300px 280px at 58px 20px, ${glareTL('.5')}, transparent 72%), radial-gradient(420px 330px at 102% 102%, ${glareCol('.36')}, transparent 72%)`
+  // Recesses. The switch track is the source's; fields, slider grooves and swatches
+  // share it. The image-card well (plate) has its own lighter recipe. Gold's are
+  // #101010 blended by overlay in the source; here the opaque colour that blend
+  // yields, since a track carries its thumb and a field its text.
+  const trackBg = dark ? black('.95') : gold ? tone(-0.0686, 1.024, -7.8) : black('.1')
+  const trackBevel = dark
+    ? `0 1px 0 ${white('.1')}, inset 0 1px 0 ${black('.95')}, inset 0 1px 4px ${black('.4')}`
+    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.1')}, inset 0 1px 4px ${black(gold ? '.08' : '.25')}`
+  const cardFrame = dark ? black('.9') : gold ? tone(-0.0515, 1.026, -5.4) : black('.1')
+  const plateShadow = dark
+    ? `0 1px 0 ${white('.15')}, inset 0 1px 0 ${black('1')}, inset 0 1px 4px ${black('.25')}`
+    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.15')}, inset 0 1px 4px ${black(gold ? '.08' : '.1')}`
+  const cardRing = 'hsl(from white h s l / 1)' // selection ring — white on every theme
 
-  // Sunken recess bevel (groove) — a dark bg-derived inset + a faint top lip.
-  // Shared by image-card plates, fields, slider grooves, and switch tracks.
-  const sink = (a) => `oklch(from var(--bg) calc(l - 0.11) c h / ${a})`
-  const trackBevel = `inset 0 1px 1px ${sink('.55')}, inset 0 1px 4px ${sink('.35')}, 0 1px 0 hsl(from white h s l / ${dark ? '.1' : '.25'})`
+  // Switch on: the source's checked track keeps its recess's outer highlight.
+  const switchOnBg = dark ? white('.83') : gold ? inkHighest : `hsl(from ${inkHighest} h s l / .85)`
+  const switchOnShadow = dark
+    ? `0 1px 0 ${white('.1')}, 0px 5.8px 5.5px -5px hsla(0 0% 100% / 0.0825), 0px 16px 15px -5px hsl(0 0% 100% / 0.12)`
+    : `0 1px 0 ${white('.2')}`
 
-  // Theme-card recessed plate — a dark frame BEHIND the photo carrying that same
-  // groove (leaving the image crisp, as the reference does with <img> + plate).
-  const cardFrame = dark ? 'hsl(from black h s l / .9)' : 'hsl(from black h s l / .14)'
-  const cardRing  = 'hsl(from white h s l / 1)' // selection ring — white on every theme
+  // Footer rule: a dark and a light hairline, both blended by overlay.
+  const dividerLo = dark ? black('.75') : gold ? tone(-0.3164, 0.276, -14.8, .25) : black('.175')
+  const dividerHi = white(dark ? '.15' : gold ? '.1' : '.2')
+
+  // The source's two light orbs over the dialog's corners: a white 196px disc under
+  // blur(150px), blended by overlay. A Gaussian of σ 150px over a 98px radius peaks
+  // at 1 - e^(-98²/2·150²) ≈ .21 and falls off as e^(-d²/2σ²), sampled here as a ramp.
+  const orb = at => `radial-gradient(circle at ${at}, ${[0, 100, 150, 200, 250, 300, 400, 460]
+    .map(d => `${white(+(0.213 * Math.exp(-d * d / 45000)).toFixed(3))} calc(${d} * var(--length))`).join(', ')})`
+  const lights = `${orb('calc(64 * var(--length)) calc(33 * var(--length))')}, ${orb('calc(100% - 20 * var(--length)) calc(100% + 2 * var(--length))')}`
 
   // ── Helpers (reference tokens, not raw values) ──
-  const fg = (a) => `oklch(from var(--ink) l c h / ${a})`        // primary text @ alpha
-  const muteFg = (a) => `oklch(from var(--ink-mute) l c h / ${a})` // muted text @ alpha
+  const fg = (a) => `hsl(from var(--ink) h s l / ${a})` // ink @ alpha, as the source writes it
   // Raised surface shorthand — primary button and collapse circle share it
-  const surface = `background: var(--surface-bg); box-shadow: var(--surface-shadow);`
+  const surface = `background: var(--surface-bg); background-blend-mode: var(--surface-blend); box-shadow: var(--surface-shadow);`
   // Native range thumbs cannot carry pseudo-elements, so both thumb types use
   // the same layered face and gradient border, with no extra bevel element.
-  const thumbSurface = `box-sizing: border-box; background: var(--thumb-bg); border: var(--surface-bevel-w) solid transparent; box-shadow: var(--thumb-shadow);`
+  const thumbSurface = `box-sizing: border-box; background: var(--thumb-bg); background-blend-mode: var(--surface-blend); border: var(--surface-bevel-w) solid transparent; box-shadow: var(--thumb-shadow);`
   // Gradient-border bevel mixin (background-origin/clip must be border-box)
   const bevelRing = (grad, w = 'var(--bevel-w)', blend = overlay) => `
     border: ${w} solid transparent;
@@ -160,45 +186,52 @@ export default function lab01({
   /* Palette */
   --bg: ${shade};                /* panel surface */
   --bg-light: ${bgLight};        /* raised control surface */
-  --surface-2: ${surface2};      /* sunken / secondary surface (cancel button, switch track) */
   --accent: ${resolved};
-  --accent-fg: white;            /* text on a solid-accent fill (toggle On) */
-  --panel-glass: ${panelGlass};  /* translucent panel fill, under the glare */
+  --panel-glass: ${panelGlass};  /* translucent panel fill */
+  --lights: ${lights};          /* the source's two light orbs, blended by overlay */
 
   /* Text */
   --ink: ${inkBase};             /* primary text (used with alpha) */
-  --ink-mute: ${inkMuteBase};    /* hints / muted text */
-  --hint: ${muteFg('.64')};      /* hint text — muted ink @ .64 */
-  --emboss: ${embossCol};        /* embossed text-shadow colour */
-  --emboss-offset: ${embossOffset}; /* emboss direction — sunken (dark) vs raised (light) */
-  --text-shadow: 0 var(--emboss-offset) 0 var(--emboss);
-  --text-shadow-secondary: ${(dark || colored) ? '0 -1px 0 hsl(from black h s l / .35)' : 'var(--text-shadow)'};
+  --ink-highest: ${inkHighest};  /* strongest ink: focus ring, gold/light switch on */
+  --text: ${fg(dark || gold ? '.83' : '.85')}; /* labels */
+  --hint: ${fg(dark ? '.35' : '.5')}; /* hints */
+  --placeholder: ${fg(dark ? '.45' : '.6')}; /* placeholders: ink at .4 (3.9:1 dark, 2.5:1 light) moved to 4.5:1 on a field */
+  --text-shadow: ${textShadow};
+  --title-shadow: ${titleShadow};
+  --btn-text-shadow: ${btnTextShadow};
+  --emboss: ${embossCol};        /* fold-icon glyph emboss colour */
+  --emboss-offset: ${embossOffset}; /* emboss direction: above (dark) or below (light) */
 
   /* Lines & fields */
   --ring: black;                 /* button outline ring (used with alpha) */
-  --focus-ring: ${ink};          /* focus-visible outline colour */
-  --field: var(--surface-2);              /* shared inactive track / input fill */
-  --field-hover: color-mix(in srgb, var(--field), var(--bg) 12%); /* input hover/focus fill */
-  --divider: ${divider};         /* separators */
-  --footer-hi: ${dark ? 'hsl(from white h s l / .11)' : 'hsl(from white h s l / .2)'}; /* footer-divider top highlight */
+  --focus-ring: var(--ink-highest); /* focus-visible outline colour */
+  --field: ${trackBg};           /* shared inactive track / input fill */
+  --field-hover: color-mix(in srgb, var(--field), var(--bg) 12%); /* input hover fill */
+  --divider-lo: ${dividerLo};    /* footer rule: dark hairline */
+  --divider-hi: ${dividerHi};    /* footer rule: light hairline below it */
 
   /* Raised glass surface (primary button, collapse circle, switch thumb) */
   --surface-bg: ${btnBg};
   --surface-bg-hover: ${btnBgHover};
+  --surface-blend: ${gold ? 'overlay, normal' : 'normal'}; /* gold lays its glow over the face by overlay */
   --surface-shadow: ${btnShadow};
   --surface-active: ${btnActive};
   --surface-bevel: ${btnBevel};  /* gradient for the ::after bevel */
   --panel-bevel: ${panelBevel};  /* the panel's own gradient border */
-  --glare: ${glare};
-  --thumb-bg: radial-gradient(ellipse at 20% 0, hsl(from white h s l / ${dark ? '.08' : '.25'}), transparent) padding-box, linear-gradient(var(--bg-light), var(--bg-light)) padding-box, var(--surface-bevel) border-box;
-  --thumb-shadow: ${dark ? 'var(--surface-shadow), 0 0 0 1px oklch(from var(--bg) 0.04 c h)' : 'var(--surface-shadow)'}; /* slider and switch thumbs — dark gets an extra contrast ring */
-  --switch-glow: ${switchGlow};  /* checked-switch ambient glow (dark theme only) */
-  --switch-on-bg: ${dark ? 'hsl(from white h s l / .83)' : 'hsl(from black h s l / .85)'};
-  --seg-bg: ${dark ? 'hsl(from black h s l / .58)' : 'hsl(from black h s l / .1)'}; /* segmented unselected fill */
-  --btn-secondary-fg: ${(dark || colored) ? 'hsl(from white h s l / .9)' : fg('.83')};
-  --track-bevel: ${trackBevel};  /* recessed groove — fields, tracks, swatches & card plates */
-  --card-frame: ${cardFrame};    /* recessed plate behind image-card photos */
-  --field-selected: var(--track-bevel), 0 0 0 var(--card-ring-w) var(--card-ring);
+  --thumb-bg: ${thumbBg};        /* switch and slider thumbs */
+  --thumb-shadow: ${btnShadow};
+  --thumb-bg-on: ${thumbBgOn};   /* checked switch thumb */
+  --thumb-shadow-on: ${thumbShadowOn};
+  --switch-on-bg: ${switchOnBg};
+  --switch-on-fg: ${dark ? 'black' : 'white'};  /* lettering on the on-fill (toggle On) */
+  --switch-on-shadow: ${switchOnShadow};
+  --secondary-bg: ${secondaryBg}; /* sunken secondary button, segmented unselected fill */
+  --btn-secondary-fg: ${secondaryFg};
+  --btn-secondary-shadow: ${secondaryShadow};
+  --track-bevel: ${trackBevel};  /* recess: switch track, fields, grooves & swatches */
+  --card-frame: ${cardFrame};    /* image-card well behind the photo */
+  --plate-shadow: ${plateShadow}; /* image-card well recess */
+  --field-selected: var(--plate-shadow), 0 0 0 var(--card-ring-w) var(--card-ring); /* selected card, focused field */
   --card-ring: ${cardRing};      /* image-card selection ring */
 
   /* Geometry & type */
@@ -225,7 +258,7 @@ export default function lab01({
   --pad-head: calc(var(--u) * (4 + 2 * var(--spacing)));            /* header padding — stable through collapse */
   --content-pad: var(--pad-head);
  /* space between controls */
-  --bevel-w: calc(1 * var(--length));                /* panel gradient-border width */
+  --bevel-w: calc(1.25 * var(--length));             /* panel gradient-border width */
   --surface-bevel-w: calc(1.5 * var(--length));      /* raised-surface rim width (buttons, thumb, fold icon) */
   --outline-w: calc(1.5 * var(--length));            /* focus-ring width */
   --outline-gap: calc(2 * var(--length));            /* focus-ring offset — default */
@@ -241,16 +274,18 @@ export default function lab01({
   --card-r: calc(12 * var(--length));
   --card-inset: calc(-3 * var(--length));            /* image-card plate outset */
   --card-ring-w: calc(1.5 * var(--length));
-  --card-label-gap: calc(var(--u) * (2 + var(--spacing)));
+  --card-label-gap: calc(var(--u) * (3 + var(--spacing)));
   --group-gap: calc(12 * var(--space));             /* button-group / image-card option gap */
   --seg-pad: calc(var(--u) * 1.5);               /* segmented-button horizontal padding */
+  --seg-inset: calc(2 * var(--length));          /* segmented track around the raised selection */
   --btn-pad: var(--inset);                         /* button-group button horizontal padding */
   --color-gap: calc(8 * var(--space));
   /* ═════════════════════════════════════════════════════════════════════════ */
 
   color-scheme: ${dark ? 'dark' : 'light'};
   position: relative;
-  background: var(--glare), var(--panel-glass);
+  background: var(--lights), var(--panel-glass);
+  background-blend-mode: overlay, overlay;
   -webkit-backdrop-filter: blur(var(--blur));
   backdrop-filter: blur(var(--blur));
   border-radius: var(--r);
@@ -295,7 +330,11 @@ export default function lab01({
     font-weight: var(--weight);
     letter-spacing: var(--tracking-head);
     color: ${fg('.85')};
-    text-shadow: var(--text-shadow);
+    text-shadow: var(--title-shadow);
+    /* The source's header stretches its title to the fold circle's height with
+       the text at the top of that box, not centred on the circle. */
+    align-items: flex-start;
+    line-height: normal;
     /* Constant padding (incl. bottom) so the header height never changes on
        toggle — only the content collapses, avoiding a layout jump. */
     padding: var(--pad-head);
@@ -328,7 +367,7 @@ export default function lab01({
         transition: transform .2s;
       }
       &::before { background: var(--emboss); transform: translateY(var(--emboss-offset)); } /* bevel */
-      &::after { background: ${fg('.9')}; }                                            /* chevron */
+      &::after { background: ${fg('.83')}; }                                           /* chevron */
     }
   }
   /* Hover + press — identical to the action buttons */
@@ -350,12 +389,12 @@ export default function lab01({
     min-width: 0;
     flex: 0 0 auto;
     padding: 0;
-    gap: calc(var(--u) * 0.5);
-    line-height: 1.3;
+    gap: 0;
+    line-height: normal; /* the source's text lines */
   }
   .s-label {
     font-size: var(--fs);
-    color: ${fg('.9')};
+    color: var(--text);
     text-shadow: var(--text-shadow);
   }
   .s-hint {
@@ -375,12 +414,12 @@ export default function lab01({
     color: inherit;
     font-family: inherit;
     font-size: var(--fs);
-    &::placeholder { color: hsl(from currentColor h s l / .4); }
+    &::placeholder { color: var(--placeholder); }
     &:hover { background-color: var(--field-hover); }
     &:focus { background-color: var(--field); box-shadow: var(--field-selected); outline: none; }
   }
   input[type="text"], input[type="number"], select {
-    padding: var(--pad-i) calc(var(--pad));
+    padding: 0 var(--pad); /* the fixed height centers the text; block padding would clip it at compact sizes */
     height: var(--ctrl-h);
   }
   input[type="number"] { font-variant-numeric: tabular-nums; }
@@ -397,11 +436,12 @@ export default function lab01({
     border-radius: calc(var(--r) * 0.5);
     font-family: inherit;
     font-size: var(--fs);
+    line-height: normal;
     cursor: pointer;
     transition: translate .1s;
     border: none;
     color: ${fg('.83')};
-    text-shadow: var(--text-shadow);
+    text-shadow: var(--btn-text-shadow);
 
     /* kill the base theme's filter:brightness hover — lab01 uses its own bg hover */
     &:hover, &:active { filter: none; }
@@ -452,6 +492,10 @@ export default function lab01({
       &:focus { box-shadow: var(--field-selected); outline: none; }
     }
     .s-track { height: var(--ctrl-h); }
+    /* interval: the slider's groove, the span between the thumbs filled as a switch that is on */
+    &.s-multiple .s-interval-track { height: var(--slider-h); margin: 0; background: var(--field); box-shadow: var(--track-bevel); border-radius: calc(var(--r) * 0.5);
+      &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--switch-on-bg); box-shadow: var(--switch-on-shadow); border-radius: inherit; }
+      input[type="range"] { height: 100%; background: none; box-shadow: none; } }
   }
 
   /* ── Boolean ── */
@@ -471,8 +515,7 @@ export default function lab01({
         border-radius: 50em;
         position: relative;
         cursor: pointer;
-        /* recess fill shares the secondary surface so track == cancel button */
-        background: var(--surface-2);
+        background: var(--field);
         box-shadow: var(--track-bevel);
         transition: background .2s, box-shadow .2s;
 
@@ -494,8 +537,8 @@ export default function lab01({
       }
       &:has(input:checked) .s-track {
         background: var(--switch-on-bg);
-        box-shadow: var(--switch-glow);
-        &::before { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); }
+        box-shadow: var(--switch-on-shadow);
+        &::before { transform: translateX(calc(var(--track-w) - var(--thumb) - var(--thumb-inset) * 2)); background: var(--thumb-bg-on); box-shadow: var(--thumb-shadow-on); }
       }
     }
 
@@ -512,7 +555,7 @@ export default function lab01({
           content: '';
           position: absolute;
           inset: -1px;
-          background: var(--accent);
+          background: var(--switch-on-bg);
           opacity: 0;
           transition: opacity 140ms;
         }
@@ -520,29 +563,34 @@ export default function lab01({
       }
       &:has(input:checked) .s-track {
         &::before { opacity: 1; }
-        &::after { content: 'On'; color: var(--accent-fg); }
+        &::after { content: 'On'; color: var(--switch-on-fg); }
       }
-    }
-
-    &.s-checkbox {
-      .s-track {
-        width: var(--checkbox); height: var(--checkbox);
-        border-radius: calc(var(--r) * 0.3);
-        background: var(--field);
-        position: relative;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        &::after {
-          content: '';
-          width: var(--checkbox-fill); height: var(--checkbox-fill);
-          border-radius: calc(var(--r) * 0.2);
-          background: transparent;
-          transition: background 140ms;
-        }
-      }
-      &:has(input:checked) .s-track::after { background: var(--accent); }
     }
   }
+
+  /* Radio: the native dot in the on-fill, like every on-state here */
+  .s-select.s-radio input[type="radio"] { accent-color: var(--switch-on-bg); }
+
+  /* Checkbox: one box for the boolean and each option of the checkboxes list */
+  .s-boolean.s-checkbox .s-track, .s-checkboxes .s-track {
+    flex: none;
+    width: var(--checkbox); height: var(--checkbox);
+    border-radius: calc(var(--r) * 0.3);
+    background: var(--field);
+    position: relative;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    &::after {
+      content: '';
+      width: var(--checkbox-fill); height: var(--checkbox-fill);
+      border-radius: calc(var(--r) * 0.2);
+      background: transparent;
+      transition: background 140ms;
+    }
+  }
+  /* checked: the core takes the switch's on fill, the source's on-state, legible on every material */
+  .s-boolean.s-checkbox:has(input:checked) .s-track::after, .s-checkboxes input:checked + .s-track::after { background: var(--s-color, var(--switch-on-bg)); }
+  .s-checkboxes input:focus-visible + .s-track { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap-track); }
 
   /* ── Select ── */
   .s-select {
@@ -557,6 +605,13 @@ export default function lab01({
       background-size: calc(var(--u) * 3);
       background-repeat: no-repeat;
     }
+    /* One sunken track (the secondary plate); the selection is a raised plate inside it. */
+    &.s-segmented:not(:has(button[style*="background-image"])) .s-input {
+      gap: 0;
+      padding: var(--seg-inset);
+      border-radius: calc(var(--r) * 0.5 + var(--seg-inset));
+      background: var(--secondary-bg);
+    }
     &.s-segmented button {
       min-width: 0;
       background: transparent;
@@ -564,18 +619,11 @@ export default function lab01({
       padding: 0 var(--seg-pad);
       color: inherit;
       font-size: var(--fs);
-      height: var(--ctrl-h);
-      &::after {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        inset: 0;
-        border-radius: inherit;
-        background: var(--seg-bg);
-      }
+      height: calc(var(--ctrl-h) - 2 * var(--seg-inset));
       &.s-selected {
         ${surface}
         color: inherit;
+        &::after { ${bevel('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} }
       }
     }
 
@@ -586,6 +634,7 @@ export default function lab01({
       flex-direction: column;
       align-items: stretch;
       gap: var(--card-label-gap);
+      margin-bottom: calc(44 * var(--space) - var(--row-gap)); /* a card picker closes its section, as the source's */
       .s-label-group { flex: none; width: auto; max-width: none; }
       .s-input { gap: var(--group-gap); }
       button {
@@ -597,8 +646,9 @@ export default function lab01({
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-blend-mode: normal; /* the photo is never blended with the raised surface */
         box-shadow: none;
-        &::after { display: none; } /* hide the segmented pill fill */
+        &::after { display: none; } /* no raised bevel over the photo */
         &::before {                 /* recessed plate behind the photo */
           content: '';
           position: absolute;
@@ -606,7 +656,7 @@ export default function lab01({
           z-index: -1;
           border-radius: calc(var(--card-r) - var(--card-inset));
           background: var(--card-frame);
-          box-shadow: var(--track-bevel);
+          box-shadow: var(--plate-shadow);
           transition: box-shadow .14s;
         }
         &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap-card); }
@@ -615,15 +665,11 @@ export default function lab01({
     }
 
     &.s-checkboxes {
+      .s-input { align-items: flex-start; }
       .s-input label {
         color: inherit;
         cursor: pointer;
       }
-      .s-track {
-        background: var(--field);
-        border-radius: calc(var(--r) * 0.3);
-      }
-      label:has(input:checked) .s-track::after { background: var(--accent); }
     }
   }
 
@@ -661,22 +707,20 @@ export default function lab01({
       padding: 0 var(--btn-pad);
       ${surface}
       color: ${fg('.83')};
-      text-shadow: var(--text-shadow);
+      text-shadow: var(--btn-text-shadow);
       transition: background .12s, box-shadow .12s, translate .1s;
       &:hover { background: var(--surface-bg-hover); }
       &:active { box-shadow: var(--surface-active); }
       &:not(.s-secondary)::after { ${bevel('var(--surface-bevel)', 'var(--surface-bevel-w)', ovl)} } /* bevel rim */
     }
     &.s-secondary button, button.s-secondary {
-      /* Secondary fill = --surface-2. White font on dark/colored fills (emboss on TOP,
-         engraved), dark font on a light (gray) fill. No border/shadow. */
-      background: var(--surface-2);
+      /* The source's sunken plate under the label; it has no hover state. */
+      background: var(--secondary-bg);
       box-shadow: none;
       color: var(--btn-secondary-fg);
-      text-shadow: var(--text-shadow-secondary);
+      text-shadow: var(--btn-secondary-shadow);
       &::after { display: none; }
-      /* darken the surface, keep its hue & chroma (a black overlay would desaturate) */
-      &:hover { background: oklch(from var(--surface-2) calc(l - 0.04) c h); }
+      &:hover { background: var(--secondary-bg); }
       &:active { box-shadow: none; }
     }
   }
@@ -693,11 +737,23 @@ export default function lab01({
   /* ── Folder ── */
   .s-folder {
     > summary {
+      position: relative;
       font-size: var(--fs);
       font-weight: calc(var(--weight) + 100);
       color: ${fg('.83')};
       padding: calc(var(--u) * var(--spacing) * 2) 0;
+      border-bottom: none;
       opacity: 1;
+    }
+    /* A collapsed folder closes with the footer's rule: dark and light hairlines, overlaid. */
+    &:not([open], .s-section) > summary::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: calc(-1 * var(--length));
+      height: calc(2 * var(--length));
+      background: linear-gradient(var(--divider-lo) 50%, var(--divider-hi) 50%);
+      mix-blend-mode: overlay;
+      pointer-events: none;
     }
     .s-content { gap: var(--row-gap); padding-block: var(--row-gap); }
   }
@@ -705,6 +761,7 @@ export default function lab01({
   /* ── Footer separator (trailing action row) ── */
   .s-panel-content > .s-button:last-child {
     position: relative;
+    margin-top: calc(var(--content-pad) - var(--row-gap));
     padding-top: var(--content-pad);
     &::before, &::after {
       content: '';
@@ -712,10 +769,10 @@ export default function lab01({
       left: 0; right: 0;
       height: calc(1 * var(--length));
     }
-    &::before { top: 0; background: var(--divider); }
-    &::after { top: calc(1 * var(--length)); background: var(--footer-hi); mix-blend-mode: overlay; }
+    &::before { top: calc(-1 * var(--length)); background: var(--divider-lo); mix-blend-mode: overlay; }
+    &::after { top: 0; background: var(--divider-hi); mix-blend-mode: overlay; }
   }
 }`
 
-  return defaultCSS({ size, spacing, font }) + '\n' + overrides
+  return form({ size, spacing, font }) + '\n' + overrides
 }

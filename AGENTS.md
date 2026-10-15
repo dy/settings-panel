@@ -2,7 +2,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 
 ## Docs (source of truth)
 - `docs/axes.md` — theme axes (core + per-theme extras)
-- `docs/themes.md` — themes: 10 shipped + planned (research doc with Status column)
+- `docs/themes.md` — themes: the shipped originals and reproductions, each with its structural rules and reference (research doc with Status column)
 - `docs/options.md` — panel options
 - `docs/controls.md` — **research/design doc**; has "Implemented today" banner at top
 - `docs/signals.md` — signals pattern
@@ -12,15 +12,19 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 - Prefer deletion over expansion.
 - If not written, it is undecided.
 - Never apply symptomatic fixes (disabling, hiding, workarounds). Find and fix root cause.
+- Calibrated themes are held to their originals by `test/calibration.spec.js` (references in `test/calibration/`, captured from the original libraries, lab01.dev and the owner's material study). A failing case means the theme drifted: fix the theme. References come only from the originals (`capture.mjs`), never from our render; raising a budget is an explicit decision, lowering one records an improvement. A replica keeps its original's look, not its defects: where the original clips a value or misses WCAG contrast (text 4.5:1, state marks 3:1), the theme fixes it and the budget records the departure.
 
 ## Structure
 - `/control/*` — controls. `/control/control.js` is base wrapper.
 - `/theme/*` — `theme(axes?) → CSS string`. Peers, not hierarchy.
   - `theme/color.js` — `resolveRoles`, `resolveAccent`, `parseColor`, `normalizeHex`
   - `theme/mixins.js` — `bevel`, `bevelRing`, `hardShadow`, `neuShadow`, `neuInset`
+  - `theme/texture.js` — `grain`, `woodGrain`, `woodFigure`: material textures as SVG turbulence, laid over a surface with `soft-light`; `surface(texture, shade)` gives a surface's calibrated layers
   - `theme/base.js` — shared structural reset
   - `theme/metrics.js` — shared size, spacing, and body-font tokens; themes provide their baselines
+  - `theme/default.js`: soft (the default) is `form()` plus soft's own look layer; `form()` is the rounded form `lab01` and `skeu` build on, kept stable so soft can change without restyling them
 - `/index.js` — `settings()`, `infer()`, `register()`.
+- `/demo/themes.js`: gallery registry: themes, colormaps (palettes: shade, accent, and optionally ink and texture), core axes, per-theme extras.
 - `/signals.js` — decorators + re-exports: `signal`, `effect`, `computed`, `batch`, `untracked`, `store`, `use`.
 
 ## Control Registry (index.js)

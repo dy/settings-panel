@@ -10,6 +10,9 @@ import { resolveEl } from './util.js'
  * @param {Signal} sig - source signal
  * @param {object} opts - { type, template, container?, dispose?, ...state }
  */
+// Ids pair a label's ? with its title text (aria-describedby)
+let tips = 0
+
 export default function control(sig, opts) {
   const {
     type = 'text', template, container, label = '', hint = '', title = '', disabled = false, dispose, style, inputTag = 'div',
@@ -26,8 +29,8 @@ export default function control(sig, opts) {
       <label class="s-label-group" :for="label || null" :hidden="label === false && !hint && !title">
         <span class="s-label-row">
           <span class="s-label" :text="label" :hidden="!label"></span>
-          <span class="s-title" :if="title" data-tip>?</span>
-          <span class="s-title-text" :if="title" :text="title"></span>
+          <span class="s-title" :if="title" tabindex="0" :aria-describedby="tipId" data-tip>?</span>
+          <span class="s-title-text" :if="title" role="tooltip" :id="tipId" :text="title"></span>
         </span>
         <span class="s-hint" :if="hint" :text="hint"></span>
       </label>
@@ -39,7 +42,7 @@ export default function control(sig, opts) {
   if (label) el.dataset.name = label
   if (style) el.setAttribute('style', style)
 
-  sprae(wrapper, { ...state, label, hint, title, disabled })
+  sprae(wrapper, { ...state, label, hint, title, disabled, tipId: title ? `s-tip-${++tips}` : null })
 
   // Mount if container provided
   if (container) resolveEl(container)?.appendChild(el)

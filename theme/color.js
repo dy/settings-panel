@@ -77,15 +77,8 @@ export function resolveRoles(shade = '#f5f4f2', accent, { contrast = 1 } = {}) {
   const accentColor = resolved || at(dark ? 0.7 : 0.5, max(C, 0.16))
   // Unknown CSS colors keep the existing white ink; a parsing fallback is not
   // evidence that an accent is light. Hex and OKLCH use actual fill luminance.
-  const tone = parseColor(accentColor, null)
-  let onAccent = '#fff'
-  if (tone) {
-    const [r, g, b] = toHex(tone).slice(1).match(/../g).map(h => {
-      const c = parseInt(h, 16) / 255
-      return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4
-    })
-    if (.2126 * r + .7152 * g + .0722 * b > .179) onAccent = '#000'
-  }
+  // .179 is where black and white ink give equal WCAG contrast.
+  const onAccent = luminance(accentColor) > .179 ? '#000' : '#fff'
   return {
     dark, L, C, H, at,
     bg: shade,
@@ -98,6 +91,52 @@ export function resolveRoles(shade = '#f5f4f2', accent, { contrast = 1 } = {}) {
     accent: accentColor,
     onAccent,
   }
+}
+
+/**
+ * WCAG 2.x relative luminance (0–1) of a hex / numeric-OKLCH string or an {L, C, H}
+ * tone, measured on the sRGB color actually rendered. null when unparseable.
+ * https://www.w3.org/TR/WCAG22/#dfn-relative-luminance
+ */
+export function luminance(color) {
+  const tone = typeof color === 'string' ? parseColor(color, null) : color
+  if (!tone) return null
+  const [r, g, b] = toHex(tone).slice(1).match(/../g).map(h => {
+    const c = parseInt(h, 16) / 255
+    return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4
+  })
+  return .2126 * r + .7152 * g + .0722 * b
+}
+
+/** WCAG contrast ratio (1–21) between two colors; null when either is unparseable. */
+export function contrast(a, b) {
+  const x = luminance(a), y = luminance(b)
+  return x == null || y == null ? null : (max(x, y) + .05) / (min(x, y) + .05)
+}
+
+/**
+ * Ink that reads on `bg` with at least `ratio` WCAG contrast (4.5 text, 3 UI edges).
+ * `tone` ({L, C, H} or color string) is the intended ink: returned as-is when it
+ * already passes, otherwise its lightness moves away from `bg` just far enough,
+ * keeping hue and chroma. Without a tone, the most muted passing neutral of bg's hue.
+ * Returns #rrggbb, or the tone unchanged when bg or tone is not a parseable color.
+ * The guarantee holds against `bg` only: derive ink per surface it is painted on.
+ */
+export function ink(bg, ratio = 4.5, tone) {
+  const back = parseColor(bg, null)
+  const want = tone == null ? back && { L: back.L, C: min(back.C, .03), H: back.H }
+    : typeof tone === 'string' ? parseColor(tone, null) : tone
+  if (!back || !want) return tone
+  const hex = L => toHex({ ...want, L })
+  const passes = L => contrast(hex(L), bg) >= ratio
+  if (tone != null && passes(want.L)) return hex(want.L)
+  // Move toward whichever extreme can reach the ratio (black for light bg, white for dark).
+  const end = luminance(bg) > .179 ? 0 : 1
+  if (!passes(end)) return end ? '#ffffff' : '#000000'
+  // Search from bg's side outward so contrast grows monotonically toward `end`.
+  let near = end ? max(want.L, back.L) : min(want.L, back.L), far = end
+  for (let i = 0; i < 24; i++) { const mid = (near + far) / 2; passes(mid) ? far = mid : near = mid }
+  return hex(far)
 }
 
 /** Convert OKLCH {L, C, H} to #rrggbb hex string */

@@ -21,7 +21,11 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles } from './color.js'
+import { resolveRoles, parseColor, toHex, ink } from './color.js'
+
+// CSS color-mix(in oklab, a t, b) in JS, so ink can be measured against a mix.
+const lab = c => { const { L, C, H } = parseColor(c), h = H * Math.PI / 180; return [L, C * Math.cos(h), C * Math.sin(h)] }
+const mixLab = (a, b, t) => { const x = lab(a), y = lab(b), [L, A, B] = x.map((v, i) => v * t + y[i] * (1 - t)); return toHex({ L, C: Math.hypot(A, B), H: Math.atan2(B, A) * 180 / Math.PI }) }
 
 export default function terminal({
   shade = '#0e1013',
@@ -37,6 +41,9 @@ export default function terminal({
   // Dim text and lines are mixes of fg into bg, so any shade keeps the same
   // contrast ladder: text 100%, dim 55%, line 22%, well 8%.
   const mix = pct => `color-mix(in oklab, var(--fg) ${pct}%, var(--bg))`
+  // Dim text printed on a well (an unselected segment, an off toggle, a read-only field) is
+  // lifted just enough to read there: 55% loses 4.5:1 on the well's lighter ground.
+  const dimWell = ink(mixLab(fg, shade, dark ? .08 : .06), 4.5, mixLab(fg, shade, .55))
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace", lineHeight: 20, controlHeight: 20, rowGap: 10})}
@@ -45,6 +52,7 @@ export default function terminal({
   --fg: ${fg};
   --accent: ${phosphor};
   --dim: ${mix(55)};
+  --dim-well: ${dimWell};
   --line: ${mix(22)};
   --well: ${mix(dark ? 8 : 6)};
   --well-hi: ${mix(dark ? 14 : 10)};
@@ -126,7 +134,7 @@ export default function terminal({
   .s-label { color: var(--fg); }
   .s-hint { color: var(--dim); font-size: inherit; opacity: 1; }
   .s-title { color: var(--dim); cursor: help; font-size: inherit; &::before { content: '['; } &::after { content: ']'; }
-    &:hover { color: var(--accent); } &:hover + .s-title-text { opacity: 1; visibility: visible; } }
+    &:hover { color: var(--accent); } &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
   .s-title-text { position: absolute; left: 0; top: 100%; padding: 0 1ch; background: var(--fg); color: var(--bg); width: max-content; max-width: 40ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
 
   /* ── Wells — every field is a filled cell run, cursor bar on focus ── */
@@ -135,10 +143,10 @@ export default function terminal({
     font: inherit; line-height: var(--lh); height: var(--lh); padding: 0 1ch;
     caret-color: var(--accent);
     transition: background .1s;
-    &::placeholder { color: var(--dim); }
+    &::placeholder { color: var(--dim-well); }
     &:hover { background: var(--well-hi); }
     &:focus-visible { outline: none; background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); }
-    &:read-only:not(select) { color: var(--dim); }
+    &:read-only:not(select) { color: var(--dim-well); }
   }
   input.s-scrubbing { background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); }
   textarea { height: auto; min-height: calc(var(--lh) * 3); padding: 0 1ch; resize: vertical; field-sizing: content; max-height: 50vh; }
@@ -200,7 +208,7 @@ export default function terminal({
       &:has(input:focus-visible) .s-track { box-shadow: inset 0 0 0 1px var(--accent); }
     }
     &.s-toggle {
-      .s-track { height: var(--lh); padding: 0 1ch; background: var(--well); color: var(--dim); display: flex; align-items: center; white-space: pre; text-transform: uppercase; font-weight: 700; letter-spacing: .04em;
+      .s-track { height: var(--lh); padding: 0 1ch; background: var(--well); color: var(--dim-well); display: flex; align-items: center; white-space: pre; text-transform: uppercase; font-weight: 700; letter-spacing: .04em;
         &::after { content: 'off'; } }
       .s-input:hover .s-track { background: var(--well-hi); color: var(--fg); }
       &:has(input:checked) .s-track { background: var(--accent); color: var(--bg); &::after { content: 'on '; } }
@@ -236,7 +244,7 @@ export default function terminal({
   .s-select {
     &.s-segmented {
       .s-input { gap: 0; background: var(--well); }
-      button { flex: 1; min-width: 0; height: var(--lh); padding: 0 1ch; border: 0; background: transparent; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      button { flex: 1; min-width: 0; height: var(--lh); padding: 0 1ch; border: 0; background: transparent; color: var(--dim-well); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         & + button { border-left: 1px solid var(--bg); }
         &:hover { color: var(--fg); background: var(--well-hi); }
         &.s-selected { background: var(--accent); color: var(--bg); font-weight: 700; }

@@ -1,90 +1,124 @@
 /**
- * figma — calibrated to Figma's properties panel
+ * figma – calibrated to Figma's UI3 properties panel (2024+)
  *
- * Signatures: Inter, the #0d99ff blue, compact 24px "ghost" inputs (no border
- * until hover/focus), small rounded color swatches, dense icon-prefixed number
- * fields, and segmented icon buttons. Light by default; dark shade flips it.
+ * Signatures: Inter 11/16 at weight 450 (550 for titles), the #0d99ff blue (deepened
+ * where WCAG needs it: 3:1 for fills on their track, 4.5:1 under white text), filled
+ * 24px fields with 5px corners that show a hairline on hover and a blue line on focus,
+ * outlined dropdowns, segmented controls whose selected segment lifts to the panel
+ * color, 14px color chips, 40px section headers over 1px dividers, and a
+ * 16 · 88 · 8 · 120 · 8 row grid. Light by default; a dark shade flips it.
  *
- * Axes: shade (bg, drives dark/light), accent (action blue), size (grid unit).
- * Everything else — ink/dim text, hairline dividers, hover/selected fills,
- * ghost-input borders, switch/checkbox parts, swatch rings, tooltip, thumb/knob
- * whites — is one of Figma's exact brand constants rather than something derived
- * from shade's hue, but each still lands as its own overridable --token in the
- * var block below (keyed off `dark`, itself derived from shade) instead of a
- * literal scattered through the rules.
+ * Sources (values below cite them by letter):
+ *  A. Figma plugin color tokens, developers.figma.com/docs/plugins/css-variables
+ *     (mirrored in @create-figma-plugin/ui 4.0.3 lib/css/theme.css).
+ *  B. figma.com production stylesheet (auth bundle): --text-body-medium 11px/16px,
+ *     weight 450, letter-spacing .00344rem; --text-body-medium-strong 550;
+ *     --radius-medium .3125rem; --radius-small .125rem; the Inter-first font stack.
+ *  C. @create-figma-plugin/ui 4.0.3 components (UI3): textbox, dropdown, segmented
+ *     control, toggle, range slider, button, textbox-color, 16px icons.
+ *  D. Figma Help Center UI3 screenshots, pixel-measured: 1px divider, 40px header
+ *     with the title centered, 32px rows, 12px section foot, 88px label column,
+ *     8px right gutter, grey labels, 14px chip at 5px + 6px, outlined dropdown,
+ *     neutral checkbox.
+ *
+ * Axes: shade (bg, drives dark/light), accent (action blue), size, spacing, font.
+ * Surfaces are Figma's own greys expressed as shade mixes (white → #f5f5f5 field,
+ * #e6e6e6 line; #2c2c2c → #383838, #444444), and text is Figma's alpha ink, so a
+ * tinted shade recolors every surface instead of leaving neutral grey patches.
  *
  * figma(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent } from './color.js'
+import { parseColor, resolveAccent, luminance, contrast, toHex, ink as legible } from './color.js'
 
 export default function figma({
   shade = '#ffffff',
-  accent = '#0d99ff',
+  accent,
   size = 1,
   spacing = 1,
   font,
 } = {}) {
   const { L } = parseColor(shade)
   const dark = L < 0.5
-  const acc = resolveAccent(accent, shade)
   const enc = c => encodeURIComponent(c)   // any CSS color, safe inside an SVG data-URI
 
-  // ── Derived tokens — Figma's exact light/dark greyscale pairs, keyed off `dark` ──
-  const ink = dark ? '#ffffff' : '#1e1e1e'
-  const dim = dark ? '#9a9a9a' : '#8c8c8c'
-  const line = dark ? '#444444' : '#e6e6e6'
-  const hover = dark ? '#383838' : '#f5f5f5'
-  const sel = dark ? '#2c2c2c' : '#fff'           // elevated/selected chip (option, segmented)
-  const selShadow = 'rgba(0,0,0,.12)'
-  const arrow = dark ? '#ccc' : '#555'            // select dropdown arrow stroke
-  const switchOff = dark ? '#555' : '#d9d9d9'     // switch track, unchecked
-  const checkboxBorder = dark ? '#666' : '#ccc'
-  // Two rings (outer + inset) so the swatch edge stays legible even when its own
-  // value happens to equal the panel background — one ring alone can vanish in that case.
-  const swatchBorder = dark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.1)'
-  const swatchRing = dark ? 'inset 0 0 0 1px rgba(0,0,0,.4)' : 'inset 0 0 0 1px rgba(255,255,255,.5)'
-  // Fixed regardless of shade — Figma paints these the same in either mode.
-  const onAccent = '#fff'         // text/icon over an accent fill (button, "On", checkmark)
-  const thumbBg = '#fff'          // slider thumb + switch knob fill
-  const thumbRing = 'rgba(0,0,0,.2)'
-  const knobShadow = 'rgba(0,0,0,.3)'
-  const tooltipBg = '#1e1e1e'
+  // ── Tokens: Figma's light/dark pairs, keyed off `dark` ──
+  const toward = dark ? '#fff' : '#000'
+  const mix = p => `color-mix(in srgb, var(--bg), ${toward} ${p}%)`
+  // the same sRGB mixes, resolved, to measure contrast on
+  const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
+  const blend = (a, b, t) => '#' + ch(a).map((v, i) => Math.round(v * t + ch(b)[i] * (1 - t)).toString(16).padStart(2, '0')).join('')
+  const lineHex = blend(toward, shade, dark ? .114 : .1)
+  // A: bg-brand light / dark; the slider fill, switch and thumb read 3:1 on the track they sit on
+  // (WCAG 1.4.11): Figma's #0d99ff gives 2.4:1 on its #e6e6e6 track, 3.0:1 on white
+  const acc = legible(lineHex, 3, resolveAccent(accent, shade) || (dark ? '#0c8ce9' : '#0d99ff'))
+  const ink = dark ? '#ffffff' : 'rgba(0,0,0,.9)'                 // A: text / icon
+  // A: text-secondary, .7 white / .5 black; its alpha rises until it reads 4.5:1 on the field it also
+  // labels (.5 black: 3.9:1 on white and on #f5f5f5), and text-tertiary's in a placeholder (.3 black: 2.1:1)
+  const fieldHex = blend(toward, shade, dark ? .057 : .04)
+  const rise = k => { while (k < 1 && contrast(blend(toward, fieldHex, k), fieldHex) < 4.5) k += .01; return `rgba(${dark ? '255,255,255' : '0,0,0'},${+k.toFixed(2)})` }
+  const dim = rise(dark ? .7 : .5)
+  const placeholder = rise(dark ? .4 : .3)
+  const faint = dark ? 'rgba(255,255,255,.4)' : 'rgba(0,0,0,.3)'  // A: text-tertiary (disabled lettering)
+  const field = mix(dark ? 5.7 : 4)          // A: bg-secondary #f5f5f5 / #383838 (= bg-hover)
+  const line = mix(dark ? 11.4 : 10)         // A: border, bg-tertiary #e6e6e6 / #444444
+  const disabled = mix(dark ? 34.6 : 15)     // A: bg-disabled #d9d9d9 / #757575
+  // A: white on brand (#0d99ff, luminance .30) and success (#14ae5c, .31); rgba(0,0,0,.9) on
+  // warning (#ffcd29, .65). The split between them keeps a light custom accent readable.
+  const onAccent = luminance(acc) > .45 ? 'rgba(0,0,0,.9)' : '#fff'
+  // Under lettering the accent darkens only as far as 4.5:1 needs (white on #0d99ff: 3.0:1), and a
+  // labeled separator's label (ink at 60% on its line-colored band, 4.3:1) lifts the same way
+  const action = onAccent === '#fff' ? legible('#fff', 4.5, acc) : acc
+  const sepLabel = legible(lineHex, 4.5, blend(toward, lineHex, dark ? .6 : .54))
+  // The selected segment is the panel color in a border-colored hairline (#fff and #e6e6e6, 1.1:1 each on
+  // the #f5f5f5 track): the hairline darkens until it marks the choice at 3:1 there (WCAG 1.4.11)
+  const selectedLine = legible(fieldHex, 3, lineHex)
+  // Fixed regardless of shade: Figma paints these the same in either mode.
+  const tooltipBg = '#1e1e1e'     // C: --color-bg-menu
   const tooltipFg = '#fff'
 
+  // C: 16px icons (chevron-down-16, check-16), stroked on the 1px icon grid
+  const chevron = c => `url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.9 7.1 8 9.2l2.1-2.1' fill='none' stroke='${enc(c)}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Inter', system-ui, -apple-system, sans-serif", lineHeight: 16, controlHeight: 24, inset: 8, rowGap: 0, columnGap: 8, sectionGap: 16, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: `"Inter", ui-sans-serif, system-ui, -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif`, lineHeight: 16, controlHeight: 24, inset: 8, rowGap: 0, columnGap: 8, sectionGap: 16, panelPadding: 0})}
 
   --bg: ${shade};
   --accent: ${acc};
+  --accent-hover: color-mix(in oklab, var(--accent), #000 ${dark ? 14 : 10}%);   /* A: bg-brand-hover, closest mix */
+  --action: ${action};
+  --action-hover: color-mix(in oklab, var(--action), #000 ${dark ? 14 : 10}%);
   --ink: ${ink};
   --dim: ${dim};
+  --faint: ${faint};
+  --placeholder: ${placeholder};
+  --field: ${field};
   --line: ${line};
-  --hover: ${hover};
-  --sel: ${sel};
-  --sel-shadow: ${selShadow};
-  --switch-off: ${switchOff};
-  --checkbox-border: ${checkboxBorder};
-  --swatch-border: ${swatchBorder};
-  --swatch-ring: ${swatchRing};
+  --line-selected: ${selectedLine};
+  --hover: var(--field);
+  --disabled: ${disabled};
   --on-accent: ${onAccent};
-  --thumb-bg: ${thumbBg};
-  --thumb-ring: ${thumbRing};
-  --knob-shadow: ${knobShadow};
+  --knob: #fff;
+  --swatch-ring: inset 0 0 0 1px ${dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.1)'};
   --tooltip-bg: ${tooltipBg};
   --tooltip-fg: ${tooltipFg};
 
-  --weight: 400;
-  --r: calc(5 * var(--length));
+  --weight: 450;                           /* B: --font-weight-default */
+  --strong: 550;                           /* B: --font-weight-strong */
+  --r: calc(5 * var(--length));            /* B: --radius-medium */
+  --r-small: calc(2 * var(--length));      /* B: --radius-small */
+  --field-h: var(--control-height);
+  --header-h: calc(var(--line-height) + 24 * var(--space));   /* D: 40px section header */
   --ease: cubic-bezier(.2, 0, 0, 1);
+  --chev: ${chevron('#000')};
+  --check: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.8 4.1a.5.5 0 0 1 .1.7l-4 6a.5.5 0 0 1-.8.1l-3-3a.5.5 0 0 1 .7-.7l2.6 2.6 3.7-5.5a.5.5 0 0 1 .7-.2'/%3E%3C/svg%3E");
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background: var(--bg);
   color: var(--ink);
 
-  font-feature-settings: 'liga' 1, 'calt' 1;
   width: min(100%, calc(240 * var(--length)));
   min-width: 0;
   max-width: calc(240 * var(--length));
@@ -95,177 +129,188 @@ export default function figma({
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: var(--line-height);
+  letter-spacing: .005em;                  /* B: .00344rem at 11px */
 
-  /* ── Title (panel header) ── */
+  /* ── Title (panel header, the selected Design tab) ── */
   > summary, > .s-panel-title {
-    font-weight: 600; font-size: calc(11 * var(--length)); color: var(--ink);
-    height: calc(40 * var(--length)); padding: 0 calc(16 * var(--space)); border-bottom: 1px solid var(--line);
+    font-weight: var(--strong); color: var(--ink);
+    box-sizing: content-box; height: var(--header-h); padding: 0 calc(16 * var(--space)); border-bottom: 1px solid var(--line);
   }
-  /* Chevron only on .s-fold-icon — present solely when the title is actually foldable (a real <summary>) */
+  /* Chevron only on .s-fold-icon, present solely when the title is actually foldable (a real <summary>) */
   > summary .s-fold-icon { margin-left: auto; display: flex;
-    i { display: block; width: calc(8 * var(--length)); height: calc(8 * var(--length)); background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .12s var(--ease); } }
-  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
+    i { display: block; width: calc(16 * var(--length)); height: calc(16 * var(--length)); background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .12s var(--ease); } }
   &[open] > summary .s-fold-icon i { transform: rotate(-180deg); }
   .s-panel-content { gap: var(--row-gap); padding: calc(8 * var(--space)) 0; }
-  &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(8 * var(--space)); }
 
-  /* ── Search (title-bar magnifier that expands into a ghost input) ── */
+  /* ── Search (title-bar magnifier that expands into a field) ── */
   .s-search { margin-left: auto; gap: calc(6 * var(--space)); }
-  .s-search-btn { width: calc(16 * var(--length)); height: calc(16 * var(--length)); opacity: .55; border-radius: calc(2 * var(--length)); transition: opacity .12s var(--ease); &:hover { opacity: .9; } }
-  &.s-searching .s-search-btn { opacity: .9; }
+  .s-search-btn { width: calc(16 * var(--length)); height: calc(16 * var(--length)); color: var(--dim); border-radius: var(--r-small); transition: color .12s var(--ease); &:hover { color: var(--ink); } }
+  &.s-searching .s-search-btn { color: var(--ink); }
   .s-search-input {
-    width: calc(96 * var(--length)); height: var(--control-height); padding: 0 calc(6 * var(--space)); border-radius: calc(2 * var(--length));
-    background: var(--hover); font: inherit; color: var(--ink);
-    &::placeholder { color: var(--dim); }
+    width: calc(96 * var(--length)); height: var(--field-h); padding: 0 calc(7 * var(--space)); border: 1px solid transparent; border-radius: var(--r);
+    background: var(--field); font: inherit; letter-spacing: inherit; color: var(--ink); outline: none;
+    &:focus { border-color: var(--accent); }
+    &::placeholder { color: var(--placeholder); }
     &::-webkit-search-cancel-button { -webkit-appearance: none; }
   }
 
-  /* ── Row (32px, 16px gutters) ── */
-  .s-control { gap: var(--column-gap); padding: calc(4 * var(--space)) calc(16 * var(--space)); min-height: calc(32 * var(--length)); align-items: center; }
-  .s-label-group { width: calc(64 * var(--length)); min-width: 0; max-width: none; padding: 0; }
-  .s-label { color: var(--ink); font-weight: 400; }
+  /* ── Row: 32px, 16px lead, 88px label, 8px tail (D) ── */
+  .s-control { gap: var(--column-gap); padding: calc(4 * var(--space)) calc(8 * var(--space)) calc(4 * var(--space)) calc(16 * var(--space)); min-height: calc(32 * var(--length)); align-items: center; }
+  .s-label-group { width: calc(88 * var(--length)); min-width: 0; max-width: none; padding: 0; }
+  .s-label { color: var(--dim); font-weight: var(--weight); }
   .s-hint { opacity: 1; color: var(--dim); font-size: calc(11 * var(--length)); }
-  .s-input { gap: calc(var(--u) * 1.5); align-items: center; }
+  .s-input { gap: calc(8 * var(--space)); align-items: center; }
 
-  /* ── Ghost inputs (border only on hover/focus) ── */
+  /* ── Fields: filled, hairline on hover, blue line on focus (C textbox) ── */
   input[type="text"], input[type="number"], select, textarea {
-    background: transparent; color: var(--ink);
-    border: 1px solid transparent; border-radius: calc(2 * var(--length));
-    height: var(--control-height); padding: 0 calc(7 * var(--space)); font: inherit;
-    transition: border-color .12s var(--ease), box-shadow .12s var(--ease);
-    &::placeholder { color: var(--dim); }
+    background: var(--field); color: var(--ink);
+    border: 1px solid transparent; border-radius: var(--r);
+    height: var(--field-h); padding: 0 calc(7 * var(--space)); font: inherit; letter-spacing: inherit; outline: none;
+    transition: border-color .12s var(--ease);
+    &::placeholder { color: var(--placeholder); }
     &:hover { border-color: var(--line); }
-    &:focus { outline: none; border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    &:focus { border-color: var(--accent); }
   }
   .s-text input[type="text"] { flex: 1; }
 
   /* ── Number ── */
   .s-number { input[type="number"] { flex: 1; text-align: left; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &:focus { cursor: text; } &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
 
-  /* ── Vector (Figma X/Y/W/H) ── */
+  /* ── Vector (X/Y/W/H: grey axis letter centered in a 24px icon slot, value at 24px) ── */
   .s-vector {
-    .s-input { gap: calc(var(--u) * 1.5); }
-    .s-vec-axis { flex: 1; min-width: 0; gap: 0; box-sizing: border-box; height: var(--control-height); border: 1px solid transparent; border-radius: calc(2 * var(--length)); padding-left: calc(7 * var(--space));
-      transition: border-color .12s var(--ease), box-shadow .12s var(--ease);
+    .s-vec-axis { flex: 1; min-width: 0; gap: 0; box-sizing: border-box; height: var(--field-h); background: var(--field); border: 1px solid transparent; border-radius: var(--r);
+      transition: border-color .12s var(--ease);
       &:hover { border-color: var(--line); }
-      &:focus-within { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); } }
-    .s-vec-label { opacity: 1; color: var(--dim); font-size: calc(11 * var(--length)); width: calc(12 * var(--length)); }
-    input[type="number"] { border: none; box-shadow: none; padding: 0 calc(4 * var(--space)); cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:hover, &:focus { border: none; box-shadow: none; } &:focus { cursor: text; } }
+      &:focus-within { border-color: var(--accent); } }
+    .s-vec-label { opacity: 1; flex: none; color: var(--dim); width: calc(22 * var(--length)); text-align: center; }
+    /* three or more axes pair up two to a row, at the X / Y field width */
+    .s-input:has(> .s-vec-axis:nth-of-type(3)) .s-vec-axis { flex: 0 0 calc(50% - 4 * var(--space)); }
+    input[type="number"] { flex: 1; background: transparent; border: none; border-radius: 0; padding: 0 calc(7 * var(--space)) 0 calc(1 * var(--length)); text-align: left; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:focus { cursor: text; } }
   }
 
-  /* ── Slider ── */
+  /* ── Slider: 16px filled pill with a hairline, blue progress, ringed thumb (C range slider, D) ── */
   .s-slider {
     align-items: center;
-    .s-track { height: var(--control-height); margin: 0; }
+    .s-track { height: var(--field-h); margin: 0; }
     input[type="range"] {
-      width: 100%; height: calc(4 * var(--length)); -webkit-appearance: none; appearance: none; border-radius: calc(2 * var(--length)); cursor: pointer; outline: none;
-      background: linear-gradient(to right, var(--accent) var(--p, 0%), var(--line) var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; background: var(--thumb-bg); border: 1px solid var(--thumb-ring); box-shadow: 0 1px 2px var(--thumb-ring); cursor: pointer; transition: box-shadow .12s var(--ease); }
-      &::-moz-range-thumb { width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; background: var(--thumb-bg); border: 1px solid var(--thumb-ring); cursor: pointer; transition: box-shadow .12s var(--ease); }
-      &:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--accent), 0 1px 2px var(--thumb-ring); }
-      &:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(--accent); }
+      width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; border: 1px solid transparent; border-radius: calc(8 * var(--length)); cursor: pointer; outline: none;
+      background:
+        linear-gradient(var(--accent), var(--accent)) border-box 0 0 / var(--p, 0%) 100% no-repeat,
+        linear-gradient(var(--field), var(--field)) padding-box,
+        linear-gradient(var(--line), var(--line)) border-box;
+      &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
+      &::-moz-range-thumb { box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
+      &:focus-visible::-webkit-slider-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
+      &:focus-visible::-moz-range-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--dim); white-space: nowrap; }
-    .s-readout { flex: 0 0 auto; width: calc(48 * var(--length)); text-align: left; background: transparent; color: var(--ink); border: 1px solid transparent; border-radius: calc(2 * var(--length)); height: var(--control-height); padding: 0 calc(6 * var(--space)); font-variant-numeric: tabular-nums; cursor: ew-resize; transition: border-color .12s var(--ease); &:hover { border-color: var(--line); } &:focus { outline: none; border-color: var(--accent); cursor: text; } }
-    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(4 * var(--space)); background: var(--tooltip-bg); color: var(--tooltip-fg); padding: calc(2 * var(--length)) calc(6 * var(--space)); border-radius: calc(4 * var(--length)); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(4 * var(--length)); margin: calc(10 * var(--space)) 0; background: var(--line); border-radius: calc(2 * var(--length)); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); } }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(9 * var(--length)); color: var(--dim); white-space: nowrap; }
+    .s-readout { flex: 0 0 auto; width: calc(48 * var(--length)); min-width: calc(48 * var(--length)); @supports (field-sizing: content) { field-sizing: content; width: auto; } display: flex; align-items: center; text-align: left; background: var(--field); color: var(--ink); border: 1px solid transparent; border-radius: var(--r); height: var(--field-h); padding: 0 calc(7 * var(--space)); font-variant-numeric: tabular-nums; cursor: ew-resize; transition: border-color .12s var(--ease); &:hover { border-color: var(--line); } &:focus { outline: none; border-color: var(--accent); cursor: text; } }
+    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(4 * var(--space)); background: var(--tooltip-bg); color: var(--tooltip-fg); padding: calc(2 * var(--length)) calc(6 * var(--space)); border-radius: var(--r); white-space: nowrap; }
+    /* Interval: two 48px readouts leave the 120px column no track, so the track takes the column and the readouts pair under it, as X / Y fields do */
+    &.s-multiple .s-input { flex-wrap: wrap; }
+    &.s-multiple .s-readout { flex: 1; }
+    &.s-multiple .s-interval-track { order: -1; flex-basis: 100%; height: calc(16 * var(--length)); margin: calc(4 * var(--space)) 0; background: var(--field); box-shadow: inset 0 0 0 1px var(--line); border-radius: calc(8 * var(--length)); position: relative;
+      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: inherit; }
+      input[type="range"] { background: none; } }
   }
 
   /* ── Select ── */
   .s-select {
+    /* Dropdown: outlined, no fill; 16px chevron 4px inside the right edge (C dropdown, D) */
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='${enc(arrow)}' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; background-size: calc(9 * var(--length)) calc(6 * var(--length)); padding-right: calc(20 * var(--space));
-      option { background: var(--sel); color: var(--ink); } }
-    &.s-segmented { .s-input { gap: 0; background: var(--hover); border-radius: var(--r); padding: calc(2 * var(--length)); }
-      button { flex: 1; background: transparent; border: none; color: var(--dim); border-radius: calc(3 * var(--length)); height: calc(20 * var(--length)); font: inherit; outline: none;
-        transition: color .12s var(--ease), background .12s var(--ease), box-shadow .12s var(--ease);
+      background: ${chevron(ink)} right calc(4 * var(--length)) center / calc(16 * var(--length)) no-repeat; border-color: var(--line); padding-right: calc(24 * var(--length));
+      &:hover { border-color: var(--line); }
+      &:focus { border-color: var(--line); }
+      &:focus-visible { border-color: var(--accent); }
+      option { background: var(--bg); color: var(--ink); } }
+    /* Segmented: filled track; the selected segment takes the panel color and a hairline (C segmented control), at 3:1 */
+    &.s-segmented { .s-input { gap: 0; background: var(--field); border-radius: var(--r); }
+      button { flex: 1 1 0; min-width: calc(24 * var(--length)); background: transparent; border: 1px solid transparent; color: var(--dim); border-radius: var(--r); height: var(--field-h); padding: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: inherit; letter-spacing: inherit; outline: none;
+        transition: color .12s var(--ease);
         &:hover { color: var(--ink); }
-        &:focus-visible { box-shadow: inset 0 0 0 1px var(--accent); }
-        &.s-selected { background: var(--sel); box-shadow: 0 1px 2px var(--sel-shadow); color: var(--ink); }
-        &.s-selected:focus-visible { box-shadow: 0 1px 2px var(--sel-shadow), inset 0 0 0 1px var(--accent); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 1.5); } .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; } }
+        &:focus-visible { border-color: var(--accent); color: var(--ink); }
+        &.s-selected { background: var(--bg); border-color: var(--line-selected); color: var(--ink); }
+        &.s-selected:focus-visible { border-color: var(--accent); } } }
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(8 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(8 * var(--space)); cursor: pointer; } }
   }
 
   /* ── Boolean ── */
   .s-boolean {
     align-items: center;
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    /* Switch: 32×16 pill, 14px knob inside a 1px rim (C toggle) */
     &.s-switch {
-      .s-track { width: calc(24 * var(--length)); height: calc(14 * var(--length)); border-radius: calc(999 * var(--length)); background: var(--switch-off); position: relative; cursor: pointer; transition: background .15s var(--ease);
-        &::after { content: ''; position: absolute; top: calc(2 * var(--length)); left: calc(2 * var(--length)); width: calc(10 * var(--length)); height: calc(10 * var(--length)); border-radius: 50%; background: var(--thumb-bg); box-shadow: 0 1px 2px var(--knob-shadow); transition: left .15s var(--ease); } }
-      &:has(input:checked) .s-track { background: var(--accent); &::after { left: calc(12 * var(--length)); } }
-      &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .s-track { width: calc(32 * var(--length)); height: calc(16 * var(--length)); border-radius: calc(8 * var(--length)); background: var(--line); position: relative; cursor: pointer; transition: background .1s ease-out;
+        &::after { content: ''; position: absolute; top: calc(1 * var(--length)); left: calc(1 * var(--length)); width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: 50%; background: var(--knob); transition: left .1s ease-out; } }
+      &:has(input:checked) .s-track { background: var(--accent); &::after { left: calc(17 * var(--length)); background: var(--on-accent); } }
+      &:has(input:focus-visible) .s-track { box-shadow: inset 0 0 0 1px var(--accent-hover); }
+      &:has(input:checked:focus-visible) .s-track { box-shadow: inset 0 0 0 1px var(--accent-hover), inset 0 0 0 2px var(--bg); }
     }
-    &.s-checkbox {
-      .s-track { display: grid; place-items: center; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: calc(3 * var(--length)); background: transparent; border: 1.5px solid var(--checkbox-border);
-        transition: background .12s var(--ease), border-color .12s var(--ease);
-        &::after { content: ''; width: calc(9 * var(--length)); height: calc(7 * var(--length)); -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: var(--on-accent); opacity: 0; } }
-      &:has(input:checked) .s-track { background: var(--accent); border-color: var(--accent); &::after { opacity: 1; } }
-      &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 2px; }
-    }
-    --check: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E");
-    &.s-toggle .s-track { padding: 0 calc(10 * var(--space)); height: var(--control-height); border-radius: var(--r); background: var(--hover); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    &.s-toggle .s-track { padding: 0 calc(8 * var(--space)); height: var(--field-h); border: 1px solid transparent; border-radius: var(--r); background: var(--field); color: var(--dim); display: flex; align-items: center; justify-content: center; cursor: pointer;
       transition: background .12s var(--ease), color .12s var(--ease);
       &::after { content: 'Off'; } }
-    &.s-toggle:has(input:checked) .s-track { background: var(--accent); color: var(--on-accent); &::after { content: 'On'; } }
+    &.s-toggle:has(input:checked) .s-track { background: var(--action); color: var(--on-accent); &::after { content: 'On'; } }
+    &.s-toggle:has(input:focus-visible) .s-track { border-color: var(--accent-hover); }
   }
 
-  /* ── Color (swatch + hex + opacity) ── */
+  /* ── Checkbox: 16px filled square, 5px corners; hairline while empty (C), ink check once set (D); the checkboxes list draws it on .s-track ── */
+  .s-boolean.s-checkbox .s-track, .s-checkboxes .s-track { display: grid; place-items: center; flex: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: var(--r); background: var(--field); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer;
+    &::after { content: ''; width: calc(16 * var(--length)); height: calc(16 * var(--length)); -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: var(--s-color, var(--ink)); opacity: 0; } }
+  .s-boolean.s-checkbox:has(input:checked) .s-track, .s-checkboxes input:checked + .s-track { box-shadow: none; &::after { opacity: 1; } }
+  .s-boolean.s-checkbox:has(input:focus-visible) .s-track, .s-checkboxes input:focus-visible + .s-track { box-shadow: inset 0 0 0 1px var(--accent); }
+
+  /* ── Color: filled field, 14px chip (2px corners) 5px in, hex 6px after (C textbox-color, D) ── */
   .s-color {
-    &.s-picker .s-color-input { gap: calc(var(--u) * 1.5); box-sizing: border-box; height: var(--control-height); border: 1px solid transparent; border-radius: calc(2 * var(--length)); padding: 0 calc(2 * var(--length)) 0 calc(5 * var(--space));
-      transition: border-color .12s var(--ease), box-shadow .12s var(--ease);
+    .s-color-input { flex: 1; min-width: 0; display: flex; align-items: center; gap: calc(6 * var(--space)); box-sizing: border-box; height: var(--field-h); background: var(--field); border: 1px solid transparent; border-radius: var(--r); padding: 0 0 0 calc(4 * var(--space));
+      transition: border-color .12s var(--ease);
       &:hover { border-color: var(--line); }
-      &:focus-within { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-      input[type="color"] { appearance: none; -webkit-appearance: none; position: static; flex: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: 1px solid var(--swatch-border); border-radius: calc(3 * var(--length)); box-shadow: var(--swatch-ring); cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: calc(3 * var(--length)); } }
-      input[type="text"] { flex: 1; min-width: 0; border: none; padding: 0; height: var(--control-height); text-transform: uppercase; &:hover, &:focus { border: none; box-shadow: none; } } }
-    &.s-rgba .s-color-input {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 16px minmax(54px, 1fr);
-      gap: calc(var(--u) * 1.5);
-      align-items: center;
-      input[type="color"] { appearance: none; -webkit-appearance: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border: 1px solid var(--swatch-border); border-radius: calc(3 * var(--length)); box-shadow: var(--swatch-ring); &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: calc(3 * var(--length)); } }
-      .s-alpha { display: none; }
-      input[type="text"] { width: 100%; min-width: 0; padding: 0 calc(2 * var(--length)); text-transform: uppercase; }
-    }
-    &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: calc(3 * var(--length)); border: 1px solid var(--swatch-border); box-shadow: var(--swatch-ring); outline: none; &.s-selected { outline: 2px solid var(--accent); outline-offset: 1px; } &:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; } }
+      &:focus-within { border-color: var(--accent); }
+      input[type="color"] { appearance: none; -webkit-appearance: none; position: static; flex: none; width: calc(14 * var(--length)); height: calc(14 * var(--length)); padding: 0; border: none; border-radius: var(--r-small); overflow: hidden; background: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r-small); } &::-moz-color-swatch { border: none; border-radius: var(--r-small); } }
+      input[type="text"] { flex: 1; width: 0; min-width: 0; height: 100%; background: transparent; border: none; border-radius: 0; padding: 0 calc(7 * var(--space)) 0 0; text-transform: uppercase; }
+      .s-alpha { display: none; } }
+    &.s-swatches button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: none; border-radius: var(--r-small); box-shadow: var(--swatch-ring); outline: none; &.s-selected, &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; } }
   }
 
-  /* ── Button ── */
-  button { font: inherit; cursor: pointer; }
+  /* ── Button: 24px, 5px corners, weight 450 (C button) ── */
+  button { font: inherit; letter-spacing: inherit; cursor: pointer; }
   .s-button {
-    .s-input { gap: calc(var(--u) * 2); }
-    button { flex: 1; height: calc(32 * var(--length)); background: var(--accent); color: var(--on-accent); border: none; border-radius: var(--r); font-weight: 500; padding: 0 calc(12 * var(--space)); outline: none;
-      transition: filter .12s var(--ease), box-shadow .12s var(--ease);
-      &:hover { filter: brightness(1.05); } &:active { filter: brightness(.95); } &:disabled { opacity: .4; cursor: not-allowed; }
-      &:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); } }
-    &.s-secondary button, button.s-secondary { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); transition: background .12s var(--ease), box-shadow .12s var(--ease);
-      &:hover { background: var(--hover); filter: none; }
-      &:focus-visible { box-shadow: inset 0 0 0 1px var(--line), 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); } }
+    .s-input { gap: calc(8 * var(--space)); }
+    button { flex: 1; height: var(--field-h); background: var(--action); color: var(--on-accent); border: 1px solid transparent; border-radius: var(--r); padding: 0 calc(8 * var(--space)); outline: none;
+      transition: background .12s var(--ease);
+      &:hover, &:active { background: var(--action-hover); }
+      &:focus-visible { border-color: var(--accent-hover); box-shadow: inset 0 0 0 1px var(--bg); }
+      &:disabled { background: var(--disabled); color: var(--on-accent); cursor: not-allowed; } }
+    &.s-secondary button, button.s-secondary { background: transparent; color: var(--ink); border-color: var(--line);
+      &:hover, &:active { background: var(--field); }
+      &:focus-visible { border-color: var(--accent); box-shadow: none; }
+      &:disabled { background: transparent; color: var(--faint); } }
   }
 
-  /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(48 * var(--length)); max-height: 50vh; padding: calc(6 * var(--space)) calc(7 * var(--space)); border-color: var(--line); &:hover { border-color: var(--line); } } }
+  /* ── Textarea (C textbox-multiline) ── */
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(48 * var(--length)); max-height: 50vh; height: auto; padding: calc(3 * var(--space)) calc(7 * var(--space)); } }
 
-  /* ── Folder (section) ── */
+  /* ── Folder (section): 1px divider, 40px header, 12px foot (D) ── */
   .s-folder {
-    padding: 0; /* .s-folder also matches .s-control — without this it double-applies the row inset to both the header and .s-content's children */
-    > summary { font-weight: 600; color: var(--ink); height: calc(32 * var(--length)); padding: 0 calc(16 * var(--space)); border-top: 1px solid var(--line);
-      &::after { content: ''; width: calc(8 * var(--length)); height: calc(8 * var(--length)); margin-left: auto; background: currentColor; opacity: 0; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .12s var(--ease), opacity .12s var(--ease); }
-      &:hover::after { opacity: .45; } }
+    padding: 0; /* .s-folder also matches .s-control; without this it double-applies the row inset to both the header and .s-content's children */
+    > summary { font-weight: var(--strong); color: var(--ink); box-sizing: content-box; height: var(--header-h); padding: 0 calc(16 * var(--space)); border-top: 1px solid var(--line);
+      &::after { content: ''; width: calc(16 * var(--length)); height: calc(16 * var(--length)); margin-left: auto; background: currentColor; opacity: 0; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .12s var(--ease), opacity .12s var(--ease); }
+      &:hover::after { opacity: .5; } }
     &[open] > summary::after { transform: rotate(-180deg); }
-    .s-content { gap: 0; padding-bottom: calc(8 * var(--space)); }
+    .s-content { gap: 0; padding-bottom: calc(12 * var(--space)); }
   }
+  /* Loose rows are sections too: the first one after a folder opens with a divider */
+  .s-panel-content > .s-control:not(.s-folder) + .s-folder { margin-top: calc(8 * var(--space)); }
+  .s-panel-content > .s-folder + .s-control:not(.s-folder) { border-top: 1px solid var(--line); padding-top: calc(12 * var(--space)); }
 
   /* ── XY pad / knob ── */
-  .s-pad { border-radius: calc(2 * var(--length)); }
-  .s-knob-dial { background: var(--hover); border: 1px solid var(--line); }
+  .s-pad { border-radius: var(--r); background: var(--field); }
+  .s-knob-dial { background: var(--field); border: 1px solid var(--line); }
 
   /* ── Info / separator ── */
   .s-info .s-monitor { color: var(--ink); font-variant-numeric: tabular-nums; }
   .s-separator { background: var(--line); opacity: 1; margin: calc(8 * var(--space)) 0; }
+  .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 
   return baseCSS + '\n' + overrides

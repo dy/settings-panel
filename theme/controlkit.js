@@ -4,7 +4,8 @@
  * Custom shades derive missing color roles; explicit role axes take precedence.
  *
  * Signatures: a dense, flat near-black panel with gradient group-header bars, a
- * single burgundy-red (#b32435) thumbless slider fill, a strict label/control
+ * single burgundy-red thumbless slider fill (ControlKit's #b32435, lifted to read
+ * 3:1 in its slot), a strict 30/70 label/control
  * split, and Arial type — the "Photoshop-panel" inspector look.
  * Ref: https://github.com/automat/controlkit.js
  *
@@ -15,16 +16,15 @@
  *     A hued `shade` tints the whole chrome ramp, since C/H ride the live axis.
  *   - field-family: the cool content tint — labels, inset/sunken tone, pad detail.
  *     A retinted `field` retints labels/inset/pad together the same way.
- * A few native constants (the OS-blue checkbox tint, pure ink/void) aren't a
- * function of any axis in the real ControlKit skin — they're still named tokens
- * below, just with fixed defaults.
+ * Native constants that aren't a function of any axis in the real ControlKit skin
+ * (pure ink/void, the OS checkbox) stay fixed.
  *
  * controlkit(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, toHex, clamp } from './color.js'
+import { parseColor, resolveAccent, toHex, clamp, ink as legible } from './color.js'
 
 const { max } = Math
 
@@ -41,7 +41,7 @@ export default function controlkit({
   const dark = surface.L < .5
   field ??= shade === '#1a1a1a' ? '#222729' : toHex({ ...surface, L: clamp(surface.L + (dark ? .06 : -.06), 0, 1) })
   const ink = dark ? '#fff' : '#111'
-  const enc = c => encodeURIComponent(c)
+  const voidC = '#000'
 
   // ── Derived tokens ──
   // Serialized as hex (not oklch()) so these can double as gradient/radial-gradient
@@ -57,37 +57,78 @@ export default function controlkit({
   // field-family: L/C/H offsets off field's own OKLCH, carried live
   const f = (dL, dC, dH) => $(fieldL + dL * (dark ? 1 : -1), fieldC + dC, fieldH + dH)
 
-  // native fields carry a faint top-to-bottom inset gradient over the flat fill —
-  // that's what reads as "darker" than a plain fill at a glance
-  const text = f(0.499901, 0.000862, 1.3708)
-  const muted = f(0.249410, -0.002218, 5.1557)
-  // ControlKit's real chrome: a flat near-black panel/title (shade) with each row
-  // painted a touch lighter on top — that row tint (not a darker title) is what
-  // gives the panel its depth.
-  const inset = f(-0.019865, -0.001096, 5.4017)
-  const bevelDk = s(0.021506)      // was #1f1f1f
-  const bevelLt = s(0.191334)      // was #4a4a4a
-  const bevelDarkDk = s(-0.031045) // was #131313
-  const bevelDarkLt = f(-0.007324, -0.001175, 5.3760) // was #212527
-  const chromeHi = s(0.172634)     // was #454545
-  const chromeLo = s(0.134538)     // was #3b3b3b
-  const chromeGlow = s(0.228111)   // was #545454, button hover highlight
-  const sectionBg = s(0.054954)    // was #272727
-  const padCross = s(-0.004364)    // was #191919
-  const selectArrow = s(0.520232)  // was #aaaaaa
-  const checkboxBorder = s(0.415642) // was #8a8a8a
-  const padAxis = f(0.083505, 0.002582, 13.1425)      // was #363c40
-  const padDotFill = f(0.113919, 0.011537, 9.8598)    // was #39454c
-  const padDotBg = f(0.202892, 0.006795, 5.4561)      // was #535d62
-  const fieldLine = f(-0.083613, -0.004313, 5.2852)   // was #111314 (pad ring + color-picker hairline)
-  const minmaxLabel = f(0.378781, -0.002529, 5.1183)  // was #8b8f91
-  const chevFillTitle = f(0.245079, 0.005709, -0.0443) // was #5f696d, title's own collapse chevron
+  const text = f(0.499901, 0.000862, 1.3708)          // #aeb5b8 row labels
+  const muted = f(0.249410, -0.002218, 5.1557)        // #65696b panel title
+  // Text at 4.5:1 where ControlKit's own falls short (WCAG 1.4.3), each tone lifted only as far as it
+  // must: the title tone on the panel (3.1:1), and on a row (#2e2e2e, --row below) the hints and mark
+  // labels drawn in it (2.4:1) and a separator's label (row text at 60%, 3.4:1)
+  const hex = c => toHex(parseColor(c))
+  const mix = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex(a).slice(i, i + 2), 16) * t + parseInt(hex(b).slice(i, i + 2), 16) * (1 - t)).toString(16).padStart(2, '0')).join('')
+  const row = mix('#fff', shade, .087)
+  const quiet = legible(row, 4.5, muted)
+  const sepLabel = legible(row, 4.5, mix(text, row, .6))
+  // and placeholders in the panel-title tone (4.1:1 on a field), on the field's lighter end under light
+  // ink, its darker end under dark ink (the field's gradient lays 7.5% to 12.5% black over it)
+  const placeholder = legible(mix('#000', field, dark ? .075 : .125), 4.5, muted)
+  const inset = f(-0.019865, -0.001096, 5.4017)       // #1e2224 slider slot, pad face
+  const menuBg = f(-0.040128, -0.002141, 13.0758)     // #1a1d1f title hide button
+  const bevelDk = s(0.021506)      // #1f1f1f
+  const bevelLt = s(0.191334)      // #4a4a4a
+  const bevelDarkDk = s(-0.031045) // #131313
+  const bevelDarkLt = f(-0.007324, -0.001175, 5.3760) // #212527
+  const chromeHot = s(0.172634)    // #454545 hover top, folder bar top
+  const chromeHi = s(0.153708)     // #404040 button/select top
+  const chromeLo = s(0.134538)     // #3b3b3b
+  const rimHi = s(0.209821)        // #4f4f4f folder bar top edge
+  const rimHot = s(0.220818)       // #525252 folder bar top edge, hovered
+  const rimLo = s(0.050832)        // #262626 folder bar bottom edge
+  const sectionBg = s(0.054954)    // #272727 nested folder bar
+  const sectionRim = s(0.042538)   // #242424
+  const sectionShutLo = s(0.122911) // #383838 collapsed nested bar bottom
+  const sectionShutRim = s(0.18014) // #474747 collapsed nested bar top line, hovered
+  const handleShade = s(-0.04937)  // #0f0f0f drop line under the slider fill
+  const minmaxLabel = s(0.405623)  // #878787 range MIN/MAX
+  const padCross = s(-0.004364)    // #191919
+  const padAxis = f(0.083505, 0.002582, 13.1425)      // #363c40
+  const padDotFill = f(0.113919, 0.011537, 9.8598)    // #39454c
+  const padDotBg = f(0.202892, 0.006795, 5.4561)      // #535d62
+  const fieldLine = f(-0.083613, -0.004313, 5.2852)   // #111314 color field + pad ring
+
+  // ── Glyphs ──
+  // ControlKit draws its arrows as 1x PNG sprites; each is redrawn here pixel for pixel
+  // as SVG rects in axis-derived tones. A row char keys the palette, its uppercase
+  // twin is the same tone at half alpha (the sprite's soft rim), '.' is clear.
+  const sprite = (pal, ...rows) => {
+    const rects = rows.flatMap((row, y) => [...row.matchAll(/([^.])\1*/g)].map(({ 0: run, 1: k, index: x }) => {
+      const half = k !== k.toLowerCase()
+      return `<rect x='${x}' y='${y}' width='${run.length}' height='1' fill='${pal[k.toLowerCase()]}'${half ? ` fill-opacity='.5'` : ''}/>`
+    }))
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${rows[0].length} ${rows.length}' shape-rendering='crispEdges'>${rects.join('')}</svg>`
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  }
+  const lip = f(0.146322, 0.0052, 11.3937)             // #454d52
+  const glint = f(0.180447, 0.008, 3.1303)             // #4c575c
+  // select: stacked up/down arrows (8×11)
+  const selectPal = { o: inset, e: f(0.38343, -0.005315, 5.0609), g: f(0.469557, -0.000954, 9.9356), w: ink, h: glint }
+  const selectArrow = sprite(selectPal, '...OO...', '..OeeO..', '.OewweO.', 'OewwwweO', 'HhhhhhhH', '........', 'OooooooO', 'HgwwwwgH', '.HgwwgH.', '..HggH..', '...HH...')
+  // title hide/show button (8×5)
+  const menuPal = { k: f(-0.092734, -0.004268, 5.3047), m: f(0.043985, 0.001803, 5.4576), n: f(0.170358, 0.007038, 5.5032), r: f(0.160216, 0.006093, 8.2317), q: lip }
+  const menuHide = sprite(menuPal, '...KK...', '..KmmK..', '.KmnnmK.', 'KmnnnnmK', 'QqqqqqqQ')
+  const menuShow = sprite(menuPal, 'KkkkkkkK', 'QrnnnnrQ', '.QrnnrQ.', '..QrrQ..', '...QQ...')
+  // folder bar open/closed (8×5)
+  const barPal = { z: voidC, y: s(0.378703), w: ink }
+  const barOpen = sprite(barPal, '...ZZ...', '..ZyyZ..', '.ZywwyZ.', 'ZywwwwyZ', 'WwwwwwwW')
+  const barShut = sprite(barPal, 'ZzzzzzzZ', 'WwwwwwwW', '.WwwwwW.', '..WwwW..', '...WW...')
+  // nested folder bar open/closed (10×6)
+  const subPal = { k: f(-0.126276, -0.004504, -26.9899), d: f(0.131071, 0.004322, 5.4479), n: f(0.352082, 0.013158, 7.173), m: f(0.268168, 0.011051, 7.4484), h: glint }
+  const subOpen = sprite(subPal, '....KK....', '...KddK...', '..KdnndK..', '.KdnnnndK.', 'KdnnnnnndK', 'HhhhhhhhhH')
+  const subShut = sprite(subPal, 'KkkkkkkkkK', 'HmnnnnnnmH', '.HmnnnnmH.', '..HmnnmH..', '...HmmH...', '....HH....')
 
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "Arial, Helvetica, sans-serif", lineHeight: 15.4, controlHeight: 26, inset: 4, rowGap: 0, columnGap: 8, sectionGap: 8, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "Arial, sans-serif", lineHeight: 15.4, controlHeight: 25, inset: 4, rowGap: 0, columnGap: 0, sectionGap: 8, panelPadding: 0})}
 
   --bg: ${shade};
-  --accent: ${acc};
+  --accent: ${legible(inset, 3, acc)};   /* the fill reads 3:1 in its slot (WCAG 1.4.11): ControlKit's #b32435 gives 2.5:1 */
   --field: ${field};
 
   --weight: 400;
@@ -95,7 +136,9 @@ export default function controlkit({
   color-scheme: ${dark ? 'dark' : 'light'};
 
   --text: ${text};
-  --muted: ${muted};
+  --muted: ${legible(shade, 4.5, muted)};
+  --placeholder: ${placeholder};
+  --quiet: ${quiet};
   --inset: ${inset};
   --row: color-mix(in srgb, var(--bg), white 8.7%);
   --field-bg: linear-gradient(var(--overlay-1), var(--overlay-2)), var(--field);
@@ -107,31 +150,32 @@ export default function controlkit({
   --bevel-dark-dk: ${bevelDarkDk};
   --bevel-dark-lt: ${bevelDarkLt};
   --bevel-dark: inset 0 0 0 1px var(--bevel-dark-dk), inset -1px 2px 0 0 var(--bevel-dark-lt);
+  --menu-bg: ${menuBg};
+  --chrome-hot: ${chromeHot};
   --chrome-hi: ${chromeHi};
   --chrome-lo: ${chromeLo};
-  --chrome-glow: ${chromeGlow};
   --chrome: linear-gradient(var(--chrome-hi), var(--chrome-lo));
-  --chrome-hover: linear-gradient(var(--bevel-lt), var(--chrome-lo));
-  --chrome-active: linear-gradient(var(--chrome-lo), var(--chrome-hi));
+  --chrome-hover: linear-gradient(var(--chrome-hot), var(--chrome-lo));
+  --rim-hi: ${rimHi};
+  --rim-hot: ${rimHot};
+  --rim-lo: ${rimLo};
   --section-bg: ${sectionBg};
+  --section-rim: ${sectionRim};
+  --section-shut-lo: ${sectionShutLo};
+  --section-shut-rim: ${sectionShutRim};
+  --handle-shade: ${handleShade};
   --pad-cross: ${padCross};
   --pad-axis: ${padAxis};
-  --pad-dot-fill: ${padDotFill};
-  --pad-dot-bg: ${padDotBg};
   --field-line: ${fieldLine};
   --minmax-label: ${minmaxLabel};
-  --select-arrow: ${selectArrow};
-  --checkbox-border: ${checkboxBorder};
-  --checkbox-tint: #2f6fb3;
   --ink: ${ink};
-  --void: #000;
+  --void: ${voidC};
   --text-shadow: ${dark ? '#000' : '#ffffff80'};
   --shadow: rgba(0, 0, 0, .25);
   --overlay-1: rgba(0,0,0,.075);
   --overlay-2: rgba(0,0,0,.125);
-  --overlay-3: rgba(0,0,0,.15);
+  --overlay-3: rgba(0,0,0,.1);
   --overlay-4: rgba(0,0,0,.05);
-  --chev: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='${enc(selectArrow)}' stroke-width='1.6'/%3E%3C/svg%3E");
 
   background: var(--bg);
   color: var(--text);
@@ -142,6 +186,8 @@ export default function controlkit({
   border-radius: calc(3 * var(--length));
   padding: var(--panel-padding);
   box-shadow: var(--shadow) 0 2px 2px 0;
+  /* native's overflow:hidden: the square title and last row take the rounded corners */
+  overflow: clip;
 
   font-family: var(--font-family);
   font-size: var(--font-size);
@@ -149,88 +195,102 @@ export default function controlkit({
 
   /* ── Title (flat, same near-black as the panel — rows are what read lighter) ── */
   > summary, > .s-panel-title {
-    background: var(--bg); color: var(--muted); font-weight: 700; height: calc(30 * var(--length)); padding: 0 calc(10 * var(--space)); font-size: calc(11 * var(--length)); text-shadow: 0 1px 0 var(--text-shadow);
-    &::after { content: ''; width: calc(20 * var(--length)); height: calc(20 * var(--length)); margin-left: auto; background: var(--inset) url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4 L5 7 L8 4Z' fill='${enc(chevFillTitle)}'/%3E%3C/svg%3E") center / 10px 10px no-repeat; border-radius: calc(2 * var(--length)); box-shadow: var(--bevel-dark); -webkit-mask: none; mask: none; transition: transform .1s; }
+    background: var(--bg); color: var(--muted); font-weight: 700; height: calc(30 * var(--length)); padding: 0 calc(10 * var(--space)); font-size: calc(11 * var(--length)); line-height: calc(30 * var(--length)); text-shadow: 0 1px 0 var(--text-shadow);
+    /* the 20px hide/show button: sprite swaps with state (native has no rotation) */
+    &::after { content: ''; flex: none; width: calc(20 * var(--length)); height: calc(20 * var(--length)); margin-left: auto; background: ${menuShow} center / calc(8 * var(--length)) calc(5 * var(--length)) no-repeat, var(--menu-bg); border-radius: calc(2 * var(--length)); box-shadow: var(--bevel-dark); }
+    &:hover::after { background-color: var(--void); }
   }
-  &[open] > summary::after { transform: rotate(-180deg); }
+  &[open] > summary::after { background-image: ${menuHide}; }
   .s-panel-content { gap: var(--row-gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }
 
-  /* ── Row (a touch lighter than the panel/title behind it) ── */
-  .s-control { gap: var(--column-gap); padding: 0 calc(10 * var(--space)); min-height: calc(35 * var(--length)); align-items: center; background: var(--row); border-bottom: 1px solid var(--field); }
-  .s-label-group { flex: 0 0 54px; width: calc(54 * var(--length)); min-width: 0; max-width: none; padding: 0; }
-  .s-label { color: var(--text); font-weight: 400; text-shadow: 1px 1px 0 var(--text-shadow); }
-  .s-hint { color: var(--muted); font-size: calc(10 * var(--length)); }
-  .s-input { gap: calc(4 * var(--space)); align-items: center; }
+  /* ── Row: 30% label / 70% value, both top-anchored like native's floated cells ── */
+  .s-control { gap: var(--column-gap); padding: 0 calc(10 * var(--space)); min-height: calc(35 * var(--length)); align-items: flex-start; background: var(--row); border-bottom: 1px solid var(--field); }
+  /* a group's last row drops its divider (native li:last-of-type) */
+  .s-control:not(.s-folder):last-child, .s-control:has(+ .s-folder) { border-bottom: 0; }
+  /* ...but consecutive sub-groups keep native's divider between them */
+  :is(.s-control:not(.s-folder), .s-section):has(+ .s-section) { border-bottom: 1px solid var(--section-rim); }
+  .s-label-group { flex: 0 0 30%; width: 30%; min-width: 0; max-width: none; padding: calc(12 * var(--space)) calc(5 * var(--space)) 0 0; line-height: normal; }
+  /* native ellipsizes in a 34px-tall box; clip (not hidden) with a 1px margin keeps the 1px text-shadow under descenders */
+  .s-label-group .s-label { min-width: 0; overflow: clip; overflow-clip-margin: 1px; white-space: nowrap; text-overflow: ellipsis; color: var(--text); font-weight: 400; text-shadow: 1px 1px 0 var(--text-shadow); }
+  .s-hint { color: var(--quiet); opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-input { gap: calc(4 * var(--space)); align-items: flex-start; padding-top: calc(5 * var(--space)); }
 
   /* ── Fields ── */
   input[type="text"], input[type="number"], select, textarea {
     background: var(--field-bg); color: var(--ink); border: none; border-radius: calc(2 * var(--length));
-    height: var(--control-height); padding: 0 calc(8 * var(--space)); font: inherit; text-shadow: 1px 1px 0 var(--text-shadow);
+    height: var(--control-height); padding: 0 0 0 calc(8 * var(--space)); font: inherit; line-height: normal; text-shadow: 1px 1px 0 var(--text-shadow);
     box-shadow: inset 0 0 0 1px var(--bevel-dk);
-    &::placeholder { color: var(--muted); }
+    &::placeholder { color: var(--placeholder); }
     &:focus { outline: 0; }
   }
   .s-text input[type="text"] { flex: 1; }
 
-  /* ── Number ── */
-  .s-number { input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
+  /* ── Number: a plain left-aligned text field, as native's NumberInput ── */
+  .s-number { input[type="number"] { flex: 1; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
 
-  /* ── Slider: dark slot, red fill inset from the edges, no thumb, number right ── */
+  /* ── Slider: 70% slot with a thumbless red fill, 25% readout flush right ── */
   .s-slider {
-    align-items: center;
+    &:not(.s-multiple) .s-input { padding-top: calc(6 * var(--space)); justify-content: space-between; gap: 0; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
-    .s-track { height: var(--control-height); margin: 0; background: var(--inset); border-radius: calc(2 * var(--length)); padding: calc(3 * var(--space)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize; }
+    .s-track { flex: 0 1 70%; height: var(--control-height); margin: 0; background: var(--inset); border-radius: calc(2 * var(--length)); padding: calc(3 * var(--space)) calc(3 * var(--space)) calc(2 * var(--space)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize; }
+    /* fill = handle face + its shading gradient over a 1px drop line, --p wide rounded to whole
+       px like native's Math.round(intrpl * slotWidth) */
     input[type="range"] {
-      width: 100%; height: 100%; -webkit-appearance: none; appearance: none; cursor: ew-resize; border: none; border-radius: calc(1 * var(--length));
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%)), linear-gradient(to bottom, transparent, var(--overlay-3));
+      width: 100%; height: 100%; -webkit-appearance: none; appearance: none; cursor: ew-resize; border: none; border-radius: 0;
+      background: linear-gradient(transparent, var(--overlay-3)) 0 0 / round(var(--p, 0%), 1px) calc(100% - 1px) no-repeat, linear-gradient(var(--accent), var(--accent)) 0 0 / round(var(--p, 0%), 1px) calc(100% - 1px) no-repeat, linear-gradient(var(--handle-shade), var(--handle-shade)) 0 0 / round(var(--p, 0%), 1px) 100% no-repeat;
       &::-webkit-slider-thumb { -webkit-appearance: none; width: 0; height: 100%; }
       &::-moz-range-thumb { width: 0; height: 100%; border: none; }
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--muted); white-space: nowrap; }
-    .s-readout { flex: 0 0 auto; width: calc(32 * var(--length)); min-width: calc(32 * var(--length)); text-align: center; background: var(--field-bg); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: var(--control-height); line-height: 26px; padding: 0; font-variant-numeric: tabular-nums; text-shadow: 1px 1px 0 var(--text-shadow); box-shadow: inset 0 0 0 1px var(--bevel-dk); }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--quiet); white-space: nowrap; }
+    /* the original's 25% box; a longer value ('440 Hz') widens it and the slot gives way */
+    .s-readout { flex: 0 0 auto; width: 25%; min-width: 25%; @supports (field-sizing: content) { field-sizing: content; width: auto; } text-align: center; background: var(--field-bg); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: var(--control-height); padding: 0; line-height: normal; font-variant-numeric: tabular-nums; text-shadow: 1px 1px 0 var(--text-shadow); box-shadow: inset 0 0 0 1px var(--bevel-dk); }
+    /* read-only readouts are spans: center the normal line box the way an input does */
+    span.s-readout { display: flex; align-items: center; justify-content: center; }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--void); color: var(--ink); padding: calc(1 * var(--length)) calc(4 * var(--space)); white-space: nowrap; }
-    /* 1fr columns (not 4×32px) so the 4-up grid sums to exactly the value column's width —
-       fixed px columns overshot it by 2px, pushing MAX's readout past the row's right edge */
+    /* range: four equal quarter cells, MIN · lo · MAX · hi, as native's sub-wraps */
     &.s-multiple .s-input { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
     &.s-multiple .s-interval-track { display: none; }
-    &.s-multiple .s-readout { position: relative; width: calc(32 * var(--length)); min-width: calc(32 * var(--length)); cursor: ew-resize; }
+    &.s-multiple .s-readout { position: relative; width: auto; cursor: ew-resize; }
     &.s-multiple .s-readout-lo { grid-column: 2; }
     &.s-multiple .s-readout-hi { grid-column: 4; }
     &.s-multiple .s-readout-lo::before,
-    &.s-multiple .s-readout-hi::before { position: absolute; right: 100%; top: 0; width: calc(32 * var(--length)); height: var(--control-height); display: grid; place-items: center; color: var(--minmax-label); font-weight: 700; }
+    &.s-multiple .s-readout-hi::before { position: absolute; right: 100%; top: 0; width: 100%; padding-top: calc(8 * var(--space)); text-align: center; line-height: normal; color: var(--minmax-label); font-weight: 700; text-shadow: 1px 1px 0 var(--bg); }
     &.s-multiple .s-readout-lo::before { content: 'MIN'; }
     &.s-multiple .s-readout-hi::before { content: 'MAX'; }
   }
 
-  /* ── Select: styled as the same gray-gradient button as .s-button, per ControlKit's real chrome ── */
+  /* ── Select: the same gray-gradient button as .s-button, regular weight ── */
   .s-select {
-    &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--ink); font-weight: 700;
-      border-radius: calc(2 * var(--length)); height: var(--control-height); padding: 0 calc(20 * var(--space)) 0 calc(10 * var(--space)); box-shadow: var(--bevel);
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='${enc(selectArrow)}'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"), var(--chrome); background-repeat: no-repeat, repeat; background-position: right 8px center, 0 0; background-size: calc(8 * var(--length)) calc(12 * var(--length)), auto;
-      &:hover { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 8 12' xmlns='http://www.w3.org/2000/svg' fill='${enc(selectArrow)}'%3E%3Cpath d='M0 5 L4 1 L8 5Z'/%3E%3Cpath d='M0 7 L4 11 L8 7Z'/%3E%3C/svg%3E"), var(--chrome-hover); }
+    &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--ink); font-weight: 400;
+      height: calc(var(--control-height) + 1 * var(--length)); padding: 0 calc(20 * var(--space)) 0 calc(10 * var(--space)); box-shadow: var(--bevel); text-overflow: ellipsis; white-space: nowrap;
+      background: ${selectArrow} right calc(8 * var(--length)) center / calc(8 * var(--length)) calc(11 * var(--length)) no-repeat, var(--chrome);
+      &:hover { background-image: ${selectArrow}, var(--chrome-hover); }
       option { background: var(--field); color: var(--text); } }
     &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: var(--field); border: 1px solid var(--void); color: var(--text); margin-left: calc(-1 * var(--length)); padding: calc(2 * var(--length)); font: inherit; &:first-child { margin-left: 0; } &.s-selected { background: var(--accent); color: var(--ink); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(2 * var(--length)); } .s-input label { display: flex; align-items: center; gap: calc(5 * var(--space)); cursor: pointer; } }
   }
 
-  /* ── Boolean: small checkbox ── */
-  .s-boolean {
-    align-items: center;
-    input[type="checkbox"] { -webkit-appearance: none; appearance: none; position: static; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; border-radius: calc(2 * var(--length)); background: var(--ink); border: 1px solid var(--checkbox-border); box-sizing: border-box; cursor: pointer;
-      &:checked { border-color: var(--checkbox-tint); background: var(--checkbox-tint) url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='${enc(ink)}' stroke-width='2'/%3E%3C/svg%3E") center / 10px no-repeat; }
-      &:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; } }
-    .s-track { display: none; }
-  }
+  /* ── Boolean: the OS checkbox, which native ControlKit leaves unstyled; the checkboxes list shows the same box ── */
+  .s-boolean input[type="checkbox"], .s-checkboxes input[type="checkbox"] { appearance: auto; color-scheme: light; accent-color: var(--s-color, auto); position: static; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; cursor: pointer; }
+  :is(.s-boolean, .s-checkboxes) .s-track { display: none; }
+  .s-boolean input[type="checkbox"] { margin: calc(6 * var(--space)) 0 0; }
 
-  /* ── Color ── */
+  /* ── Color: the swatch is the field; hex centered on it. ControlKit letters it in the panel ink,
+     white on #ff0000 at 4.0:1; here black or white by WCAG luminance at .179, where both reach
+     the same contrast (color.js onAccent), so it reads 4.5:1 or more on any color, its 1px
+     shadow in the other one ── */
   .s-color {
-    &.s-picker .s-color-input { gap: 0; position: relative; border-radius: calc(2 * var(--length)); overflow: hidden; box-shadow: inset 0 0 0 1px var(--field-line);
+    &.s-picker .s-color-input { gap: 0; position: relative; border-radius: calc(2 * var(--length)); overflow: hidden;
       input[type="color"] { position: absolute; inset: 0; width: 100%; height: var(--control-height); padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
-      input[type="text"] { position: relative; flex: 1; background: transparent; color: var(--ink); mix-blend-mode: normal; font-family: Arial, sans-serif; font-weight: 700; text-align: center; padding: 0; height: var(--control-height); text-shadow: 1px 1px 0 var(--text-shadow); } }
+      input[type="text"] { position: relative; flex: 1; background: transparent; text-align: center; padding: 0; line-height: var(--control-height); box-shadow: inset 0 0 0 1px var(--field-line);
+        --hex-ink: clamp(0, (.179 - (.2126 * pow((r / 255 + .055) / 1.055, 2.4) + .7152 * pow((g / 255 + .055) / 1.055, 2.4) + .0722 * pow((b / 255 + .055) / 1.055, 2.4))) * 1e6, 255);
+        color: rgb(from var(--color) var(--hex-ink) var(--hex-ink) var(--hex-ink));
+        text-shadow: 1px 1px 0 rgb(from var(--color) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) / calc(.5 + var(--hex-ink) / 510)); } }
     &.s-rgba .s-color-input { gap: calc(4 * var(--space)); input[type="color"] { width: calc(28 * var(--length)); height: calc(19 * var(--length)); } input[type="text"] { flex: 1; } }
+    &.s-swatches .s-input { flex-wrap: wrap; }
     &.s-swatches button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); border: 1px solid var(--void); &.s-selected { outline: 1px solid var(--accent); } }
   }
 
@@ -239,63 +299,67 @@ export default function controlkit({
   .s-button {
     /* full-width by owner's decision — native ControlKit keeps buttons at the value column */
     .s-input { flex: 1; }
-    button { width: 100%; background: var(--chrome); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: var(--control-height); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; text-shadow: 0 1px 0 var(--text-shadow); box-shadow: var(--bevel); &:hover { background: var(--chrome-hover); box-shadow: inset 0 0 0 1px var(--bevel-dk), inset -1px 2px 0 0 var(--chrome-glow); } &:active { background: var(--chrome-active); box-shadow: inset 0 0 0 1px var(--bevel-dk); } }
+    button { width: 100%; background: var(--chrome); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: calc(var(--control-height) + 1 * var(--length)); font-size: calc(10 * var(--length)); line-height: normal; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 0 var(--text-shadow); box-shadow: var(--bevel); &:hover { background: var(--chrome-hover); } &:active { background: var(--chrome); } }
     &.s-secondary button, button.s-secondary { background: var(--field); }
   }
 
-  /* ── XY pad: 126px square pad row, matching ControlKit's large pad control ── */
-  .s-xy { min-height: calc(138 * var(--length)); align-items: flex-start; padding-top: calc(5 * var(--space)); }
+  /* ── XY pad: square face filling the value column ── */
+  .s-xy .s-input { padding-block: calc(6 * var(--space)) calc(5 * var(--space)); }
   .s-pad {
-    position: relative; width: calc(126 * var(--length)); height: calc(126 * var(--length)); border-radius: calc(2 * var(--length)); border: none;
+    position: relative; width: 100%; height: auto; aspect-ratio: 1; border-radius: calc(2 * var(--length)); border: none;
     /* native's pad face carries a faint top-to-bottom inset gradient over the flat fill, same trick as the fields */
     background: linear-gradient(transparent, var(--overlay-4)), var(--inset);
-    /* fixed center crosshair (native ControlKit draws one at origin, one following the dot) */
-    &::before, &::after { content: ''; position: absolute; background: var(--pad-cross); pointer-events: none; }
-    &::before { left: 0; right: 0; top: 50%; height: calc(1 * var(--length)); }
-    &::after { top: 0; bottom: 0; left: 50%; width: calc(1 * var(--length)); }
+    box-shadow: inset 0 0 0 1px var(--bevel-dk);
+    /* fixed center crosshair, painted under the live axes and the dot like native's first path */
+    &::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(var(--pad-cross), var(--pad-cross)) 0 calc(50% + .5px) / 100% 1px no-repeat, linear-gradient(var(--pad-cross), var(--pad-cross)) calc(50% + .5px) 0 / 1px 100% no-repeat; }
     .s-pad-x, .s-pad-y { background: var(--pad-axis); }
     .s-pad-x { top: var(--y, 50%); }
     .s-pad-y { left: var(--x, 50%); }
-    /* native draws the dot as layered flat SVG circles (r11 halo, r10 base, r9 fill offset
-       0.75px down, r10 ring stroke, r6 inner disc, r3 center) — reproduced here 1:1 in px:
-       a 20px (r10) disc, a darker fill circle shifted down to leave a top highlight rim,
-       then the inner disc/center dot as pseudo-elements on top, same paint order. */
+    /* native's dot is layered SVG circles (r11 halo, r10 base, r9 fill 0.75px low, r10 ring,
+       r6 disc, r3 center) on a half-pixel grid; the same circles, same order */
     .s-pad-dot {
-      width: calc(20 * var(--length)); height: calc(20 * var(--length)); box-sizing: border-box; border-radius: 50%;
-      background: radial-gradient(circle 9px at 50% calc(50% + 0.75px), var(--pad-dot-fill) 9px, transparent 9px), var(--pad-dot-bg);
-      /* native's ring is an SVG stroke centered on the r10 edge (9.5–10.5) — a pure outward
-         spread (10–11) leaves too much of the highlight rim exposed (1.75px vs native's 1.25px,
-         reading thicker); split the ring in and out by half a px so it straddles the edge too */
-      box-shadow: 0 0 0 .5px var(--field-line), inset 0 0 0 .5px var(--field-line), 0 0 0 1px var(--overlay-4);
-      &::before { content: ''; position: absolute; inset: 0; margin: auto; width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; background: var(--inset); }
-      &::after { content: ''; position: absolute; inset: 0; margin: auto; width: calc(6 * var(--length)); height: calc(6 * var(--length)); border-radius: 50%; background: var(--ink); }
+      width: calc(22 * var(--length)); height: calc(22 * var(--length)); border-radius: 0; box-shadow: none;
+      transform: translate(calc(-50% + .5px), calc(-50% + .5px));
+      background: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='-11 -11 22 22'><circle r='11' fill='#000' fill-opacity='.05'/><circle r='10' fill='${padDotBg}'/><circle r='9' cy='.75' fill='${padDotFill}'/><circle r='10' fill='none' stroke='${fieldLine}'/><circle r='6' fill='${inset}'/><circle r='3' fill='${ink}'/></svg>`)}") center / 100% 100% no-repeat;
     }
   }
 
-  /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(3 * var(--space)) calc(4 * var(--space)); } }
+  /* ── Textarea / info: native's textarea field, text on top padding rather than centered ── */
+  .s-textarea { textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(2 * var(--space)); } }
+  .s-info .s-monitor {
+    flex: 1; display: block; background: var(--field-bg); color: var(--ink); border-radius: calc(2 * var(--length));
+    height: var(--control-height); line-height: normal; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(2 * var(--space)); overflow: hidden; white-space: nowrap; text-shadow: 1px 1px 0 var(--text-shadow);
+    box-shadow: inset 0 0 0 1px var(--bevel-dk); font-variant-numeric: tabular-nums; opacity: 1;
+  }
 
-  /* ── Folder: gradient group header ──
+  /* ── Folder: gradient group bar ──
      the <details> itself carries .s-control too (folder.js), so it inherits that row's
      padding/background/border-bottom/min-height — reset them here so the folder spans the
      panel edge-to-edge like native's group headers, same as base.js resolves .s-folder's
      display over .s-control's: equal specificity, this rule sits later in the cascade. */
   .s-folder {
     padding: 0; min-height: 0; background: none; border-bottom: 0;
-    > summary { background: var(--chrome); color: var(--ink); font-weight: 700; height: calc(38 * var(--length)); padding: 0 calc(10 * var(--space)); border-bottom: 1px solid var(--void); text-shadow: 0 1px 0 var(--text-shadow);
-      &::after { content: ''; width: calc(8 * var(--length)); height: calc(8 * var(--length)); margin-left: auto; background: currentColor; -webkit-mask: var(--chev) center / contain no-repeat; mask: var(--chev) center / contain no-repeat; transition: transform .1s; } }
-    &[open] > summary::after { transform: rotate(-180deg); }
-    &.s-section > summary, .s-content .s-folder > summary { background: var(--section-bg); }
+    /* the label's 38px line box starts under the top edge and overhangs the 36px content, as native's */
+    > summary { align-items: flex-start; background: var(--chrome-hover); color: var(--ink); font-size: calc(12 * var(--length)); font-weight: 700; line-height: calc(38 * var(--length)); height: calc(38 * var(--length)); padding: 0 calc(10 * var(--space)); border-top: 1px solid var(--rim-hi); border-bottom: 1px solid var(--rim-lo); text-shadow: 0 1px 0 var(--text-shadow);
+      &::after { content: ''; flex: none; width: calc(10 * var(--length)); height: calc(36 * var(--length)); margin-left: auto; background: ${barShut} center / calc(8 * var(--length)) calc(5 * var(--length)) no-repeat; }
+      &:hover { border-top-color: var(--rim-hot); background: linear-gradient(var(--chrome-hot), var(--chrome-hi)); } }
+    &[open] > summary::after { background-image: ${barOpen}; }
+    /* nested folder: native's flat sub-group bar */
+    &.s-section > summary, .s-content .s-folder > summary { background: var(--section-bg); font-size: calc(11 * var(--length)); line-height: calc(27 * var(--length)); height: calc(27 * var(--length)); border-top: 0; border-bottom-color: var(--section-rim); text-shadow: 1px 1px 0 var(--text-shadow); text-transform: capitalize;
+      &::after { height: calc(26 * var(--length)); background-image: ${subShut}; background-size: calc(10 * var(--length)) calc(6 * var(--length)); } }
+    &.s-section[open] > summary::after, .s-content .s-folder[open] > summary::after { background-image: ${subOpen}; }
+    /* collapsed nested bar is native's head-inactive: raised gradient, top highlight line, no divider */
+    &.s-section:not([open]) > summary, .s-content .s-folder:not([open]) > summary { background: linear-gradient(var(--chrome-lo), var(--section-shut-lo)); box-shadow: inset 0 1px 0 0 var(--chrome-hi); border-bottom: 0;
+      &::after { height: calc(27 * var(--length)); }
+      &:hover { background: linear-gradient(var(--chrome-hi), var(--chrome-lo)); box-shadow: inset 0 1px 0 0 var(--section-shut-rim); } }
     .s-content { gap: 0; }
   }
 
-  /* ── Info / separator: readout rendered as the same boxed field as our text inputs ── */
-  .s-info .s-monitor {
-    flex: 1; display: block; background: var(--field-bg); color: var(--ink); border-radius: calc(2 * var(--length));
-    height: var(--control-height); line-height: 26px; padding: 0 calc(8 * var(--space)); text-shadow: 1px 1px 0 var(--text-shadow);
-    box-shadow: inset 0 0 0 1px var(--bevel-dk); font-variant-numeric: tabular-nums; opacity: 1;
-  }
-  .s-separator { background: var(--void); opacity: 1; }
+  /* separators ride .s-control: drop the row's min-height and divider, keep base's own layout */
+  .s-separator { min-height: 0; border-bottom: 0; align-items: center; }
+  .s-separator:not(.s-separator-labeled) { padding: 0; background: var(--void); opacity: 1; }
+  .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 
   return baseCSS + '\n' + overrides

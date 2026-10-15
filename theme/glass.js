@@ -1,31 +1,38 @@
 /**
  * Glass theme — liquid glass
  *
- * A pane of glass over the scene, not a translucent card: the backdrop is
- * blurred, lifted and refracted through a dedicated layer behind the content,
- * so the scene's colour lives inside the panel. The edge is a bright rim
- * (light catching a bevel — strongest top-left, fading bottom-right), the
- * surface carries one soft specular near the top, and the pane casts a wide
- * ambient shadow. Fields are shallower panes cut into the glass (a lighter
- * fill with its own hairline rim); parts that move — thumbs, knobs, the
- * selected segment — are small solid pieces floating above it.
+ * A pane of glass over the scene, not a translucent card: the backdrop is blurred, lifted and
+ * refracted through a dedicated layer behind the content, so the scene's colour lives inside the
+ * panel. The pane's edge is a bright rim (light catching a bevel), one soft specular sits near its
+ * top, and it casts a wide ambient shadow.
  *
- * Axes: shade/accent (hue + light/dark via resolveRoles), spacing/weight/
- * roundness/size (shared scale axes), blur (backdrop frost radius), depth
- * (rim + specular intensity — the glass's optical thickness), tint (backdrop
- * tint density — 0 clear, 1 milky).
+ * Every control is a lens lying on that pane, measured on a studio lens (u = fraction of its
+ * height): a hairline edge darker than the surface straddles the silhouette, a bright rim sits just
+ * inside the top edge, the face is lit at the top and deepens toward the bottom, light gathers into
+ * a caustic just above the bottom edge, and a short shadow falls beneath. On a dark surface the face
+ * reads lighter than the surface (it reflects the room); on a pale one little but the edge shows.
+ * Raised lenses (buttons, knobs, thumbs, the selected segment) cast the shadow; flush lenses
+ * (fields, tracks, wells) sit in the pane without it; on-states fill a lens with the accent.
+ * Lettering is cut into the glass: dark ink catches light on its lower edge, light ink a shadow on
+ * its upper edge.
+ *
+ * Axes: shade/accent (hue + light/dark via resolveRoles), ink (lettering colour, held to 4.5:1 on
+ * the pane), spacing/weight/roundness/size (shared scale axes), blur (backdrop frost radius), depth
+ * (optical thickness: rim, caustic, shading and shadow), tint (backdrop tint density: 0 clear,
+ * 1 milky).
  *
  * glass(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, clamp } from './color.js'
+import { resolveRoles, parseColor, luminance, clamp, lerp, ink as legible } from './color.js'
 import { bevel } from './mixins.js'
 
 export default function glass({
   shade = '#1c2030',
   accent = '#6ea8ff',
+  ink,
   spacing = 1,
   weight = 400,
   roundness = 1.4,
@@ -35,41 +42,87 @@ export default function glass({
   tint = 1,
   font,
 } = {}) {
-  const { dark, fg, accent: acc, onAccent } = resolveRoles(shade, accent)
-  const fgMuted = `color-mix(in oklab, ${fg}, transparent ${dark ? 32 : 40}%)`
+  const { dark, L, C, H, fg: roleFg, accent: acc, onAccent } = resolveRoles(shade, accent)
   const op = a => clamp(a, 0, 1)
+  const d = clamp(depth, 0, 2)
+  const len = n => `calc(var(--length) * ${n})`
 
-  // Light and ink at an alpha — every surface, rim and shadow derives from these.
+  // Light and shade at an alpha: white is the room reflected in the glass; `deep` is the surface's
+  // own colour seen through thick glass, darker and richer. Warm hues turn toward red on the way
+  // down (as amber does) instead of going olive.
+  const hue = H - 12 * clamp(1 - Math.abs(H - 80) / 40, 0, 1)
+  const ok = (l, c, a = 1) => `oklch(${clamp(l, 0, 1).toFixed(3)} ${c.toFixed(4)} ${hue.toFixed(1)}${a < 1 ? ` / ${+op(a).toFixed(3)}` : ''})`
   const lite = a => `rgba(255,255,255,${+op(a).toFixed(3)})`
-  const ink = a => `rgba(0,0,0,${+op(a).toFixed(3)})`
+  const deepL = L * .5
+  const deep = a => ok(deepL, C * 1.3, a)
 
-  // Optical tint follows the chosen material in both modes. A dark pane needs
-  // a dark backing to keep its text readable over bright parts of the scene.
+  // Lettering: the palette's ink when given, else the role foreground, held to 4.5:1 on the pane.
+  const fg = legible(shade, 4.5, ink ?? roleFg)
+  const tone = parseColor(fg)
+  const fgMuted = legible(shade, 4.5, { ...tone, L: lerp(tone.L, L, .4) })
+
+  // Optical tint follows the chosen material in both modes. A dark pane needs a dark backing to keep
+  // its text readable over bright parts of the scene.
   const body = `color-mix(in oklab, ${shade}, transparent ${100 - op((dark ? 0.68 : 0.76) * tint) * 100}%)`
   const saturate = dark ? 1.6 : 1.3
 
-  // Panes cut into the glass: fields, tracks, wells.
-  const pane = dark ? lite(0.07) : lite(0.42)
-  const paneHover = dark ? lite(0.11) : lite(0.55)
-  const paneRim = dark ? lite(0.14) : lite(0.7)
-  const paneShadow = `inset 0 1px 0 ${lite(dark ? 0.08 : 0.6)}, inset 0 0 0 1px ${paneRim}`
-  const paneShadowHover = `inset 0 1px 0 ${lite(dark ? 0.12 : 0.75)}, inset 0 0 0 1px ${dark ? lite(0.2) : lite(0.85)}`
+  // ── Lens ──
+  // Each part is set by how much lighter or darker it reads than what lies under it (OKLab L), then
+  // turned into the alpha that lands there: mixTo(from, to, top) is the alpha of `top` painted over
+  // lightness `from` that reaches `to`, in the gamma-encoded space browsers blend in (neutral tones).
+  const enc = l => { const y = clamp(l, 0, 1) ** 3; return y <= .0031308 ? 12.92 * y : 1.055 * y ** (1 / 2.4) - .055 }
+  const mixTo = (from, to, top) => clamp((enc(to) - enc(from)) / (enc(top) - enc(from) || 1), 0, 1)
+  // The glass passes the surface and reflects a little of the room: a dark pane's lens reads lighter
+  // than the pane, a pale one's hardly at all (face lightness in linear light: .96 · surface + room).
+  const faceL = room => Math.cbrt(.96 * L ** 3 + room * d)
+  const top = faceL(.034), low = faceL(.027)
+  // A placeholder lies on a flush lens, which reads lighter than the pane: the muted ink, held to 4.5:1
+  // on the lens's lit top (3.6:1 there at the default shade)
+  const placeholder = legible(ok(top, C), 4.5, fgMuted)
+  // A brighter lens (knob, thumb, selected segment) still keeps light ink at 4.5:1 on it.
+  const bright = tone.L > L ? Math.min(faceL(.2), Math.cbrt((luminance(fg) + .05) / 4.5 - .05)) : faceL(.2)
+  // What the lens takes from the surface (its body and caustic) fades on the palest panes.
+  const seen = clamp((1 - L) / .17, 0, 1)
+  const rimC = lite(mixTo(top, Math.min(top + .11 * d, 1), 1))
+  const caustic = lite(mixTo(low, Math.min(low + .07 * seen * d, 1), 1))
+  // The edge is the pane's own colour a step darker, opaque: a hairline shows nothing through it.
+  const edgeL = L - .073 * (.74 + .26 * seen)
+  const edgeC = ok(edgeL, C * 1.15)
+  // Where the glass turns away (the rounded ends) its edge reflects less: a darker crescent on each side.
+  const flankC = ok(edgeL - .075 * L, C * 1.15)
+  // A shadow takes a share of the light, so it barely shows on a dark pane.
+  const shadow = k => deep(mixTo(L, L * (1 - k * d), deepL))
+  // Bands sit at fractions of the control height from their edge: a taller lens (textarea, well, pad)
+  // keeps the same lit top and deep lower edge, and a smaller one scales them down with itself.
+  const fromTop = k => `min(${+(k * 100).toFixed(1)}%, ${k === 1 ? "var(--h)" : `var(--h) * ${k}`})`
+  const fromBottom = k => `calc(100% - ${fromTop(k)})`
+  const lensFace = (from, to) => `linear-gradient(180deg, ${lite(mixTo(L, from, 1))}, ${lite(mixTo(L, to, 1))} ${fromTop(1)}), linear-gradient(180deg, transparent ${fromBottom(.44)}, ${deep(mixTo(to, to - .08 * seen * d, deepL))} ${fromBottom(.16)}, transparent ${fromBottom(.07)})`
+  const face = lensFace(top, low)
+  // Knobs, thumbs and the selected segment: the same lens with more light in it.
+  const faceBright = lensFace(bright, Math.cbrt(bright ** 3 - .007))
+  // Secondary buttons and wells: clear glass, the edge without the body.
+  const faceClear = `linear-gradient(180deg, ${lite(mixTo(L, top, 1) / 2)}, transparent ${fromTop(1)})`
+  // Inset: the hairline edge (on top), the rim under the top edge, the caustic above the bottom one.
+  const edgeIn = `inset ${len(.75)} 0 0 ${flankC}, inset ${len(-.75)} 0 0 ${flankC}, inset 0 0 0 ${len(1)} ${edgeC}, inset 0 0 0 ${len(2)} ${lite(mixTo(L, Math.min(L + .02 * d, 1), 1))}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
+  const drop = `0 ${len(1)} ${len(2.5)} ${shadow(.045)}, 0 ${len(4)} ${len(9)} ${shadow(.055)}`
+  const lift = `0 ${len(1.5)} ${len(3)} ${shadow(.08)}, 0 ${len(5)} ${len(11)} ${shadow(.07)}`
+  const sheen = `linear-gradient(${lite(.07)}, ${lite(.07)})`
+  const press = `linear-gradient(${deep(.08)}, ${deep(.08)})`
+  // Lettering cut into the glass: the rim's light on the lower edge of dark ink, the edge's shade on
+  // the upper edge of light ink.
+  const emboss = tone.L < L ? `0 ${len(1)} 0 ${rimC}` : `0 ${len(-1)} 0 ${deep(.6)}`
 
-  // Edge rim of the pane: bright where the light hits (top-left), dim opposite.
-  const rim = `linear-gradient(135deg, ${lite(op((dark ? 0.55 : 0.95) * depth))} 0%, ${lite(op((dark ? 0.12 : 0.5) * depth))} 40%, ${lite(op((dark ? 0.05 : 0.35) * depth))} 60%, ${lite(op((dark ? 0.3 : 0.8) * depth))} 100%)`
+  // Pane rim: light from above catches the top edge; the sides all but vanish and the bottom keeps a
+  // faint reflection, so the edge reads as glass, not a stroke.
+  const rim = `linear-gradient(180deg, ${lite(op((dark ? 0.32 : 0.9) * d))} 0%, ${lite(op((dark ? 0.05 : 0.3) * d))} 22%, ${lite(op((dark ? 0.03 : 0.2) * d))} 70%, ${lite(op((dark ? 0.1 : 0.45) * d))} 100%)`
   // One specular: a wide soft light hugging the top edge.
-  const specular = `radial-gradient(90% 40% at 50% -8%, ${lite(op((dark ? 0.16 : 0.5) * depth))} 0%, transparent 70%)`
-  // Floating pieces (thumbs, knobs, selected segment).
-  const piece = '#ffffff'
-  const pieceShadow = `0 1px 2px ${ink(dark ? 0.45 : 0.22)}, 0 4px 10px -2px ${ink(dark ? 0.5 : 0.25)}, inset 0 -1px 0 ${ink(0.06)}`
-  const accentFill = `linear-gradient(180deg, color-mix(in oklab, var(--accent), white 14%), var(--accent))`
-  const accentShadow = `0 1px 2px ${ink(0.3)}, 0 6px 16px -6px color-mix(in oklab, var(--accent), transparent 20%), inset 0 1px 0 ${lite(0.4)}, inset 0 0 0 1px ${lite(0.12)}`
-  const contactShadow = `0 30px 70px -20px ${ink(dark ? 0.6 : 0.35)}, 0 8px 20px -10px ${ink(dark ? 0.5 : 0.25)}`
-  const halo = dark ? `0 1px 2px ${ink(0.4)}` : 'none'
-  const focus = `0 0 0 3px color-mix(in oklab, var(--accent), transparent 60%)`
+  const specular = `radial-gradient(90% 40% at 50% -8%, ${lite(op((dark ? 0.16 : 0.5) * d))} 0%, transparent 70%)`
+  const contactShadow = `0 30px 70px -20px ${deep(dark ? 0.6 : 0.35)}, 0 8px 20px -10px ${deep(dark ? 0.5 : 0.25)}`
+  const focus = `0 0 0 ${len(3)} color-mix(in oklab, var(--accent), transparent 55%)`
 
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
-  const selectArrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${dark ? '%23fff' : '%23000'}' stroke-opacity='.7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  // Native selects cannot tint a mask: the arrow is drawn in the muted ink.
+  const arrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${fgMuted.replace('#', '%23')}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5.5 L4.5 8.5 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
@@ -80,25 +133,31 @@ export default function glass({
   --on-accent: ${onAccent};
   --fg: ${fg};
   --fg-muted: ${fgMuted};
-  --pane: ${pane};
-  --pane-hover: ${paneHover};
-  --pane-shadow: ${paneShadow};
-  --pane-shadow-hover: ${paneShadowHover};
-  --piece: ${piece};
-  --piece-shadow: ${pieceShadow};
+  --placeholder: ${placeholder};
+  --lens: ${face};
+  --lens-bright: ${faceBright};
+  --lens-clear: ${faceClear};
+  --lens-edge: ${edgeIn};
+  --lens-drop: ${drop};
+  --lens-lift: ${lift};
+  --lens-sheen: ${sheen};
+  --lens-press: ${press};
+  --emboss: ${emboss};
+  --focus: ${focus};
 
   --weight: ${weight};
   --roundness: ${roundness};
+  /* 1 at the native roundness: controls are capsules there, squarer below */
+  --round: min(1, var(--roundness) / 1.4);
 
   --r: calc(var(--u) * var(--roundness) * 4.5);
-  --r-pane: calc(var(--u) * var(--roundness) * 1.8);
   --h: var(--control-height);
+  --r-lens: calc(var(--h) / 2 * var(--round));
   --blur: ${blur}px;
   --saturate: ${saturate};
   --body: ${body};
   --rim: ${rim};
   --specular: ${specular};
-  --halo: ${halo};
   --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
   color-scheme: ${dark ? 'dark' : 'light'};
 
@@ -136,211 +195,219 @@ export default function glass({
        backdrop-filter; applied to this backdrop-only layer so content stays crisp. */
     filter: var(--glass-refraction, none);
   }
-  /* ── Edge rim: light on a bevel, brightest top-left ── */
+  /* ── Edge rim: light on a bevel, brightest at the top ── */
   &::before { ${bevel('var(--rim)', '1px')} z-index: 1; }
 
   /* ── Header ── */
-  > summary, > .s-panel-title { font-weight: 600; font-size: 1.2em; letter-spacing: -0.01em; text-shadow: var(--halo); gap: calc(var(--u) * 2); min-height: var(--h); }
+  > summary, > .s-panel-title { font-weight: 600; font-size: 1.2em; letter-spacing: -0.01em; text-shadow: var(--emboss); gap: calc(var(--u) * 2); min-height: var(--h); }
   > summary::after { display: none; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: var(--section-gap); }
   .s-panel-content { gap: var(--row-gap); }
 
-  /* round pane buttons: fold + search */
+  /* ── Lenses ── */
+  /* raised: lies on the pane and casts its shadow */
+  .s-fold-icon, .s-search-btn, .s-button button, .s-select.s-segmented button.s-selected {
+    background: var(--lens); box-shadow: var(--lens-edge), var(--lens-drop);
+  }
+  /* flush: set into the pane */
+  input[type="text"], input[type="number"], textarea, select, .s-vec-axis, .s-number .s-step button,
+  .s-select.s-segmented .s-input,
+  .s-boolean .s-track, .s-select.s-checkboxes .s-track, .s-select.s-radio input[type="radio"],
+  .s-slider input[type="range"], .s-slider.s-multiple .s-interval-track, .s-color .s-alpha, .s-pad, .s-title {
+    background: var(--lens); box-shadow: var(--lens-edge);
+  }
+
+  /* round lens buttons: fold + search */
   .s-fold-icon, .s-search-btn {
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
     width: calc(var(--u) * 7); height: calc(var(--u) * 7); padding: 0; border: none; border-radius: 50%;
-    background: var(--pane); box-shadow: var(--pane-shadow); color: var(--fg);
-    -webkit-mask: none; mask: none;
-    transition: background .14s, box-shadow .14s;
-    &:hover { background: var(--pane-hover); box-shadow: var(--pane-shadow-hover); }
+    color: var(--fg); -webkit-mask: none; mask: none;
+    transition: box-shadow .14s, transform .08s;
+    &:hover { background: var(--lens-sheen), var(--lens); box-shadow: var(--lens-edge), var(--lens-lift); }
   }
   .s-fold-icon { margin-left: auto; order: 2; cursor: pointer;
     :has(> .s-search) > & { margin-left: 0; }
-    i { width: 50%; height: 50%; background: currentColor; opacity: .8; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; } }
+    i { width: 50%; height: 50%; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; filter: drop-shadow(var(--emboss)); transition: transform .2s; } }
   &[open] .s-fold-icon i { transform: rotate(-180deg); }
-  > summary:focus-visible { outline: none; .s-fold-icon { box-shadow: var(--pane-shadow), ${focus}; } }
+  > summary:focus-visible { outline: none; .s-fold-icon { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
 
   &.s-searching > summary, &.s-searching > .s-panel-title { flex-wrap: wrap; }
 
-  /* ── Search — pane button that opens into a pill ── */
-  .s-search { order: 1; margin-left: auto; gap: 0; border-radius: 999px; transition: background .14s, box-shadow .14s; }
-  .s-search-btn::after { content: ''; width: 50%; height: 50%; background: currentColor; opacity: .8; -webkit-mask: var(--s-search-icon) center / contain no-repeat; mask: var(--s-search-icon) center / contain no-repeat; }
+  /* ── Search: round lens that opens into a flush pill ── */
+  .s-search { order: 1; margin-left: auto; gap: 0; border-radius: 999px; transition: box-shadow .14s; }
+  .s-search-btn::after { content: ''; width: 50%; height: 50%; background: currentColor; -webkit-mask: var(--s-search-icon) center / contain no-repeat; mask: var(--s-search-icon) center / contain no-repeat; filter: drop-shadow(var(--emboss)); }
   .s-search-input { appearance: none; -webkit-appearance: none; color: var(--fg); width: 14ch; height: calc(var(--u) * 7); padding: 0 calc(var(--u) * 3) 0 var(--u); outline: none; font-size: .95em;
-    &::placeholder { color: var(--fg-muted); }
+    &::placeholder { color: var(--placeholder); }
     &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration { display: none; }
     &::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; width: calc(var(--u) * 3); height: calc(var(--u) * 3); cursor: pointer; opacity: .6;
       background: currentColor; -webkit-mask: var(--s-clear-icon) center / contain no-repeat; mask: var(--s-clear-icon) center / contain no-repeat;
       &:hover { opacity: 1; } } }
-  &.s-searching .s-search { background: var(--pane); box-shadow: var(--pane-shadow);
+  &.s-searching .s-search { background: var(--lens); box-shadow: var(--lens-edge);
     .s-search-btn { background: transparent; box-shadow: none; } }
-  &.s-searching .s-search:focus-within { box-shadow: var(--pane-shadow), ${focus}; }
+  &.s-searching .s-search:focus-within { box-shadow: var(--lens-edge), var(--focus); }
 
   /* ── Rows ── */
   .s-control { align-items: center; gap: var(--column-gap); }
   .s-input { align-items: center; }
   .s-label-group { min-width: 0; width: 30%; }
-  .s-label { font-weight: 500; text-shadow: var(--halo); }
-  .s-hint { color: var(--fg-muted); opacity: 1; font-size: smaller; text-shadow: var(--halo); }
-  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; background: var(--pane); box-shadow: var(--pane-shadow); font-size: 10px; cursor: help;
-    &:hover + .s-title-text { opacity: 1; visibility: visible; } }
-  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 2.5); font-size: smaller; background: color-mix(in oklab, var(--bg), transparent 15%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--pane-shadow), 0 8px 24px -8px ${ink(0.4)}; border-radius: var(--r-pane); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
-  .s-info .s-monitor { text-shadow: var(--halo); color: var(--fg); opacity: .9; }
+  .s-label { font-weight: 500; text-shadow: var(--emboss); }
+  .s-hint { color: var(--fg-muted); opacity: 1; font-size: smaller; }
+  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; font-size: 10px; cursor: help;
+    &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
+  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 2.5); font-size: smaller; background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge), var(--lens-lift); border-radius: calc(var(--u) * 2.5 * var(--round)); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
+  .s-info .s-monitor { color: var(--fg); opacity: 1; }
 
-  /* ── Fields — shallower panes cut into the glass ── */
+  /* ── Fields: flush lenses ── */
   input[type="text"], input[type="number"], textarea, select {
-    background: var(--pane); color: var(--fg); border: none; border-radius: var(--r-pane);
+    color: var(--fg); border: none; border-radius: var(--r-lens);
     font: inherit; font-weight: var(--weight);
-    box-shadow: var(--pane-shadow);
-    transition: background .14s, box-shadow .14s;
-    &::placeholder { color: var(--fg-muted); }
-    &:hover { background: var(--pane-hover); box-shadow: var(--pane-shadow-hover); }
-    &:focus-visible { outline: none; box-shadow: var(--pane-shadow), ${focus}; }
+    transition: box-shadow .14s;
+    &::placeholder { color: var(--placeholder); }
+    &:hover { background: var(--lens-sheen), var(--lens); }
+    &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--focus); }
   }
-  input[type="text"], input[type="number"], select { height: var(--h); padding: 0 calc(var(--u) * 3); }
-  textarea { padding: calc(var(--u) * 2) calc(var(--u) * 3); }
+  input[type="text"], input[type="number"], select { height: var(--h); padding: 0 calc(var(--u) * 3.5); }
+  textarea { padding: calc(var(--u) * 2) calc(var(--u) * 3.5); border-radius: calc(var(--r-lens) * .6); }
   input[type="number"] { font-variant-numeric: tabular-nums; }
-  input.s-scrubbing { box-shadow: var(--pane-shadow), ${focus}; }
-  select { cursor: pointer; appearance: none; -webkit-appearance: none;
-    background-image: ${selectArrow}; background-repeat: no-repeat; background-position: right calc(var(--u) * 2.5) center; background-size: calc(var(--u) * 3.5); padding-right: calc(var(--u) * 8);
+  input.s-scrubbing { box-shadow: var(--lens-edge), var(--focus); }
+  select { cursor: pointer; appearance: none; -webkit-appearance: none; padding-right: calc(var(--u) * 8);
+    background: ${arrow} right calc(var(--u) * 3) center / calc(var(--u) * 3.5) no-repeat, var(--lens);
+    &:hover { background: ${arrow} right calc(var(--u) * 3) center / calc(var(--u) * 3.5) no-repeat, var(--lens-sheen), var(--lens); }
     option { background: var(--bg); color: var(--fg); } }
   .s-select.s-dropdown select { flex: 1; }
 
   /* ── Number ── */
   .s-number {
     input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
-    .s-step { flex-direction: column; gap: 2px;
-      button { width: calc(var(--u) * 6); height: calc(var(--u) * 4); padding: 0; display: grid; place-items: center; background: var(--pane); box-shadow: var(--pane-shadow); border: none; border-radius: calc(var(--r-pane) * 0.5); color: var(--fg-muted); font-size: .55em; line-height: 1; cursor: pointer; transition: background .12s, color .12s;
-        &:hover { background: var(--pane-hover); color: var(--fg); }
-        &:active { background: var(--pane); } } }
+    .s-step { flex-direction: column; gap: calc(var(--u) * .5);
+      button { width: calc(var(--u) * 6); height: calc(var(--h) / 2 - var(--u) * .25); padding: 0; display: grid; place-items: center; border: none; border-radius: calc(var(--u) * 2 * var(--round)); color: var(--fg-muted); font-size: .9em; line-height: 1; cursor: pointer; transition: color .12s;
+        &:hover { background: var(--lens-sheen), var(--lens); color: var(--fg); }
+        &:active { background: var(--lens-press), var(--lens); } } }
   }
 
   /* ── Vector ── */
   .s-vector {
-    .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 2.5); border-radius: var(--r-pane); background: var(--pane); box-shadow: var(--pane-shadow); transition: box-shadow .14s;
-      &:focus-within { box-shadow: var(--pane-shadow), ${focus}; } }
+    .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 3); border-radius: var(--r-lens); transition: box-shadow .14s;
+      &:focus-within { box-shadow: var(--lens-edge), var(--focus); } }
     .s-vec-label { color: var(--fg-muted); opacity: 1; }
     input[type="number"] { height: auto; padding: 0; box-shadow: none; background: transparent; border-radius: 0; &:hover, &:focus-visible { box-shadow: none; background: transparent; } }
   }
 
-  /* ── Buttons — solid glass piece, accent lit from within ── */
+  /* ── Buttons: lenses with the lettering cut in; primary lies on the pane, secondary is flush ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
     .s-input { gap: calc(var(--u) * 2.5); }
-    button { flex: 1; min-width: 0; min-height: var(--h); background: ${accentFill}; color: var(--on-accent); font-weight: 600; border: none; border-radius: var(--r-pane);
-      padding: 0 calc(var(--u) * 4); box-shadow: ${accentShadow};
-      transition: filter .14s, transform .08s, box-shadow .14s;
-      &:hover { filter: brightness(1.08); }
-      &:active { transform: scale(.98); filter: brightness(.95); }
-      &:disabled, &[aria-busy="true"] { filter: saturate(.3) brightness(.85); opacity: .7; box-shadow: none; cursor: not-allowed; transform: none; }
-      &:focus-visible { outline: none; box-shadow: ${accentShadow}, ${focus}; } }
-    &.s-secondary button, button.s-secondary { background: var(--pane); color: var(--fg); box-shadow: var(--pane-shadow);
-      &:hover { background: var(--pane-hover); box-shadow: var(--pane-shadow-hover); filter: none; }
-      &:active { background: var(--pane); } }
+    button { flex: 1; min-width: 0; min-height: var(--h); color: var(--fg); font-weight: 500; text-shadow: var(--emboss); border: none; border-radius: var(--r-lens);
+      padding: 0 calc(var(--u) * 4);
+      transition: box-shadow .14s, transform .08s;
+      &:hover { background: var(--lens-sheen), var(--lens); box-shadow: var(--lens-edge), var(--lens-lift); }
+      &:active { background: var(--lens-press), var(--lens); box-shadow: var(--lens-edge); transform: translateY(${len(.5)}); }
+      &:disabled, &[aria-busy="true"] { background: var(--lens); box-shadow: var(--lens-edge); opacity: .5; cursor: not-allowed; transform: none; }
+      &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
+    &.s-secondary button, button.s-secondary { font-weight: 500; background: var(--lens-clear); box-shadow: var(--lens-edge);
+      &:hover { background: var(--lens-sheen), var(--lens-clear); box-shadow: var(--lens-edge); }
+      &:active { background: var(--lens-press), var(--lens-clear); }
+      &:focus-visible { box-shadow: var(--lens-edge), var(--focus); } }
   }
 
   /* ── Boolean ── */
   .s-boolean {
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-input { cursor: pointer; }
-    &.s-switch {
-      .s-track { width: calc(var(--u) * 12.5); height: calc(var(--u) * 7); border-radius: 999px; background: var(--pane); box-shadow: var(--pane-shadow); position: relative; transition: background .2s, box-shadow .2s;
-        &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: 50%; background: var(--piece); box-shadow: var(--piece-shadow); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
-      &:hover .s-track { background: var(--pane-hover); }
-      &:has(input:checked) .s-track { background: ${accentFill}; box-shadow: inset 0 1px 0 ${lite(0.35)}, inset 0 0 0 1px ${lite(0.1)}; &::after { left: calc(100% - var(--u) * 6.25); } }
-      &:has(input:focus-visible) .s-track { box-shadow: var(--pane-shadow), ${focus}; }
-    }
-    &.s-checkbox {
-      .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--r-pane) * 0.6); background: var(--pane); box-shadow: var(--pane-shadow); transition: background .14s, box-shadow .14s;
-        &::after { content: ''; width: 60%; height: 55%; background: var(--on-accent); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; opacity: 0; transform: scale(.6); transition: opacity .1s, transform .14s; } }
-      &:hover .s-track { background: var(--pane-hover); }
-      &:has(input:checked) .s-track { background: ${accentFill}; box-shadow: inset 0 1px 0 ${lite(0.35)}, inset 0 0 0 1px ${lite(0.1)}; &::after { opacity: 1; transform: none; } }
-      &:has(input:focus-visible) .s-track { box-shadow: var(--pane-shadow), ${focus}; }
-    }
-    &.s-toggle {
-      .s-track { padding: 0 calc(var(--u) * 4); border-radius: var(--r-pane); background: var(--pane); box-shadow: var(--pane-shadow); height: var(--h); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); cursor: pointer; transition: background .14s, box-shadow .14s, color .14s;
-        &::after { content: 'Off'; } }
-      &:hover .s-track { background: var(--pane-hover); }
-      &:has(input:checked) .s-track { background: ${accentFill}; color: var(--on-accent); box-shadow: ${accentShadow}; &::after { content: 'On'; } }
-      &:has(input:focus-visible) .s-track { box-shadow: var(--pane-shadow), ${focus}; }
-    }
+    .s-track { position: relative; transition: background .2s, box-shadow .2s; }
+    &:hover .s-track { background: var(--lens-sheen), var(--lens); }
+    &:has(input:checked) .s-track { background: var(--lens), var(--accent); }
+    &:has(input:focus-visible) .s-track { box-shadow: var(--lens-edge), var(--focus); }
+    &.s-switch .s-track { width: calc(var(--u) * 12.5); height: calc(var(--u) * 7); border-radius: calc(var(--u) * 3.5 * var(--round));
+      /* the knob: a bright raised lens */
+      &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: calc(var(--u) * 2.75 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
+    &.s-switch:has(input:checked) .s-track::after { left: calc(100% - var(--u) * 6.25); }
+    &.s-checkbox .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--u) * 1.6 * var(--round));
+      &::after { content: ''; width: 60%; height: 55%; background: var(--on-accent); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; opacity: 0; transform: scale(.6); transition: opacity .1s, transform .14s; } }
+    &.s-checkbox:has(input:checked) .s-track::after { opacity: 1; transform: none; }
+    &.s-toggle .s-track { padding: 0 calc(var(--u) * 4); border-radius: var(--r-lens); height: var(--h); display: flex; align-items: center; justify-content: center; color: var(--fg-muted); cursor: pointer;
+      &::after { content: 'Off'; } }
+    &.s-toggle:has(input:checked) .s-track { color: var(--on-accent); &::after { content: 'On'; } }
   }
 
-  /* ── Slider — pane groove, accent fill, white piece ── */
+  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb ── */
   .s-slider {
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--u) * 4); }
     .s-track { height: var(--h); margin: 0; }
     input[type="range"] {
-      width: 100%; height: calc(var(--u) * 1.75); -webkit-appearance: none; appearance: none; border-radius: 999px; cursor: pointer;
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--pane) var(--p, 0%));
-      box-shadow: var(--pane-shadow);
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; background: var(--piece); box-shadow: var(--piece-shadow); cursor: grab; transition: transform .12s, box-shadow .12s; }
-      &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: 50%; background: var(--piece); box-shadow: var(--piece-shadow); cursor: grab; }
-      &:hover::-webkit-slider-thumb { transform: scale(1.08); }
-      &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--piece-shadow), ${focus}; }
+      width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
+      background: var(--lens), linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%));
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
+      &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
+      &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }
+      &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--lens-edge), var(--lens-lift), var(--focus); }
       &:active::-moz-range-thumb { cursor: grabbing; }
       &:focus-visible { outline: none; }
-      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--piece-shadow), ${focus}; }
-      &:focus-visible::-moz-range-thumb { box-shadow: var(--piece-shadow), ${focus}; }
+      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
+      &:focus-visible::-moz-range-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
     }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-marks { display: none; }
     .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 0); font-size: smaller; color: var(--fg-muted); white-space: nowrap; &.s-active { color: var(--fg); } }
-    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: smaller; color: var(--fg); opacity: .85; font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize; text-shadow: var(--halo);
+    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: smaller; color: var(--fg); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize; text-shadow: var(--emboss);
       &:hover, &:focus-visible, &.s-scrubbing { color: var(--fg); box-shadow: none; background: transparent; } }
-    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 15%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--pane-shadow); border-radius: calc(var(--r-pane) * 0.6); padding: 2px 8px; font-size: smaller; white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(var(--u) * 1.75); margin: calc((var(--h) - var(--u) * 1.75) / 2) 0; border-radius: 999px; background: var(--pane); box-shadow: var(--pane-shadow); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: 999px; } }
+    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge); border-radius: calc(var(--u) * 2 * var(--round)); padding: 2px 8px; font-size: smaller; white-space: nowrap; }
+    &.s-multiple .s-interval-track { height: calc(var(--u) * 2); margin: calc((var(--h) - var(--u) * 2) / 2) 0; border-radius: calc(var(--u) * var(--round)); position: relative;
+      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--lens), var(--accent); border-radius: inherit; }
+      input[type="range"] { background: transparent; box-shadow: none; } }
   }
 
   /* ── Select variants ── */
   .s-select {
+    /* one joined flush lens; the selected option is a brighter raised lens inside it */
     &.s-segmented {
-      .s-input { gap: 2px; background: var(--pane); box-shadow: var(--pane-shadow); border-radius: var(--r-pane); padding: 3px; height: var(--h); }
-      button { flex: 1; min-width: 0; height: 100%; background: transparent; border: none; border-radius: calc(var(--r-pane) - 3px); color: var(--fg-muted); padding: 0 var(--u); transition: background .14s, color .14s, box-shadow .14s;
-        &:hover { color: var(--fg); background: ${lite(dark ? 0.05 : 0.25)}; }
-        &.s-selected { background: ${dark ? lite(0.2) : '#fff'}; color: var(--fg); box-shadow: 0 1px 2px ${ink(dark ? 0.3 : 0.12)}, 0 3px 8px -2px ${ink(dark ? 0.4 : 0.15)}, inset 0 1px 0 ${lite(dark ? 0.25 : 1)}; }
-        &:focus-visible { outline: none; box-shadow: ${focus}; } }
+      .s-input { gap: 0; border-radius: var(--r-lens); padding: calc(var(--u) * .75); height: var(--h); }
+      button { flex: 1; min-width: 0; height: 100%; background: transparent; border: none; border-radius: calc(var(--r-lens) - var(--u) * .75 * var(--round)); color: var(--fg-muted); padding: 0 var(--u); transition: color .14s, box-shadow .14s;
+        &:hover { color: var(--fg); }
+        &.s-selected { background: var(--lens-bright), var(--bg); color: var(--fg); font-weight: 500; text-shadow: var(--emboss); }
+        &:focus-visible { outline: none; box-shadow: var(--focus); }
+        &.s-selected:focus-visible { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
     }
     &.s-radio, &.s-checkboxes { align-items: flex-start;
       .s-label-group { padding-top: calc(var(--u) * 1); }
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); }
       .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2.5); cursor: pointer; min-height: calc(var(--u) * 5.5); }
     }
-    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; background: var(--pane); box-shadow: var(--pane-shadow); display: grid; place-items: center; cursor: pointer; transition: background .14s;
+    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: background .14s;
       &::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: var(--on-accent); opacity: 0; transform: scale(.5); transition: opacity .1s, transform .14s; }
-      &:hover { background: var(--pane-hover); }
-      &:checked { background: ${accentFill}; box-shadow: inset 0 1px 0 ${lite(0.35)}; &::after { opacity: 1; transform: none; } }
-      &:focus-visible { outline: none; box-shadow: var(--pane-shadow), ${focus}; } }
+      &:hover { background: var(--lens-sheen), var(--lens); }
+      &:checked { background: var(--lens), var(--accent); &::after { opacity: 1; transform: none; } }
+      &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--focus); } }
     &.s-checkboxes {
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-      .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); flex-shrink: 0; border-radius: calc(var(--r-pane) * 0.6); background: var(--pane); box-shadow: var(--pane-shadow); transition: background .14s;
+      .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); flex-shrink: 0; border-radius: calc(var(--u) * 1.6 * var(--round)); transition: background .14s;
         &::after { content: ''; width: 60%; height: 55%; background: var(--on-accent); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; opacity: 0; transform: scale(.6); transition: opacity .1s, transform .14s; } }
-      .s-input label:hover .s-track { background: var(--pane-hover); }
-      .s-input label:has(input:checked) .s-track { background: var(--s-color, var(--accent)); box-shadow: inset 0 1px 0 ${lite(0.35)}, inset 0 0 0 1px ${lite(0.1)}; &::after { opacity: 1; transform: none; } }
-      .s-input label:has(input:focus-visible) .s-track { box-shadow: var(--pane-shadow), ${focus}; }
+      .s-input label:hover .s-track { background: var(--lens-sheen), var(--lens); }
+      .s-input label:has(input:checked) .s-track { background: var(--lens), var(--s-color, var(--accent)); &::after { opacity: 1; transform: none; } }
+      .s-input label:has(input:focus-visible) .s-track { box-shadow: var(--lens-edge), var(--focus); }
     }
   }
 
   /* ── Color ── */
   .s-color {
+    input[type="color"] { flex: none; width: var(--h); height: var(--h); padding: 0; border: none; border-radius: 50%; box-shadow: var(--lens-edge), var(--lens-drop); cursor: pointer; overflow: hidden;
+      &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; }
+      &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
     &.s-picker .s-color-input { gap: calc(var(--u) * 2.5);
-      input[type="color"] { position: static; flex: none; width: var(--h); height: var(--h); padding: 0; border: none; border-radius: 50%; box-shadow: var(--piece-shadow), inset 0 0 0 1px ${lite(0.25)}; cursor: pointer; overflow: hidden;
-        &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; }
-        &:focus-visible { outline: none; box-shadow: var(--piece-shadow), ${focus}; } }
+      input[type="color"] { position: static; }
       input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: .95em; } }
     &.s-rgba .s-color-input { gap: calc(var(--u) * 2.5);
-      input[type="color"] { width: var(--h); height: var(--h); border-radius: 50%; box-shadow: var(--piece-shadow), inset 0 0 0 1px ${lite(0.25)}; overflow: hidden;
-        &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } }
-      .s-alpha { height: calc(var(--u) * 1.75); box-shadow: var(--pane-shadow);
-        &::-webkit-slider-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--piece); box-shadow: var(--piece-shadow); }
-        &::-moz-range-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--piece); box-shadow: var(--piece-shadow); } }
+      .s-alpha { height: calc(var(--u) * 2); border-radius: calc(var(--u) * var(--round));
+        background: var(--lens), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / 8px 8px;
+        &::-webkit-slider-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); }
+        &::-moz-range-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); } }
       input[type="text"] { font-family: ui-monospace, monospace; font-size: .95em; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2); }
-      button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: none; border-radius: 50%; box-shadow: var(--piece-shadow), inset 0 0 0 1px ${lite(0.25)}; transition: transform .1s;
+      button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: none; border-radius: 50%; box-shadow: var(--lens-edge), var(--lens-drop); transition: transform .1s;
         &:hover { transform: scale(1.1); }
         &:active { transform: scale(.95); }
-        &.s-selected { box-shadow: var(--piece-shadow), 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
-        &:focus-visible { outline: none; box-shadow: var(--piece-shadow), ${focus}; } } }
+        &.s-selected { box-shadow: var(--lens-edge), 0 0 0 ${len(2.5)} var(--bg), 0 0 0 ${len(4)} var(--fg); }
+        &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--focus); } } }
   }
 
   /* ── Text / Textarea ── */
@@ -350,28 +417,29 @@ export default function glass({
     textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
     &.s-code textarea { font-family: ui-monospace, monospace; font-size: smaller; } }
 
-  /* ── Separator ── */
-  .s-separator { background: ${lite(dark ? 0.12 : 0.6)}; opacity: 1; }
-  .s-separator-labeled { background: none; &::before, &::after { background: ${lite(dark ? 0.12 : 0.6)}; opacity: 1; } }
+  /* ── Separator: a line cut into the glass ── */
+  .s-separator { height: 1px; background: ${edgeC}; box-shadow: 0 1px 0 ${rimC}; opacity: 1; }
+  .s-separator-labeled { height: auto; background: none; box-shadow: none; &::before, &::after { height: 1px; background: ${edgeC}; box-shadow: 0 1px 0 ${rimC}; opacity: 1; } }
   .s-separator-label { color: var(--fg-muted); opacity: 1; }
 
   /* ── XY pad / knob ── */
   .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 1); } }
-  .s-pad { background: var(--pane); border: none; border-radius: var(--r-pane); box-shadow: var(--pane-shadow);
-    .s-pad-x, .s-pad-y { background: ${lite(dark ? 0.12 : 0.5)}; }
-    .s-pad-dot { background: var(--piece); box-shadow: var(--piece-shadow), 0 0 0 2px var(--accent); } }
-  .s-knob-dial { width: calc(var(--u) * 10); height: calc(var(--u) * 10); background: var(--pane); border: none; box-shadow: var(--pane-shadow), var(--piece-shadow);
+  .s-pad { border: none; border-radius: calc(var(--u) * 3 * var(--round));
+    .s-pad-x, .s-pad-y { background: ${edgeC}; }
+    .s-pad-dot { background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop), 0 0 0 ${len(2)} var(--accent); } }
+  .s-knob-dial { width: calc(var(--u) * 10); height: calc(var(--u) * 10); background: var(--lens-bright), var(--bg); border: none; box-shadow: var(--lens-edge), var(--lens-drop);
     i { background: var(--accent); width: 3px; border-radius: 2px; } }
   .s-knob-val { color: var(--fg-muted); opacity: 1; }
 
   /* ── Folder ── */
   .s-folder {
-    > summary { font-weight: 500; color: var(--fg-muted); min-height: calc(var(--u) * 7); padding: 0; text-shadow: var(--halo); transition: color .12s; gap: calc(var(--u) * 2);
+    > summary { font-weight: 500; color: var(--fg-muted); min-height: calc(var(--u) * 7); padding: 0; transition: color .12s; gap: calc(var(--u) * 2);
       &:hover { color: var(--fg); }
       &::after { content: ''; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
       &:focus-visible { outline: none; color: var(--fg); } }
-    &[open] > summary { color: var(--fg); &::after { transform: rotate(-180deg); } }
-    .s-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); padding: calc(var(--u) * 3) calc(var(--u) * 3); border-radius: var(--r-pane); background: ${lite(dark ? 0.035 : 0.25)}; box-shadow: inset 0 0 0 1px ${lite(dark ? 0.08 : 0.45)}; }
+    &[open] > summary { color: var(--fg); text-shadow: var(--emboss); &::after { transform: rotate(-180deg); } }
+    /* a shallow flush well: the lens edge without its body */
+    .s-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); padding: calc(var(--u) * 3); border-radius: calc(var(--u) * 4 * var(--round)); background: ${faceClear}; box-shadow: var(--lens-edge); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }
   }
 }`

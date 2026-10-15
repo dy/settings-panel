@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
+import { contrast } from '../theme/color.js'
 
-const variants = ['porcelain', 'chalk', 'amber', 'graphite', 'frost', 'soft', 'silver', 'ink']
+const variants = ['porcelain', 'frost', 'soft', 'silver', 'ink']
 const demos = ['glass', 'neu', 'brutal', 'lab01', 'apple', 'figma', 'uil', 'leva']
 
 for (const name of [...demos, ...variants]) {
@@ -51,6 +52,49 @@ test('UIL color picker has an unobstructed pointer target', async ({ page }) => 
   })).toBe(true)
 })
 
+test('Lab01 segmented is one sunken track with the raised selection inside; image cards stay framed', async ({ page }) => {
+  await page.goto('/demo/cases/variants#silver')
+  const quality = page.locator('[data-key=quality]')
+  const layout = () => quality.locator('.s-input').evaluate(el => {
+    const track = el.getBoundingClientRect(), buttons = [...el.querySelectorAll('button')].map(b => b.getBoundingClientRect())
+    return {
+      fill: getComputedStyle(el).backgroundColor,
+      joined: buttons.every((b, i) => !i || Math.abs(b.left - buttons[i - 1].right) < .5),
+      inside: buttons.every(b => b.top > track.top && b.bottom < track.bottom && b.left > track.left && b.right < track.right),
+    }
+  })
+  for (const choice of ['Ultra', 'Ultra', 'Draft']) {
+    await quality.getByRole('button', { name: choice, exact: true }).click()
+    const { fill, joined, inside } = await layout()
+    expect(fill, 'the track is filled').not.toBe('rgba(0, 0, 0, 0)')
+    expect(joined, 'options touch: one track, not separate plates').toBe(true)
+    expect(inside, 'the selection sits inside the track').toBe(true)
+    await expect(quality.locator('button.s-selected')).toHaveText(choice)
+    await expect(quality.locator('button.s-selected')).not.toHaveCSS('box-shadow', 'none')
+    for (const idle of await quality.locator('button:not(.s-selected)').all()) await expect(idle).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  }
+  await page.goto('/demo/cases/lab01')
+  const cards = page.locator('.s-segmented .s-input')
+  await expect(cards).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  expect(parseFloat(await cards.evaluate(el => getComputedStyle(el).columnGap)), 'image cards keep their gap').toBeGreaterThan(0)
+})
+
+test('Lab01 collapsed folder closes with the overlaid hairline pair, not a solid border', async ({ page }) => {
+  await page.goto('/demo/cases/variants#silver')
+  const summary = page.locator('.s-folder > summary')
+  const rule = () => summary.evaluate(el => {
+    const r = getComputedStyle(el, '::before')
+    return { border: getComputedStyle(el).borderBottomStyle, content: r.content, blend: r.mixBlendMode, height: r.height }
+  })
+  expect(await rule()).toEqual({ border: 'none', content: '""', blend: 'overlay', height: '2px' })
+  await summary.click()
+  await expect(page.locator('.s-folder')).toHaveAttribute('open')
+  expect((await rule()).content, 'an open folder has no closing rule').toBe('none')
+  await summary.click()
+  await expect(page.locator('.s-folder')).not.toHaveAttribute('open')
+  expect(await rule()).toEqual({ border: 'none', content: '""', blend: 'overlay', height: '2px' })
+})
+
 test('Lab image options expose names and selected state; collapse preserves the setting', async ({ page }) => {
   await page.goto('/demo/cases/lab01')
   await page.getByRole('button', { name: 'Gold', exact: true }).click()
@@ -80,7 +124,7 @@ test('Lab01 inputs share the inactive toggle track; fonts, color editing and sli
   const toggle = live.locator('[data-key=enabled] input')
   await live.locator('[data-key=enabled] .s-track').click()
   for (const map of ['graphite', 'graphite', 'dark', 'gray', 'gold', 'silver', 'chalk', 'graphite']) {
-    await page.locator('#colormap-select').selectOption(map)
+    await page.locator(`input[name=light][value=${map}]`).check()
     await expect(range).toHaveValue('100')
     const swatch = live.locator('input[type=color]')
     await expect(swatch).toHaveValue('#ff6688')
@@ -118,6 +162,9 @@ test('Lab01 gallery materials show matching thumbs and recessed controls', async
 test('Lab01 focused fields share the selected image-card ring for dark and light materials', async ({ page }) => {
   for (const map of ['dark', 'gold', 'chalk']) {
     await page.goto('/#theme=lab01&colormap=' + map)
+    // A hash-only goto restyles the mounted preview in place; let its shadow transitions settle.
+    await expect(page.locator(`input[name=light][value=${map}]`)).toBeChecked()
+    await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)))
     const expected = await page.evaluate(async () => {
       const { default: settings } = await import('/index.js')
       const { default: lab01 } = await import('/theme/lab01.js')
@@ -215,7 +262,7 @@ for (const name of variants) {
   })
 }
 
-test('glass works without a document SVG and keeps accent text legible', async ({ page }) => {
+test('glass works without a document SVG and letters its buttons in a legible ink', async ({ page }) => {
   await page.goto('/demo/cases/variants#frost')
   const surface = await page.locator('.s-panel').evaluate(el => {
     const pseudo = getComputedStyle(el, '::after')
@@ -224,7 +271,13 @@ test('glass works without a document SVG and keeps accent text legible', async (
   expect(surface.backdrop).toContain('blur(28px)')
   expect(surface.filter).toBe('none')
   await page.goto('/demo/cases/glass')
-  await expect(page.locator('.s-button button')).toHaveCSS('color', 'rgb(0, 0, 0)')
+  const { ink, bg, button } = await page.locator('.s-panel').evaluate(el => ({
+    ink: getComputedStyle(el).color, bg: getComputedStyle(el).getPropertyValue('--bg').trim(),
+    button: getComputedStyle(el.querySelector('.s-button button')).color,
+  }))
+  expect(button, 'buttons are lettered in the panel ink, not on an accent fill').toBe(ink)
+  const hex = rgb => '#' + rgb.match(/[\d.]+/g).slice(0, 3).map(v => Math.round(v).toString(16).padStart(2, '0')).join('')
+  expect(contrast(hex(ink), bg), `ink ${ink} on ${bg}`).toBeGreaterThanOrEqual(4.5)
 })
 
 test('Apple appearance and accent controls update its theme', async ({ page }) => {
@@ -339,7 +392,7 @@ test('Neu material axes keep solid faces, independent depth, and a reversible li
   expect(flat.shadow).toContain('/ 0)')
   await axis('contrast').press('End')
   await axis('grain').press('Home')
-  expect(await panel.evaluate(el => getComputedStyle(el).getPropertyValue('--neu-grain').trim())).toBe('none')
+  expect(await panel.evaluate(el => getComputedStyle(el).getPropertyValue('--neu-texture').trim())).toBe('none')
   await axis('light').press('Home')
   const top = await shadow()
   await axis('light').press('End')
@@ -349,7 +402,7 @@ test('Neu material axes keep solid faces, independent depth, and a reversible li
   expect(await axis('light').inputValue()).toBe('90')
   expect(await shadow()).not.toBe(top)
   const finish = page.locator('[data-key=finish] select')
-  for (const name of ['Graphite', 'Graphite', 'Amber', 'Mist']) {
+  for (const name of ['Graphite', 'Graphite', 'Chalk', 'Bronze']) {
     await finish.selectOption(name)
     await expect(panel).toHaveCSS('color-scheme', name === 'Graphite' ? 'dark' : 'light')
     expect(await panel.evaluate(el => getComputedStyle(el).backgroundColor === getComputedStyle(document.body).backgroundColor)).toBe(true)

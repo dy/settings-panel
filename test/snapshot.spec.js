@@ -27,10 +27,18 @@ const cases = [
   { name: 'oui', path: '/demo/cases/oui.html' },
   { name: 'figma', path: '/demo/cases/figma.html' },
   { name: 'apple', path: '/demo/cases/apple.html' },
+  { name: 'studio', path: '/demo/cases/studio.html' },
+  { name: 'editorial', path: '/demo/cases/editorial.html' },
+  { name: 'ableton', path: '/demo/cases/ableton.html', width: 1280, fullPage: true },
+  { name: 'ableton-dark', path: '/demo/cases/ableton.html#dark', width: 1280, fullPage: true },
+  { name: 'imgui', path: '/demo/cases/imgui.html' },
+  { name: 'imgui-light', path: '/demo/cases/imgui.html#light' },
+  { name: 'win98', path: '/demo/cases/win98.html' },
+  { name: 'macintosh', path: '/demo/cases/macintosh.html' },
+  { name: 'industrial', path: '/demo/cases/industrial.html', width: 1000 },
+  { name: 'industrial-dark', path: '/demo/cases/industrial.html#dark', width: 1000 },
+  { name: 'materials', path: '/demo/cases/materials.html', width: 1200, fullPage: true },
   { name: 'porcelain', path: '/demo/cases/variants#porcelain' },
-  { name: 'chalk', path: '/demo/cases/variants#chalk' },
-  { name: 'amber', path: '/demo/cases/variants#amber' },
-  { name: 'graphite', path: '/demo/cases/variants#graphite' },
   { name: 'frost', path: '/demo/cases/variants#frost' },
   { name: 'soft', path: '/demo/cases/variants#soft' },
   { name: 'silver', path: '/demo/cases/variants#silver' },
@@ -231,9 +239,9 @@ test('controls gallery: separators, vector axes and row widths hold their layout
   }
 })
 
-for (const { name, path } of cases) {
+for (const { name, path, width = 800, fullPage = false } of cases) {
   test(`snapshot: ${name}`, async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 900 })
+    await page.setViewportSize({ width, height: 900 })
     await page.goto(path)
 
     // Wait for fonts + rendering
@@ -241,8 +249,25 @@ for (const { name, path } of cases) {
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot(`${name}.png`, {
+      fullPage,
       maxDiffPixelRatio: 0.01,
       animations: 'disabled',
     })
   })
 }
+
+// demo/_ref (the originals' harness) stays out of the published site: a case page offers its native
+// switch only where the reference loads, so the public demo never opens a 404 frame.
+test('case pages offer the native switch only when the reference loads', async ({ page }) => {
+  await page.route('**/demo/_ref/**', route => route.fulfill({ status: 404, body: '' }))
+  await page.goto('/demo/cases/dat.html')
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('.s-panel')).toBeVisible()
+  await expect(page.locator('.case-render-switch')).toHaveCount(0)
+
+  await page.unroute('**/demo/_ref/**')
+  await page.route('**/demo/_ref/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<p id="ref">original</p>' }))
+  await page.reload()
+  await page.locator('.case-render-switch button[data-mode=native]').click()
+  await expect(page.frameLocator('.case-native-frame').locator('#ref')).toHaveText('original')
+})

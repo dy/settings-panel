@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test'
 import { parseColor } from '../theme/color.js'
+import { themes } from '../demo/themes.js'
+
+// Light is a radiogroup of native <input type="radio" name="light"> swatches, not a <select>.
+const setLight = (page, id) => page.locator(`input[name="light"][value="${id}"]`).check()
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
@@ -8,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 
 test('all thumbnails share the five-part specimen and have one accessible selection button', async ({ page }) => {
   const cards = page.locator('.theme-card')
-  await expect(cards).toHaveCount(19)
+  await expect(cards).toHaveCount(themes.length)
   for (const card of await cards.all()) {
     await expect(card.locator('.s-panel > summary')).toContainText('Layer')
     await expect(card.locator('.s-control')).toHaveCount(4)
@@ -28,14 +32,14 @@ test('all thumbnails share the five-part specimen and have one accessible select
 
 test('search and category filters compose; empty and cleared results preserve the live preview', async ({ page }) => {
   await page.getByRole('button', { name: 'Classics', exact: true }).click()
-  await expect(page.locator('.theme-card:visible')).toHaveCount(10)
+  await expect(page.locator('.theme-card:visible')).toHaveCount(themes.filter(t => t.classic).length)
   await page.getByRole('searchbox', { name: 'Search themes' }).fill('  FIGMA ')
   await expect(page.locator('.theme-card:visible')).toHaveCount(1)
   await page.getByRole('button', { name: 'Originals', exact: true }).click()
   await expect(page.locator('#empty-state')).toBeVisible()
   await expect(page.locator('#preview-title')).toHaveText('Glass')
   await page.getByRole('button', { name: 'Clear filters' }).click()
-  await expect(page.locator('.theme-card:visible')).toHaveCount(19)
+  await expect(page.locator('.theme-card:visible')).toHaveCount(themes.length)
   await expect(page.getByRole('searchbox')).toBeFocused()
 })
 
@@ -69,7 +73,7 @@ test('theme, colormap, accent and density preserve edited values; reset restores
   await live.locator('[data-key=opacity] input[type=range]').press('ArrowRight')
   await live.locator('[data-key=enabled] .s-track').click()
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await page.getByRole('combobox', { name: 'Colormap' }).selectOption('chalk')
+  await setLight(page, 'chalk')
   await expect(live.locator('.s-panel')).toHaveCSS('color-scheme', 'light')
   await page.getByRole('button', { name: 'Rose', exact: true }).click()
   await page.getByRole('button', { name: 'Roomy', exact: true }).click()
@@ -94,8 +98,8 @@ test('Dark matches Lab01’s demo; secondary reset retains focus and toggle help
   await expect(live.locator('[data-key=enabled] .s-hint')).toHaveText('Show this layer')
   await live.locator('[data-key=name] input').fill('Changed')
   await live.locator('[data-key=enabled] .s-track').click()
-  await page.locator('#colormap-select').selectOption('graphite')
-  await expect(live.locator('.s-panel')).toHaveCSS('--bg', '#292b2e')
+  await setLight(page, 'graphite')
+  await expect(live.locator('.s-panel')).toHaveCSS('--bg', '#1e1e1e')
   const panel = await live.locator('.s-panel').elementHandle()
   const reset = live.getByRole('button', { name: 'Reset', exact: true })
   await expect(reset).toHaveClass('s-secondary')
@@ -106,7 +110,7 @@ test('Dark matches Lab01’s demo; secondary reset retains focus and toggle help
     await expect(live.locator('[data-key=name] input')).toHaveValue('Aurora')
     await expect(live.locator('[data-key=enabled] input')).toBeChecked()
   }
-  await expect(page.locator('#colormap-select')).toHaveValue('graphite')
+  await expect(page.locator('input[name="light"][value="graphite"]')).toBeChecked()
   for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 900 })
     for (const button of await live.locator('.s-button button').all()) {
@@ -119,12 +123,12 @@ test('Dark matches Lab01’s demo; secondary reset retains focus and toggle help
   }
 })
 
-test('all eleven colormaps change the panel and scene; a chosen accent survives map changes', async ({ page }) => {
-  const maps = ['dark', 'graphite', 'slate', 'copper', 'gold', 'gray', 'sage', 'silver', 'ivory', 'chalk', 'light']
-  expect(await page.locator('#colormap-select option').evaluateAll(options => options.map(option => option.value))).toEqual(maps)
+test('all twelve colormaps change the panel and scene; a chosen accent survives map changes', async ({ page }) => {
+  const maps = ['dark', 'graphite', 'slate', 'copper', 'gold', 'bronze', 'gray', 'sage', 'silver', 'ivory', 'chalk', 'light']
+  expect(await page.locator('input[name="light"]').evaluateAll(els => els.map(el => el.value))).toEqual(['native', ...maps])
   const fills = new Set(), scenes = new Set()
   for (const map of maps) {
-    await page.locator('#colormap-select').selectOption(map)
+    await setLight(page, map)
     fills.add(await page.locator('#live-panel .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--bg')))
     scenes.add(await page.locator('#preview-scene').evaluate(el => getComputedStyle(el).getPropertyValue('--scene-sky')))
     await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', ['dark', 'graphite', 'slate'].includes(map) ? 'dark' : 'light')
@@ -135,23 +139,52 @@ test('all eleven colormaps change the panel and scene; a chosen accent survives 
   expect(scenes.size).toBe(maps.length)
   await page.getByRole('button', { name: 'Rose', exact: true }).click()
   for (const map of ['gold', 'chalk', 'gold']) {
-    await page.locator('#colormap-select').selectOption(map)
+    await setLight(page, map)
     await expect(page.locator('#custom-accent')).toHaveValue('#d94c91')
   }
   await page.getByRole('button', { name: 'Auto', exact: true }).click()
   await expect(page.locator('#custom-accent')).toHaveValue('#60421f')
-  await page.locator('#colormap-select').selectOption('sage')
+  await setLight(page, 'sage')
   await expect(page.locator('#custom-accent')).toHaveValue('#395845')
+  // Accent and Density are global now – always visible, regardless of the selected theme's
+  // supported axes. Tweakpane doesn't read `accent`, so axesFor omits it: proving the isolation
+  // means showing that clicking a different global accent leaves Tweakpane's own --accent alone.
   await page.getByRole('button', { name: 'Preview Tweakpane', exact: true }).click()
   await expect(page.locator('#density-row')).toBeVisible()
-  await expect(page.locator('#accent-row')).toBeHidden()
-  await expect(page.locator('#more-axes')).toBeVisible()
+  await expect(page.locator('#accent-row')).toBeVisible()
+  const accentBefore = await page.locator('#live-panel .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--accent'))
+  await page.getByRole('button', { name: 'Blue', exact: true }).click()
+  const accentAfter = await page.locator('#live-panel .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--accent'))
+  expect(accentAfter, 'Tweakpane has no accent axis; its --accent must not react to the global Accent').toBe(accentBefore)
   await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'light')
+})
+
+// Native light passes no shade or accent: each panel paints exactly its theme's defaults.
+const defaultBg = (page, file) => page.evaluate(async file => (await import(`/theme/${file}.js`)).default().match(/--bg:\s*([^;]+);/g).at(-1).replace(/--bg:\s*|;/g, ''), file)
+
+test('native Light resolves per theme; reset look restores it', async ({ page }) => {
+  await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
+  for (const [id, file] of [['glass', 'glass'], ['lab01', 'lab01'], ['tweakpane', 'tweakpane'], ['soft', 'default'], ['studio', 'studio']])
+    await expect(page.locator(`[data-theme=${id}] .s-panel`)).toHaveCSS('--bg', await defaultBg(page, file))
+  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
+  await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'dark') // lab01's default is near-black
+  await page.getByRole('button', { name: 'Preview DevTools', exact: true }).click()
+  await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'light') // devtools defaults to white
+
+  await setLight(page, 'graphite')
+  await expect(page.locator('input[name="light"][value="native"]')).not.toBeChecked()
+  await page.getByRole('button', { name: 'Reset look', exact: true }).click()
+  await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
+})
+
+test('colormap=native in the URL resolves per theme on load', async ({ page }) => {
+  await page.goto('/#theme=neu&colormap=native')
+  await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
+  await expect(page.locator('#live-panel .s-panel')).toHaveCSS('--bg', await defaultBg(page, 'neu'))
 })
 
 test('range and custom color write-back exports typed axes; skip link preserves selection', async ({ page }) => {
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await page.locator('#more-axes summary').click()
   await page.locator('#roundness').press('End')
   await page.locator('#size').press('End')
   await page.locator('#font-select').selectOption('mono')
@@ -175,9 +208,26 @@ test('range and custom color write-back exports typed axes; skip link preserves 
   }
 })
 
+test("Corners shows each theme's own native default, not one shared anchor", async ({ page }) => {
+  await expect(page.locator('#roundness')).toHaveValue('1.4') // glass, the initial theme
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await expect(page.locator('#roundness')).toHaveValue('1.6')
+  await expect(page.locator('#roundness-value')).toHaveText('1.6')
+  await page.getByRole('button', { name: 'Preview Porcelain', exact: true }).click()
+  await expect(page.locator('#roundness')).toHaveValue('1')
+  await page.getByRole('button', { name: 'Preview Swiss', exact: true }).click()
+  await expect(page.locator('#roundness')).toHaveValue('0') // swiss keeps its own corners sharp regardless of the axis
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await page.locator('#roundness').press('ArrowRight') // continuous from Neu's real 1.6, no snap to a shared anchor
+  await expect(page.locator('#roundness-value')).toHaveText('1.7')
+})
+
 for (const width of [320, 375, 414, 768, 1440]) {
   test(`gallery and live controls fit a ${width}px viewport`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 })
+    const bar = await page.locator('.look-bar').evaluate(el => el.getBoundingClientRect())
+    expect(bar.left, 'look-bar').toBeGreaterThanOrEqual(0)
+    expect(bar.right, 'look-bar').toBeLessThanOrEqual(width)
     for (const name of ['glass', 'neu', 'porcelain', 'brutal', 'swiss', 'lab01', 'dat', 'figma']) {
       await page.locator(`[data-theme="${name}"] .theme-choice`).click()
       const result = await page.locator('#live-panel').evaluate(host => {
@@ -288,7 +338,7 @@ test('executed JavaScript export preserves control types, empty text, zero and f
 test('share URLs restore axes, validate boundary inputs, and support browser back', async ({ page }) => {
   await page.goto('/#theme=neu&time=day&accent=%23112233&density=1.5&corners=0&scale=1.2')
   await expect(page.locator('#preview-title')).toHaveText('Neu')
-  await expect(page.locator('#colormap-select')).toHaveValue('chalk')
+  await expect(page.locator('input[name="light"][value="chalk"]')).toBeChecked()
   expect(page.url()).toContain('colormap=chalk')
   await expect(page.locator('#custom-accent')).toHaveValue('#112233')
   await expect(page.locator('#roundness')).toHaveValue('0')
@@ -299,19 +349,48 @@ test('share URLs restore axes, validate boundary inputs, and support browser bac
   await page.goto('about:blank')
   await page.goto('/#theme=constructor&time=unknown&accent=oops&density=0&corners=Infinity&scale=-20')
   await expect(page.locator('#preview-title')).toHaveText('Glass')
-  await expect(page.locator('#custom-accent')).toHaveValue('#cbd4e1')
+  await expect(page.locator('#custom-accent')).toHaveValue('#6ea8ff') // native keeps glass's own default accent (theme/glass.js)
   await expect(page.locator('#roundness')).toHaveValue('1.4')
   await expect(page.locator('#size')).toHaveValue('0.8')
+})
+
+test('a colormap exports its ink and texture only for themes that declare them, and drops them on the next map', async ({ page }) => {
+  const exported = async () => {
+    await page.getByRole('button', { name: 'Use theme', exact: false }).click()
+    const code = await page.locator('#theme-code').textContent()
+    await page.keyboard.press('Escape')
+    return code
+  }
+  await page.goto('/#theme=soft&colormap=bronze')
+  for (let i = 0; i < 2; i++) {
+    const code = await exported()
+    expect(code).toContain('"ink": "#603415"')
+    expect(code).toContain('"texture": "wood"')
+    await setLight(page, 'bronze')
+  }
+  for (const map of ['gold', 'native']) {
+    await setLight(page, map)
+    const code = await exported()
+    expect(code, map).not.toContain('"ink"')
+    expect(code, map).not.toContain('"texture"')
+  }
+  await setLight(page, 'chalk')
+  expect(await exported()).toContain('"texture": "grain"')
+  await page.goto('/#theme=lab01&colormap=bronze')
+  const code = await exported()
+  expect(code).toContain('"shade": "#ca9d63"')
+  expect(code).not.toContain('"ink"')
+  expect(code).not.toContain('"texture"')
 })
 
 test('colormap URLs restore exports and reject missing, empty, unknown and inherited keys', async ({ page }) => {
   for (const query of ['', 'colormap=', 'colormap=unknown', 'colormap=constructor', 'colormap=__proto__&time=day']) {
     await page.goto('/#theme=glass&' + query)
-    await expect(page.locator('#colormap-select')).toHaveValue('graphite')
-    await expect(page.locator('#custom-accent')).toHaveValue('#cbd4e1')
+    await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
+    await expect(page.locator('#custom-accent')).toHaveValue('#6ea8ff')
   }
   await page.goto('/#theme=lab01&colormap=gold')
-  await expect(page.locator('#colormap-select')).toHaveValue('gold')
+  await expect(page.locator('input[name="light"][value="gold"]')).toBeChecked()
   await page.getByRole('button', { name: 'Use theme', exact: false }).click()
   await expect(page.locator('#theme-code')).toContainText('"shade": "#ba965a"')
   await expect(page.locator('#theme-code')).toContainText('"accent": "#60421f"')
@@ -319,7 +398,7 @@ test('colormap URLs restore exports and reject missing, empty, unknown and inher
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
   await page.goBack()
   await expect(page.locator('#preview-title')).toHaveText('Lab01')
-  await expect(page.locator('#colormap-select')).toHaveValue('gold')
+  await expect(page.locator('input[name="light"][value="gold"]')).toBeChecked()
 })
 
 test('saved colormaps retain Auto or custom accents across reload and migrate all daytime links', async ({ page }) => {
@@ -328,13 +407,13 @@ test('saved colormaps retain Auto or custom accents across reload and migrate al
   expect(new URLSearchParams(new URL(page.url()).hash.slice(1)).has('accent')).toBe(false)
   await page.reload()
   await expect(page.locator('#custom-accent')).toHaveValue('#60421f')
-  await page.locator('#colormap-select').selectOption('sage')
+  await setLight(page, 'sage')
   await expect(page.locator('#custom-accent')).toHaveValue('#395845')
 
   await page.getByRole('button', { name: 'Rose', exact: true }).click()
   await page.reload()
   await expect(page.getByRole('button', { name: 'Auto', exact: true })).toHaveAttribute('aria-pressed', 'false')
-  await page.locator('#colormap-select').selectOption('gold')
+  await setLight(page, 'gold')
   await expect(page.locator('#custom-accent')).toHaveValue('#d94c91')
   await page.getByRole('button', { name: 'Auto', exact: true }).click()
   await page.reload()
@@ -343,7 +422,7 @@ test('saved colormaps retain Auto or custom accents across reload and migrate al
 
   for (const [time, map] of [['predawn', 'slate'], ['sunrise', 'ivory'], ['day', 'chalk'], ['dusk', 'slate'], ['sunset', 'copper'], ['night', 'graphite']]) {
     await page.goto('/#time=' + time)
-    await expect(page.locator('#colormap-select')).toHaveValue(map)
+    await expect(page.locator(`input[name="light"][value="${map}"]`)).toBeChecked()
     const params = new URLSearchParams(new URL(page.url()).hash.slice(1))
     expect(params.get('colormap')).toBe(map)
     expect(params.has('time')).toBe(false)
@@ -352,7 +431,8 @@ test('saved colormaps retain Auto or custom accents across reload and migrate al
 
 test('every theme accepts every colormap and classic labels retain readable contrast', async ({ page }) => {
   const issues = await page.evaluate(async () => {
-    const maps = [...document.querySelectorAll('#colormap-select option')].map(el => el.value)
+    // 'native' resolves per-theme, not to one fixed color scheme – covered separately.
+    const maps = [...document.querySelectorAll('input[name="light"]')].map(el => el.value).filter(m => m !== 'native')
     const themes = [...document.querySelectorAll('.theme-card')].map(el => el.dataset.theme)
     const native = ['dat', 'tweakpane', 'leva', 'controlkit', 'uil']
     const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
@@ -363,8 +443,8 @@ test('every theme accepts every colormap and classic labels retain readable cont
     const lum = values => values.slice(0, 3).map(v => v / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0)
     const issues = [], tick = () => new Promise(requestAnimationFrame)
     for (const map of maps) {
-      const select = document.querySelector('#colormap-select')
-      select.value = map; select.dispatchEvent(new Event('change', { bubbles: true }))
+      const radio = document.querySelector(`input[name="light"][value="${map}"]`)
+      radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true }))
       await tick()
       for (const theme of themes) {
         document.querySelector(`[data-theme="${theme}"] .theme-choice`).click()
@@ -394,7 +474,7 @@ test('Light colormap matches native DevTools and stays distinct from Chalk throu
   const name = panel.locator('[data-key=name] input')
   await name.fill('Inspector')
   for (const map of ['light', 'chalk', 'light']) {
-    await page.locator('#colormap-select').selectOption(map)
+    await setLight(page, map)
     await expect(panel).toHaveCSS('background-color', map === 'light' ? 'rgb(255, 255, 255)' : 'rgb(241, 242, 244)')
     await expect(name).toHaveValue('Inspector')
   }
@@ -411,11 +491,82 @@ test('Light colormap matches native DevTools and stays distinct from Chalk throu
   })
   expect(colors.actual).toEqual(colors.expected)
   await page.reload()
-  await expect(page.locator('#colormap-select')).toHaveValue('light')
+  await expect(page.locator('input[name="light"][value="light"]')).toBeChecked()
   await expect(panel).toHaveCSS('background-color', 'rgb(255, 255, 255)')
   await page.getByRole('button', { name: 'Use theme', exact: false }).click()
   await expect(page.locator('#theme-code')).toContainText('"shade": "#ffffff"')
   await expect(page.locator('#theme-code')).toContainText('"accent": "#0b57d0"')
+})
+
+test('Look-bar and Theme-controls axis changes never remount the live panel', async ({ page }) => {
+  const panel = await page.locator('#live-panel .s-panel').elementHandle()
+  const styleCount = await page.locator('head style').count()
+  const name = page.locator('#live-panel [data-key=name] input')
+  await name.fill('')
+  await name.pressSequentially('Drifting')
+  await expect(name).toBeFocused()
+  await setLight(page, 'dark')
+  await page.getByRole('button', { name: 'Roomy', exact: true }).click()
+  await page.locator('#roundness').press('End')
+  await page.locator('#size').press('End')
+  await page.getByRole('button', { name: 'Teal', exact: true }).click()
+  await expect(name).toHaveValue('Drifting')
+  expect(await panel.evaluate(el => el.isConnected)).toBe(true)
+  await expect(page.locator('head style')).toHaveCount(styleCount)
+})
+
+test('a non-selected thumbnail restyles from the Look bar without remounting', async ({ page }) => {
+  const thumb = page.locator('[data-theme=neu] .s-panel')
+  const handle = await thumb.elementHandle()
+  const before = await thumb.evaluate(el => getComputedStyle(el).getPropertyValue('--bg'))
+  await setLight(page, 'dark')
+  await expect(thumb).not.toHaveCSS('--bg', before)
+  expect(await handle.evaluate(el => el.isConnected)).toBe(true)
+})
+
+test('theme controls: populated vs. empty state, and per-theme isolation', async ({ page }) => {
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await expect(page.locator('.extra-row')).toHaveCount(6)
+  await expect(page.locator('.extras-empty')).toBeHidden()
+  await expect(page.locator('.extras-reset')).toBeHidden()
+
+  await page.getByRole('button', { name: 'Preview dat.gui', exact: true }).click()
+  await expect(page.locator('.extras-empty')).toBeVisible()
+  await expect(page.locator('.extras-grid')).toBeHidden()
+
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await page.locator('.extras-grid input[type=range]').last().fill('1') // Grain, max
+  await expect(page.locator('.extras-reset')).toBeVisible()
+  const neuThumb = await page.locator('[data-theme=neu] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--neu-texture'))
+  expect(neuThumb, 'the edited grain paints a texture').toContain('url(')
+
+  await page.getByRole('button', { name: 'Preview Glass', exact: true }).click()
+  const glassBefore = await page.locator('[data-theme=glass] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--bg'))
+  await expect(page.locator('.extras-reset')).toBeHidden() // glass's own extras are untouched
+
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await expect(page.locator('.extras-reset')).toBeVisible() // neu's edit is session-local, not lost
+  expect(await page.locator('[data-theme=neu] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--neu-texture'))).toBe(neuThumb)
+  const glassAfter = await page.locator('[data-theme=glass] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--bg'))
+  expect(glassAfter, "neu's extras must not leak into glass").toBe(glassBefore)
+
+  await page.locator('.extras-reset').click()
+  await expect(page.locator('.extras-reset')).toBeHidden()
+})
+
+test('a non-native extra round-trips through Copy link, scoped to the selected theme', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await page.locator('.extras-grid input[type=range]').first().fill('900') // Weight, max
+  await page.getByRole('button', { name: 'Preview Skeu', exact: true }).click()
+  await page.locator('.extra-select select').selectOption('dots') // a different theme's own extra
+  await page.getByRole('button', { name: 'Copy preview link', exact: true }).click()
+  const link = await page.evaluate(() => navigator.clipboard.readText())
+  expect(link, 'only the selected theme (skeu) scopes into the URL').toContain('x-grid=dots')
+  expect(link, "a different theme's (neu) customization stays session-local").not.toContain('x-weight')
+
+  await page.goto(link)
+  await expect(page.locator('.extra-select select')).toHaveValue('dots')
 })
 
 test('gallery screenshot', async ({ page }) => {

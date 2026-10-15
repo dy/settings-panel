@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Materials – Settings Panel</title>
+  <script type="importmap">
+    { "imports": { "sprae": "https://esm.sh/sprae@13", "sprae/store": "https://esm.sh/sprae@13/store" } }
+  </script>
+  <style>
+    /* Four material themes in three palettes, as in the study they reproduce: each column is one
+       finish (its surface fills the column), each row one theme. */
+    * { box-sizing: border-box; margin: 0; }
+    body { font: 13px/1.5 system-ui, sans-serif; background: #1e1e1e; }
+    main { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); min-height: 100svh; }
+    .finish { padding: 32px 24px 48px; display: grid; gap: 40px; align-content: start; justify-items: center; color: var(--caption); }
+    .finish > h2 { justify-self: start; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+    .cell { width: min(100%, 340px); display: grid; gap: 10px; }
+    .cell > p { font-size: 11px; letter-spacing: .02em; }
+  </style>
+</head>
+<body>
+  <main id="main"></main>
+  <script type="module">
+    import settings from '../../index.js'
+    import { byId, colormaps, material } from '../themes.js'
+    import { surface } from '../../theme/texture.js'
+
+    const finishes = ['chalk', 'bronze', 'graphite']
+    const rows = ['neu', 'glass', 'soft', 'skeu']
+    // The column carries the palette's surface and texture, so each panel sits on its own material.
+    const ground = map => { const t = surface(map.texture, map.shade); return t ? `background: ${t.image}, ${map.shade}; background-blend-mode: ${t.blend}, normal;` : `background: ${map.shade};` }
+
+    const main = document.getElementById('main')
+    for (const id of finishes) {
+      const map = colormaps[id]
+      const col = main.appendChild(document.createElement('section'))
+      col.className = 'finish'
+      col.style.cssText = `${ground(map)} --caption: ${map.ink};`
+      col.innerHTML = `<h2>${map.name}</h2>`
+      for (const themeId of rows) {
+        const theme = byId[themeId], axes = { ...material(theme, map), accent: map.accent }
+        const cell = col.appendChild(document.createElement('div'))
+        cell.className = 'cell'
+        const host = cell.appendChild(document.createElement('div'))
+        cell.insertAdjacentHTML('beforeend', `<p>${theme.name} / ${map.name}</p>`)
+        const panel = settings({
+          preset: { type: 'select', value: 'Daylight', options: ['Daylight', 'Overcast', 'Evening'], label: 'Preset' },
+          name: { type: 'text', value: 'Aurora', label: 'Name' },
+          exposure: { type: 'slider', value: .35, min: -2, max: 2, step: .05, label: 'Exposure', unit: ' EV' },
+          quality: { type: 'select', variant: 'segmented', value: 'Fine', options: ['Draft', 'Fine', 'Ultra'], label: 'Quality' },
+          enabled: { type: 'boolean', variant: 'switch', value: true, label: 'Preview' },
+          actions: { type: 'button', label: false, buttons: {
+            Reset: { variant: 'secondary', onClick: () => Object.assign(panel, { preset: 'Daylight', name: 'Aurora', exposure: .35, quality: 'Fine', enabled: true }) },
+            Save: { onClick() {} },
+          } },
+        }, { container: host, title: theme.name, collapsed: false, theme: theme.fn(axes) })
+      }
+    }
+  </script>
+</body>
+</html>

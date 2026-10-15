@@ -28,7 +28,10 @@
       background: #0a0a0a center / cover no-repeat;
       transition: background-image .3s;
     }
-    #panel { width: min(100%, 420px); margin: auto; }
+    #panel { width: min(100%, 444px); margin: auto; }
+    /* The source is a fixed 444×440 dialog whose footer sits at the bottom (margin-top: auto). */
+    #panel .s-panel-content { min-height: calc(440px - 82px); }
+    #panel .s-panel-content > .s-button:last-child { margin-top: auto; }
   </style>
 </head>
 <body>

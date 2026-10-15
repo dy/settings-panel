@@ -1,0 +1,638 @@
+{
+  "cases": {
+    "dat": {
+      "page": "demo/cases/dat.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 395,
+        "y": 108,
+        "width": 310,
+        "height": 584
+      },
+      "budget": 0,
+      "source": "lil-gui 0.19 (the drop-in successor to dat.gui), demo/_ref/lil.html",
+      "mode": "switch"
+    },
+    "leva": {
+      "page": "demo/cases/leva.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 378,
+        "y": 104,
+        "width": 344,
+        "height": 592
+      },
+      "budget": 2434,
+      "source": "leva 0.9.35, demo/_ref/leva-ref.html",
+      "mode": "switch"
+    },
+    "control-panel": {
+      "page": "demo/cases/control-panel.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 368,
+        "y": 206,
+        "width": 364,
+        "height": 388
+      },
+      "budget": 4240,
+      "source": "control-panel 1.3.4, demo/_ref/cp-ref.html",
+      "mode": "switch"
+    },
+    "control-panel-light": {
+      "page": "demo/cases/control-panel.html#shade=ebebeb",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 368,
+        "y": 206,
+        "width": 364,
+        "height": 388
+      },
+      "budget": 0,
+      "source": "control-panel 1.3.4, light shade",
+      "mode": "switch"
+    },
+    "oui": {
+      "page": "demo/cases/oui.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 380,
+        "y": 199,
+        "width": 340,
+        "height": 402
+      },
+      "budget": 12892,
+      "source": "ouioui 0.0.23, demo/_ref/oui-ref.html",
+      "mode": "switch"
+    },
+    "tweakpane": {
+      "page": "demo/cases/tweakpane.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 390,
+        "y": 165,
+        "width": 320,
+        "height": 470
+      },
+      "budget": 998,
+      "source": "tweakpane 4 at its 256px default width, demo/_ref/tp.html",
+      "mode": "switch"
+    },
+    "controlkit": {
+      "page": "demo/cases/controlkit.html",
+      "viewport": [
+        1100,
+        1600
+      ],
+      "clip": {
+        "x": 418,
+        "y": 420,
+        "width": 264,
+        "height": 760
+      },
+      "budget": 7061,
+      "source": "ControlKit, demo/_ref/ck-ref.html",
+      "mode": "switch"
+    },
+    "uil": {
+      "page": "demo/cases/uil.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "budget": 23,
+      "source": "uil 4.4.2, demo/_ref/uil-ref.html",
+      "mode": "element"
+    },
+    "lab01-dark": {
+      "page": "demo/cases/lab01.html",
+      "viewport": [
+        1440,
+        900
+      ],
+      "budget": 1200,
+      "source": "lab01.dev experiment 01, dark",
+      "mode": "element"
+    },
+    "lab01-light": {
+      "page": "demo/cases/lab01.html",
+      "viewport": [
+        1440,
+        900
+      ],
+      "click": ".s-segmented button[aria-label=Light]",
+      "budget": 2189,
+      "source": "lab01.dev experiment 01, light",
+      "mode": "element"
+    },
+    "lab01-gold": {
+      "page": "demo/cases/lab01.html",
+      "viewport": [
+        1440,
+        900
+      ],
+      "click": ".s-segmented button[aria-label=Gold]",
+      "budget": 3003,
+      "source": "lab01.dev experiment 01, gold",
+      "mode": "element"
+    },
+    "imgui-title": {
+      "page": "demo/cases/imgui.html",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 275,
+        "y": 20,
+        "width": 550,
+        "height": 44
+      },
+      "budget": 96,
+      "source": "Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColorsDark (sokol-samples imgui-sapp)",
+      "mode": "page"
+    },
+    "imgui": {
+      "page": "demo/cases/imgui.html",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 275,
+        "y": 64,
+        "width": 550,
+        "height": 868
+      },
+      "budget": 93472,
+      "source": "Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColorsDark (sokol-samples imgui-sapp)",
+      "mode": "page"
+    },
+    "imgui-light-title": {
+      "page": "demo/cases/imgui.html#light",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 275,
+        "y": 20,
+        "width": 550,
+        "height": 44
+      },
+      "budget": 98,
+      "source": "Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColorsLight (sokol-samples imgui-sapp)",
+      "mode": "page"
+    },
+    "imgui-light": {
+      "page": "demo/cases/imgui.html#light",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 275,
+        "y": 64,
+        "width": 550,
+        "height": 868
+      },
+      "budget": 81316,
+      "source": "Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColorsLight (sokol-samples imgui-sapp)",
+      "mode": "page"
+    },
+    "ableton": {
+      "page": "demo/cases/ableton.html",
+      "viewport": [
+        1440,
+        900
+      ],
+      "clip": {
+        "x": 124,
+        "y": 64,
+        "width": 1192,
+        "height": 708.4375
+      },
+      "budget": 108833,
+      "source": "Ableton Learning Synths playground, light, graphs hidden",
+      "mode": "page"
+    },
+    "ableton-dark": {
+      "page": "demo/cases/ableton.html#dark",
+      "viewport": [
+        1440,
+        900
+      ],
+      "clip": {
+        "x": 124,
+        "y": 64,
+        "width": 1192,
+        "height": 708.4375
+      },
+      "budget": 123245,
+      "source": "Ableton Learning Synths playground, dark, graphs hidden",
+      "mode": "page"
+    },
+    "win98-title": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 348,
+        "y": 48,
+        "width": 362,
+        "height": 21
+      },
+      "budget": 24176,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: title bar without the ? and × buttons",
+      "mode": "page"
+    },
+    "win98-group": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 370,
+        "y": 76,
+        "width": 360,
+        "height": 15
+      },
+      "budget": 62,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Character repeat group caption and top edge",
+      "mode": "page"
+    },
+    "win98-trackbar-start": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 392,
+        "y": 126,
+        "width": 50,
+        "height": 30
+      },
+      "budget": 6,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Repeat delay: Long caption, channel start, first tick",
+      "mode": "page"
+    },
+    "win98-trackbar-end": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 647,
+        "y": 126,
+        "width": 24,
+        "height": 30
+      },
+      "budget": 0,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Repeat delay: thumb at Short, channel end, last tick",
+      "mode": "page"
+    },
+    "win98-field": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 393,
+        "y": 253,
+        "width": 314,
+        "height": 38
+      },
+      "budget": 196,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: test field and its caption",
+      "mode": "page"
+    },
+    "win98-buttons": {
+      "page": "demo/cases/win98.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 491,
+        "y": 406,
+        "width": 237,
+        "height": 23
+      },
+      "budget": 642,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: OK, Cancel, Apply",
+      "mode": "page"
+    },
+    "win98-typed": {
+      "page": "demo/cases/win98.html#typed",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 393,
+        "y": 268,
+        "width": 314,
+        "height": 23
+      },
+      "budget": 4,
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: test field after typing \"hello world\"",
+      "mode": "page"
+    },
+    "macintosh-mouse": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 99,
+        "width": 277,
+        "height": 28
+      },
+      "budget": 104,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): Mouse Keys heading with its On/Off radios",
+      "mode": "page"
+    },
+    "macintosh-title": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 48,
+        "width": 277,
+        "height": 19
+      },
+      "budget": 460,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): title bar with the close box",
+      "mode": "page"
+    },
+    "macintosh-feedback": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 67,
+        "width": 277,
+        "height": 32
+      },
+      "budget": 1024,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): first check box and dotted rule",
+      "mode": "page"
+    },
+    "macintosh-delay": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 127,
+        "width": 277,
+        "height": 16
+      },
+      "budget": 552,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): Initial Delay radio row",
+      "mode": "page"
+    },
+    "macintosh-speed": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 151,
+        "width": 148,
+        "height": 16
+      },
+      "budget": 940,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): Maximum Speed label and first two radios (the rest are grouped 2-4-2)",
+      "mode": "page"
+    },
+    "macintosh-slow": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 168,
+        "width": 277,
+        "height": 51
+      },
+      "budget": 884,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): dotted rule, Slow Keys heading, Acceptance Delay row",
+      "mode": "page"
+    },
+    "macintosh-click": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 228,
+        "width": 277,
+        "height": 16
+      },
+      "budget": 580,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): Use key click sound check box",
+      "mode": "page"
+    },
+    "macintosh-sticky": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 245,
+        "width": 277,
+        "height": 33
+      },
+      "budget": 92,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): dotted rule, Sticky Keys heading",
+      "mode": "page"
+    },
+    "macintosh-beep": {
+      "page": "demo/cases/macintosh.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 412,
+        "y": 279,
+        "width": 277,
+        "height": 26
+      },
+      "budget": 368,
+      "source": "System 7.0 Easy Access control panel, Mac Plus 1-bit, Infinite Mac (infinitemac.org): last check box, bottom frame and shadow",
+      "mode": "page"
+    },
+    "industrial-top": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 69,
+        "y": 0,
+        "width": 969,
+        "height": 42
+      },
+      "budget": 252,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 1, 1, 1939, 85: chassis top edge and corners, the ground above",
+      "mode": "image"
+    },
+    "industrial-screen-top": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 109,
+        "y": 147,
+        "width": 220,
+        "height": 25
+      },
+      "budget": 2182,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 80, 256, 520, 306: screen bezel and first line, DMX-FIELD / UNI:1 ACTIVE",
+      "mode": "image"
+    },
+    "industrial-screen-bottom": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 109,
+        "y": 175,
+        "width": 220,
+        "height": 29
+      },
+      "budget": 2146,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 80, 462, 520, 520: screen's last line, WAVE: SINE / SYNC: INT, and bezel",
+      "mode": "image"
+    },
+    "industrial-keys": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 89,
+        "y": 297,
+        "width": 250,
+        "height": 200
+      },
+      "budget": 6877,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 40, 601, 540, 1001: PAGE keys and keypad",
+      "mode": "image"
+    },
+    "industrial-encoders": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 368,
+        "y": 78,
+        "width": 320,
+        "height": 91
+      },
+      "budget": 5135,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 601, 80, 1241, 262: PAN, TILT, DIMMER, FX RATE encoders",
+      "mode": "image"
+    },
+    "industrial-master": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 699,
+        "y": 80,
+        "width": 60,
+        "height": 80
+      },
+      "budget": 3728,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 1741, 70, 1861, 230: MASTER encoder",
+      "mode": "image"
+    },
+    "industrial-faders": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 369,
+        "y": 231,
+        "width": 669,
+        "height": 265
+      },
+      "budget": 19152,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 601, 470, 1939, 1000: faders 01-07 and master with their keys, the chassis' right edge",
+      "mode": "image"
+    },
+    "industrial-bottom": {
+      "page": "demo/cases/industrial.html",
+      "viewport": [
+        1100,
+        800
+      ],
+      "clip": {
+        "x": 69,
+        "y": 497,
+        "width": 969,
+        "height": 30
+      },
+      "budget": 112,
+      "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 1, 1000, 1939, 1060: chassis bottom edge and shadow",
+      "mode": "image"
+    }
+  }
+}

@@ -19,8 +19,9 @@
     body {
       min-height: 100vh;
       display: flex;
-      background: radial-gradient(120% 90% at 50% -10%, #e6e6e6 0%, #cccccc 55%, #a8a8a8 100%);
-      padding: 2rem;
+      /* The page is the material the panel is cut from: its surface and texture follow the finish */
+      background-color: #ca9d63;
+      padding: 2rem 1rem;
       font-size: 13px;
     }
     #panel {
@@ -34,22 +35,44 @@
   <script type="module">
     import settings from '../../index.js'
     import skeu from '../../theme/skeu.js'
+    import { surface } from '../../theme/texture.js'
+    import { colormaps } from '../themes.js'
+
+    // The three finishes of the material study the theme is calibrated on
+    const finishes = { Chalk: colormaps.chalk, Bronze: colormaps.bronze, Graphite: colormaps.graphite }
+    const material = ({ finish, depth, bevel }) => {
+      const { shade, accent, ink, texture } = finishes[finish]
+      return { shade, accent, ink, texture, depth, bevel }
+    }
+    const ground = finish => {
+      const { shade, texture } = finishes[finish], t = surface(texture, shade)
+      document.body.style.background = t ? `${t.image}, ${shade}` : shade
+      document.body.style.backgroundBlendMode = t ? `${t.blend}, normal` : ''
+    }
+    ground('Bronze')
 
     settings({
-      'range slider': { type: 'slider', value: 20, min: 0, max: 100, step: 1, label: 'range slider' },
-      'stepped slider': { type: 'slider', value: 0.6, min: 0, max: 1, step: 0.2, label: 'stepped slider' },
-      'interval': { type: 'slider', multiple: true, value: [25, 50], min: 0, max: 100, step: 1, label: 'interval' },
-      'text': { type: 'text', value: 'my setting', label: 'text' },
-      'toggle': { type: 'boolean', variant: 'switch', value: true, label: 'switch' },
-      'checkbox': { type: 'boolean', variant: 'checkbox', value: true, label: 'checkbox' },
-      'color': { type: 'color', value: '#64c864', label: 'color' },
-      'action': { type: 'button', text: 'action', label: '' },
-      'selection': { type: 'select', options: ['option 1', 'option 2'], value: 'option 1', label: 'selection' },
-      'buttons': { type: 'select', variant: 'segmented', options: ['A', 'B', 'C'], value: 'B', label: 'segmented' },
+      name: { type: 'text', value: 'Walnut desk', label: 'Name' },
+      preset: { type: 'select', value: 'Daylight', options: ['Daylight', 'Overcast', 'Evening'], label: 'Preset' },
+      exposure: { type: 'slider', value: .35, min: -2, max: 2, step: .05, label: 'Exposure', unit: ' EV' },
+      quality: { type: 'select', variant: 'segmented', value: 'Fine', options: ['Draft', 'Fine', 'Ultra'], label: 'Quality' },
+      preview: { type: 'boolean', variant: 'switch', value: true, label: 'Preview' },
+      grid: { type: 'boolean', variant: 'checkbox', value: false, label: 'Grid' },
+      tint: { type: 'color', value: '#c8643c', label: 'Tint' },
+      more: { type: 'folder', label: 'Output', collapsed: true },
+      'more.copies': { type: 'number', value: 2, min: 1, max: 9, label: 'Copies' },
+      'more.format': { type: 'select', variant: 'radio', value: 'PNG', options: ['PNG', 'JPEG'], label: 'Format' },
+      material: { type: 'folder', label: 'Material', collapsed: false },
+      'material.finish': { type: 'select', variant: 'segmented', value: 'Bronze', options: Object.keys(finishes), label: 'Finish' },
+      'material.depth': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Depth' },
+      'material.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Edges' },
+      actions: { type: 'button', label: false, buttons: { Reset: { variant: 'secondary', onClick() {} }, Render: { onClick() {} } } },
     }, {
       container: '#panel',
-      theme: skeu,
-      title: 'Skeumorph',
+      title: 'Studio light',
+      collapsed: false,
+      theme: s => skeu(material(s)),
+      onchange: s => ground(s.finish),
     })
   </script>
 </body>

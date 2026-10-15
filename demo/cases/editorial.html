@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editorial – Reader Settings</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- The book's faces only; the settings sheet uses system type. -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Newsreader:opsz@6..72&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { background: #f4f4f4; }
+
+    /* ── The book behind the sheet ── */
+    .book {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 7vh 28px 30vh;
+      color: color-mix(in srgb, #1d1d1f var(--page-ink, 88%), #f4f4f4);
+      font-family: var(--page-font, 'Roboto Slab', Rockwell, Georgia, serif);
+      font-size: var(--page-size, 21px);
+      line-height: var(--page-lh, 1.7);
+    }
+    .book .chapter { font-weight: 700; font-size: .95em; letter-spacing: .02em; text-transform: uppercase; margin: 0; }
+    .book h1 { font-size: 1.95em; font-weight: 700; line-height: 1.2; margin: 0 0 .8em; }
+    .book p:not(.chapter) { margin: 0 0 1.1em; text-align: var(--page-align, left); text-indent: var(--page-indent, 0); }
+
+    /* ── The sheet, centred over the page; the theme draws its frame ── */
+    .stage { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px 16px; pointer-events: none; }
+    .sheet { pointer-events: auto; width: min(100%, 520px); transition: opacity 200ms ease, transform 200ms ease; }
+    .sheet.closed { opacity: 0; transform: translateY(12px); pointer-events: none; }
+    /* The chosen face previews itself, as the reader's Font row does. */
+    .sheet [data-key=font] select { font-family: var(--page-font, 'Roboto Slab', Rockwell, Georgia, serif); }
+    .reopen {
+      position: fixed; right: 24px; bottom: 24px; padding: 14px 24px; border: none; border-radius: 999px;
+      background: #000; color: #fff; font: 400 11px/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase;
+      cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 200ms ease;
+    }
+    .reopen.shown { opacity: 1; pointer-events: auto; }
+  </style>
+</head>
+<body>
+  <article class="book">
+    <p class="chapter">Chapter 1</p>
+    <h1>Down the Rabbit-Hole</h1>
+    <p>Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, &lsquo;and what is the use of a book,&rsquo; thought Alice &lsquo;without pictures or conversations?&rsquo;</p>
+    <p>So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her.</p>
+    <p>There was nothing so very remarkable in that; nor did Alice think it so very much out of the way to hear the Rabbit say to itself, &lsquo;Oh dear! Oh dear! I shall be late!&rsquo; (when she thought it over afterwards, it occurred to her that she ought to have wondered at this, but at the time it all seemed quite natural); but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, and burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge.</p>
+    <p>In another moment down went Alice after it, never once considering how in the world she was to get out again.</p>
+  </article>
+
+  <div class="stage"><div class="sheet" id="sheet"></div></div>
+  <button class="reopen" id="reopen">Reader settings</button>
+
+  <script type="module">
+    import settings from '../../index.js'
+    import editorial from '../../theme/editorial.js'
+
+    const icon = body => `--icon: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 22'>${body}</svg>`)}")`
+    const bar = (x, y, w, h = 2.4) => `<rect x='${x}' y='${y}' width='${w}' height='${h}' fill='black'/>`
+    // Alignment: four bars of the reader's ragged / centred / flush-right / justified lines.
+    const align = mode => icon([22, 16, 20, 14, 18].map((w, i) => {
+      const width = mode === 'justify' ? 22 : w
+      return bar(mode === 'center' ? 2 + (22 - width) / 2 : mode === 'right' ? 24 - width : 2, 2.5 + i * 3.8, width, 2.6)
+    }).join(''))
+    // Line spacing: three rules, tight to loose.
+    const spacing = gap => icon([0, 1, 2].map(i => bar(2, 11 - gap - 1.2 + i * gap, 22, 2)).join(''))
+    // Indent: a page frame with its text block set in from the edge.
+    const indent = inset => icon(`<rect x='2' y='2' width='22' height='18' fill='none' stroke='black' stroke-width='1.6'/><rect x='${6 + inset}' y='6' width='${14 - inset * 2}' height='10' fill='none' stroke='black' stroke-width='1.6'/>`)
+
+    const faces = {
+      'Roboto Slab': `'Roboto Slab', Rockwell, Georgia, serif`,
+      'Newsreader': `'Newsreader', Georgia, serif`,
+      'Georgia': `Georgia, 'Times New Roman', serif`,
+      'Helvetica': `'Helvetica Neue', Helvetica, Arial, sans-serif`,
+    }
+    const sizes = { 1: 17, 2: 19, 3: 21, 4: 25 }
+    const leading = { tight: 1.45, normal: 1.7, loose: 2.05 }
+    const indents = { none: '0', small: '1.5em', large: '3em' }
+
+    const book = document.querySelector('.book')
+    const apply = s => {
+      book.style.setProperty('--page-font', faces[s.font])
+      document.querySelector('.sheet').style.setProperty('--page-font', faces[s.font])
+      book.style.setProperty('--page-size', sizes[s.size] + 'px')
+      book.style.setProperty('--page-align', s.align)
+      book.style.setProperty('--page-lh', leading[s.spacing])
+      book.style.setProperty('--page-indent', indents[s.indent])
+      book.style.setProperty('--page-ink', Math.round(45 + s.contrast * 55) + '%')
+    }
+
+    const schema = {
+      font: { type: 'select', value: 'Roboto Slab', options: Object.keys(faces), label: 'Font' },
+      size: { type: 'select', variant: 'segmented', value: 3, label: 'Text size', options: [
+        { value: 1, label: 'ABC', title: 'Small', style: 'font-size: .72em' },
+        { value: 2, label: 'ABC', title: 'Medium', style: 'font-size: .9em' },
+        { value: 3, label: 'ABC', title: 'Large', style: 'font-size: 1.12em' },
+        { value: 4, label: 'ABC', title: 'Largest', style: 'font-size: 1.45em' },
+      ] },
+      align: { type: 'select', variant: 'segmented', value: 'left', label: 'Align', options: [
+        { value: 'left', label: '', title: 'Align left', style: align('left') },
+        { value: 'center', label: '', title: 'Centre', style: align('center') },
+        { value: 'right', label: '', title: 'Align right', style: align('right') },
+        { value: 'justify', label: '', title: 'Justify', style: align('justify') },
+      ] },
+      spacing: { type: 'select', variant: 'segmented', value: 'normal', label: 'Line spacing', options: [
+        { value: 'tight', label: '', title: 'Tight', style: spacing(3.2) },
+        { value: 'normal', label: '', title: 'Normal', style: spacing(4.6) },
+        { value: 'loose', label: '', title: 'Loose', style: spacing(6.4) },
+      ] },
+      indent: { type: 'select', variant: 'segmented', value: 'small', label: 'Indent', options: [
+        { value: 'none', label: '', title: 'No indent', style: indent(-2.4) },
+        { value: 'small', label: '', title: 'Small indent', style: indent(0) },
+        { value: 'large', label: '', title: 'Large indent', style: indent(2) },
+      ] },
+      contrast: { type: 'slider', value: .72, min: 0, max: 1, step: .01, marks: { 0: 'Low', 1: 'High' }, readout: false, label: 'Contrast' },
+      done: { type: 'button', label: false, text: "I'm ready to come back to my book", onClick: () => close() },
+    }
+
+    const sheet = document.getElementById('sheet'), reopen = document.getElementById('reopen')
+    // The reader's sheet is drawn larger than the panel's default scale, as in the reference.
+    settings(schema, { container: sheet, title: 'Settings', collapsed: false, theme: editorial({ size: 1.18 }), onchange: apply })
+    apply(Object.fromEntries(Object.entries(schema).filter(([, f]) => 'value' in f).map(([k, f]) => [k, f.value])))
+
+    const close = () => { sheet.classList.add('closed'); reopen.classList.add('shown') }
+    reopen.addEventListener('click', () => { sheet.classList.remove('closed'); reopen.classList.remove('shown') })
+  </script>
+</body>
+</html>

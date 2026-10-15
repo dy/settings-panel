@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dear ImGui — calibration</title>
+  <!-- Replica of the Dear ImGui 1.92.9b demo window (imgui_demo.cpp, StyleColorsDark), Widgets › Basic,
+       as built by sokol-samples' imgui-sapp · ref: https://floooh.github.io/sokol-html5/imgui-sapp.html
+       The window is 550px wide (the demo's SetNextWindowSize); the page is sokol's clear color, rgb(0, 128, 179).
+       #light: the same window after Tools › Style Editor › Colors: Light (StyleColorsLight, WindowBg #f0f0f0). -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; padding: 20px; background: rgb(0, 128, 179); font-size: 14px; }
+    #panel { width: 550px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import imgui from '../../theme/imgui.js'
+
+    const help = 'Ctrl+Click to input value.'
+    settings({
+      hello: { type: 'info', label: false, value: 'dear imgui says hello! (1.92.9b) (19291)' },
+
+      help: { type: 'folder', label: 'Help', collapsed: true },
+      'help.about': { type: 'info', label: false, value: 'Sections below are demonstrating many aspects of the library.' },
+
+      config: { type: 'folder', label: 'Configuration', collapsed: true },
+      'config.navKeyboard': { type: 'boolean', variant: 'checkbox', value: false, label: 'io.ConfigFlags: NavEnableKeyboard' },
+      'config.navGamepad': { type: 'boolean', variant: 'checkbox', value: false, label: 'io.ConfigFlags: NavEnableGamepad' },
+
+      options: { type: 'folder', label: 'Window options', collapsed: true },
+      'options.noTitlebar': { type: 'boolean', variant: 'checkbox', value: false, label: 'No titlebar' },
+      'options.noScrollbar': { type: 'boolean', variant: 'checkbox', value: true, label: 'No scrollbar' },
+      'options.noMenu': { type: 'boolean', variant: 'checkbox', value: true, label: 'No menu' },
+
+      // Widgets › Basic: the panel has one folder level, so the tree node is a section after the header
+      widgets: { type: 'folder', label: 'Widgets' },
+
+      basic: { type: 'folder', variant: 'section', label: 'Basic' },
+      'basic.general': { type: 'separator', label: 'General' },
+      'basic.button': { type: 'button', label: false, text: 'Button' },
+      'basic.check': { type: 'boolean', variant: 'checkbox', value: true, label: 'checkbox' },
+      'basic.e': { type: 'select', variant: 'radio', label: false, options: [{ value: 0, label: 'radio a' }, { value: 1, label: 'radio b' }, { value: 2, label: 'radio c' }], value: 0 },
+      'basic.link': { type: 'button', label: false, text: 'Hyperlink' },
+      'basic.colored': { type: 'button', label: false, buttons: Array.from({ length: 7 }, () => ({ text: 'Click' })) },
+      'basic.counter': { type: 'number', value: 0, step: 1, label: 'Hold to repeat:' },
+      'basic.tooltip': { type: 'button', label: false, text: 'Tooltip' },
+      'basic.labelText': { type: 'info', label: 'label', value: 'Value' },
+
+      'basic.inputs': { type: 'separator', label: 'Inputs' },
+      'basic.str0': { type: 'text', value: 'Hello, world!', label: 'input text', title: 'Hold Shift or use mouse to select text. Ctrl+A or Double-Click to select all. Escape to revert.' },
+      'basic.str1': { type: 'text', value: '', placeholder: 'enter text here', label: 'input text (w/ hint)' },
+      'basic.i0': { type: 'number', value: 123, step: 1, label: 'input int' },
+      'basic.f0': { type: 'number', value: 0.001, step: 0.01, label: 'input float' },
+      'basic.d0': { type: 'number', value: 999999.00000001, step: 0.01, label: 'input double' },
+      'basic.f1': { type: 'text', value: '1.000000e+10', label: 'input scientific', title: 'You can input value using the scientific notation, e.g. "1e+8" becomes "100000000".' },
+      'basic.vec4a': { type: 'vector', value: [0.1, 0.2, 0.3], labels: false, step: 0.001, label: 'input float3' },
+
+      'basic.drags': { type: 'separator', label: 'Drags' },
+      'basic.i1': { type: 'number', value: 50, scrub: true, label: 'drag int', title: 'Click and drag to edit value. Hold Shift/Alt for faster/slower edit. Double-Click or Ctrl+Click to input value.' },
+      'basic.i2': { type: 'number', value: 42, min: 0, max: 100, scrub: true, label: 'drag int 0..100' },
+      'basic.i3': { type: 'number', value: 128, min: 100, max: 200, scrub: true, label: 'drag int wrap 100..200' },
+      'basic.f2': { type: 'number', value: 1, step: 0.005, scrub: true, label: 'drag float' },
+      'basic.f3': { type: 'number', value: 0.0067, step: 0.0001, scrub: true, label: 'drag small float' },
+
+      'basic.sliders': { type: 'separator', label: 'Sliders' },
+      'basic.s1': { type: 'slider', value: 0, min: -1, max: 3, step: 1, format: String, label: 'slider int', title: help },
+      'basic.s2': { type: 'slider', value: 0.123, min: 0, max: 1, step: 0.001, format: v => `ratio = ${v.toFixed(3)}`, label: 'slider float' },
+      'basic.s3': { type: 'slider', value: 0, min: -10, max: 10, step: 0.0001, format: v => v.toFixed(4), label: 'slider float (log)' },
+      'basic.angle': { type: 'slider', value: 0, min: -360, max: 360, step: 1, format: v => `${v} deg`, label: 'slider angle' },
+      'basic.elem': { type: 'slider', value: 0, min: 0, max: 3, step: 1, format: v => ['Fire', 'Earth', 'Air', 'Water'][v], label: 'slider enum', title: 'Using the format string parameter to display a name instead of the underlying integer.' },
+
+      'basic.pickers': { type: 'separator', label: 'Selectors/Pickers' },
+      'basic.col1': { type: 'color', value: '#ff0033', label: 'color 1', title: 'Click on the color square to open a color picker.' },
+      'basic.col2': { type: 'color', variant: 'rgba', value: 'rgba(102, 179, 0, 0.5)', label: 'color 2' },
+      'basic.combo': { type: 'select', options: ['AAAA', 'BBBB', 'CCCC', 'DDDD', 'EEEE', 'FFFF', 'GGGG', 'HHHH', 'IIIIIII', 'JJJJ', 'KKKKKKK'], value: 'AAAA', label: 'combo', title: 'Using the simplified one-liner Combo API here.' },
+    }, {
+      container: '#panel',
+      title: 'Dear ImGui Demo',
+      collapsed: false,
+      theme: () => imgui(location.hash === '#light' ? { shade: '#f0f0f0' } : {}),
+    })
+  </script>
+</body>
+</html>
