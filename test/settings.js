@@ -159,6 +159,23 @@ test('style: a folder carries its own, like a control (a group hue for the synth
   container.remove()
 })
 
+test('search: filtering hides plain separators with the rows, and clearing restores them', () => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  const state = settings({ alpha: 1, rule: { type: 'separator' }, beta: 2 }, { container, title: 'Panel', search: true })
+  const input = container.querySelector('.s-search-input'), rule = container.querySelector('.s-separator')
+  is(rule.classList.contains('s-control'), false, 'a plain separator is not a row')
+  input.value = 'alpha'
+  input.dispatchEvent(new Event('input'))
+  is(rule.hidden, true, 'hidden while filtering')
+  is(container.querySelector('[data-key=alpha]').hidden, false)
+  input.value = ''
+  input.dispatchEvent(new Event('input'))
+  is(rule.hidden, false, 'back when the filter clears')
+  state[Symbol.dispose]()
+  container.remove()
+})
+
 test('separator: structural — renders but creates no state key', () => {
   const container = document.createElement('div')
   document.body.appendChild(container)

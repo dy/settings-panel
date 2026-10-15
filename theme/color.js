@@ -139,6 +139,24 @@ export function ink(bg, ratio = 4.5, tone) {
   return hex(far)
 }
 
+/**
+ * `a` mixed toward `b` by `t` (0 gives a, 1 gives b), as CSS `color-mix(in <space>, a, b t*100%)`
+ * mixes opaque colors; in sRGB this is also `b` laid at opacity `t` over `a` (source-over).
+ * 'srgb' interpolates the gamma-encoded 8-bit channels, a + (b - a)·t, rounded once
+ * (https://www.w3.org/TR/css-color-5/#color-mix, https://www.w3.org/TR/compositing-1/#porterduffcompositingoperators_srcover);
+ * 'oklab' interpolates OKLab L, a, b (https://bottosson.github.io/posts/oklab/). Returns #rrggbb.
+ */
+export function mix(a, b, t, space = 'srgb') {
+  if (space === 'oklab') {
+    const y = lab(b), [L, A, B] = lab(a).map((v, i) => v + (y[i] - v) * t)
+    return toHex({ L, C: Math.hypot(A, B), H: Math.atan2(B, A) * 180 / Math.PI })
+  }
+  const y = rgb(b)
+  return '#' + rgb(a).map((v, i) => clamp(Math.round(v + (y[i] - v) * t), 0, 255).toString(16).padStart(2, '0')).join('')
+}
+const rgb = c => toHex(parseColor(c)).slice(1).match(/../g).map(h => parseInt(h, 16))
+const lab = c => { const { L, C, H } = parseColor(c), h = H * Math.PI / 180; return [L, C * Math.cos(h), C * Math.sin(h)] }
+
 /** Convert OKLCH {L, C, H} to #rrggbb hex string */
 export function toHex({ L, C, H }) {
   const a_ = C * Math.cos(H * Math.PI / 180)

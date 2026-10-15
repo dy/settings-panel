@@ -275,7 +275,7 @@ function initSearch(panel, body) {
   const inp = heading.querySelector('.s-search-input')
   const apply = q => {
     q = q.trim().toLowerCase()
-    for (const el of body.querySelectorAll('.s-control')) {
+    for (const el of body.querySelectorAll('.s-control, .s-separator')) {
       const label = el.querySelector('.s-label')?.textContent || el.dataset.key || ''
       el.hidden = !!q && !label.toLowerCase().includes(q)
     }

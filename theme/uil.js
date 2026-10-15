@@ -19,7 +19,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveAccent, resolveRoles, parseColor, toHex, ink } from './color.js'
+import { resolveAccent, resolveRoles, parseColor, toHex, ink, mix } from './color.js'
 
 export default function uil({
   shade = '#37383d',
@@ -48,8 +48,13 @@ export default function uil({
   const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
   const row = '#' + ch(shade).map(v => Math.min(255, Math.max(0, v + (roles.dark ? -15 : 15))).toString(16).padStart(2, '0')).join('')
   const hint = native ? '#999' : roles.fgMuted
-  const hintInk = ink(row, 4.5, '#' + ch(hint).map((v, i) => Math.round(v * .6 + ch(row)[i] * .4).toString(16).padStart(2, '0')).join(''))
+  const hintInk = ink(row, 4.5, mix(row, hint, .6))
   const action = ink(onAccent, 4.5, acc)
+  // and the placeholder (#888, 3.9:1 in a hovered row) on its well, 20% black over the row at rest,
+  // over the lifted row (--bg) on hover, 30% when focused (an rgba() alpha composites as its 8-bit value)
+  const placeholder = [[row, .2], [shade, .2], [row, .3]].reduce((t, [under, a]) => ink(mix(under, '#000', Math.round(a * 255) / 255), 4.5, t), native ? '#888' : roles.fgMuted)
+  // the search field has no well: the title row itself
+  const searchPlaceholder = ink(row, 4.5, placeholder)
   // uil's ColorLuma(hex, l): every channel scaled by (1 + l), clamped
   const luma = (c, l) => `rgb(from ${c} calc(r * ${1 + l}) calc(g * ${1 + l}) calc(b * ${1 + l}))`
   const svg = (box, body) => `url("data:image/svg+xml,${enc(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${box} ${box}'>${body}</svg>`)}")`
@@ -99,7 +104,7 @@ export default function uil({
   --text-select: ${native ? '#ffffff' : luma(text, .5)};
   --accent-down: ${native ? '#024699' : luma(acc, -.1)};
   --hint: ${hint};
-  --placeholder: ${native ? '#888' : roles.fgMuted};
+  --placeholder: ${placeholder};
   --on-accent: ${onAccent};
   --action: ${action};
   --option-bg: ${native ? '#2c2d31' : face};
@@ -128,6 +133,7 @@ export default function uil({
   line-height: normal;
 
   /* ── Title (uil 'title' row: bold, left) ── */
+  .s-search-input::placeholder { color: ${searchPlaceholder}; }
   > summary, > .s-panel-title {
     background: transparent;
     color: var(--text); font-weight: 700; justify-content: flex-start; height: var(--row-h); padding: 0 calc(8 * var(--space)); position: relative;

@@ -66,11 +66,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, ink, contrast, parseColor, toHex } from './color.js'
-
-// `over(a, b, t)`: b laid at opacity t over a, composited in sRGB as the browser does.
-const rgb = c => toHex(parseColor(c)).slice(1).match(/../g).map(h => parseInt(h, 16))
-const over = (a, b, t) => { const y = rgb(b); return '#' + rgb(a).map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('') }
+import { resolveRoles, ink, contrast, mix } from './color.js'
 
 export default function studio({
   shade = '#212121',
@@ -93,15 +89,18 @@ export default function studio({
   // which base dims to 60%, on the panel; a button's label on its face, row + active wash) is
   // measured on the panel both opaque and over a white page, and moves only where it then reads
   // 4.5:1 on both: a shade too mid-grey for any ink keeps its tone.
-  const page = g => [g(shade), g(over(shade, '#ffffff', .12))]
+  const page = g => [g(shade), g(mix(shade, '#ffffff', .12))]
   const fit = (grounds, tone) => { const t = grounds.reduce((t, g) => ink(g, 4.5, t), tone); return grounds.every(g => contrast(t, g) >= 4.5) ? t : tone }
-  const row = g => over(g, primary, dark ? .05 : .04)
-  const face = g => over(row(g), primary, dark ? .11 : .1)
-  const eyebrow = fit(page(g => g), over(shade, label, .6))
+  const row = g => mix(g, primary, dark ? .05 : .04), hovered = g => mix(g, primary, dark ? .1 : .08)
+  const face = (g, under = row) => mix(under(g), primary, dark ? .11 : .1)
+  const eyebrow = fit(page(g => g), mix(shade, label, .6))
   const onButton = fit(page(face), label)
-  // A placeholder, the tertiary tone (2.9:1 on its row), held the same way on the row and, in a textarea, on its face
-  const placeholder = fit(page(row), tertiary)
-  const placeholderOnFace = fit(page(face), tertiary)
+  // A placeholder, the tertiary tone (2.9:1 on its row), held the same way on the row and, in a textarea, on its face,
+  // at rest and in a hovered or focused row (--row-hover)
+  const placeholder = fit([...page(row), ...page(hovered)], tertiary)
+  const placeholderOnFace = fit([...page(face), ...page(g => face(g, hovered))], tertiary)
+  // and the search field's, which lies on the bare panel in the title
+  const placeholderOnPanel = fit(page(g => g), tertiary)
   const knobRing = dark ? '' : 'box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.08);'
 
   const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 2 L6 6.5 L10.5 2' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -163,6 +162,7 @@ export default function studio({
     &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: calc(var(--r) / 2); }
   }
   &[open] > summary::after { transform: rotate(180deg); }
+  .s-search-input::placeholder { color: ${placeholderOnPanel}; }
   .s-panel-content { gap: var(--row-gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: calc(4 * var(--space)); }
 

@@ -430,6 +430,7 @@ test('saved colormaps retain Auto or custom accents across reload and migrate al
 })
 
 test('every theme accepts every colormap and classic labels retain readable contrast', async ({ page }) => {
+  test.slow()  // remounts the live preview once per theme × colormap, so it grows with every theme added
   const issues = await page.evaluate(async () => {
     // 'native' resolves per-theme, not to one fixed color scheme – covered separately.
     const maps = [...document.querySelectorAll('input[name="light"]')].map(el => el.value).filter(m => m !== 'native')

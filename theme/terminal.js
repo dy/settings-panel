@@ -21,11 +21,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, parseColor, toHex, ink } from './color.js'
-
-// CSS color-mix(in oklab, a t, b) in JS, so ink can be measured against a mix.
-const lab = c => { const { L, C, H } = parseColor(c), h = H * Math.PI / 180; return [L, C * Math.cos(h), C * Math.sin(h)] }
-const mixLab = (a, b, t) => { const x = lab(a), y = lab(b), [L, A, B] = x.map((v, i) => v * t + y[i] * (1 - t)); return toHex({ L, C: Math.hypot(A, B), H: Math.atan2(B, A) * 180 / Math.PI }) }
+import { resolveRoles, ink, mix } from './color.js'
 
 export default function terminal({
   shade = '#0e1013',
@@ -40,10 +36,13 @@ export default function terminal({
   const phosphor = accent != null ? acc : dark ? '#5be49b' : '#0b7f5c'
   // Dim text and lines are mixes of fg into bg, so any shade keeps the same
   // contrast ladder: text 100%, dim 55%, line 22%, well 8%.
-  const mix = pct => `color-mix(in oklab, var(--fg) ${pct}%, var(--bg))`
+  const cssMix = pct => `color-mix(in oklab, var(--fg) ${pct}%, var(--bg))`
   // Dim text printed on a well (an unselected segment, an off toggle, a read-only field) is
   // lifted just enough to read there: 55% loses 4.5:1 on the well's lighter ground.
-  const dimWell = ink(mixLab(fg, shade, dark ? .08 : .06), 4.5, mixLab(fg, shade, .55))
+  const dimWell = ink(mix(shade, fg, dark ? .08 : .06, 'oklab'), 4.5, mix(shade, fg, .55, 'oklab'))
+  // A field's dim text (its placeholder, a read-only value) reads on the brighter well a hovered or
+  // focused field lights (well-hi) too.
+  const dimField = ink(mix(shade, fg, dark ? .14 : .1, 'oklab'), 4.5, dimWell)
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace", lineHeight: 20, controlHeight: 20, rowGap: 10})}
@@ -51,11 +50,12 @@ export default function terminal({
   --bg: ${shade};
   --fg: ${fg};
   --accent: ${phosphor};
-  --dim: ${mix(55)};
+  --dim: ${cssMix(55)};
   --dim-well: ${dimWell};
-  --line: ${mix(22)};
-  --well: ${mix(dark ? 8 : 6)};
-  --well-hi: ${mix(dark ? 14 : 10)};
+  --dim-field: ${dimField};
+  --line: ${cssMix(22)};
+  --well: ${cssMix(dark ? 8 : 6)};
+  --well-hi: ${cssMix(dark ? 14 : 10)};
 
   --weight: ${weight};
   --roundness: 0;
@@ -121,7 +121,7 @@ export default function terminal({
     &:hover, &:focus-visible { color: var(--accent); outline: none; } }
   &.s-searching .s-search-btn { color: var(--accent); }
   .s-search-input { width: 16ch; height: var(--lh); padding: 0 1ch; background: var(--well); color: var(--fg); caret-color: var(--accent); outline: none; appearance: none; -webkit-appearance: none;
-    &::placeholder { color: var(--dim); }
+    &::placeholder { color: var(--dim-well); }
     &:focus-visible { box-shadow: inset 2px 0 0 var(--accent); }
     &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration { display: none; }
     &::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; width: 1ch; height: 1ch; cursor: pointer; background: var(--dim);
@@ -143,10 +143,10 @@ export default function terminal({
     font: inherit; line-height: var(--lh); height: var(--lh); padding: 0 1ch;
     caret-color: var(--accent);
     transition: background .1s;
-    &::placeholder { color: var(--dim-well); }
+    &::placeholder { color: var(--dim-field); }
     &:hover { background: var(--well-hi); }
     &:focus-visible { outline: none; background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); }
-    &:read-only:not(select) { color: var(--dim-well); }
+    &:read-only:not(select) { color: var(--dim-field); }
   }
   input.s-scrubbing { background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); }
   textarea { height: auto; min-height: calc(var(--lh) * 3); padding: 0 1ch; resize: vertical; field-sizing: content; max-height: 50vh; }

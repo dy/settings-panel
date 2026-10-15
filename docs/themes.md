@@ -37,6 +37,9 @@ retain white ink; their contrast must be supplied by the theme or host.
 and chroma. Without a tone it returns the most muted passing neutral. Use 4.5 for
 text and 3 for control boundaries ([WCAG 1.4.11](https://www.w3.org/TR/WCAG22/#non-text-contrast)),
 so hints and idle tracks stay readable on every shade instead of on one tuned palette.
+`mix(a, b, t, space = 'srgb')` mixes as CSS `color-mix()` does (in sRGB, `b` laid at opacity `t` over
+`a`); pass `'oklab'` for `color-mix(in oklab, …)`. Placeholders, the search field's included, read 4.5:1
+on every face of their field: at rest, hovered and focused.
 
 **Mixins** (`theme/mixins.js`): `bevel(grad, w)`, `bevelRing(grad, w)`, `hardShadow(x, y, color)`, `neuShadow(dist, blur, dark, light)`, `neuInset(dist, blur, dark, light)`.
 
@@ -194,7 +197,7 @@ so hints and idle tracks stay readable on every shade instead of on one tuned pa
 - A row carrying its own hue shows its value in it, like the original's modulation rows
 - Rows: a slider is a label line with the value at its end over a 2px hairline and a 15.75px ring thumb, filling from zero (a range crossing zero fills both ways); other controls sit under a 1.5 label line; fields, selects and buttons are grey wells with a 4px radius
 - Segmented: chips on a 5% wash of the hue, the selected chip filled; per-option `--icon` draws a glyph (the LFO waveforms)
-- Text never wears the raw hue: titles and readouts take the hue moved to 4.5:1 against the card; lettering on a fill is the card colour where it reads, else the ink, else white or black; marks that show state (slider fill and thumb, switch, checks, radios, the selected chip, pad, knob pointer) take the hue moved to 3:1 against the card, a segmented row's against its wash; the toggle and a pressed button keep the raw hue, their lettering stating the state
+- Text never wears the raw hue: titles and readouts take the hue moved to 4.5:1 against the card; lettering on a fill is the card colour where it reads, else the ink, else white or black; marks that show state (slider fill and thumb, switch, checks, radios, the selected chip, pad, knob pointer) take the hue moved to 3:1 against the card, a segmented row's against its wash, a number's stepper arrows against its field; the toggle and a pressed button keep the raw hue, their lettering stating the state
 - Tones: tray, track and field derive from `shade` (the card) by the original's light and dark steps; ink indigo `#00004c`, or `#b3b3b3` on dark
 - Type: Outfit (standing in for the proprietary Ableton Sans), 12px rows, 16.8px titles
 - Feel: a teaching instrument; quiet cards, every colour names a function
@@ -233,7 +236,7 @@ so hints and idle tracks stay readable on every shade instead of on one tuned pa
 - Radius: 0 (enforced)
 - Typography: **monospace everywhere**; every dimension a whole number of `ch` × lines (`leading` axis sets the cell height)
 - Surface: solid; dark default, a light shade gives a paper terminal
-- Color: text, dim, line and well are one contrast ladder off the shade; accent is the phosphor (on, selected, live values); dim text on a well (unselected segment, off toggle, read-only field, placeholder) is lifted to 4.5:1 there
+- Color: text, dim, line and well are one contrast ladder off the shade; accent is the phosphor (on, selected, live values); dim text on a well (unselected segment, off toggle, read-only field, placeholder) is lifted to 4.5:1 there, a field's placeholder and read-only value on its hovered and focused well too
 - Glyphs: `[x]` checkbox, `( )` / `(•)` radio, `[ RUN ]` button, `[+]` / `[-]` fold
 - Density: one line per row
 - Feel: every pixel earns its place
@@ -250,7 +253,7 @@ so hints and idle tracks stay readable on every shade instead of on one tuned pa
 - Screen: text, number, textarea and colour codes are black glass in a 3.5px bezel, Courier New in `#c1c1c1`; consecutive info rows are lines on one screen; the XY pad is a square screen with a lit dot
 - Bank: a group holding only encoders, faders, keys and seams, with at least two encoders or faders (none with marks, a tooltip or two thumbs), lays out as hardware: encoders in a row at their own pitch, labels under; a seam; faders upright in equal columns over their keys, labels over; a value shows in place of its label while the control is touched
 - Gravity: in a panel taller than its content, key rows settle at the bottom
-- Accent = interaction: focus (3:1), primary and chosen keys, a fader's line in hand, a lit LED; lettering in the accent is moved to 4.5:1 against the key it sits on, raised or pressed
+- Accent = interaction: focus (3:1), primary and chosen keys, a fader's line in hand, a lit LED; lettering in the accent is moved to 4.5:1 against the key it sits on, its dish as well as its rim, raised or pressed
 - A dark shade gives an anodised black body: keys lift by larger steps, black keys gain a 3:1 rim
 - Type: Courier New and system-ui, matched by measurement on macOS; other platforms fall back to their own monospace and sans
 - Feel: the machine is the interface
@@ -270,6 +273,7 @@ so hints and idle tracks stay readable on every shade instead of on one tuned pa
 - Raised lenses: primary buttons, the fold button, the selected segment, thumbs and knobs; flush lenses without a shadow: fields, select, tracks and the segmented track
 - Secondary buttons are clear glass; the accent fills on-states only
 - Lettering in the ink, cut into the glass; needs an interesting background behind it
+- Lettering holds 4.5:1 over its scene, a backdrop up to .35 lighter or .16 darker (OKLab L) than its shade: muted text and placeholders lighten to read there, and the tint thickens only where the ink itself would not (slate, mid greys). A dark glass on a white page is outside that: give it its scene
 - Calibrated against the study's Think row
 
 ### neu
@@ -381,7 +385,10 @@ it as a beveled plate; image-card pickers keep their framed photos. A collapsed
 folder closes with the footer's rule (dark and light hairlines, overlaid), not a
 solid line. Every on-state (switch, checkbox, radio, toggle, the interval band) takes the switch's on-fill, near
 white on dark materials and near black on light ones, with lettering in the opposite ink; the default
-accent is the shade itself, so it cannot mark state.
+accent is the shade itself, so it cannot mark state. Lettering reads 4.5:1 on the panel over its own
+shade, under the corner light too: the source's alphas where they read, else the lowest that does (dark
+hints .47, light .62; gold labels and hints .88); reached slider marks take the on fill; gold's secondary
+button is white on a plate darkened until it reads.
 
 
 ## Gallery and live preview
@@ -439,7 +446,7 @@ original library beside ours (`?render=native`), and the difference is measured 
 keeps its original's look, not its defects: where an original clips a value or misses WCAG contrast
 (text 4.5:1, state marks 3:1), the theme fixes it, the theme file names the original value and its ratio,
 and the budget records the departure. dat.gui is pixel-identical at rest; Leva, Control Panel, OUI,
-ControlKit and Dear ImGui differ where such a fix moves a failing colour (Leva also shows values its
+ControlKit, Dear ImGui, lab01 and the Industrial keys differ where such a fix moves a failing colour (Leva also shows values its
 original clips); Tweakpane, ControlKit and UIL differ where the original draws something the panel has
 no element for (vector number formatting, sprite arrows, UIL's bottom close bar). Figma and Apple, which cannot be embedded, are
 measured against the UI3 specification and a native macOS render. Dear ImGui is captured from its WebAssembly demo,

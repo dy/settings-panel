@@ -26,7 +26,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, parseColor, luminance, clamp, lerp, ink as legible } from './color.js'
+import { resolveRoles, parseColor, luminance, contrast, clamp, lerp, mix, toHex, ink as legible } from './color.js'
 import { bevel } from './mixins.js'
 
 export default function glass({
@@ -59,11 +59,6 @@ export default function glass({
   // Lettering: the palette's ink when given, else the role foreground, held to 4.5:1 on the pane.
   const fg = legible(shade, 4.5, ink ?? roleFg)
   const tone = parseColor(fg)
-  const fgMuted = legible(shade, 4.5, { ...tone, L: lerp(tone.L, L, .4) })
-
-  // Optical tint follows the chosen material in both modes. A dark pane needs a dark backing to keep
-  // its text readable over bright parts of the scene.
-  const body = `color-mix(in oklab, ${shade}, transparent ${100 - op((dark ? 0.68 : 0.76) * tint) * 100}%)`
   const saturate = dark ? 1.6 : 1.3
 
   // ── Lens ──
@@ -76,9 +71,29 @@ export default function glass({
   // than the pane, a pale one's hardly at all (face lightness in linear light: .96 · surface + room).
   const faceL = room => Math.cbrt(.96 * L ** 3 + room * d)
   const top = faceL(.034), low = faceL(.027)
+
+  // The scene shows through the tint, so lettering reads on the pane over a scene, not on the shade
+  // alone: a scene up to .35 lighter or .16 darker in OKLab L, the range of the gallery's scenery in
+  // the shade's own colours. Optical tint follows the chosen material in both modes, and thickens only
+  // where the ink would not read 4.5:1 on a flush lens, hovered too, over that scene. Muted lettering
+  // and the placeholder hold 4.5:1 over the shade and over the scene. A dark glass over a much lighter
+  // page (a white one) is outside that: it needs its scene.
+  // (a lens's face is lit most at its top; the text sits on its mid-line, halfway to its lower light)
+  const light = tone.L > L, lit = (mixTo(L, top, 1) + mixTo(L, low, 1)) / 2, sheen = .07
+  const scene = toHex({ L: clamp(L + (light ? .35 : -.16), 0, 1), C, H })
+  const over = a => { const pane = mix(scene, shade, a), lens = mix(pane, '#ffffff', lit); return [pane, lens, mix(lens, '#ffffff', sheen)] }
+  const frost = op((dark ? 0.68 : 0.76) * tint)
+  let alpha = frost
+  while (alpha < 1 && over(alpha).some(g => contrast(fg, g) < 4.5)) alpha = +Math.min(1, alpha + .01).toFixed(2)
+  const body = `color-mix(in oklab, ${shade}, transparent ${alpha === frost ? 100 - frost * 100 : Math.round(100 - alpha * 100)}%)`
+  const [pane, ...lens] = over(alpha)
+  // each ground moves the ink away from it, never across to the other side: there the ink itself reads
+  const fit = (grounds, t) => grounds.reduce((t, g) => { const r = legible(g, 4.5, t); return (luminance(r) > luminance(g)) === light ? r : fg }, t)
+  // muted lettering lies on the pane (hints) and on flush lenses (a segment, a toggle's off label)
+  const fgMuted = fit([shade, ok(top, C), pane, lens[0]], { ...tone, L: lerp(tone.L, L, .4) })
   // A placeholder lies on a flush lens, which reads lighter than the pane: the muted ink, held to 4.5:1
-  // on the lens's lit top (3.6:1 there at the default shade)
-  const placeholder = legible(ok(top, C), 4.5, fgMuted)
+  // on the lens's lit top (3.6:1 there at the default shade), at rest and hovered, over the shade and the scene
+  const placeholder = fit([ok(top, C), mix(ok(top, C), '#ffffff', sheen), ...lens], fgMuted)
   // A brighter lens (knob, thumb, selected segment) still keeps light ink at 4.5:1 on it.
   const bright = tone.L > L ? Math.min(faceL(.2), Math.cbrt((luminance(fg) + .05) / 4.5 - .05)) : faceL(.2)
   // What the lens takes from the surface (its body and caustic) fades on the palest panes.
@@ -106,7 +121,7 @@ export default function glass({
   const edgeIn = `inset ${len(.75)} 0 0 ${flankC}, inset ${len(-.75)} 0 0 ${flankC}, inset 0 0 0 ${len(1)} ${edgeC}, inset 0 0 0 ${len(2)} ${lite(mixTo(L, Math.min(L + .02 * d, 1), 1))}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
   const drop = `0 ${len(1)} ${len(2.5)} ${shadow(.045)}, 0 ${len(4)} ${len(9)} ${shadow(.055)}`
   const lift = `0 ${len(1.5)} ${len(3)} ${shadow(.08)}, 0 ${len(5)} ${len(11)} ${shadow(.07)}`
-  const sheen = `linear-gradient(${lite(.07)}, ${lite(.07)})`
+  const sheenFace = `linear-gradient(${lite(sheen)}, ${lite(sheen)})`
   const press = `linear-gradient(${deep(.08)}, ${deep(.08)})`
   // Lettering cut into the glass: the rim's light on the lower edge of dark ink, the edge's shade on
   // the upper edge of light ink.
@@ -140,7 +155,7 @@ export default function glass({
   --lens-edge: ${edgeIn};
   --lens-drop: ${drop};
   --lens-lift: ${lift};
-  --lens-sheen: ${sheen};
+  --lens-sheen: ${sheenFace};
   --lens-press: ${press};
   --emboss: ${emboss};
   --focus: ${focus};

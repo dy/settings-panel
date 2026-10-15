@@ -24,7 +24,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, toHex, clamp, ink as legible } from './color.js'
+import { parseColor, resolveAccent, toHex, clamp, ink as legible, mix } from './color.js'
 
 const { max } = Math
 
@@ -62,14 +62,12 @@ export default function controlkit({
   // Text at 4.5:1 where ControlKit's own falls short (WCAG 1.4.3), each tone lifted only as far as it
   // must: the title tone on the panel (3.1:1), and on a row (#2e2e2e, --row below) the hints and mark
   // labels drawn in it (2.4:1) and a separator's label (row text at 60%, 3.4:1)
-  const hex = c => toHex(parseColor(c))
-  const mix = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex(a).slice(i, i + 2), 16) * t + parseInt(hex(b).slice(i, i + 2), 16) * (1 - t)).toString(16).padStart(2, '0')).join('')
-  const row = mix('#fff', shade, .087)
+  const row = mix(shade, '#fff', .087)
   const quiet = legible(row, 4.5, muted)
-  const sepLabel = legible(row, 4.5, mix(text, row, .6))
+  const sepLabel = legible(row, 4.5, mix(row, text, .6))
   // and placeholders in the panel-title tone (4.1:1 on a field), on the field's lighter end under light
   // ink, its darker end under dark ink (the field's gradient lays 7.5% to 12.5% black over it)
-  const placeholder = legible(mix('#000', field, dark ? .075 : .125), 4.5, muted)
+  const placeholder = legible(mix(field, '#000', dark ? .075 : .125), 4.5, muted)
   const inset = f(-0.019865, -0.001096, 5.4017)       // #1e2224 slider slot, pad face
   const menuBg = f(-0.040128, -0.002141, 13.0758)     // #1a1d1f title hide button
   const bevelDk = s(0.021506)      // #1f1f1f
@@ -200,6 +198,7 @@ export default function controlkit({
     &::after { content: ''; flex: none; width: calc(20 * var(--length)); height: calc(20 * var(--length)); margin-left: auto; background: ${menuShow} center / calc(8 * var(--length)) calc(5 * var(--length)) no-repeat, var(--menu-bg); border-radius: calc(2 * var(--length)); box-shadow: var(--bevel-dark); }
     &:hover::after { background-color: var(--void); }
   }
+  .s-search-input::placeholder { color: var(--muted); }   /* in the title tone, on the title bar */
   &[open] > summary::after { background-image: ${menuHide}; }
   .s-panel-content { gap: var(--row-gap); padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content { padding-top: 0; }

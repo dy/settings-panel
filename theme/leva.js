@@ -30,7 +30,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveAccent, resolveRoles, parseColor, toHex, ink as legible } from './color.js'
+import { resolveAccent, resolveRoles, parseColor, toHex, ink as legible, mix } from './color.js'
 
 const enc = c => encodeURIComponent(c)   // any CSS color, safe inside an SVG data-URI
 
@@ -58,13 +58,13 @@ export default function leva({
   // values on fields (#8c92a4 on #373c4b, 3.5:1), hints (muted at 70%, 3.4:1), a labeled separator's
   // label (muted at 60% on its title-colored band, 2.5:1), and the fill behind lettering on the
   // accent (#fefefe on #007bff, 3.9:1)
-  const hex = c => toHex(parseColor(c))
-  const mix = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex(a).slice(i, i + 2), 16) * t + parseInt(hex(b).slice(i, i + 2), 16) * (1 - t)).toString(16).padStart(2, '0')).join('')
   const field = parseColor(title)
   const fieldInk = legible(toHex({ L: field.L + (roles.dark ? .0593 : -.0593), C: field.C + .0044, H: field.H }), 4.5, muted)
-  const hint = legible(shade, 4.5, mix(muted, shade, .7))
-  const sepLabel = legible(title, 4.5, mix(muted, title, .6))
+  const hint = legible(shade, 4.5, mix(shade, muted, .7))
+  const sepLabel = legible(title, 4.5, mix(title, muted, .6))
   const action = legible(onAccent, 4.5, acc)
+  // and the search placeholder, muted on the title-coloured search bar (4.4:1)
+  const searchInk = legible(title, 4.5, muted)
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace", lineHeight: 15.4, controlHeight: 24, inset: 6, rowGap: 7, columnGap: 7, sectionGap: 10, panelPadding: 0})}
@@ -163,7 +163,7 @@ export default function leva({
   .s-search-btn { pointer-events: auto; width: calc(40 * var(--length)); height: calc(39 * var(--length)); background: var(--dim); -webkit-mask: var(--search) center / calc(20 * var(--length)) no-repeat; mask: var(--search) center / calc(20 * var(--length)) no-repeat; transition: background-color .25s; &:hover { background: var(--ink); } }
   /* The clear control is native's 14px circled x (highlight1, highlight3 on hover), centered
      in the same 40px right-hand box as the magnifier above it. */
-  .s-search-input { pointer-events: auto; position: absolute; top: calc(39 * var(--length)); left: 0; right: 0; height: calc(30 * var(--length)); padding: 0 calc(13 * var(--length)) 0 calc(12 * var(--space)); background: var(--title); color: var(--ink); font: calc(10 * var(--length))/1 var(--font-family); z-index: 1; outline: none; &::placeholder { color: var(--muted); }
+  .s-search-input { pointer-events: auto; position: absolute; top: calc(39 * var(--length)); left: 0; right: 0; height: calc(30 * var(--length)); padding: 0 calc(13 * var(--length)) 0 calc(12 * var(--space)); background: var(--title); color: var(--ink); font: calc(10 * var(--length))/1 var(--font-family); z-index: 1; outline: none; &::placeholder { color: ${searchInk}; }
     &::-webkit-search-cancel-button { -webkit-appearance: none; width: calc(14 * var(--length)); height: calc(14 * var(--length)); margin: 0; background: var(--dim); -webkit-mask: var(--clear) center / contain no-repeat; mask: var(--clear) center / contain no-repeat; cursor: pointer; }
     &::-webkit-search-cancel-button:hover { background: var(--ink); } }
   &.s-searching .s-search-btn:not(:hover) { background: var(--muted); }

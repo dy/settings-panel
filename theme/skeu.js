@@ -340,7 +340,7 @@ export default function skeu({
   /* ── Search: a round key that opens into a well ── */
   .s-search { order: 1; margin-left: auto; gap: var(--gap); }
   .s-search-btn::after { content: ''; width: 45%; height: 45%; ${glyph('var(--s-search-icon)', 'var(--ink-key)')} }
-  .s-search-input { ${sunk} height: var(--h); border-radius: var(--rk); padding: 0 calc(var(--u) * 3); color: var(--ink-well); text-shadow: none; }
+  .s-search-input { ${sunk} height: var(--h); border-radius: var(--rk); padding: 0 calc(var(--u) * 3); color: var(--ink-well); text-shadow: none; &::placeholder { color: var(--ink-placeholder); opacity: 1; } }
 
   /* ── Fields: engraved ── */
   input[type="text"], input[type="number"], textarea {

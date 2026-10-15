@@ -180,3 +180,23 @@ test('ink: tone forms, trivial ratios, and output format', async () => {
     ok(parseColor(out, null), 'output parses back')
   }
 })
+
+// mix(a, b, t): sRGB is a + (b − a)·t on each gamma-encoded 8-bit channel, rounded once, as CSS
+// color-mix(in srgb, a, b t·100%) defines it for opaque colors (https://www.w3.org/TR/css-color-5/#color-mix)
+// and as b at opacity t composites over a (source-over, https://www.w3.org/TR/compositing-1/).
+// OKLab interpolates L, a, b (https://bottosson.github.io/posts/oklab/): an achromatic L gives linear
+// sRGB L³, so black and white meet at L .5 → .125 linear → 99.07 → #636363. The browser's own
+// color-mix() is checked against mix() in test/metrics.spec.js.
+test('mix: endpoints, sRGB channel interpolation and OKLab', async () => {
+  const { mix } = await import('../theme/color.js')
+  is(mix('#123456', '#abcdef', 0), '#123456')
+  is(mix('#123456', '#abcdef', 1), '#abcdef')
+  is(mix('#000', '#fff', .5), '#808080', '127.5 rounds to 128')
+  is(mix('#ff0000', '#0000ff', .25), '#bf0040', '191.25 → bf, 63.75 → 40')
+  is(mix('#1f1f1f', '#ebebeb', .3), '#5c5c5c', '31 + 204 × .3 = 92.2 → 5c')
+  is(mix('oklch(1 0 0)', '#000000', .5), '#808080', 'any parseable color')
+  is(mix('#000', '#fff', .5, 'oklab'), '#636363')
+  is(mix('#000', '#fff', 0, 'oklab'), '#000000')
+  is(mix('#000', '#fff', 1, 'oklab'), '#ffffff')
+  is(mix('#fff', '#000', 1.5), '#000000', 'an overshoot stays a color')
+})

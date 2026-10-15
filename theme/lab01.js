@@ -15,7 +15,7 @@
 
 import metrics from './metrics.js'
 import { form } from './default.js'
-import { parseColor, resolveAccent, clamp } from './color.js'
+import { parseColor, resolveAccent, clamp, toHex, contrast, mix, ink } from './color.js'
 
 // Chevron collapse icon — color is url-encoded (%23fff / %23000)
 const chevron = (c) => `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='${c}' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -34,7 +34,7 @@ export default function lab01({
   font,
 } = {}) {
 
-  const { L, C } = parseColor(shade)
+  const { L, C, H } = parseColor(shade)
   const dark = L < 0.6
   const colored = C > 0.015 // any visible hue (slate, sage, ivory, gold) tints; near-greys stay neutral
   // The source ships three palettes (lab01.dev/experiments/01, experiment-01.css):
@@ -77,11 +77,10 @@ export default function lab01({
   const embossCol = dark ? black('.5') : white(gold ? '.5' : '.4')
   const embossOffset = dark ? '-1px' : '1px'
 
-  // Secondary (sunken) button: a plate under the label. Gold's white label reads on
-  // its mid-tone plate; a light shade with a hue gets a light plate, which takes ink.
+  // Secondary (sunken) button: a plate under the label. Gold's label is white on its
+  // mid-tone plate (held to 4.5:1 below); a light shade with a hue gets a light plate, which takes ink.
   const secondaryBg = dark ? black('.58') : gold ? tone(-0.1134, 0.825, -4.3, .78) : black('.1')
   const plateDark = gold && L - 0.1134 < 0.66
-  const secondaryFg = plateDark ? white('.8') : 'hsl(from var(--ink) h s l / .83)'
   const secondaryShadow = plateDark ? `0 -1px 0 ${black('.15')}` : dark ? 'none' : `0 1px 0 ${white('.2')}`
 
   // Raised glass surface (primary button, fold circle, switch and slider thumbs).
@@ -150,12 +149,58 @@ export default function lab01({
   // The source's two light orbs over the dialog's corners: a white 196px disc under
   // blur(150px), blended by overlay. A Gaussian of σ 150px over a 98px radius peaks
   // at 1 - e^(-98²/2·150²) ≈ .21 and falls off as e^(-d²/2σ²), sampled here as a ramp.
+  const peak = 0.213
   const orb = at => `radial-gradient(circle at ${at}, ${[0, 100, 150, 200, 250, 300, 400, 460]
-    .map(d => `${white(+(0.213 * Math.exp(-d * d / 45000)).toFixed(3))} calc(${d} * var(--length))`).join(', ')})`
+    .map(d => `${white(+(peak * Math.exp(-d * d / 45000)).toFixed(3))} calc(${d} * var(--length))`).join(', ')})`
   const lights = `${orb('calc(64 * var(--length)) calc(33 * var(--length))')}, ${orb('calc(100% - 20 * var(--length)) calc(100% + 2 * var(--length))')}`
 
   // ── Helpers (reference tokens, not raw values) ──
   const fg = (a) => `hsl(from var(--ink) h s l / ${a})` // ink @ alpha, as the source writes it
+
+  // Text on a field reads 4.5:1 on its recess, at rest and hovered (the panel's 12% over it). Light and
+  // gold recesses are mid-tones: the value keeps the ink at .83 where that reads, else takes the
+  // contrast-highest ink (gold's ink at .83 reads 3.4:1 on its recess, and no alpha of it reaches
+  // 4.5:1); the placeholder (the source's .4) takes the lowest alpha from .6 at which the ink reads,
+  // else the ink itself, its lightness moved until it does. The search field lies on the panel (the
+  // shade under its glass, white below a dark one): its placeholder's alpha rises from .45 the same way.
+  const inkHex = dark ? '#ffffff' : gold ? toHex({ L: .2631, C: C * .375, H: H - 8 }) : '#000000'
+  const recess = gold ? toHex({ L: L - .0686, C: C * 1.024, H: H - 7.8 }) : mix(shade, '#000', .1)
+  // the lettering a level nearer its face than the blend: the noise screened over the panel lifts every pixel by about one
+  const level = (c, f) => '#' + [1, 3, 5].map(i => { const v = parseInt(c.slice(i, i + 2), 16); return (v + Math.sign(parseInt(f.slice(i, i + 2), 16) - v)).toString(16).padStart(2, '0') }).join('')
+  const reads = (faces, a) => faces.every(f => contrast(level(mix(f, inkHex, a), f), f) >= 4.5)
+  const alphaOn = (faces, a) => { while (a < 1 && !reads(faces, a)) a = +(a + .01).toFixed(2); return reads(faces, a) ? String(a).replace(/^0/, '') : null }
+  // lightness moves away from each face, never across it: where no ink of its side reads, the extreme does its best
+  const fit = (faces, tone) => faces.reduce((t, f) => { const r = ink(f, 4.5, t); return (contrast(r, '#000') > contrast(f, '#000')) === dark ? r : dark ? '#ffffff' : '#000000' }, tone)
+  const faces = [recess, mix(recess, shade, .12)]
+  const fieldText = dark || reads(faces, .83) ? 'inherit' : fit(faces, inkHighest)
+  const placeholderA = dark ? '.45' : alphaOn(faces, .6)
+  const placeholder = placeholderA ? fg(placeholderA) : fit(faces, inkHex)
+  const panelGround = [mix(dark ? '#ffffff' : '#000000', shade, .85)]
+  const searchA = alphaOn(panelGround, dark ? .45 : .6)
+  const searchPlaceholder = searchA ? fg(searchA) : fit(panelGround, inkHex)
+  // Lettering on the panel reads 4.5:1 over the panel's own shade, plain and under the top-left light
+  // at its peak (white laid by overlay on the .85 glass). Each role keeps the source's alpha where that
+  // reads, else the lowest that does, else the ink itself, its lightness moved: gold's labels at .83
+  // read 4.2:1 on its shade and its hints at .5 2.5:1, dark's hints at .35 3.4:1, light's at .5 3.6:1.
+  // The dims the form lays over the panel's ink by opacity (readout .85, separator .6, marks .5) rise
+  // the same way.
+  const lit = c => '#' + toHex(parseColor(c)).slice(1).match(/../g).map(h => { const v = parseInt(h, 16) / 255; return Math.round(255 * (peak * (.15 + .85 * (v <= .5 ? 2 * v : 1)) + (1 - peak) * v)).toString(16).padStart(2, '0') }).join('')
+  const panel = [toHex(parseColor(shade)), lit(shade)]
+  const onPanel = a => { const k = alphaOn(panel, a); return k ? fg(k) : fit(panel, inkHex) }
+  const textA = alphaOn(panel, .83)
+  const dim = o => { while (textA && o < 1 && !reads(panel, textA * o)) o = +(o + .01).toFixed(2); return textA ? String(o).replace(/^0/, '') : '1' }
+  // The segmented track and the secondary button lie on the sunken plate, a mid-tone in gold. The
+  // segments' ink (gold's .83: 3.2:1 there) moves darker until it reads. The button's white label (the
+  // source's .8: 3.0:1, the source's own defect) rises to white, then the plate under that button alone
+  // darkens, lightness only, until white reads.
+  const plates = dL => panel.map(f => mix(f, gold ? toHex({ L: L + dL, C: C * .825, H: H - 4.3 }) : '#000000', dark ? .58 : gold ? .78 : .1))
+  const segText = textA && reads(plates(-0.1134), +textA) ? 'inherit' : fit(plates(-0.1134), inkHex)
+  const whiteReads = (dL, a) => plates(dL).every(p => contrast(mix(p, '#ffffff', a), p) >= 4.5)
+  let labelA = .8, plateL = -0.1134
+  while (plateDark && labelA < 1 && !whiteReads(plateL, labelA)) labelA = +(labelA + .01).toFixed(2)
+  while (plateDark && !whiteReads(plateL, labelA)) plateL = +(plateL - .001).toFixed(4)
+  const secondaryFg = plateDark ? white(String(labelA).replace(/^0/, '')) : 'hsl(from var(--ink) h s l / .83)'
+  const secondaryPlate = plateL === -0.1134 ? 'var(--secondary-bg)' : tone(plateL, 0.825, -4.3, .78)
   // Raised surface shorthand — primary button and collapse circle share it
   const surface = `background: var(--surface-bg); background-blend-mode: var(--surface-blend); box-shadow: var(--surface-shadow);`
   // Native range thumbs cannot carry pseudo-elements, so both thumb types use
@@ -193,9 +238,9 @@ export default function lab01({
   /* Text */
   --ink: ${inkBase};             /* primary text (used with alpha) */
   --ink-highest: ${inkHighest};  /* strongest ink: focus ring, gold/light switch on */
-  --text: ${fg(dark || gold ? '.83' : '.85')}; /* labels */
-  --hint: ${fg(dark ? '.35' : '.5')}; /* hints */
-  --placeholder: ${fg(dark ? '.45' : '.6')}; /* placeholders: ink at .4 (3.9:1 dark, 2.5:1 light) moved to 4.5:1 on a field */
+  --text: ${onPanel(dark || gold ? .83 : .85)}; /* labels */
+  --hint: ${onPanel(dark ? .35 : .5)}; /* hints */
+  --placeholder: ${placeholder}; /* placeholders: ink at .4 (3.9:1 dark, 2.5:1 light) moved to 4.5:1 on a field */
   --text-shadow: ${textShadow};
   --title-shadow: ${titleShadow};
   --btn-text-shadow: ${btnTextShadow};
@@ -226,6 +271,7 @@ export default function lab01({
   --switch-on-fg: ${dark ? 'black' : 'white'};  /* lettering on the on-fill (toggle On) */
   --switch-on-shadow: ${switchOnShadow};
   --secondary-bg: ${secondaryBg}; /* sunken secondary button, segmented unselected fill */
+  --btn-secondary-bg: ${secondaryPlate}; /* secondary button: the plate, darkened under gold's white label */
   --btn-secondary-fg: ${secondaryFg};
   --btn-secondary-shadow: ${secondaryShadow};
   --track-bevel: ${trackBevel};  /* recess: switch track, fields, grooves & swatches */
@@ -294,7 +340,7 @@ export default function lab01({
   font-weight: calc(var(--weight) + 100);
 
   line-height: calc(var(--u) * 4);
-  color: ${fg('.83')};
+  color: ${onPanel(.83)};
   padding: 0;
   min-width: 0;
   -webkit-font-smoothing: antialiased;
@@ -340,6 +386,7 @@ export default function lab01({
     padding: var(--pad-head);
   }
   > summary::after { display: none; } /* suppress default chevron */
+  .s-search-input::placeholder { color: ${searchPlaceholder}; }
 
   /* Circular glass collapse button — shares the raised surface with the buttons.
      The circle stays put; only the icon flips. */
@@ -411,7 +458,7 @@ export default function lab01({
     box-shadow: var(--track-bevel);
     border: none;
     border-radius: calc(var(--r) * 0.5);
-    color: inherit;
+    color: ${fieldText};
     font-family: inherit;
     font-size: var(--fs);
     &::placeholder { color: var(--placeholder); }
@@ -487,11 +534,13 @@ export default function lab01({
     .s-readout {
       flex: 0 0 7ch; width: 7ch; min-width: 7ch; height: auto; padding: 0;
       background: transparent; box-shadow: none; border: none; border-radius: 0;
-      color: inherit; font-size: var(--fs-sm); opacity: .85; font-variant-numeric: tabular-nums; text-align: right;
+      color: inherit; font-size: var(--fs-sm); opacity: ${dim(.85)}; font-variant-numeric: tabular-nums; text-align: right;
       &:hover, &:focus { background: transparent; }
       &:focus { box-shadow: var(--field-selected); outline: none; }
     }
     .s-track { height: var(--ctrl-h); }
+    /* marks: the panel's ink, dimmed; the reached ones in the on fill (the accent is the shade itself) */
+    .s-mark-label { opacity: ${dim(.5)}; &.s-active { opacity: 1; color: var(--switch-on-bg); } }
     /* interval: the slider's groove, the span between the thumbs filled as a switch that is on */
     &.s-multiple .s-interval-track { height: var(--slider-h); margin: 0; background: var(--field); box-shadow: var(--track-bevel); border-radius: calc(var(--r) * 0.5);
       &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--switch-on-bg); box-shadow: var(--switch-on-shadow); border-radius: inherit; }
@@ -617,7 +666,7 @@ export default function lab01({
       background: transparent;
       border-radius: calc(var(--r) * 0.5);
       padding: 0 var(--seg-pad);
-      color: inherit;
+      color: ${segText};
       font-size: var(--fs);
       height: calc(var(--ctrl-h) - 2 * var(--seg-inset));
       &.s-selected {
@@ -715,12 +764,12 @@ export default function lab01({
     }
     &.s-secondary button, button.s-secondary {
       /* The source's sunken plate under the label; it has no hover state. */
-      background: var(--secondary-bg);
+      background: var(--btn-secondary-bg);
       box-shadow: none;
       color: var(--btn-secondary-fg);
       text-shadow: var(--btn-secondary-shadow);
       &::after { display: none; }
-      &:hover { background: var(--secondary-bg); }
+      &:hover { background: var(--btn-secondary-bg); }
       &:active { box-shadow: none; }
     }
   }
@@ -740,7 +789,7 @@ export default function lab01({
       position: relative;
       font-size: var(--fs);
       font-weight: calc(var(--weight) + 100);
-      color: ${fg('.83')};
+      color: ${onPanel(.83)};
       padding: calc(var(--u) * var(--spacing) * 2) 0;
       border-bottom: none;
       opacity: 1;
@@ -757,6 +806,8 @@ export default function lab01({
     }
     .s-content { gap: var(--row-gap); padding-block: var(--row-gap); }
   }
+
+  .s-separator-label { opacity: ${dim(.6)}; }
 
   /* ── Footer separator (trailing action row) ── */
   .s-panel-content > .s-button:last-child {

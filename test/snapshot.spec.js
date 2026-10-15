@@ -208,8 +208,8 @@ test.describe('search filter', () => {
 // Theme sheets are unlayered and cascade over the base layer, so a theme's own
 // `.s-separator { height }` or `.s-vec-axis { padding }` can silently break the
 // labeled-separator and vector layouts base gets right. Every theme in the
-// controls gallery must keep a label inside its separator and digits visible
-// in every vector axis.
+// controls gallery must keep a label inside its separator, a plain separator a
+// thin rule, and digits visible in every vector axis.
 test('controls gallery: separators, vector axes and row widths hold their layout in every theme', async ({ page }) => {
   await page.goto('/demo/controls.html')
   await page.waitForLoadState('networkidle')
@@ -224,6 +224,11 @@ test('controls gallery: separators, vector axes and row widths hold their layout
       for (const sep of document.querySelectorAll('.s-separator-labeled')) {
         const l = sep.querySelector('.s-separator-label')
         if (l && l.getBoundingClientRect().height > sep.getBoundingClientRect().height + 1) out.push('separator label overflows')
+      }
+      // a plain separator is a rule, not a row: a row's min-height or padding would paint it as a band
+      for (const sep of document.querySelectorAll('.s-separator:not(.s-separator-labeled)')) {
+        const h = sep.getBoundingClientRect().height
+        if (h < 1 || h > 4) out.push(`plain separator ${h}px tall`)
       }
       for (const inp of document.querySelectorAll('.s-vec-axis input')) {
         if (inp.getBoundingClientRect().width < 20) out.push(`vector axis ${inp.value} squeezed to ${inp.getBoundingClientRect().width}px`)

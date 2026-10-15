@@ -26,7 +26,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveAccent, resolveRoles, parseColor, toHex, ink } from './color.js'
+import { resolveAccent, resolveRoles, contrast, ink, mix } from './color.js'
 
 // lil-gui's icon font (MIT, lil-gui 0.19): title chevrons, checkbox mark, select arrow
 const glyphs = `@font-face { font-family: "lil-gui"; src: url("data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAUsAAsAAAAACJwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAAH4AAADAImwmYE9TLzIAAAGIAAAAPwAAAGBKqH5SY21hcAAAAcgAAAD0AAACrukyyJBnbHlmAAACvAAAAF8AAACEIZpWH2hlYWQAAAMcAAAAJwAAADZfcj2zaGhlYQAAA0QAAAAYAAAAJAC5AHhobXR4AAADXAAAABAAAABMAZAAAGxvY2EAAANsAAAAFAAAACgCEgIybWF4cAAAA4AAAAAeAAAAIAEfABJuYW1lAAADoAAAASIAAAIK9SUU/XBvc3QAAATEAAAAZgAAAJCTcMc2eJxVjbEOgjAURU+hFRBK1dGRL+ALnAiToyMLEzFpnPz/eAshwSa97517c/MwwJmeB9kwPl+0cf5+uGPZXsqPu4nvZabcSZldZ6kfyWnomFY/eScKqZNWupKJO6kXN3K9uCVoL7iInPr1X5baXs3tjuMqCtzEuagm/AAlzQgPAAB4nGNgYRBlnMDAysDAYM/gBiT5oLQBAwuDJAMDEwMrMwNWEJDmmsJwgCFeXZghBcjlZMgFCzOiKOIFAB71Bb8AeJy1kjFuwkAQRZ+DwRAwBtNQRUGKQ8OdKCAWUhAgKLhIuAsVSpWz5Bbkj3dEgYiUIszqWdpZe+Z7/wB1oCYmIoboiwiLT2WjKl/jscrHfGg/pKdMkyklC5Zs2LEfHYpjcRoPzme9MWWmk3dWbK9ObkWkikOetJ554fWyoEsmdSlt+uR0pCJR34b6t/TVg1SY3sYvdf8vuiKrpyaDXDISiegp17p7579Gp3p++y7HPAiY9pmTibljrr85qSidtlg4+l25GLCaS8e6rRxNBmsnERunKbaOObRz7N72ju5vdAjYpBXHgJylOAVsMseDAPEP8LYoUHicY2BiAAEfhiAGJgZWBgZ7RnFRdnVJELCQlBSRlATJMoLV2DK4glSYs6ubq5vbKrJLSbGrgEmovDuDJVhe3VzcXFwNLCOILB/C4IuQ1xTn5FPilBTj5FPmBAB4WwoqAHicY2BkYGAA4sk1sR/j+W2+MnAzpDBgAyEMQUCSg4EJxAEAwUgFHgB4nGNgZGBgSGFggJMhDIwMqEAYAByHATJ4nGNgAIIUNEwmAABl3AGReJxjYAACIQYlBiMGJ3wQAEcQBEV4nGNgZGBgEGZgY2BiAAEQyQWEDAz/wXwGAAsPATIAAHicXdBNSsNAHAXwl35iA0UQXYnMShfS9GPZA7T7LgIu03SSpkwzYTIt1BN4Ak/gKTyAeCxfw39jZkjymzcvAwmAW/wgwHUEGDb36+jQQ3GXGot79L24jxCP4gHzF/EIr4jEIe7wxhOC3g2TMYy4Q7+Lu/SHuEd/ivt4wJd4wPxbPEKMX3GI5+DJFGaSn4qNzk8mcbKSR6xdXdhSzaOZJGtdapd4vVPbi6rP+cL7TGXOHtXKll4bY1Xl7EGnPtp7Xy2n00zyKLVHfkHBa4IcJ2oD3cgggWvt/V/FbDrUlEUJhTn/0azVWbNTNr0Ens8de1tceK9xZmfB1CPjOmPH4kitmvOubcNpmVTN3oFJyjzCvnmrwhJTzqzVj9jiSX911FjeAAB4nG3HMRKCMBBA0f0giiKi4DU8k0V2GWbIZDOh4PoWWvq6J5V8If9NVNQcaDhyouXMhY4rPTcG7jwYmXhKq8Wz+p762aNaeYXom2n3m2dLTVgsrCgFJ7OTmIkYbwIbC6vIB7WmFfAAAA==") format("woff"); }`
@@ -48,15 +48,20 @@ export default function dat({
   text ??= native ? '#ebebeb' : roles.fg
 
   const acc = resolveAccent(accent, shade)
-  // sRGB weighted sum of colors, as color-mix() and opacity composite them
-  const mix = (...parts) => '#' + [0, 1, 2].map(i => Math.round(parts.reduce((sum, [c, w]) => sum + parseInt(toHex(parseColor(c)).slice(1 + 2 * i, 3 + 2 * i), 16) * w, 0)).toString(16).padStart(2, '0')).join('')
   // Text the original never drew, at 4.5:1 (WCAG 1.4.3): the hint (--hint at 60%, 2.5:1) and a
   // labeled separator's label (text at 24% on its 40% ink band, 2.3:1) keep their tone, lifted to pass
-  const hint = ink(shade, 4.5, mix([text, .308824], [shade, .691176]))
-  const band = mix(['#000', .4], [shade, .6])
-  const sepLabel = ink(band, 4.5, mix([text, .24], [shade, .6]))
-  // and a placeholder, drawn in the hint (2.8:1 on its widget), lifted the same way there
-  const placeholder = ink(widget, 4.5, mix([text, .514706], [shade, .485294]))
+  const hint = ink(shade, 4.5, mix(shade, text, .308824))
+  const band = mix(shade, '#000', .4)
+  const sepLabel = ink(band, 4.5, mix(shade, mix('#000', text, .6), .4))
+  // and a placeholder, drawn in the hint (2.8:1 on its widget), lifted the same way on each face of
+  // its widget: at rest, hovered and focused (6.88% and 12.17% white, below)
+  const placeholder = [0, .06878307, .12169312].reduce((t, a) => ink(mix(widget, '#fff', a), 4.5, t), mix(shade, text, .514706))
+  // The search field's lies on the title bar, which a hover shows at 85% over the panel, text and all
+  // (the browser's composite lands a level off the exact blend, so it is held to 4.6:1 there)
+  let reach = 4.5
+  const veiled = t => contrast(mix(shade, t, .85), mix(shade, title, .85))
+  while (reach < 21 && veiled(ink(title, reach, mix(shade, text, .514706))) < 4.6) reach += .05
+  const searchPlaceholder = ink(title, reach, mix(shade, text, .514706))
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif", lineHeight: 15.95, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 0})}
@@ -98,6 +103,7 @@ export default function dat({
     background: var(--title);
     color: var(--text);
   }
+  .s-search-input::placeholder { color: ${searchPlaceholder}; }
   > summary, > .s-panel-title, .s-folder > summary {
     font-weight: 600;
     padding: 0 calc(4 * var(--space));

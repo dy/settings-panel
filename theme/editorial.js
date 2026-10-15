@@ -26,7 +26,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, toHex, resolveAccent, contrast } from './color.js'
+import { parseColor, resolveAccent, contrast, mix } from './color.js'
 
 // Chevron glyph as a mask (shape only; colour comes from the element's background).
 const chevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1 L5 5 L9 1' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -44,16 +44,15 @@ export default function editorial({
   const ink = dark ? '#ffffff' : '#000000'
   const focus = resolveAccent(accent, shade) || ink
   // Ink mixed into the paper, as the reference's greys are.
-  const mix = a => `color-mix(in srgb, var(--ink) ${a}%, var(--paper))`
-  const paper = toHex(parseColor(shade)).slice(1).match(/../g).map(h => parseInt(h, 16))
-  const tone = a => paper.map(c => Math.round((dark ? 255 : 0) * a / 100 + c * (1 - a / 100)).toString(16).padStart(2, '0')).join('')
+  const cssMix = a => `color-mix(in srgb, var(--ink) ${a}%, var(--paper))`
+  const tone = a => mix(ink, shade, 1 - a / 100)
   // The reference's ratio, raised as far as lettering needs to read (4.5:1): more ink for a grey
   // printed on the paper, for a pill under paper-coloured lettering.
-  const reach = (a, reads) => { while (a < 100 && !reads('#' + tone(a))) a++; return a }
+  const reach = (a, reads) => { while (a < 100 && !reads(tone(a))) a++; return a }
   const onPaper = a => reach(a, t => contrast(t, shade) >= 4.5), underLettering = a => reach(a, t => contrast(t, dark ? '#000000' : '#ffffff') >= 4.5)
   const muted = onPaper(52), faint = onPaper(40), pill = underLettering(39)
   // A native <select> cannot tint a mask, so its chevron is the muted tone, baked.
-  const mutedHex = tone(muted)
+  const mutedHex = tone(muted).slice(1)
   const selectChevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1 L5 5 L9 1' fill='none' stroke='%23${mutedHex}' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
@@ -64,12 +63,12 @@ export default function editorial({
   --paper: ${shade};
   --ink: ${ink};
   --on-ink: ${dark ? '#000000' : '#ffffff'};
-  --muted: ${mix(muted)};         /* labels, inactive choices, LOW / HIGH */
-  --faint: ${mix(faint)};         /* hints */
-  --masthead-rule: ${mix(65)};    /* the one dark hairline under the title */
-  --rule-color: ${mix(13)};       /* row rules */
-  --groove: ${mix(22)};           /* slider track beyond the dot */
-  --pill: ${mix(pill)};           /* secondary action, fold control */
+  --muted: ${cssMix(muted)};         /* labels, inactive choices, LOW / HIGH */
+  --faint: ${cssMix(faint)};         /* hints */
+  --masthead-rule: ${cssMix(65)};    /* the one dark hairline under the title */
+  --rule-color: ${cssMix(13)};       /* row rules */
+  --groove: ${cssMix(22)};           /* slider track beyond the dot */
+  --pill: ${cssMix(pill)};           /* secondary action, fold control */
   --accent: ${focus};
   --rule: ${rule}px;
   --weight: ${weight};
@@ -132,6 +131,7 @@ export default function editorial({
     &::placeholder { color: var(--faint); }
     &:focus-visible { outline: none; }
   }
+  .s-search-input::placeholder { color: var(--faint); }
   input[type="number"], .s-readout { font-variant-numeric: tabular-nums; }
   select {
     appearance: none; -webkit-appearance: none; cursor: pointer;
@@ -146,7 +146,7 @@ export default function editorial({
     background: none; border: none; padding: calc(6 * var(--space)) calc(4 * var(--space));
     color: var(--muted); font-weight: var(--weight); line-height: 1; cursor: pointer;
     transition: color .12s;
-    &:hover { color: ${mix(80)}; }
+    &:hover { color: ${cssMix(80)}; }
     &.s-selected { color: var(--ink); }
     &[style*="--icon"]::before {
       content: ''; display: block; width: calc(32 * var(--length)); height: calc(27 * var(--length));

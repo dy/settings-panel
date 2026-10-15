@@ -32,7 +32,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, toHex, ink, luminance, clamp, resolveAccent } from './color.js'
+import { parseColor, toHex, ink, luminance, clamp, resolveAccent, mix } from './color.js'
 
 // The original's function colours in signal order: oscillator, amplitude, filter, modulation.
 export const functions = ['#23b2fe', '#00d692', '#febc2d', '#e4525a']
@@ -66,7 +66,7 @@ export default function synth({
   const card = toHex(parseColor(shade)), Yc = luminance(card)
   // A segmented row lies on a 5% wash of its hue (srgb), at its farthest from the lettering 5%
   // black over a light card, 5% white over a dark one.
-  const Yw = luminance('#' + card.slice(1).match(/../g).map(h => Math.round(parseInt(h, 16) * .95 + (dark ? 12.75 : 0)).toString(16).padStart(2, '0')).join(''))
+  const Yw = luminance(mix(card, dark ? '#fff' : '#000', .05))
   const bound = (ratio, Yb) => dark ? ratio * (Yb + .05) - .05 : (Yb + .05) / ratio - .05
   // The hue legible on a ground of luminance Yb (the card unless given): on a light card its linear
   // light is scaled down to the bound, on a dark one it is mixed with white up to it; .1 of margin
@@ -213,8 +213,9 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     input[type="number"] { background: none; text-align: right; cursor: ew-resize; -moz-appearance: textfield; font-variant-numeric: tabular-nums;
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } &:focus-visible { outline: none; } }
+    /* the arrows lie on the field, not the card: the hue mark held to 3:1 there (the card's mark reads 2.8:1 on a light field) */
     .s-step { gap: 0; padding-right: calc(4 * var(--space));
-      button { width: calc(16 * var(--length)); height: calc(var(--h) / 2 - 2px); padding: 0; border: 0; background: none; color: var(--accent-mark); font-size: calc(13 * var(--length)); line-height: 1; &:hover { color: var(--accent-text); } } }
+      button { width: calc(16 * var(--length)); height: calc(var(--h) / 2 - 2px); padding: 0; border: 0; background: none; color: ${legible(3, luminance(field))}; font-size: calc(13 * var(--length)); line-height: 1; &:hover { color: var(--accent-text); } } }
   }
 
   /* ── Slider: a label line with the value at its end; a hairline that fills from zero ── */
@@ -365,12 +366,12 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   /* ── Info, separator ── */
   .s-info .s-monitor { opacity: 1; color: var(--ink); line-height: var(--line-height); }
   .s-separator { height: auto; background: none; opacity: 1; margin: 0;
-    &::after { content: ''; height: 1px; background: var(--track); } }
+    &::after { content: ''; display: block; height: 1px; background: var(--track); } }
   .s-control.s-separator-labeled { flex-direction: row; align-items: center; &::before { display: none; } &::after { flex: 1; opacity: 1; height: 1px; background: var(--track); } }
   .s-separator-label { color: var(--quiet); opacity: 1; font-size: 1em; }
 
   /* ── Search ── */
-  .s-search-input { background: var(--field); border-radius: var(--r); padding: 0 var(--inset); height: calc(var(--h) * .8); font-size: var(--font-size); }
+  .s-search-input { background: var(--field); border-radius: var(--r); padding: 0 var(--inset); height: calc(var(--h) * .8); font-size: var(--font-size); &::placeholder { color: var(--quiet); } }
 }`
 
   return baseCSS + '\n' + overrides

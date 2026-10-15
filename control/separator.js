@@ -8,7 +8,8 @@ import { resolveEl } from './util.js'
 
 export default ({ label, container } = {}) => {
   const el = document.createElement('div')
-  el.className = label ? 's-control s-separator s-separator-labeled' : 's-control s-separator'
+  // a labeled separator is a heading row and shares the rows' rhythm; a plain one is only a rule
+  el.className = label ? 's-control s-separator s-separator-labeled' : 's-separator'
   if (label) {
     const span = document.createElement('span')
     span.className = 's-separator-label'

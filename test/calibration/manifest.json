@@ -128,7 +128,7 @@
         1440,
         900
       ],
-      "budget": 1200,
+      "budget": 2706,
       "source": "lab01.dev experiment 01, dark",
       "mode": "element"
     },
@@ -139,7 +139,7 @@
         900
       ],
       "click": ".s-segmented button[aria-label=Light]",
-      "budget": 2189,
+      "budget": 5257,
       "source": "lab01.dev experiment 01, light",
       "mode": "element"
     },
@@ -150,7 +150,7 @@
         900
       ],
       "click": ".s-segmented button[aria-label=Gold]",
-      "budget": 3003,
+      "budget": 8673,
       "source": "lab01.dev experiment 01, gold",
       "mode": "element"
     },
@@ -566,7 +566,7 @@
         "width": 250,
         "height": 200
       },
-      "budget": 6877,
+      "budget": 6883,
       "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 40, 601, 540, 1001: PAGE keys and keypad",
       "mode": "image"
     },

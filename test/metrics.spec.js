@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
-import { contrast } from '../theme/color.js'
+import { contrast, mix } from '../theme/color.js'
 import { themes as registry } from '../demo/themes.js'
 
 const themes = ['default', 'skeu', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial']
@@ -406,26 +406,94 @@ test('lab01 on-states read in dark, light and gold: checked boxes and radios at 
   }
 })
 
-// Text reads at WCAG 1.4.3 contrast (4.5:1, large text 3:1) in every theme at its native defaults, as
-// axe-core measures it. A replica keeps its original's look, not its defects: where the original's ink
-// fails, the theme moves it to the minimum. Disabled controls are exempt; axe leaves text over images
-// and gradients undecided, so those are not counted.
-test('every theme\'s text meets WCAG contrast at its native defaults', async ({ page }) => {
-  await page.goto('/')
-  await page.addScriptTag({ path: fileURLToPath(new URL('../node_modules/axe-core/axe.min.js', import.meta.url)) })
-  // a transparent theme (Swiss) inks for the host ground the gallery gives it
+// Contrast of what `strip` takes out of an element (its placeholder, value or lettering), from pixels at
+// 2x: the element shot before and after `strip(el, arg)`; in each box (CSS px from the element's corner,
+// its whole box by default) the bare shot's most common pixel is the ground and the changed pixel most
+// unlike it the ink (null where nothing changed).
+async function inks(page, el, strip, { arg, boxes } = {}) {
+  const shown = await el.screenshot()
+  await el.evaluate(strip, arg)
+  const bare = await el.screenshot()
+  return page.evaluate(async ([pngs, boxes]) => {
+    const { contrast } = await import('/theme/color.js')
+    const [a, b] = await Promise.all(pngs.map(async png => {
+      const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob())
+      const c = new OffscreenCanvas(img.width, img.height), g = c.getContext('2d')
+      g.drawImage(img, 0, 0)
+      return g.getImageData(0, 0, img.width, img.height)
+    }))
+    const { width, height } = b, k = devicePixelRatio, { min, max, floor, ceil } = Math
+    const rgb = (d, i) => d[i] << 16 | d[i + 1] << 8 | d[i + 2], hex = n => '#' + n.toString(16).padStart(6, '0')
+    return (boxes || [[0, 0, width / k, height / k]]).map(([x, y, w, h]) => {
+      const counts = new Map(), changed = new Set()
+      for (let r = max(0, floor(y * k)); r < min(height, ceil((y + h) * k)); r++) for (let c = max(0, floor(x * k)); c < min(width, ceil((x + w) * k)); c++) {
+        const i = (r * width + c) * 4, p = rgb(b.data, i), q = rgb(a.data, i)
+        counts.set(p, (counts.get(p) || 0) + 1)
+        if (p !== q) changed.add(q)
+      }
+      const bg = hex([...counts].reduce((m, n) => n[1] > m[1] ? n : m)[0])
+      let ink = null, ratio = 1
+      for (const q of changed) { const r = contrast(hex(q), bg); if (r >= ratio) ink = hex(q), ratio = r }
+      return { ink, bg, ratio: +ratio.toFixed(2) }
+    })
+  }, [[shown, bare].map(png => png.toString('base64')), boxes])
+}
+const inkOn = async (page, el, strip) => (await inks(page, el, strip))[0]
+
+// An empty field's placeholder, or a field's value, at rest (the pointer away), hovered and focused. A
+// hovered field's text decoration is not its text (DevTools underlines it in the field's own ink): it is
+// made transparent while measured.
+async function fieldText(page, field, { value = '', placeholder = '', settle = 250 } = {}) {
+  const out = {}, { width, height } = page.viewportSize()
+  for (const state of ['rest', 'hover', 'focus']) {
+    await field.evaluate((e, [value, placeholder]) => { e.blur(); e.value = value; e.placeholder = placeholder; e.style.textDecorationColor = 'transparent' }, [value, placeholder])
+    await page.mouse.move(width - 1, height - 1)
+    if (state === 'hover') await field.hover()
+    if (state === 'focus') await field.focus()
+    await page.waitForTimeout(settle)
+    out[state] = await inkOn(page, field, e => { e.value = ''; e.placeholder = '' })
+  }
+  return out
+}
+
+// The gallery page without its own panels and with transitions off: what is measured is all it draws, and
+// a hovered or focused state is final within a frame.
+const quiet = page => page.evaluate(() => {
+  document.body.replaceChildren()
+  document.head.insertAdjacentHTML('beforeend', '<style>*, *::before, *::after { transition: none !important; animation: none !important; }</style>')
+})
+
+// Text reads at WCAG 1.4.3 contrast (4.5:1; large text, 24px or 18.66px bold, 3:1) in every theme at its
+// native defaults and in the palettes its case pages show (lab01's three materials, DevTools, Synth and
+// Industrial dark, ImGui and Control Panel light), on a panel holding text in each role. A replica keeps
+// its original's look, not its defects: where the original's ink fails, the theme moves it to the minimum.
+// Axe-core decides what it can. Text it leaves undecided (laid over pseudo-elements, gradients, backdrops or
+// images) is measured from pixels: each node's own lettering made transparent, its children's kept, so the
+// changed pixels in its box are its glyphs; a node that changes none draws no lettering (a stepper whose
+// arrow is an image) and is skipped. Nodes whose boxes keep 4px apart are stripped in the same shot. A
+// symbol (axe's non-text characters: a stepper's arrow) identifies its control: 3:1, WCAG 1.4.11. A glass
+// pane is measured over its own colour; Glass's scene has a test of its own. Disabled controls are exempt
+// (axe skips them).
+const palettes = [['lab01', '#b4b4b4'], ['lab01', '#ba965a'], ['devtools', '#282828'], ['imgui', '#f0f0f0'], ['control-panel', '#ebebeb'], ['synth', '#1b1b1d'], ['industrial', '#2a2a2c']]
+test.describe('text meets WCAG contrast', () => {
+  const axePath = fileURLToPath(new URL('../node_modules/axe-core/axe.min.js', import.meta.url))
   const grounds = Object.fromEntries(registry.filter(t => t.ground).map(t => [t.file || t.id, t.ground]))
-  const results = await page.evaluate(async ([names, grounds]) => {
-    const { default: settings } = await import('/index.js')
-    const results = {}
-    for (const name of names) {
+  const panes = registry.filter(t => t.surface === 'glass').map(t => t.file || t.id)
+  for (const [name, shade] of [...themes.map(name => [name]), ...palettes]) test(shade ? `${name} on ${shade}` : name, async ({ browser }) => {
+    const page = await browser.newPage({ deviceScaleFactor: 2, viewport: { width: 800, height: 1600 } })
+    await page.goto('/')
+    await quiet(page)
+    await page.addScriptTag({ path: axePath })
+    await page.mouse.move(799, 1599)
+    const { violations, rounds } = await page.evaluate(async ([name, shade, ground, pane]) => {
+      const { default: settings } = await import('/index.js')
       const { default: theme } = await import(`/theme/${name}.js`)
       const host = document.createElement('div')
-      host.style.width = '360px'
-      host.style.background = grounds[name] || ''
-      document.body.appendChild(host)
+      host.id = 'contrast'
+      host.style.cssText = `width: 360px; background: ${ground}`
+      document.body.prepend(host)
       const noop = () => {}
-      const panel = settings({
+      settings({
         name: { type: 'text', value: 'Aurora', hint: 'A hint under its label' },
         count: 7,
         volume: { type: 'slider', value: .75, min: 0, max: 1, step: .01 },
@@ -444,64 +512,173 @@ test('every theme\'s text meets WCAG contrast at its native defaults', async ({ 
         'more.depth': 3,
         actions: { type: 'button', variant: 'group', buttons: { Save: noop, Reset: { variant: 'secondary', onclick: noop } } },
         run: { type: 'button', text: 'Run', label: false },
-      }, { container: host, title: 'Contrast', collapsed: false, theme: theme() })
-      const { violations } = await axe.run(host, { runOnly: ['color-contrast'] })
-      results[name] = violations.flatMap(v => v.nodes.map(n => `${n.target.join(' ')} ${n.any[0]?.data?.contrastRatio}:1`))
-      panel[Symbol.dispose]()
-      host.remove()
+      }, { container: host, title: 'Contrast', collapsed: false, theme: theme(shade && { shade }) })
+      if (pane) host.style.background = getComputedStyle(host.querySelector('.s-panel')).getPropertyValue('--bg')
+      await document.fonts.ready
+      const { violations, incomplete } = await axe.run(host, { runOnly: ['color-contrast'], elementRef: true })
+      const o = host.getBoundingClientRect(), rounds = [], saved = []
+      const apart = (a, b) => a[0] > b[0] + b[2] + 4 || b[0] > a[0] + a[2] + 4 || a[1] > b[1] + b[3] + 4 || b[1] > a[1] + a[3] + 4
+      for (const { element: el, target, any } of incomplete.flatMap(r => r.nodes)) {
+        const r = el.getBoundingClientRect(), s = getComputedStyle(el), px = parseFloat(s.fontSize), why = any[0]?.data?.messageKey
+        const node = { el, target: `${target.join(' ')} (${why})`, box: [r.left - o.left, r.top - o.top, r.width, r.height], min: why === 'nonBmp' || px >= 24 || px >= 18.66 && s.fontWeight >= 700 ? 3 : 4.5 }
+        const round = rounds.find(round => round.every(m => apart(m.box, node.box)))
+        round ? round.push(node) : rounds.push([node])
+      }
+      const pin = (el, styles) => { saved.push([el, el.getAttribute('style')]); for (const [p, v] of styles) el.style.setProperty(p, v, 'important') }
+      const props = ['color', '-webkit-text-fill-color', 'text-shadow']
+      window.strip = i => {
+        for (const { el } of rounds[i]) {
+          for (const child of el.children) { const s = getComputedStyle(child); pin(child, props.map(p => [p, s.getPropertyValue(p)])) }
+          pin(el, [['color', 'transparent'], ['-webkit-text-fill-color', 'transparent'], ['text-shadow', 'none']])
+        }
+      }
+      window.unstrip = () => { for (const [el, style] of saved.splice(0).reverse()) style == null ? el.removeAttribute('style') : el.setAttribute('style', style) }
+      return {
+        violations: violations.flatMap(v => v.nodes.map(n => `${n.target.join(' ')} ${n.any[0]?.data?.contrastRatio}:1`)),
+        rounds: rounds.map(round => round.map(({ target, box, min }) => ({ target, box, min }))),
+      }
+    }, [name, shade, shade || grounds[name] || '', !shade && panes.includes(name)])
+    const host = page.locator('#contrast'), failures = {}
+    for (const [i, round] of rounds.entries()) {
+      const found = await inks(page, host, (e, i) => window.strip(i), { arg: i, boxes: round.map(n => n.box) })
+      await page.evaluate(() => window.unstrip())
+      round.forEach(({ target, min }, k) => { const { ink, bg, ratio } = found[k]; if (ink && ratio < min) failures[target] = `${ink} on ${bg} ${ratio}:1` })
     }
-    return results
-  }, [themes, grounds])
-  for (const name of themes) expect(results[name], name).toEqual([])
+    await page.close()
+    expect({ violations, failures }).toEqual({ violations: [], failures: {} })
+  })
 })
 
-// Placeholder text reads at 4.5:1 too (WCAG 1.4.3), which axe does not check: measured from pixels at
-// 2x, a field with its placeholder against the same field without it, the field's most common pixel as
-// the ground and the glyph pixel most unlike it as the ink. Glass is a pane over a scene: on a white page
-// no light ink reaches 4.5:1 on its lens (white gives 4.4:1), so it is measured over its own colour.
-const pane = ['glass']
-test('every theme\'s placeholder meets WCAG contrast at its native defaults', async ({ browser }) => {
-  const page = await browser.newPage({ deviceScaleFactor: 2 })
+// The pixel measures below take a browser each for a while: they run one after another in one worker,
+// so they do not crowd the suite's other heavy tests.
+test.describe('text measured from pixels', () => {
+  test.describe.configure({ mode: 'default' })
+
+  // Placeholder text reads at 4.5:1 too (WCAG 1.4.3), which axe does not check: a text field's and the
+  // search field's (the panel's search option), on the field at rest, hovered and focused, as each face
+  // lies under it. Glass is a pane over a scene, measured here over its own colour; its scene has a test
+  // of its own.
+  const pane = ['glass']
+  test('every theme\'s placeholders meet WCAG contrast at rest, hovered and focused', async ({ browser }) => {
+    test.setTimeout(240_000)
+    const page = await browser.newPage({ deviceScaleFactor: 2 })
+    await page.goto('/')
+    await quiet(page)
+    const grounds = Object.fromEntries(registry.filter(t => t.ground).map(t => [t.file || t.id, t.ground]))
+    const failures = {}
+    for (const name of themes) {
+      await page.evaluate(async ([name, ground, own]) => {
+        const { default: settings } = await import('/index.js')
+        const { default: theme } = await import(`/theme/${name}.js`)
+        window.placeholderPanel?.[Symbol.dispose]()
+        document.querySelector('#placeholder')?.remove()
+        const host = document.createElement('div')
+        host.id = 'placeholder'
+        host.style.cssText = `width: 360px; background: ${ground || ''}`
+        document.body.prepend(host)
+        window.placeholderPanel = settings({ q: { type: 'text', value: '' } }, { container: host, title: 'Contrast', collapsed: false, search: true, theme: theme() })
+        if (own) host.style.background = getComputedStyle(host.querySelector('.s-panel')).getPropertyValue('--bg')
+      }, [name, grounds[name], pane.includes(name)])
+      await page.locator('#placeholder .s-search-btn').click()
+      for (const [kind, selector, placeholder] of [['field', 'input[type=text]', 'Search…'], ['search', '.s-search-input', 'Filter']]) {
+        const states = await fieldText(page, page.locator(`#placeholder ${selector}`), { placeholder, settle: 50 })
+        for (const [state, { ink, bg, ratio }] of Object.entries(states)) if (ratio < 4.5) failures[`${name} ${kind} ${state}`] = `${ink} on ${bg} ${ratio}:1`
+      }
+    }
+    await page.close()
+    expect(failures).toEqual({})
+  })
+
+  // Lab01's light and gold recesses are mid-tones: a field's value and its placeholder read 4.5:1 on them at
+  // rest, hovered and focused, in the source's light (#b4b4b4) and gold (#BA965A, the case page's Gold) palettes
+  // and in the gallery's sage and ivory, which take gold's recipe. Axe cannot judge lab01 (its bevel and grain
+  // are pseudo-elements laid over the text), so the text is measured from pixels.
+  test('lab01 field text reads on its recess in the light and gold palettes', async ({ browser }) => {
+    test.setTimeout(120_000)
+    const page = await browser.newPage({ deviceScaleFactor: 2 })
+    await page.goto('/')
+    await quiet(page)
+    const failures = {}
+    for (const shade of ['#b4b4b4', '#ba965a', '#c0cbb9', '#f4ecdc']) {
+      await page.evaluate(async shade => {
+        const { default: settings } = await import('/index.js')
+        const { default: lab01 } = await import('/theme/lab01.js')
+        window.lab01Panel?.[Symbol.dispose]()
+        document.querySelector('#lab01-field')?.remove()
+        const host = document.createElement('div')
+        host.id = 'lab01-field'
+        host.style.cssText = `width: 360px; background: ${shade}`
+        document.body.prepend(host)
+        window.lab01Panel = settings({ q: { type: 'text', value: '' } }, { container: host, title: 'Contrast', collapsed: false, theme: lab01({ shade }) })
+      }, shade)
+      const field = page.locator('#lab01-field input[type=text]')
+      for (const [kind, text] of [['value', { value: 'Aurora' }], ['placeholder', { placeholder: 'Search…' }]]) {
+        for (const [state, { ink, bg, ratio }] of Object.entries(await fieldText(page, field, { ...text, settle: 50 }))) if (ratio < 4.5) failures[`${shade} ${kind} ${state}`] = `${ink} on ${bg} ${ratio}:1`
+      }
+    }
+    await page.close()
+    expect(failures).toEqual({})
+  })
+
+  // Glass is a pane over a scene, so its lettering is held to 4.5:1 over the scenes it is shown on: the
+  // gallery's preview (the shade's own scenery) and its case page. Labels, hints, values, readouts and
+  // buttons as drawn; a field's placeholder at rest, hovered and focused; the case page's search field.
+  test('glass lettering reads over its scene: the gallery preview and its case page', async ({ browser }) => {
+    test.setTimeout(120_000)
+    const page = await browser.newPage({ deviceScaleFactor: 2, viewport: { width: 1400, height: 1000 } })
+    const failures = {}
+    const lettering = async (where, panel) => {
+      for (const selector of ['.s-label', '.s-hint', 'input[type=text]:not(.s-readout)', '.s-readout', '.s-segmented button', '.s-button button']) {
+        const all = panel.locator(selector)
+        for (let i = 0; i < await all.count(); i++) {
+          const el = all.nth(i)
+          if (!await el.isVisible()) continue
+          const { ink, bg, ratio } = await inkOn(page, el, e => e.tagName === 'INPUT' ? e.value = '' : e.style.setProperty('color', 'transparent', 'important'))
+          if (ratio < 4.5) failures[`${where} ${selector} ${i}`] = `${ink} on ${bg} ${ratio}:1`
+        }
+      }
+    }
+    const placeholders = async (where, field, placeholder) => {
+      for (const [state, { ink, bg, ratio }] of Object.entries(await fieldText(page, field, { placeholder }))) if (ratio < 4.5) failures[`${where} placeholder ${state}`] = `${ink} on ${bg} ${ratio}:1`
+    }
+    await page.goto('/#theme=glass', { waitUntil: 'networkidle' })
+    const gallery = page.locator('#live-panel .s-panel').first()
+    await lettering('gallery', gallery)
+    await placeholders('gallery', gallery.locator('input[type=text]').first(), 'Search…')
+    await page.goto('/demo/cases/glass.html', { waitUntil: 'networkidle' })
+    const card = page.locator('.s-panel').first()
+    await lettering('case', card)
+    await placeholders('case', card.locator('input[type=text]').first(), 'Search…')
+    await card.locator('.s-search-btn').click()
+    await placeholders('case search', card.locator('.s-search-input'), 'Filter')
+    await page.close()
+    expect(failures).toEqual({})
+  })
+})
+
+// Themes measure contrast on colors they mix in JS (theme/color.js mix) and paint with CSS color-mix():
+// the two must agree. Each mix is painted to a canvas by the browser and read back; every channel
+// matches, except where the exact sRGB value is a .5 tie, which float rounding may resolve either way.
+test('color.js mix() matches the browser\'s color-mix() in sRGB and OKLab', async ({ page }) => {
   await page.goto('/')
-  const grounds = Object.fromEntries(registry.filter(t => t.ground).map(t => [t.file || t.id, t.ground]))
-  const failures = {}
-  for (const name of themes) {
-    await page.evaluate(async ([name, ground, own]) => {
-      const { default: settings } = await import('/index.js')
-      const { default: theme } = await import(`/theme/${name}.js`)
-      window.placeholderPanel?.[Symbol.dispose]()
-      document.querySelector('#placeholder')?.remove()
-      const host = document.createElement('div')
-      host.id = 'placeholder'
-      host.style.cssText = `width: 360px; background: ${ground || ''}`
-      document.body.prepend(host)
-      window.placeholderPanel = settings({ q: { type: 'text', value: '', placeholder: 'Search…' } }, { container: host, title: 'Contrast', collapsed: false, theme: theme() })
-      if (own) host.style.background = getComputedStyle(host.querySelector('.s-panel')).getPropertyValue('--bg')
-    }, [name, grounds[name], pane.includes(name)])
-    const field = page.locator('#placeholder input[type=text]')
-    const shown = await field.screenshot()
-    await field.evaluate(e => { e.placeholder = '' })
-    const bare = await field.screenshot()
-    const [ink, bg] = await page.evaluate(async pngs => {
-      const { contrast } = await import('/theme/color.js')
-      const [a, b] = await Promise.all(pngs.map(async png => {
-        const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob())
-        const c = new OffscreenCanvas(img.width, img.height), g = c.getContext('2d')
-        g.drawImage(img, 0, 0)
-        return g.getImageData(0, 0, img.width, img.height).data
-      }))
-      const hex = (d, i) => '#' + [...d.slice(i, i + 3)].map(v => v.toString(16).padStart(2, '0')).join('')
-      const counts = {}
-      for (let i = 0; i < b.length; i += 4) counts[hex(b, i)] = (counts[hex(b, i)] || 0) + 1
-      const bg = Object.keys(counts).reduce((x, y) => counts[y] > counts[x] ? y : x)
-      let ink = bg
-      for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2]) if (contrast(hex(a, i), bg) > contrast(ink, bg)) ink = hex(a, i)
-      return [ink, bg]
-    }, [shown, bare].map(png => png.toString('base64')))
-    if (contrast(ink, bg) < 4.5) failures[name] = `${ink} on ${bg} ${contrast(ink, bg).toFixed(2)}:1`
-  }
-  await page.close()
-  expect(failures).toEqual({})
+  const pairs = [['#000000', '#ffffff'], ['#ff0000', '#0000ff'], ['#1f1f1f', '#ebebeb'], ['#ba965a', '#000000'], ['#28292e', '#bbbcc4'], ['#f5f4f2', '#2cc9ff'], ['#0e1013', '#5be49b'], ['#ffffff', '#007aff']]
+  const cases = ['srgb', 'oklab'].flatMap(space => pairs.flatMap(([a, b]) => [6, 10, 25, 30, 45, 55, 70, 90].map(p => [space, a, b, p])))
+  const painted = await page.evaluate(cases => {
+    const g = new OffscreenCanvas(1, 1).getContext('2d', { willReadFrequently: true })
+    return cases.map(([space, a, b, p]) => {
+      g.clearRect(0, 0, 1, 1)
+      g.fillStyle = `color-mix(in ${space}, ${a}, ${b} ${p}%)`
+      g.fillRect(0, 0, 1, 1)
+      return [...g.getImageData(0, 0, 1, 1).data.slice(0, 3)]
+    })
+  }, cases)
+  const channels = hex => hex.slice(1).match(/../g).map(h => parseInt(h, 16))
+  const off = cases.flatMap(([space, a, b, p], i) => {
+    const ours = channels(mix(a, b, p / 100, space)), x = channels(a), y = channels(b)
+    return ours.some((v, k) => v !== painted[i][k] && !(space === 'srgb' && Math.abs((100 * x[k] + (y[k] - x[k]) * p) % 100) === 50 && Math.abs(v - painted[i][k]) === 1))
+      ? [`${space} ${a} ${b} ${p}%: ${ours} vs ${painted[i]}`] : []
+  })
+  expect(off).toEqual([])
 })
 
 // A panel without a title is a plain block, never a collapsed one: rules for the folded state belong to

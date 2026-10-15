@@ -23,7 +23,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, contrast, toHex, ink as legible } from './color.js'
+import { parseColor, resolveAccent, contrast, mix, ink as legible } from './color.js'
 
 export default function apple({
   shade = '#ffffff',
@@ -39,12 +39,11 @@ export default function apple({
   const a = alpha => `rgb(${ink} / ${alpha})`
   // sRGB mixes, resolved to measure contrast on
   const inkHex = dark ? '#ffffff' : '#000000'
-  const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
-  const blend = (x, y, t) => '#' + ch(x).map((v, i) => Math.round(v * t + ch(y)[i] * (1 - t)).toString(16).padStart(2, '0')).join('')
-  const sheetHex = blend(inkHex, shade, .031)
-  // secondaryLabelColor reads 3.9:1 on the light sheet; its alpha rises until it reads 4.5:1
+  const sheetHex = mix(shade, inkHex, .031)
+  // secondaryLabelColor reads 3.9:1 on the light sheet; its alpha rises until it reads 4.5:1, as written
+  // and as the 8-bit alpha a browser may composite with
   let k = dark ? .549 : .498
-  while (k < 1 && contrast(blend(inkHex, sheetHex, k), sheetHex) < 4.5) k += .01
+  while (k < 1 && [k, Math.round(+k.toFixed(3) * 255) / 255].some(a => contrast(mix(sheetHex, inkHex, a), sheetHex) < 4.5)) k += .01
 
   // ── macOS semantic colors, as alpha over the window (NSColor, sRGB) ──
   const label = a(.847)                              // labelColor
@@ -62,7 +61,7 @@ export default function apple({
   const onAccent = (contrast('#ffffff', acc) ?? 21) >= 3 ? '#fff' : '#000'
   const lift = c => onAccent === '#fff' ? legible('#fff', 4.5, c) : c
   const action = lift(acc)                                                                    // push button
-  const actionFill = parseColor(acc, null) ? lift(blend(inkHex, acc, .024)) : accentFill     // selected segment
+  const actionFill = parseColor(acc, null) ? lift(mix(acc, inkHex, .024)) : accentFill     // selected segment
   const knob = dark ? '#e2e2e2' : '#fff'              // switch knob, off
   const knobOn = dark ? 'color-mix(in srgb, #fff, var(--accent) 14.5%)' : '#fff'
   const thumb = dark ? '#dfdfdf' : '#fff'             // slider thumb
@@ -153,6 +152,7 @@ export default function apple({
     height: var(--line-height); padding: 0 calc(1 * var(--length)); font: inherit; text-align: right; outline: none;
     &::placeholder { color: var(--dim); }
   }
+  .s-search-input::placeholder { color: var(--dim); }
   input[type="number"] { -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
   .s-text input[type="text"] { flex: 1; }
 
@@ -287,6 +287,7 @@ export default function apple({
   /* ── Info / separator ── */
   .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: var(--dim); opacity: 1; text-align: right; } }
   .s-separator { margin: 0 var(--inset); &:not(.s-separator-labeled) { background: var(--line); opacity: 1; } }
+  .s-separator-label { color: var(--dim); opacity: 1; } /* secondaryLabelColor, as a section header; the base's .6 of labelColor reads 4.1:1 */
 }`
 
   return baseCSS + '\n' + overrides

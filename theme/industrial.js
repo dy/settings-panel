@@ -62,7 +62,7 @@ export default function industrial({
   const acc = resolveAccent(accent, shade)
   const label = ink(bottom, 4.5, dark ? '#a2a2a4' : '#777777')
   const text = ink(key, 4.5, dark ? '#e0e0e0' : '#404040')
-  const accentText = ink(key, 4.5, acc)
+  const accentText = ink(dish, 4.5, ink(key, 4.5, acc))   // a key's face runs from its dish to its rim: on a light body the dish is the darker (4.4:1 at the rim's ink)
   const accentPressed = ink(pressed, 4.5, accentText)   // a pressed key is darker than a raised one on a light body
   const focus = ink(bottom, 3, acc)
 
@@ -481,13 +481,13 @@ export default function industrial({
 
   /* ── Separator: an etched seam ── */
   .s-separator { height: auto; background: none; opacity: 1; margin: 0;
-    &::after { content: ''; height: var(--hair); background: var(--seam); box-shadow: 0 var(--hair) 0 var(--seam-light); } }
+    &::after { content: ''; display: block; height: var(--hair); background: var(--seam); box-shadow: 0 var(--hair) 0 var(--seam-light); } }
   .s-control.s-separator-labeled { flex-direction: row; align-items: center; gap: var(--column-gap);
     &::before { display: none; } &::after { flex: 1; opacity: 1; } }
   .s-separator-label { color: var(--label); opacity: 1; }
 
   /* ── Search ── */
-  .s-search-input { background: var(--screen); color: var(--screen-text); border-radius: calc(2 * var(--length)); padding: 0 var(--inset); height: calc(24 * var(--length)); font-family: var(--screen-font); }
+  .s-search-input { background: var(--screen); color: var(--screen-text); border-radius: calc(2 * var(--length)); padding: 0 var(--inset); height: calc(24 * var(--length)); font-family: var(--screen-font); &::placeholder { color: var(--screen-dim); } }
 }`
 
   return baseCSS + '\n' + overrides

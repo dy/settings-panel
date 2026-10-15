@@ -31,7 +31,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, luminance, contrast, toHex, ink as legible } from './color.js'
+import { parseColor, resolveAccent, luminance, contrast, mix, ink as legible } from './color.js'
 
 export default function figma({
   shade = '#ffffff',
@@ -46,32 +46,31 @@ export default function figma({
 
   // ── Tokens: Figma's light/dark pairs, keyed off `dark` ──
   const toward = dark ? '#fff' : '#000'
-  const mix = p => `color-mix(in srgb, var(--bg), ${toward} ${p}%)`
+  const cssMix = p => `color-mix(in srgb, var(--bg), ${toward} ${p}%)`
   // the same sRGB mixes, resolved, to measure contrast on
-  const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
-  const blend = (a, b, t) => '#' + ch(a).map((v, i) => Math.round(v * t + ch(b)[i] * (1 - t)).toString(16).padStart(2, '0')).join('')
-  const lineHex = blend(toward, shade, dark ? .114 : .1)
+  const lineHex = mix(shade, toward, dark ? .114 : .1)
   // A: bg-brand light / dark; the slider fill, switch and thumb read 3:1 on the track they sit on
   // (WCAG 1.4.11): Figma's #0d99ff gives 2.4:1 on its #e6e6e6 track, 3.0:1 on white
   const acc = legible(lineHex, 3, resolveAccent(accent, shade) || (dark ? '#0c8ce9' : '#0d99ff'))
   const ink = dark ? '#ffffff' : 'rgba(0,0,0,.9)'                 // A: text / icon
   // A: text-secondary, .7 white / .5 black; its alpha rises until it reads 4.5:1 on the field it also
   // labels (.5 black: 3.9:1 on white and on #f5f5f5), and text-tertiary's in a placeholder (.3 black: 2.1:1)
-  const fieldHex = blend(toward, shade, dark ? .057 : .04)
-  const rise = k => { while (k < 1 && contrast(blend(toward, fieldHex, k), fieldHex) < 4.5) k += .01; return `rgba(${dark ? '255,255,255' : '0,0,0'},${+k.toFixed(2)})` }
+  const fieldHex = mix(shade, toward, dark ? .057 : .04)
+  // (read at the alpha as written and as the 8-bit value a browser may composite with)
+  const rise = k => { while (k < 1 && [k, Math.round(+k.toFixed(2) * 255) / 255].some(a => contrast(mix(fieldHex, toward, a), fieldHex) < 4.5)) k += .01; return `rgba(${dark ? '255,255,255' : '0,0,0'},${+k.toFixed(2)})` }
   const dim = rise(dark ? .7 : .5)
   const placeholder = rise(dark ? .4 : .3)
   const faint = dark ? 'rgba(255,255,255,.4)' : 'rgba(0,0,0,.3)'  // A: text-tertiary (disabled lettering)
-  const field = mix(dark ? 5.7 : 4)          // A: bg-secondary #f5f5f5 / #383838 (= bg-hover)
-  const line = mix(dark ? 11.4 : 10)         // A: border, bg-tertiary #e6e6e6 / #444444
-  const disabled = mix(dark ? 34.6 : 15)     // A: bg-disabled #d9d9d9 / #757575
+  const field = cssMix(dark ? 5.7 : 4)       // A: bg-secondary #f5f5f5 / #383838 (= bg-hover)
+  const line = cssMix(dark ? 11.4 : 10)      // A: border, bg-tertiary #e6e6e6 / #444444
+  const disabled = cssMix(dark ? 34.6 : 15)  // A: bg-disabled #d9d9d9 / #757575
   // A: white on brand (#0d99ff, luminance .30) and success (#14ae5c, .31); rgba(0,0,0,.9) on
   // warning (#ffcd29, .65). The split between them keeps a light custom accent readable.
   const onAccent = luminance(acc) > .45 ? 'rgba(0,0,0,.9)' : '#fff'
   // Under lettering the accent darkens only as far as 4.5:1 needs (white on #0d99ff: 3.0:1), and a
   // labeled separator's label (ink at 60% on its line-colored band, 4.3:1) lifts the same way
   const action = onAccent === '#fff' ? legible('#fff', 4.5, acc) : acc
-  const sepLabel = legible(lineHex, 4.5, blend(toward, lineHex, dark ? .6 : .54))
+  const sepLabel = legible(lineHex, 4.5, mix(lineHex, toward, dark ? .6 : .54))
   // The selected segment is the panel color in a border-colored hairline (#fff and #e6e6e6, 1.1:1 each on
   // the #f5f5f5 track): the hairline darkens until it marks the choice at 3:1 there (WCAG 1.4.11)
   const selectedLine = legible(fieldHex, 3, lineHex)

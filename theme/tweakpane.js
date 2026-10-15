@@ -28,7 +28,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, toHex, parseColor, ink } from './color.js'
+import { resolveRoles, toHex, parseColor, ink, mix } from './color.js'
 
 export default function tweakpane({
   shade = '#28292e',     // panel bg ≈ hsl(228 8% 17%) — matches Tweakpane's rgb(40,41,46)
@@ -53,11 +53,12 @@ export default function tweakpane({
   const wash = a => `rgba(${fgR},${fgG},${fgB},${a})`
   // Text Tweakpane never drew, at 4.5:1 (WCAG 1.4.3): the hint (the label wash at 70%, 3.0:1) and a
   // separator's label (fg at 60%, 3.7:1) keep their tone, lifted to pass
-  const washed = a => '#' + [[fgR, shR], [fgG, shG], [fgB, shB]].map(([f, s]) => c255(s + (f - s) * a).toString(16).padStart(2, '0')).join('')
+  const washed = a => mix(shade, fg, a)
   const hint = ink(shade, 4.5, washed((native ? .7 : .9) * .7))
   const sepLabel = ink(shade, 4.5, washed(.6))
-  // and a placeholder, the label's wash laid over the field's (3.9:1), lifted to pass on the field
-  const placeholder = ink(washed(.1), 4.5, washed(.1 + .9 * (native ? .7 : .9)))
+  // and a placeholder, the label's wash laid over the field's (3.9:1), lifted to pass on the field at
+  // rest, hovered and focused (--field, --field-hover, --field-focus)
+  const placeholder = [.1, .15, .2].reduce((t, a) => ink(washed(a), 4.5, t), washed(.1 + .9 * (native ? .7 : .9)))
   // Native's button states are its button fill lightened 5/10/15% in HSL (#bbbcc4/#c8cad0/#d6d7db
   // from hsl(230 7% 70%)); the defaults take native's exact literals, which rounding the 8-bit
   // fill back through HSL misses by one blue step on the active state.
@@ -155,6 +156,8 @@ export default function tweakpane({
   .s-hint { color: ${hint}; opacity: 1; font-size: calc(10 * var(--length)); }
   .s-input { flex: 0 0 var(--value); gap: var(--u); align-items: center; }
   .s-label-group[hidden] + .s-input { flex: 1; }
+
+  .s-search-input::placeholder { color: ${placeholder}; }   /* the title bar is washed as a field is */
 
   /* ── Fields: native .tp-txtv_i, input-bg wash stepping .1 / .15 hover / .2 focus / .25 active ── */
   input[type="text"], input[type="number"], select, textarea {

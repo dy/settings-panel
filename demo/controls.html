@@ -92,8 +92,15 @@
       import retro from '../theme/retro.js'
       import bitmap from '../theme/bitmap.js'
       import industrial from '../theme/industrial.js'
+      import dat from '../theme/dat.js'
+      import tweakpane from '../theme/tweakpane.js'
+      import leva from '../theme/leva.js'
+      import controlkit from '../theme/controlkit.js'
+      import uil from '../theme/uil.js'
+      import oui from '../theme/oui.js'
+      import figma from '../theme/figma.js'
 
-      const themes = { soft, swiss, skeu, 'control-panel': controlPanel, lab01, brutal, neu, porcelain, glass, terminal, apple, devtools, studio, editorial, synth, imgui, retro, bitmap, industrial }
+      const themes = { soft, swiss, skeu, 'control-panel': controlPanel, lab01, brutal, neu, porcelain, glass, terminal, apple, devtools, studio, editorial, synth, imgui, retro, bitmap, industrial, dat, tweakpane, leva, controlkit, uil, oui, figma }
 
       // ── Stub factory for planned control types ──
       for (const t of ['font', 'file', 'graph', 'curve', 'custom']) {
@@ -260,6 +267,7 @@
         sect: { type: 'folder', variant: 'section', label: 'Section (always open)' },
 
         'sect.info': { type: 'text', value: 'Sections are non-collapsible headings', label: 'Note' },
+        'sect.rule': { type: 'separator' },
         'sect.dial': { type: 'slider', value: 50, min: 0, max: 100, step: 1, label: 'Control' },
 
         'planned.typeface': { type: 'font', value: 'Inter', label: 'Font — family picker' },

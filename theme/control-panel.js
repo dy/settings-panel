@@ -31,7 +31,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, clamp, contrast, toHex } from './color.js'
+import { parseColor, resolveAccent, clamp, contrast, toHex, mix } from './color.js'
 
 // Native palettes (control-panel themes.js), in order: background1, background2,
 // background2hover, foreground1, text1, text2
@@ -60,9 +60,9 @@ export default function controlPanel({
   // it, lightness only, until they hold 4.5:1 and 3:1 over a white or a black page (WCAG 1.4.3, 1.4.11).
   // a composite lands within a level of the exact blend, so both colors are tried a level either way
   const veil = (c, back, near) => '#' + toHex(parseColor(c)).slice(1).match(/../g).map(h => near(parseInt(h, 16) * .95 + back * .05).toString(16).padStart(2, '0')).join('')
-  const reach = (tone, ratio) => {
+  const reach = (tone, ratio, ground = bg2) => {
     const t = parseColor(tone, null), reads = l => [0, 255].every(back => [Math.floor, Math.ceil].every(near =>
-      contrast(veil(toHex({ ...t, L: l }), back, near), veil(bg2, back, near === Math.floor ? Math.ceil : Math.floor)) >= ratio))
+      contrast(veil(toHex({ ...t, L: l }), back, near), veil(ground, back, near === Math.floor ? Math.ceil : Math.floor)) >= ratio))
     if (!t || reads(t.L)) return tone
     let l = t.L
     while (l > 0 && l < 1 && !reads(l)) l += dark ? .005 : -.005
@@ -70,6 +70,8 @@ export default function controlPanel({
   }
   const fieldInk = reach(dim, 4.5)
   const placeholder = reach(fg, 4.5)   // native's placeholder is foreground1: 2.3:1 on background2
+  const searchPlaceholder = reach(fg, 4.5, shade)   // and the search field's, on the bare panel in the title
+  const quiet = reach(mix(shade, text, .6), 4.5, shade)   // hints and a separator's label, the base's .6 of text1 (3.6:1 light), on the panel
   const acc = reach(resolveAccent(accent, shade) || fg, 3)
 
   const overrides = `.s-panel {
@@ -127,6 +129,8 @@ export default function controlPanel({
     &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
   > summary { cursor: pointer; }
+  .s-search-input::placeholder { color: ${searchPlaceholder}; }
+  .s-hint, .s-separator-label { color: ${quiet}; opacity: 1; }
 
   .s-panel-content { gap: 0; padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {

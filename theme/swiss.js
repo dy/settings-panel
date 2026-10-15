@@ -11,11 +11,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, toHex, contrast } from './color.js'
-
-// `over(a, b, t)`: b laid at opacity t over a, composited in sRGB as the browser does.
-const rgb = c => toHex(parseColor(c)).slice(1).match(/../g).map(h => parseInt(h, 16))
-const over = (a, b, t) => { const y = rgb(b); return '#' + rgb(a).map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('') }
+import { parseColor, resolveAccent, contrast, mix } from './color.js'
 
 const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5L5 1.5L8.5 5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
 const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1L5 4.5L8.5 1' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E")`
@@ -42,7 +38,7 @@ export default function swiss({
   // shade): dim 45% black or 50% white as drawn, hints and section labels at base's 60%, vector
   // axis letters at its 55%; each raised as far as it needs to read 4.5:1 there.
   const ink = dark ? '#ffffff' : '#000000'
-  const reads = a => { while (a < 100 && contrast(over(shade, ink, a / 100), shade) < 4.5) a++; return a }
+  const reads = a => { while (a < 100 && contrast(mix(shade, ink, a / 100), shade) < 4.5) a++; return a }
   const [dimLight, dimDark] = dark ? [45, reads(50)] : [reads(45), 50]
 
   const overrides = `.s-panel {
@@ -194,6 +190,7 @@ export default function swiss({
     &::placeholder { color: var(--dim); }
     &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
   }
+  .s-search-input::placeholder { color: var(--dim); }
 
   input[type="number"] {
     appearance: none;

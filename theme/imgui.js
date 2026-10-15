@@ -120,6 +120,8 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
   // the check mark sits on CheckboxSelectedBg in a box, on FrameBg as a radio dot
   for (const under of [frame, over(P.CheckboxSelectedBg, base).slice(0, 3)]) P.CheckMark = fit(P.CheckMark, under, hex(under), 3)
   const placeholder = ink(hex(frame), 4.5, hex(P.TextDisabled))
+  // the search field is a frame on the title bar
+  const searchPlaceholder = ink(hex(over(P.FrameBg, over(P.TitleBgActive, base).slice(0, 3))), 4.5, hex(P.TextDisabled))
   const textDim = ink(hex(base), 4.5, hex(P.TextDisabled))
   const axis = v => typeof v === 'number' && Number.isFinite(v) ? Math.min(2, Math.max(.5, v)) : 1
   const clipMargin = +(4 * axis(size) * axis(spacing)).toFixed(2)   // WindowPadding.x / 2
@@ -208,6 +210,7 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
   .s-search { gap: var(--iisx); }
   .s-search-btn { width: var(--fs); height: var(--fs); &:focus-visible { outline: 2px solid var(--nav); outline-offset: 1px; } }
   .s-search-input { height: calc(var(--fh) - 2 * var(--length)); padding: 0 var(--fpx); background: var(--frame); color: var(--text); font: inherit; line-height: var(--line-height);
+    &::placeholder { color: ${searchPlaceholder}; opacity: 1; }
     &:focus { outline: none; } &:focus-visible { outline: 2px solid var(--nav); outline-offset: -2px; } }
 
   /* ── Rows: the framed widget left, its label right after ItemInnerSpacing.x in a FontSize × 12 column ── */

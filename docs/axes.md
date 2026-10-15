@@ -102,8 +102,9 @@ Structural edge width. In `skeu` it sets edge contrast from `0` to `1`, then wid
 
 ### `tint` *(glass only)*
 
-Density of the shade-colored glass backing. 0 = clear, 1 = the default optical
-tint. Bright or busy scenes need enough tint to keep the text readable.
+Density of the shade-colored glass backing. 0 = as clear as the lettering allows over
+the scene, 1 = the default optical tint; the tint thickens on its own where the ink would
+not read over the scene.
 
 ### `softness` *(neu only)*
 

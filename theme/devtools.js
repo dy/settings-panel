@@ -6,7 +6,7 @@
  */
 import baseCSS from './base.js'
 import metrics from './metrics.js'
-import { resolveRoles } from './color.js'
+import { resolveRoles, contrast, ink, mix } from './color.js'
 
 // front_end/Images/triangle-{down,right}.svg, painted as masks in --icon
 const icon = d => `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='${d}'/%3E%3C/svg%3E")`
@@ -17,6 +17,13 @@ const native = { light: ['#0b57d0', '#1b6ef3', '#a8c7fa', '#a8c7fa', '#ffffff', 
 
 export default function devtools({ shade = '#ffffff', accent, size = 1, spacing = 1, font } = {}) {
   const { dark, accent: custom, onAccent } = resolveRoles(shade, accent)
+  // Chrome's own placeholder grey (#757575, 3.6:1 on a dark pane) reads 4.5:1 on the pane and under a
+  // hovered row's --hover, which veils the field and its text alike (4.4:1 on white); the browser's
+  // composite lands a level off the exact blend, so the veiled text is held to 4.6:1
+  const veil = dark ? '#fdfcfb' : '#1f1f1f', a = dark ? .1 : .06
+  let reach = 4.5
+  while (reach < 21 && contrast(mix(ink(shade, reach, '#757575'), veil, a), mix(shade, veil, a)) < 4.6) reach += .05
+  const placeholder = ink(shade, reach, '#757575')
   const own = native[dark ? 'dark' : 'light'], tint = `color-mix(in srgb, ${custom} 40%, ${shade})`
   const [primary, bright, inverse, outline, onPrimary, onSelection] = accent == null || String(custom).toLowerCase() === own[0] ? own : [custom, custom, tint, tint, onAccent, onAccent]
   return baseCSS + `
@@ -72,7 +79,9 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
     background: transparent; border: 0; border-radius: var(--r);
     padding: 0; color: var(--fg);
     &:hover { text-decoration: underline; }
+    &::placeholder { color: ${placeholder}; }
   }
+  .s-search-input::placeholder { color: ${placeholder}; }
   input[type=text], input[type=number], textarea { &:focus { outline: 2px solid var(--accent); border-radius: 2px; box-shadow: var(--edit-shadow); text-decoration: none; } }
   select { appearance: none; cursor: pointer; &:focus-visible { outline: 2px solid var(--accent); border-radius: 2px; } }
   input[type=number] { -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }

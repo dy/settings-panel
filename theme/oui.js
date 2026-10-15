@@ -22,7 +22,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, resolveAccent, toHex, clamp, ink } from './color.js'
+import { parseColor, resolveAccent, toHex, clamp, ink, mix } from './color.js'
 
 export default function oui({
   shade = '#fafafa',
@@ -58,8 +58,7 @@ export default function oui({
   // the selected fill under lettering, lifted only as far as 4.5:1 needs (white on #ff5252, 3.2:1),
   // and a labeled separator's label (text at 60% on its line-colored band, 2.8:1)
   const action = ink(onAccent, 4.5, acc)
-  const ch = c => [1, 3, 5].map(i => parseInt(toHex(parseColor(c)).slice(i, i + 2), 16))
-  const sepLabel = ink(line, 4.5, '#' + ch(text).map((v, i) => Math.round(v * .6 + ch(line)[i] * .4).toString(16).padStart(2, '0')).join(''))
+  const sepLabel = ink(line, 4.5, mix(line, text, .6))
   const nativeAccent = 'auto' // oui leaves the checkbox to the browser default (Chromium #0075ff)
 
   const overrides = `.s-panel {
@@ -123,6 +122,7 @@ export default function oui({
     &::placeholder { color: var(--placeholder); }
     &:hover { border-bottom-color: var(--accent); }
   }
+  .s-search-input::placeholder { color: var(--placeholder); }
   input[type="number"] { &:focus { outline: none; border-bottom-color: var(--accent); } }
   .s-text input[type="text"] { flex: 1; }
   .s-text, .s-color.s-picker {

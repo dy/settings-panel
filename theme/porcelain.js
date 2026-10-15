@@ -5,7 +5,7 @@
  */
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, parseColor, toHex, ink } from './color.js'
+import { resolveRoles, ink, mix } from './color.js'
 
 export default function porcelain({
   shade = '#f4f6f5', accent = '#526e73', spacing = 1.2,
@@ -26,9 +26,14 @@ export default function porcelain({
   const arrow = svg(`<path d="m3 4 3 3 3-3" fill="none" stroke="${fgMuted}" stroke-width="1.3"/>`, 12)
   // Placeholders: the browser's grey (#757575, 3.9:1 on the field) held to 4.5:1 on the field's well,
   // the shade with 4% of the ink (itself 45% accent), mixed in OKLab as color-mix() does
-  const lab = c => { const { L, C, H } = parseColor(c), h = H * Math.PI / 180; return [L, C * Math.cos(h), C * Math.sin(h)] }
-  const mix = (a, b, t) => { const [L, A, B] = lab(a).map((v, i) => v + (lab(b)[i] - v) * t); return toHex({ L, C: Math.hypot(A, B), H: Math.atan2(B, A) * 180 / Math.PI }) }
-  const placeholder = ink(mix(shade, mix(fg, acc, .45), .04), 4.5, '#757575')
+  const lettering = mix(fg, acc, .45, 'oklab')
+  const placeholder = ink(mix(shade, lettering, .04, 'oklab'), 4.5, '#757575')
+  // A labelled separator wears the rule's 10% of the ink as a band (painted up to a level nearer the ink
+  // than the exact blend, its alpha being 8-bit); its label, the base's .6 of the ink (3.3:1 there), moves
+  // away from the band, lightness only, until it reads 4.5:1
+  const band = mix(shade, lettering, .1)
+  const painted = '#' + [1, 3, 5].map(i => { const v = parseInt(band.slice(i, i + 2), 16); return (v + Math.sign(parseInt(lettering.slice(i, i + 2), 16) - v)).toString(16).padStart(2, '0') }).join('')
+  const ruleLabel = ink(painted, 4.5, mix(band, lettering, .6))
 
   return baseCSS + `
 .s-panel {
@@ -146,7 +151,8 @@ export default function porcelain({
   .s-pad { background: var(--well); box-shadow: ${well}; }
   .s-knob-dial { background: linear-gradient(var(--glaze), var(--bg)); box-shadow: ${raised}; }
   .s-info .s-monitor { color: var(--fg-muted); opacity: 1; }
-  .s-separator { opacity: 1; background: color-mix(in oklab, var(--fg), transparent 90%); box-shadow: 0 1px var(--glaze); }
+  .s-separator { opacity: 1; &:not(.s-separator-labeled) { background: color-mix(in oklab, var(--fg), transparent 90%); box-shadow: 0 1px var(--glaze); } }
+  .s-separator-label { opacity: 1; color: ${ruleLabel}; }
   .s-folder {
     > summary { min-height: var(--h); color: var(--label-ink); font-family: Georgia, serif; font-size: 1.1em;
       &::after { content: '+'; margin-left: auto; font-family: var(--font); }

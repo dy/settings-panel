@@ -34,7 +34,7 @@
 
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { parseColor, normalizeHex, toHex, ink, resolveAccent, clamp } from './color.js'
+import { parseColor, normalizeHex, toHex, ink, resolveAccent, clamp, mix } from './color.js'
 
 const FACE = parseColor('#c0c0c0').L, SHADOW = parseColor('#808080').L
 
@@ -52,12 +52,6 @@ const art = (rows, colors) => {
   const paths = Object.entries(d).map(([c, p]) => `<path fill='${colors[c]}' d='${p.join('')}'/>`).join('')
   return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${rows[0].length}' height='${rows.length}' shape-rendering='crispEdges'>${paths}</svg>`)}")`
 }
-
-// sRGB blend of two hex colours
-const blend = (a, b, t) => '#' + [1, 3, 5].map(i => {
-  const x = parseInt(a.slice(i, i + 2), 16), y = parseInt(b.slice(i, i + 2), 16)
-  return Math.round(x + (y - x) * t).toString(16).padStart(2, '0')
-}).join('')
 
 // The trackbar thumb as measured on the reference; the other glyphs as Win98 draws them (cross-checked with 98.css)
 const THUMB = ['WWWWWWWWWWk', ...Array(15).fill('W........gk'), ' W......gk ', '  W....gk  ', '   W..gk   ', '    Wgk    ', '     k     ']
@@ -99,8 +93,8 @@ export default function retro({
   const winText = ink(win, 4.5, text)
   const sel = resolveAccent(accent, shade) || '#000080'
   const selText = ink(sel, 4.5, '#ffffff')
-  const gray = blend(face, text, 1 / 3)
-  const placeholder = ink(win, 4.5, blend(win, winText, .5))
+  const gray = mix(face, text, 1 / 3)
+  const placeholder = ink(win, 4.5, mix(win, winText, .5))
   // Bevel lines stay whole pixels at any size: Win98 never scaled its edges.
   const px = Math.max(1, Math.round(clamp(+size || 1, .5, 2)))
 
@@ -197,7 +191,7 @@ ${FONT(700, BOLD)}
     &::before { content: ''; position: absolute; inset: ${len(2)} ${len(3)}; background: var(--text); -webkit-mask: var(--s-search-icon) center / contain no-repeat; mask: var(--s-search-icon) center / contain no-repeat; }
     &:active { box-shadow: ${pressed}; }
     &:focus-visible { outline: ${focus}; outline-offset: calc(-3 * var(--px)); } }
-  .s-search-input { height: ${len(14)}; width: ${len(120)}; padding: 0 ${len(3)}; background: var(--win); color: var(--win-text); box-shadow: ${ring([-1, 'hi'], [1, 'shadow'])}; font: inherit; font-weight: 400; outline: none; }
+  .s-search-input { height: ${len(14)}; width: ${len(120)}; padding: 0 ${len(3)}; background: var(--win); color: var(--win-text); box-shadow: ${ring([-1, 'hi'], [1, 'shadow'])}; font: inherit; font-weight: 400; outline: none; &::placeholder { color: var(--placeholder); opacity: 1; } }
   .s-search-input::-webkit-search-cancel-button { -webkit-appearance: none; width: ${len(8)}; height: ${len(7)}; background: ${close} center / 100% 100% no-repeat; cursor: pointer; }
   &.s-searching .s-search-btn { box-shadow: ${pressed}; &::before { translate: var(--px) var(--px); } }
 

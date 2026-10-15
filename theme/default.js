@@ -536,6 +536,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   > summary { padding-right: calc(2.25 * var(--length)); }
   > summary::after, > .s-panel-title::after { content: ''; order: 1; flex: 1; width: auto; height: 0; margin: 0; background: none; -webkit-mask: none; mask: none; transform: none; }
   .s-search { order: 2; }
+  .s-search-input::placeholder { color: var(--fg-muted); }
   .s-label { font-weight: ${w(100)}; }
   .s-hint { color: var(--fg-muted); font-size: calc(12 * var(--length)); opacity: 1; }
   .s-info .s-monitor { opacity: 1; }

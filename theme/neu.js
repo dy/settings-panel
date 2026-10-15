@@ -12,7 +12,7 @@
  */
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, parseColor, toHex, clamp, lerp, ink as readable } from './color.js'
+import { resolveRoles, parseColor, toHex, clamp, lerp, mix, ink as readable } from './color.js'
 import { surface } from './texture.js'
 
 // Tones by the shade's OKLab lightness (graphite .235, bronze .73, chalk .96): strength of the
@@ -75,7 +75,7 @@ export default function neu({
   const shadow = (a, tone = umbra) => oklch(tone, alpha(a))
 
   const rad = light * Math.PI / 180, lx = Math.sin(rad), ly = -Math.cos(rad)
-  const k = clamp(Number.isFinite(size) ? size : 1, .5, 2) * Math.max(0, depth)
+  const scale = clamp(Number.isFinite(size) ? size : 1, .5, 2), k = scale * Math.max(0, depth)
   const soft = Math.max(0, softness)
   const len = v => `${+(v * k).toFixed(2)}px`
   const layer = (n, [d, blur, spread = 0], color, inset = '') =>
@@ -110,6 +110,17 @@ export default function neu({
   const fg = legible(ink ?? at(dark ? .94 : .32))
   const fgTone = parseColor(fg)
   const fgMuted = legible({ L: lerp(fgTone.L, base.L, .35), C: fgTone.C * .8, H: fgTone.H })
+  // A field's floor under the top of its lettering, 13px down the 36px control (its mid-line less half
+  // the 14px type's capitals), the darkest ground the text sits on. The cast shadow inset in the well
+  // leaves its floor clear from (spread - offset)·n past the lit wall; across that edge it falls off as
+  // a Gaussian of σ = blur / 2 (Φ(x) ≈ 1 / (1 + e^(-1.702x))), and reaches further in the deeper hover
+  // sink (n .7 against .55). The placeholder reads 4.5:1 there, at rest and hovered (light from above or below).
+  const [castD, castBlur, castSpread, castA] = CAST
+  const floor = n => {
+    const x = ((castSpread - castD) * n * k - 13 * scale) / (castBlur / 2 * soft * n * k)
+    return mix(shade, toHex(penumbra), alpha(castA * shadeK) / (1 + Math.exp(-1.702 * x)))
+  }
+  const placeholder = [floor(.55), floor(.7)].reduce((t, g) => readable(g, 4.5, t), fgMuted)
   const emboss = fgTone.L > base.L
     ? `${len(lx)} ${len(ly)} ${len(.75)} ${shadow(.9)}`
     : `${len(-lx)} ${len(-ly)} 0 ${bright(lightK * 1.2)}`
@@ -208,7 +219,7 @@ export default function neu({
   .s-search { order: 1; margin-left: auto; gap: 0; border-radius: 999px; transition: box-shadow .15s; }
   .s-search-btn::after { content: ''; width: 45%; height: 45%; background: var(--fg); -webkit-mask: var(--s-search-icon) center / contain no-repeat; mask: var(--s-search-icon) center / contain no-repeat; }
   .s-search-input { appearance: none; -webkit-appearance: none; color: var(--fg); width: 14ch; height: var(--h); padding: 0 calc(var(--u) * 2) 0 var(--u); outline: none; font-weight: 600;
-    &::placeholder { color: var(--fg-muted); }
+    &::placeholder { color: ${placeholder}; }
     &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration { display: none; }
     &::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; width: calc(var(--u) * 3); height: calc(var(--u) * 3); cursor: pointer; opacity: .6;
       background: currentColor; -webkit-mask: var(--s-clear-icon) center / contain no-repeat; mask: var(--s-clear-icon) center / contain no-repeat;
@@ -231,7 +242,7 @@ export default function neu({
   input[type="text"], input[type="number"], textarea {
     color: var(--fg); border: none; border-radius: var(--r); box-shadow: var(--neu-sink);
     font: inherit; font-weight: 600; transition: box-shadow .15s;
-    &::placeholder { color: var(--fg-muted); font-weight: 500; }
+    &::placeholder { color: ${placeholder}; font-weight: 500; }
     &:hover { box-shadow: var(--neu-sink-deep); }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
