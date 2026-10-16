@@ -16,9 +16,10 @@ const oklab = ([R, G, B]) => {
 }
 
 // Our profile: the second (text-free) button of test/calibration/row.html, averaged over its straight
-// part, pixel rows centred at y + .5 against the continuous border box, resampled to the grid.
+// part, pixel rows centred at y + .5 against the continuous border box, resampled to the grid. The
+// study's themes (soft, skeu, glass, neu) set their body at 14px; size 14 / 13 draws them at it.
 export async function profile(page, theme, palette, word) {
-  await page.goto(`/test/calibration/row.html#${new URLSearchParams({ theme, palette, word })}`)
+  await page.goto(`/test/calibration/row.html#${new URLSearchParams({ theme, palette, word, size: 14 / 13 })}`)
   await page.waitForSelector('body[data-ready]')
   await page.evaluate(() => document.fonts.ready)
   await page.waitForTimeout(400)

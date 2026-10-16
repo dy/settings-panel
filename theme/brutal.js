@@ -45,10 +45,13 @@ export default function brutal({
   const halftone = a => grain <= 0 ? 'none' : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='1.5' cy='1.5' r='.7' fill='rgba(${inkRGB},${+(a * grain).toFixed(3)})'/%3E%3Ccircle cx='4.5' cy='4.5' r='.7' fill='rgba(${inkRGB},${+(a * grain).toFixed(3)})'/%3E%3C/svg%3E")`
 
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1.5 L6 6 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='square'/%3E%3C/svg%3E")`
-  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5 L4.5 8 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='square'/%3E%3C/svg%3E")`
+  // One stroke for every glyph: the chevron draws at its 12 × 8 viewBox (3u × 2u), the check at 1.1× its own
+  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5 L4.5 8 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2.3' stroke-linecap='square'/%3E%3C/svg%3E")`
 
+  // Body 14px: Brutal sets its labels and values at 14px.
+  const body = 14
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {controlHeight: 36, rowGap: 14, columnGap: 16, panelPadding: 24, fontFamily: "'Space Grotesk', 'Archivo', ui-sans-serif, system-ui, sans-serif"})}
+  ${metrics({ size, spacing, font }, { body, controlHeight: 36, rowGap: 14, columnGap: 16, panelPadding: 24, fontFamily: "'Space Grotesk', 'Archivo', ui-sans-serif, system-ui, sans-serif"})}
 
   /* ── Roles (shade/accent axes) ── */
   --bg: ${bg};
@@ -69,6 +72,9 @@ export default function brutal({
 
   --h: var(--control-height);            /* one control height */
   --box: calc(var(--u) * 7);           /* checkbox / knob square */
+  --track-h: calc(var(--u) * 7);       /* every slider's track: plain, interval and alpha */
+  --glyph: calc(var(--u) * 3);         /* chevrons and steppers */
+  --font-size-small: calc(12 * var(--length)); /* secondary text: hints, readouts, marks, tooltips (11px at size 1) */
 
   /* ── Border weight (bevel axis) ── */
   --bw: ${bevel}px;
@@ -133,19 +139,19 @@ export default function brutal({
     box-shadow: var(--plate-sm);
     -webkit-mask: none; mask: none;
     transition: transform .08s, box-shadow .08s, background-color .08s;
-    &:hover { background: var(--accent-soft); }
+    &:hover { transform: translate(-1px, -1px); box-shadow: var(--plate-hover); }
     &:active { transform: translate(var(--lift), var(--lift)); box-shadow: none; }
   }
   .s-fold-icon { margin-left: auto; order: 2; cursor: pointer;
     :has(> .s-search) > & { margin-left: 0; }
-    i { display: block; width: 45%; height: 45%; background: var(--ink); -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .12s; } }
+    i { display: block; width: var(--glyph); height: calc(var(--glyph) * 2 / 3); background: var(--ink); -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .12s; } }
   &[open] .s-fold-icon i { transform: rotate(180deg); }
   > summary:active .s-fold-icon { transform: translate(var(--lift), var(--lift)); box-shadow: none; }
 
   &.s-searching > summary, &.s-searching > .s-panel-title { flex-wrap: wrap; }
 
   /* ── Search ── */
-  .s-search { order: 1; margin-left: auto; gap: 0; font-size: 1rem; letter-spacing: 0; text-transform: none; }
+  .s-search { order: 1; margin-left: auto; gap: 0; font-size: calc(16 * var(--length)); letter-spacing: 0; text-transform: none; }
   .s-search-btn { position: relative;
     &::before { content: ''; width: 50%; height: 50%; background: var(--ink); -webkit-mask: var(--s-search-icon) center / contain no-repeat; mask: var(--s-search-icon) center / contain no-repeat; }
     &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); } }
@@ -169,19 +175,21 @@ export default function brutal({
   }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: var(--column-gap); }
+  .s-control { align-items: center; gap: var(--column-gap); min-height: var(--h); }
+  /* under a hint the row aligns at the top, the label's first line level with the control's text */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-label { font-weight: 700; }
   .s-label-group { min-width: 0; width: 32%; }
-  .s-hint { opacity: .65; font-weight: 500; }
+  .s-hint { opacity: .65; font-weight: 500; font-size: var(--font-size-small); }
   .s-title {
     display: inline-flex; align-items: center; justify-content: center;
     width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5);
-    border: 2px solid var(--ink); font-size: 10px; font-weight: 700; line-height: 1; cursor: help;
+    border: 2px solid var(--ink); font-size: calc(10 * var(--length)); font-weight: 700; line-height: 1; cursor: help;
     &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; }
   }
   .s-title-text {
     position: absolute; left: 0; top: 100%; margin-top: var(--u);
-    padding: calc(var(--u) * 2); font-size: smaller; font-weight: 600;
+    padding: calc(var(--u) * 2); font-size: var(--font-size-small); font-weight: 600;
     background: var(--ink); color: var(--paper);
     width: max-content; max-width: 30ch; z-index: 10;
     opacity: 0; visibility: hidden; pointer-events: none;
@@ -204,7 +212,7 @@ export default function brutal({
   input[type="number"] { font-variant-numeric: tabular-nums; }
   input.s-scrubbing { background: var(--accent-soft); box-shadow: var(--groove); }
   select { cursor: pointer; appearance: none; -webkit-appearance: none;
-    background-image: ${chevron}; background-repeat: no-repeat; background-position: right calc(var(--u) * 3) center; background-size: calc(var(--u) * 3);
+    background-image: ${chevron}; background-repeat: no-repeat; background-position: right calc(var(--u) * 3) center; background-size: var(--glyph);
     padding-right: calc(var(--u) * 9);
     option { background: var(--paper); color: var(--ink); } }
 
@@ -215,7 +223,9 @@ export default function brutal({
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } }
     .s-step { flex-direction: column; gap: 0; height: var(--h); margin-left: calc(var(--bw) * -1);
-      button { flex: 1; width: calc(var(--u) * 8); padding: 0; display: grid; place-items: center; background: var(--paper); border: var(--bw) solid var(--ink); color: var(--ink); font-size: .55em; line-height: 1; cursor: pointer;
+      button { flex: 1; width: calc(var(--u) * 8); padding: 0; display: grid; place-items: center; background: var(--paper); border: var(--bw) solid var(--ink); color: var(--ink); font-size: 0; line-height: 0; cursor: pointer;
+        &::before { content: ''; width: var(--glyph); height: calc(var(--glyph) * 2 / 3); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; }
+        &.s-step-up::before { transform: rotate(180deg); }
         &:first-child { margin-bottom: calc(var(--bw) * -1); }
         &:hover { background: var(--accent-soft); }
         &:active { background: var(--accent); }
@@ -226,7 +236,7 @@ export default function brutal({
   .s-vector {
     .s-vec-axis { height: var(--h); gap: 0; min-width: calc(var(--u) * 16); border: var(--bw) solid var(--ink); background: var(--paper);
       &:focus-within { box-shadow: var(--plate-sm); } }
-    .s-vec-label { width: calc(var(--u) * 6); height: 100%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-weight: 700; font-size: .75em; opacity: 1; }
+    .s-vec-label { width: calc(var(--u) * 6); height: 100%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-weight: 700; font-size: var(--font-size-small); opacity: 1; }
     input[type="number"] { height: 100%; border: none; padding: 0 calc(var(--u) * 2); &:focus-visible { box-shadow: none; } }
   }
 
@@ -244,7 +254,7 @@ export default function brutal({
       border-radius: 0;
       text-transform: uppercase;
       letter-spacing: .04em;
-      padding: 0 calc(var(--u) * 3);
+      padding: calc((var(--h) - var(--line-height)) / 2 - var(--bw)) calc(var(--u) * 3);
       min-width: 0;
       box-shadow: var(--plate-sm);
       transition: transform .08s, box-shadow .08s;
@@ -285,34 +295,34 @@ export default function brutal({
         display: flex; align-items: center; justify-content: center; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; cursor: pointer;
         box-shadow: var(--plate-sm); transition: transform .08s, box-shadow .08s;
         &::after { content: 'Off'; } }
+      .s-input:hover .s-track { transform: translate(-1px, -1px); box-shadow: var(--plate-hover); }
       .s-input:active .s-track { transform: translate(var(--lift), var(--lift)); box-shadow: none; }
       &:has(input:checked) .s-track { background: var(--accent); &::after { content: 'On'; } }
       &:has(input:focus-visible) .s-track { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); }
     }
   }
 
-  /* ── Slider — thick bordered track, accent fill, square thumb ── */
+  /* ── Slider: thick bordered track, accent fill, square thumb; the colour's alpha slider is the same slider ── */
+  .s-slider input[type="range"], .s-color .s-alpha {
+    width: 100%; height: var(--track-h); -webkit-appearance: none; appearance: none;
+    background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--paper) var(--p, 0%));
+    border: var(--bw) solid var(--ink); border-radius: 0; cursor: ew-resize;
+    box-shadow: var(--groove);
+    /* The handle is a solid ink block, the switch knob's vocabulary: never read as more track. */
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; border-radius: 0; cursor: ew-resize; }
+    &::-moz-range-thumb { width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; border-radius: 0; cursor: ew-resize; }
+    &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); }
+  }
   .s-slider {
-    --track-h: calc(var(--u) * 7);
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--u) * 4); }
     .s-track { height: var(--h); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: var(--track-h); -webkit-appearance: none; appearance: none;
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--paper) var(--p, 0%));
-      border: var(--bw) solid var(--ink); cursor: ew-resize;
-      box-shadow: var(--groove);
-      /* The handle is a solid ink block, the switch knob's vocabulary: never read as more track. */
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; cursor: ew-resize; }
-      &::-moz-range-thumb { width: calc(var(--u) * 3.5); height: calc(var(--track-h) - var(--bw) * 2); background: var(--ink); border: none; border-radius: 0; cursor: ew-resize; }
-      &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); }
-    }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-marks { display: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, -2px); font-size: .7em; font-weight: 700; white-space: nowrap; &.s-active { color: var(--accent); -webkit-text-stroke: .4px var(--ink); } }
-    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; height: auto; padding: 0; background: transparent; border: none; color: var(--ink); cursor: ew-resize;
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(-2 * var(--length))); font-size: var(--font-size-small); font-weight: 700; white-space: nowrap; &.s-active { color: var(--accent); -webkit-text-stroke: .4px var(--ink); } }
+    .s-readout { flex: 0 0 auto; align-self: center; min-width: 6ch; text-align: right; font-size: var(--font-size-small); font-weight: 700; font-variant-numeric: tabular-nums; height: auto; padding: 0; background: transparent; border: none; color: var(--ink); cursor: ew-resize;
       &:focus-visible { box-shadow: none; outline: var(--bw) solid var(--accent); outline-offset: 2px; }
       &.s-scrubbing { background: var(--accent-soft); box-shadow: none; } }
-    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: var(--u); background: var(--ink); color: var(--paper); padding: 2px 8px; font-weight: 700; white-space: nowrap; }
+    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: var(--u); background: var(--ink); color: var(--paper); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); font-weight: 700; white-space: nowrap; }
     &.s-multiple .s-interval-track {
       height: var(--track-h); margin: calc((var(--h) - var(--track-h)) / 2) 0; background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
       box-shadow: var(--groove);
@@ -360,16 +370,16 @@ export default function brutal({
       input[type="color"] { position: static; flex: none; width: var(--h); height: var(--h); padding: 0; border: var(--bw) solid var(--ink); cursor: pointer;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; }
         &:focus-visible { outline: none; box-shadow: var(--plate-sm); z-index: 1; position: relative; } }
-      input[type="text"] { flex: 1; min-width: 0; margin-left: calc(var(--bw) * -1); font-family: ui-monospace, 'SF Mono', monospace; font-size: .95em; }
+      input[type="text"] { flex: 1; min-width: 0; margin-left: calc(var(--bw) * -1); font-variant-numeric: tabular-nums; }
     }
     &.s-rgba .s-color-input {
       gap: calc(var(--u) * 2);
       input[type="color"] { width: var(--h); height: var(--h); border: var(--bw) solid var(--ink);
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
-      .s-alpha { height: calc(var(--u) * 4); border: var(--bw) solid var(--ink); border-radius: 0;
-        &::-webkit-slider-thumb { width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); border-radius: 0; background: var(--paper); border: 2px solid var(--ink); }
-        &::-moz-range-thumb { width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); border-radius: 0; background: var(--paper); border: 2px solid var(--ink); } }
-      input[type="text"] { font-family: ui-monospace, 'SF Mono', monospace; font-size: .95em; }
+      /* the slider's track, showing the colour's ramp over a checkerboard instead of the fill */
+      .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
+      /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
+      input[type="text"] { flex: 0 1 auto; width: calc(10ch + var(--u) * 6 + var(--bw) * 2); font-variant-numeric: tabular-nums; }
     }
     &.s-swatches {
       .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2.5); }
@@ -388,14 +398,14 @@ export default function brutal({
     align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2.5); }
     textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
-    &.s-code textarea { font-family: ui-monospace, 'SF Mono', monospace; font-size: .9em; }
+    &.s-code textarea { font-family: ui-monospace, 'SF Mono', monospace; }
   }
 
   /* ── Info / separator ── */
   .s-info .s-monitor { font-weight: 700; opacity: 1; }
   .s-separator { height: var(--bw); background: var(--ink); opacity: 1; margin: calc(var(--u) * 0.5) 0; }
   .s-separator-labeled { height: auto; background: none; &::before, &::after { height: var(--bw); background: var(--ink); opacity: 1; } }
-  .s-separator-label { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; opacity: 1; font-size: .75em; }
+  .s-separator-label { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; opacity: 1; font-size: var(--font-size-small); }
 
   /* ── XY pad / knob ── */
   .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 2); } }
@@ -403,17 +413,17 @@ export default function brutal({
     .s-pad-x, .s-pad-y { background: color-mix(in oklab, var(--ink), transparent 75%); }
     .s-pad-dot { border-radius: 0; background: var(--accent); border: 2px solid var(--ink); box-shadow: none; width: calc(var(--u) * 4); height: calc(var(--u) * 4); } }
   .s-knob-dial { width: var(--h); height: var(--h); background: var(--paper); border: var(--bw) solid var(--ink); box-shadow: var(--plate-xs);
-    i { background: var(--ink); width: 3px; border-radius: 0; } }
-  .s-knob-val { font-weight: 700; opacity: 1; }
+    i { background: var(--ink); width: calc(3 * var(--length)); border-radius: 0; } }
+  .s-knob-val { font-size: var(--font-size-small); font-weight: 700; opacity: 1; }
 
   /* ── Folder ── */
   .s-folder {
     > summary { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; min-height: calc(var(--u) * 9); padding: 0; border-bottom: var(--bw) solid var(--ink); gap: calc(var(--u) * 2);
       &:hover { color: color-mix(in oklab, var(--ink), var(--accent) 40%); }
-      &::after { content: ''; width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .12s; }
+      &::after { content: ''; width: var(--glyph); height: calc(var(--glyph) * 2 / 3); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .12s; }
       &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); } }
     &[open] > summary::after { transform: rotate(180deg); }
-    .s-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); padding: calc(var(--u) * 4) 0 calc(var(--u) * 2); }
+    .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 calc(var(--row-gap) / 2); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }
   }
 }`

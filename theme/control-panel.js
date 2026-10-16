@@ -7,9 +7,10 @@
  * every box on the right is a share of the row width (12.5% readouts and
  * swatches, 2% gaps, 62% buttons and selects), so the panel reflows like the
  * original at any width. Labels sit on native's `vertical-align: sub`; the
- * text field keeps native's 22px box (1px UA padding the original never
- * reset); the slider thumb is 10×20; checkboxes are an 18px box with a 10px
- * core. Native has one boolean widget, so switch/toggle render as that box.
+ * text field is a 20px strip like the rest (native's is 22px and 1px wider,
+ * from UA padding it never reset); the slider thumb is 10×20, and the
+ * colour's alpha slider is that slider over a checkerboard; checkboxes are an
+ * 18px box with a 10px core. Native has one boolean widget, so switch/toggle render as that box.
  *
  * Colors: native ships two fixed palettes (themes.js). Each role keeps its
  * OKLCH lightness offset from background1, so shade #232323 (dark) or
@@ -74,8 +75,10 @@ export default function controlPanel({
   const quiet = reach(mix(shade, text, .6), 4.5, shade)   // hints and a separator's label, the base's .6 of text1 (3.6:1 light), on the panel
   const acc = reach(resolveAccent(accent, shade) || fg, 3)
 
+  // Body 11px: control-panel sets its labels and values at 11px (Hack, or the default monospace where Hack is absent).
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {unit: 5, fontSize: 11, fontFamily: "'Hack', monospace", lineHeight: 20, controlHeight: 20, inset: 4, rowGap: 5, columnGap: 5, sectionGap: 4, panelPadding: 14})}
+  ${metrics({ size, spacing, font }, { body, unit: 5, fontSize: 11, fontFamily: "'Hack', monospace", lineHeight: 20, controlHeight: 20, inset: 4, rowGap: 5, columnGap: 5, sectionGap: 4, panelPadding: 14})}
 
   --bg: ${shade};
   --bg2: ${bg2};
@@ -93,7 +96,6 @@ export default function controlPanel({
 
   /* ── Derived tokens (size) ── */
   --fs: var(--font-size);
-  --fs-ui: calc(var(--length) * 40 / 3); /* 13.333px, see Button */
   --line: calc(1 * var(--length));
   --col: 38%;                       /* label column share of the row (36% + 2% gutter) */
   --thumb: calc(var(--u) * 2);      /* 10px: slider thumb / checkbox core */
@@ -131,6 +133,8 @@ export default function controlPanel({
   > summary { cursor: pointer; }
   .s-search-input::placeholder { color: ${searchPlaceholder}; }
   .s-hint, .s-separator-label { color: ${quiet}; opacity: 1; }
+  /* secondary text, one step under the body */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: calc(10 * var(--length)); }
 
   .s-panel-content { gap: 0; padding: 0; }
   &:is(details) > .s-panel-content, .s-panel-title + .s-panel-content {
@@ -167,6 +171,7 @@ export default function controlPanel({
     --cell: calc(var(--row) * .125 * var(--size));    /* readout / swatch: 11% + 1.5% padding */
     --inset-x: calc(var(--row) * .015 * var(--size)); /* value-box left padding */
     gap: var(--gap);
+    row-gap: var(--row-gap);   /* a % gap resolves to 0 between wrapped lines */
     align-items: flex-start;
   }
   .s-control:has(> .s-label-group[hidden]) > .s-input { margin-left: var(--col); }
@@ -192,7 +197,7 @@ export default function controlPanel({
   .s-readout { flex: 0 0 auto; width: var(--cell); min-width: var(--cell); text-align: left; user-select: text; cursor: text;
     @supports (field-sizing: content) { field-sizing: content; width: auto; } }
 
-  /* ── Text field (native text.js): 6px left padding over a 22px box ── */
+  /* ── Text field (native text.js): 6px left padding ── */
   input[type="text"]:not(.s-readout, .s-color-input *), textarea {
     background: var(--bg2);
     border: none;
@@ -205,11 +210,7 @@ export default function controlPanel({
     padding: var(--line) calc(var(--line) * 2) var(--line) calc(var(--u) * 1.2);
     &::placeholder { color: var(--placeholder); }
   }
-  .s-text input[type="text"] {
-    flex: none;
-    width: calc(var(--row) * .595 + var(--u) * 1.2 + var(--line) * 2);
-    height: calc(var(--lh) + var(--line) * 2);
-  }
+  .s-text input[type="text"] { flex: 1; height: var(--lh); padding-block: 0; padding-right: 0; }
   .s-number {
     input[type="number"] { flex: 1; min-width: 0; text-align: left; }
     .s-step { display: none; }
@@ -239,15 +240,15 @@ export default function controlPanel({
   }
 
   /* ── Button (native button.css): text2 on background2, hover lifts, press inverts.
-     Native sets 11px on inputs only; buttons and selects keep the UA's 13.333px
-     (Chromium, Firefox; Safari's 11px is what the 2016 README shot shows). ── */
+     Native sets 11px on inputs only, so in Chromium and Firefox its buttons and selects fall back to
+     the UA's 13.333px (Safari's 11px is what the 2016 README shot shows); here they read at the body size. ── */
   button {
     background: var(--bg2);
     border: none;
     border-radius: 0;
     color: var(--field-ink);
     font-family: inherit;
-    font-size: var(--fs-ui);
+    font-size: var(--fs);
     height: var(--lh);
     padding: 0 calc(var(--u) * 1.2);
     cursor: pointer;
@@ -255,34 +256,39 @@ export default function controlPanel({
     &:active { background-color: var(--field-ink); color: var(--bg2); }
     &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
-  .s-button {
+  :is(.s-button, .s-segmented) {
     /* A label never breaks: buttons that do not fit share the row by wrapping onto their own line. */
     .s-input { flex: 1; flex-wrap: wrap; }
     button { flex: 1 1 auto; white-space: nowrap; }
   }
 
-  /* ── Slider (native range.css / interval.css) ── */
+  /* ── Slider (native range.css / interval.css). The colour's alpha is the same slider,
+     its track base's checkerboard under the colour's ramp. ── */
+  :is(.s-slider:not(.s-multiple) .s-track, .s-rgba) input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: var(--lh);
+    margin: 0;
+    background-color: var(--bg2);
+    border-radius: 0;
+    outline: none;
+    cursor: ew-resize;
+    &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
+    &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; }
+    &::-moz-range-thumb { width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; }
+    &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: var(--lh); border-radius: 0; box-shadow: none; }
+    &::-moz-range-track { height: var(--lh); background: transparent; border-radius: 0; border: none; }
+  }
   .s-slider {
-    &:not(.s-multiple) .s-track {
-      margin: 0;
-      height: var(--lh);
-      input[type="range"] {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        height: var(--lh);
-        margin: 0;
-        background: var(--bg2);
-        border-radius: 0;
-        outline: none;
-        cursor: ew-resize;
-        &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; box-shadow: none; }
-        &::-moz-range-thumb { width: var(--thumb); height: var(--lh); background: var(--accent); border-radius: 0; cursor: ew-resize; border: none; }
-        &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; height: var(--lh); border-radius: 0; box-shadow: none; }
-        &::-moz-range-track { height: var(--lh); background: var(--bg2); border-radius: 0; border: none; }
-      }
-    }
+    &:not(.s-multiple) .s-track { margin: 0; height: var(--lh); }
+    /* native draws no ticks; labelled marks hang under the strip */
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--lh) * .8); }
+    .s-marks { display: none; }
+    .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, var(--pad-xs)); color: ${quiet}; white-space: nowrap;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, var(--pad-xs)); } &.s-last { transform: translate(-100%, var(--pad-xs)); } }
     /* the interval is a bare handle span over the track: no thumbs, just the filled span */
     &.s-multiple .s-interval-track {
       height: var(--lh);
@@ -351,6 +357,16 @@ export default function controlPanel({
     &:has(input:focus-visible) .s-track { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
 
+  /* ── Radio: native has none; the checkbox's 18px box and 10px core, round ── */
+  .s-select.s-radio {
+    .s-input { gap: var(--pad-xs); }
+    .s-input label { display: inline-flex; align-items: center; gap: var(--tick); cursor: pointer; color: var(--field-ink); }
+    input[type="radio"] { -webkit-appearance: none; appearance: none; flex: none; display: grid; place-items: center; width: var(--box); height: var(--box); margin: 0; border-radius: 50%; background: var(--bg2); cursor: pointer;
+      &::after { content: ''; width: var(--thumb); height: var(--thumb); border-radius: 50%; }
+      &:checked::after { background: var(--s-color, var(--accent)); }
+      &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; } }
+  }
+
   /* ── Select (native select.css): 62% strip, two 6×5 carets at 2.5% from the right ── */
   .s-select {
     select {
@@ -364,7 +380,7 @@ export default function controlPanel({
       outline: none;
       color: var(--field-ink);
       font-family: inherit;
-      font-size: var(--fs-ui);
+      font-size: var(--fs);
       height: var(--lh);
       padding: 0 0 0 var(--inset-x);
       &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
@@ -427,6 +443,8 @@ export default function controlPanel({
     &::-webkit-color-swatch { border: none; border-radius: 0; }
     &::-moz-color-swatch { border: none; border-radius: 0; }
   }
+  .s-color.s-rgba .s-color-input { gap: var(--gap); .s-alpha { min-width: var(--cell); } }
+  .s-color.s-swatches button { width: var(--box); height: var(--box); padding: 0; }
   .s-color.s-picker .s-color-input {
     gap: var(--gap);
     input[type="color"] { position: static; }

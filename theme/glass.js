@@ -132,7 +132,7 @@ export default function glass({
   const rim = `linear-gradient(180deg, ${lite(op((dark ? 0.32 : 0.9) * d))} 0%, ${lite(op((dark ? 0.05 : 0.3) * d))} 22%, ${lite(op((dark ? 0.03 : 0.2) * d))} 70%, ${lite(op((dark ? 0.1 : 0.45) * d))} 100%)`
   // One specular: a wide soft light hugging the top edge.
   const specular = `radial-gradient(90% 40% at 50% -8%, ${lite(op((dark ? 0.16 : 0.5) * d))} 0%, transparent 70%)`
-  const contactShadow = `0 30px 70px -20px ${deep(dark ? 0.6 : 0.35)}, 0 8px 20px -10px ${deep(dark ? 0.5 : 0.25)}`
+  const contactShadow = `0 calc(30 * var(--length)) calc(70 * var(--length)) calc(-20 * var(--length)) ${deep(dark ? 0.6 : 0.35)}, 0 calc(8 * var(--length)) calc(20 * var(--length)) calc(-10 * var(--length)) ${deep(dark ? 0.5 : 0.25)}`
   const focus = `0 0 0 ${len(3)} color-mix(in oklab, var(--accent), transparent 55%)`
 
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -140,8 +140,9 @@ export default function glass({
   const arrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${fgMuted.replace('#', '%23')}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5.5 L4.5 8.5 L10.5 1.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
+  // Body 14px: Glass sets its labels and values at 14px.
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif"})}
+  ${metrics({ size, spacing, font }, { body: 14, controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif"})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -168,6 +169,9 @@ export default function glass({
   --r: calc(var(--u) * var(--roundness) * 4.5);
   --h: var(--control-height);
   --r-lens: calc(var(--h) / 2 * var(--round));
+  --well-pad: calc(12 * var(--space));
+  --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */
+  --font-size-small: calc(12 * var(--length)); /* secondary text: hints, readouts, marks, tooltips (11px at size 1) */
   --blur: ${blur}px;
   --saturate: ${saturate};
   --body: ${body};
@@ -242,7 +246,7 @@ export default function glass({
   }
   .s-fold-icon { margin-left: auto; order: 2; cursor: pointer;
     :has(> .s-search) > & { margin-left: 0; }
-    i { width: 50%; height: 50%; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; filter: drop-shadow(var(--emboss)); transition: transform .2s; } }
+    i { width: var(--glyph); height: var(--glyph); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; filter: drop-shadow(var(--emboss)); transition: transform .2s; } }
   &[open] .s-fold-icon i { transform: rotate(-180deg); }
   > summary:focus-visible { outline: none; .s-fold-icon { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
 
@@ -262,14 +266,16 @@ export default function glass({
   &.s-searching .s-search:focus-within { box-shadow: var(--lens-edge), var(--focus); }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: var(--column-gap); }
+  .s-control { align-items: center; gap: var(--column-gap); min-height: var(--h); }
+  /* under a hint the row aligns at the top, the label's first line level with the control's text */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-input { align-items: center; }
   .s-label-group { min-width: 0; width: 30%; }
   .s-label { font-weight: 500; text-shadow: var(--emboss); }
-  .s-hint { color: var(--fg-muted); opacity: 1; font-size: smaller; }
-  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; font-size: 10px; cursor: help;
+  .s-hint { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
+  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; font-size: calc(10 * var(--length)); cursor: help;
     &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
-  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 2.5); font-size: smaller; background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge), var(--lens-lift); border-radius: calc(var(--u) * 2.5 * var(--round)); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
+  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 2.5); font-size: var(--font-size-small); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge), var(--lens-lift); border-radius: calc(var(--u) * 2.5 * var(--round)); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
   .s-info .s-monitor { color: var(--fg); opacity: 1; }
 
   /* ── Fields: flush lenses ── */
@@ -286,8 +292,8 @@ export default function glass({
   input[type="number"] { font-variant-numeric: tabular-nums; }
   input.s-scrubbing { box-shadow: var(--lens-edge), var(--focus); }
   select { cursor: pointer; appearance: none; -webkit-appearance: none; padding-right: calc(var(--u) * 8);
-    background: ${arrow} right calc(var(--u) * 3) center / calc(var(--u) * 3.5) no-repeat, var(--lens);
-    &:hover { background: ${arrow} right calc(var(--u) * 3) center / calc(var(--u) * 3.5) no-repeat, var(--lens-sheen), var(--lens); }
+    background: ${arrow} right calc(var(--u) * 3) center / var(--glyph) no-repeat, var(--lens);
+    &:hover { background: ${arrow} right calc(var(--u) * 3) center / var(--glyph) no-repeat, var(--lens-sheen), var(--lens); }
     option { background: var(--bg); color: var(--fg); } }
   .s-select.s-dropdown select { flex: 1; }
 
@@ -295,7 +301,9 @@ export default function glass({
   .s-number {
     input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
     .s-step { flex-direction: column; gap: calc(var(--u) * .5);
-      button { width: calc(var(--u) * 6); height: calc(var(--h) / 2 - var(--u) * .25); padding: 0; display: grid; place-items: center; border: none; border-radius: calc(var(--u) * 2 * var(--round)); color: var(--fg-muted); font-size: .9em; line-height: 1; cursor: pointer; transition: color .12s;
+      button { width: calc(var(--u) * 6); height: calc(var(--h) / 2 - var(--u) * .25); padding: 0; display: grid; place-items: center; border: none; border-radius: calc(var(--u) * 2 * var(--round)); color: var(--fg-muted); font-size: 0; line-height: 0; cursor: pointer; transition: color .12s;
+        &::before { content: ''; width: var(--glyph); height: var(--glyph); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; filter: drop-shadow(var(--emboss)); }
+        &.s-step-up::before { transform: rotate(180deg); }
         &:hover { background: var(--lens-sheen), var(--lens); color: var(--fg); }
         &:active { background: var(--lens-press), var(--lens); } } }
   }
@@ -304,7 +312,7 @@ export default function glass({
   .s-vector {
     .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 3); border-radius: var(--r-lens); transition: box-shadow .14s;
       &:focus-within { box-shadow: var(--lens-edge), var(--focus); } }
-    .s-vec-label { color: var(--fg-muted); opacity: 1; }
+    .s-vec-label { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
     input[type="number"] { height: auto; padding: 0; box-shadow: none; background: transparent; border-radius: 0; &:hover, &:focus-visible { box-shadow: none; background: transparent; } }
   }
 
@@ -313,7 +321,7 @@ export default function glass({
   .s-button {
     .s-input { gap: calc(var(--u) * 2.5); }
     button { flex: 1; min-width: 0; min-height: var(--h); color: var(--fg); font-weight: 500; text-shadow: var(--emboss); border: none; border-radius: var(--r-lens);
-      padding: 0 calc(var(--u) * 4);
+      padding: calc((var(--h) - var(--line-height)) / 2) calc(var(--u) * 4);
       transition: box-shadow .14s, transform .08s;
       &:hover { background: var(--lens-sheen), var(--lens); box-shadow: var(--lens-edge), var(--lens-lift); }
       &:active { background: var(--lens-press), var(--lens); box-shadow: var(--lens-edge); transform: translateY(${len(.5)}); }
@@ -345,28 +353,28 @@ export default function glass({
     &.s-toggle:has(input:checked) .s-track { color: var(--on-accent); &::after { content: 'On'; } }
   }
 
-  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb ── */
+  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb; the colour's alpha slider is the same slider ── */
+  .s-slider input[type="range"], .s-color .s-alpha {
+    width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
+    background: var(--lens), linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%));
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
+    &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
+    &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }
+    &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--lens-edge), var(--lens-lift), var(--focus); }
+    &:active::-moz-range-thumb { cursor: grabbing; }
+    &:focus-visible { outline: none; }
+    &:focus-visible::-webkit-slider-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
+    &:focus-visible::-moz-range-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
+  }
   .s-slider {
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--u) * 4); }
     .s-track { height: var(--h); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
-      background: var(--lens), linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
-      &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
-      &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }
-      &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--lens-edge), var(--lens-lift), var(--focus); }
-      &:active::-moz-range-thumb { cursor: grabbing; }
-      &:focus-visible { outline: none; }
-      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
-      &:focus-visible::-moz-range-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
-    }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-marks { display: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 0); font-size: smaller; color: var(--fg-muted); white-space: nowrap; &.s-active { color: var(--fg); } }
-    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: smaller; color: var(--fg); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize; text-shadow: var(--emboss);
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 0); font-size: var(--font-size-small); color: var(--fg-muted); white-space: nowrap; &.s-active { color: var(--fg); } }
+    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: var(--font-size-small); color: var(--fg); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize; text-shadow: var(--emboss);
       &:hover, &:focus-visible, &.s-scrubbing { color: var(--fg); box-shadow: none; background: transparent; } }
-    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge); border-radius: calc(var(--u) * 2 * var(--round)); padding: 2px 8px; font-size: smaller; white-space: nowrap; }
+    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge); border-radius: calc(var(--u) * 2 * var(--round)); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); white-space: nowrap; }
     &.s-multiple .s-interval-track { height: calc(var(--u) * 2); margin: calc((var(--h) - var(--u) * 2) / 2) 0; border-radius: calc(var(--u) * var(--round)); position: relative;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--lens), var(--accent); border-radius: inherit; }
       input[type="range"] { background: transparent; box-shadow: none; } }
@@ -388,7 +396,7 @@ export default function glass({
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2); }
       .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2.5); cursor: pointer; min-height: calc(var(--u) * 5.5); }
     }
-    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: background .14s;
+    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: background .14s;
       &::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: var(--on-accent); opacity: 0; transform: scale(.5); transition: opacity .1s, transform .14s; }
       &:hover { background: var(--lens-sheen), var(--lens); }
       &:checked { background: var(--lens), var(--accent); &::after { opacity: 1; transform: none; } }
@@ -410,13 +418,12 @@ export default function glass({
       &:focus-visible { outline: none; box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); } }
     &.s-picker .s-color-input { gap: calc(var(--u) * 2.5);
       input[type="color"] { position: static; }
-      input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: .95em; } }
+      input[type="text"] { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; } }
     &.s-rgba .s-color-input { gap: calc(var(--u) * 2.5);
-      .s-alpha { height: calc(var(--u) * 2); border-radius: calc(var(--u) * var(--round));
-        background: var(--lens), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / 8px 8px;
-        &::-webkit-slider-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); }
-        &::-moz-range-thumb { width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border: none; background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); } }
-      input[type="text"] { font-family: ui-monospace, monospace; font-size: .95em; } }
+      /* the slider's groove, showing the colour's ramp over a checkerboard instead of the fill */
+      .s-alpha { width: 0; background: var(--lens), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
+      /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
+      input[type="text"] { flex: 0 1 auto; width: calc(10ch + var(--u) * 7); font-variant-numeric: tabular-nums; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2); }
       button { width: calc(var(--u) * 6); height: calc(var(--u) * 6); padding: 0; border: none; border-radius: 50%; box-shadow: var(--lens-edge), var(--lens-drop); transition: transform .1s;
         &:hover { transform: scale(1.1); }
@@ -430,12 +437,12 @@ export default function glass({
   .s-textarea { align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2); }
     textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
-    &.s-code textarea { font-family: ui-monospace, monospace; font-size: smaller; } }
+    &.s-code textarea { font-family: ui-monospace, monospace; } }
 
   /* ── Separator: a line cut into the glass ── */
   .s-separator { height: 1px; background: ${edgeC}; box-shadow: 0 1px 0 ${rimC}; opacity: 1; }
   .s-separator-labeled { height: auto; background: none; box-shadow: none; &::before, &::after { height: 1px; background: ${edgeC}; box-shadow: 0 1px 0 ${rimC}; opacity: 1; } }
-  .s-separator-label { color: var(--fg-muted); opacity: 1; }
+  .s-separator-label { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
 
   /* ── XY pad / knob ── */
   .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 1); } }
@@ -443,18 +450,18 @@ export default function glass({
     .s-pad-x, .s-pad-y { background: ${edgeC}; }
     .s-pad-dot { background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop), 0 0 0 ${len(2)} var(--accent); } }
   .s-knob-dial { width: calc(var(--u) * 10); height: calc(var(--u) * 10); background: var(--lens-bright), var(--bg); border: none; box-shadow: var(--lens-edge), var(--lens-drop);
-    i { background: var(--accent); width: 3px; border-radius: 2px; } }
-  .s-knob-val { color: var(--fg-muted); opacity: 1; }
+    i { background: var(--accent); width: calc(3 * var(--length)); border-radius: calc(2 * var(--length)); } }
+  .s-knob-val, .s-pad-val { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
 
   /* ── Folder ── */
   .s-folder {
-    > summary { font-weight: 500; color: var(--fg-muted); min-height: calc(var(--u) * 7); padding: 0; transition: color .12s; gap: calc(var(--u) * 2);
+    > summary { font-weight: 500; color: var(--fg-muted); min-height: var(--h); padding: 0; transition: color .12s; gap: calc(var(--u) * 2);
       &:hover { color: var(--fg); }
-      &::after { content: ''; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
+      &::after { content: ''; width: var(--glyph); height: var(--glyph); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
       &:focus-visible { outline: none; color: var(--fg); } }
     &[open] > summary { color: var(--fg); text-shadow: var(--emboss); &::after { transform: rotate(-180deg); } }
-    /* a shallow flush well: the lens edge without its body */
-    .s-content { gap: calc(var(--u) * (1.5 + 2 * var(--spacing))); padding: calc(var(--u) * 3); border-radius: calc(var(--u) * 4 * var(--round)); background: ${faceClear}; box-shadow: var(--lens-edge); }
+    /* a shallow flush well: the lens edge without its body, concentric with the lenses it holds */
+    .s-content { gap: var(--row-gap); padding: var(--well-pad); border-radius: calc(var(--r-lens) + var(--well-pad) * var(--round)); background: ${faceClear}; box-shadow: var(--lens-edge); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }
   }
 }`

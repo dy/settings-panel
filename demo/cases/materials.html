@@ -39,7 +39,8 @@
       col.style.cssText = `${ground(map)} --caption: ${map.ink};`
       col.innerHTML = `<h2>${map.name}</h2>`
       for (const themeId of rows) {
-        const theme = byId[themeId], axes = { ...material(theme, map), accent: map.accent }
+        // size: the study's themes set their body at 14px; 14 / 13 draws them at it
+        const theme = byId[themeId], axes = { ...material(theme, map), accent: map.accent, size: 14 / 13 }
         const cell = col.appendChild(document.createElement('div'))
         cell.className = 'cell'
         const host = cell.appendChild(document.createElement('div'))

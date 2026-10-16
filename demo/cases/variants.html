@@ -41,11 +41,11 @@
     // Same working controls make differences in material and density comparable.
     // The hash survives static hosts that redirect .html to a clean URL.
     const finishes = {
-      porcelain: { name: 'Porcelain', theme: porcelain, axes: {} },
-      frost: { name: 'Glass / Frost', theme: glass, axes: { shade: '#edf3ee', accent: '#35685a', tint: .85, blur: 28, roundness: 1.3 } },
-      soft: { name: 'Skeu / Soft', theme: skeu, axes: { shade: '#dadbd6', accent: '#476254', spacing: 1.6, depth: .7, bevel: .8, roundness: 1.35 } },
+      porcelain: { name: 'Porcelain', theme: porcelain, axes: { size: 14 / 13 } },
+      frost: { name: 'Glass / Frost', theme: glass, axes: { shade: '#edf3ee', accent: '#35685a', tint: .85, blur: 28, roundness: 1.3, size: 14 / 13 } },
+      soft: { name: 'Skeu / Soft', theme: skeu, axes: { shade: '#dadbd6', accent: '#476254', spacing: 1.6, depth: .7, bevel: .8, roundness: 1.35, size: 14 / 13 } },
       silver: { name: 'Lab01 / Silver', theme: lab01, axes: { shade: '#c6cac9', accent: '#40574d', spacing: 1, roundness: 1.4 } },
-      ink: { name: 'Brutal / Ink', theme: brutal, axes: { shade: '#f4f3e9', accent: '#b7cd75', bevel: 2, offset: 3, spacing: .85 } },
+      ink: { name: 'Brutal / Ink', theme: brutal, axes: { shade: '#f4f3e9', accent: '#b7cd75', bevel: 2, offset: 3, spacing: .85, size: 14 / 13 } },
     }
     const key = Object.hasOwn(finishes, location.hash.slice(1)) ? location.hash.slice(1) : 'porcelain'
     const finish = finishes[key]

@@ -66,8 +66,10 @@ export default function leva({
   // and the search placeholder, muted on the title-coloured search bar (4.4:1)
   const searchInk = legible(title, 4.5, muted)
 
+  // Body 11px: Leva sets its labels and values in an 11px monospace.
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace", lineHeight: 15.4, controlHeight: 24, inset: 6, rowGap: 7, columnGap: 7, sectionGap: 10, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Roboto Mono', monospace", lineHeight: 15.4, controlHeight: 24, inset: 6, rowGap: 7, columnGap: 7, sectionGap: 10, panelPadding: 0})}
 
   /* ── Derived tokens ──
      --field: elevation3, one lightness+chroma step past --title (elevation1) on leva's
@@ -110,7 +112,7 @@ export default function leva({
   max-width: 100%;
   border-radius: calc(10 * var(--length));
   padding: var(--panel-padding);
-  box-shadow: 0 0 9px 0 var(--shadow);
+  box-shadow: 0 0 calc(9 * var(--length)) 0 var(--shadow);
   overflow: hidden;
 
   /* leva never sets a line-height: every text line box is the font's own "normal" (13px
@@ -179,7 +181,11 @@ export default function leva({
   .s-label-group:not([hidden]) + .s-input { flex: 0 1 var(--control-width); }
   .s-label { color: var(--muted); font-weight: 400; }
   .s-label-group .s-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .s-hint { color: ${hint}; opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-hint { color: ${hint}; opacity: 1; }
+  /* secondary text, one step under the body (the in-field axis glyphs keep native's .8em) */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-knob-val, .s-pad-val) { font-size: calc(10 * var(--length)); }
+  /* a hint grows the label downward; the label itself stays centred on its control's 24px line */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--control-height) - 1lh) / 2); } }
   .s-input { gap: var(--column-gap); align-items: center; }
 
   /* ── Fields: hover draws a 1px inset accent1 ring, focus a 1px outer accent ring. Native
@@ -221,23 +227,29 @@ export default function leva({
   /* ── Slider: 2px elevation1 track, accent fill, 8×16 rounded-rect scrubber ringed in the
      panel color; the scrubber lightens to accent3 under the pointer, darkens to accent1
      while dragged elsewhere ── */
+  /* The colour's alpha is the same track and scrubber, the track a row of checker cells under the colour's ramp. */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    width: 100%; height: var(--thumb-h); -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
+    background-image: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--title) var(--p, 0%));
+    background-size: 100% calc(2 * var(--length)); background-position: center; background-repeat: no-repeat;
+    border-radius: 0;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb-w); height: var(--thumb-h); border: none; border-radius: var(--thumb-r); background: var(--accent); box-shadow: 0 0 0 var(--thumb-ring) var(--bg); cursor: pointer; }
+    &::-moz-range-thumb { width: var(--thumb-w); height: var(--thumb-h); border-radius: var(--thumb-r); border: none; background: var(--accent); box-shadow: 0 0 0 var(--thumb-ring) var(--bg); cursor: pointer; }
+    :where(:active) > &:active::-webkit-slider-thumb { background: var(--accent1); }
+    :where(:active) > &:active::-moz-range-thumb { background: var(--accent1); }
+    &::-webkit-slider-thumb:hover { background: var(--accent3); }
+    &::-moz-range-thumb:hover { background: var(--accent3); }
+    &.s-alpha { flex: 1 1 0; min-width: calc(40 * var(--length)); background-image: linear-gradient(to right, transparent, var(--c)), repeating-linear-gradient(to right, #fff 0 calc(2 * var(--length)), #ccc 0 calc(4 * var(--length))); }
+  }
   .s-slider {
     align-items: center;
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
+    /* labelled marks hang in a line kept under the row (the gap and a 1.25 line of the label), so the label still centres on the track */
+    &:has(.s-mark-labels:not(:empty)) { margin-bottom: calc(14.5 * var(--length)); }
     .s-track { height: var(--control-height); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: var(--thumb-h); -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
-      background-image: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--title) var(--p, 0%));
-      background-size: 100% calc(2 * var(--length)); background-position: center; background-repeat: no-repeat;
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb-w); height: var(--thumb-h); border-radius: var(--thumb-r); background: var(--accent); box-shadow: 0 0 0 var(--thumb-ring) var(--bg); cursor: pointer; }
-      &::-moz-range-thumb { width: var(--thumb-w); height: var(--thumb-h); border-radius: var(--thumb-r); border: none; background: var(--accent); box-shadow: 0 0 0 var(--thumb-ring) var(--bg); cursor: pointer; }
-      :where(:active) > &:active::-webkit-slider-thumb { background: var(--accent1); }
-      :where(:active) > &:active::-moz-range-thumb { background: var(--accent1); }
-      &::-webkit-slider-thumb:hover { background: var(--accent3); }
-      &::-moz-range-thumb:hover { background: var(--accent3); }
-    }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--muted); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--muted); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     /* leva's 38px box, which leva clips a longer value to; here '440 Hz' or '10.00' widens it. Four
        digits (26.5px) already overrun leva's 26px of text room by half a pixel: a 5px left inset
        absorbs that, so they keep the 38px box */
@@ -268,7 +280,7 @@ export default function leva({
       &:hover, &:focus { box-shadow: none; }
       &:focus-visible { box-shadow: 0 0 0 var(--hairline) var(--accent); }
       option { background: var(--field); color: var(--field-ink); } }
-    &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--ink); border-radius: var(--r); padding: calc(4 * var(--space)); font: inherit; &:hover { box-shadow: inset 0 0 0 var(--hairline) var(--accent1); } &.s-selected { background: var(--action); color: var(--on-accent); } } }
+    &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--ink); border-radius: var(--r); height: var(--control-height); padding: 0 calc(4 * var(--space)); font: inherit; &:hover { box-shadow: inset 0 0 0 var(--hairline) var(--accent1); } &.s-selected { background: var(--action); color: var(--on-accent); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(4 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(7 * var(--space)); cursor: pointer; } }
   }
 
@@ -282,7 +294,7 @@ export default function leva({
   .s-boolean {
     align-items: center;
     /* only the 16px box is live, as native's: the wrapping label passes the pointer through */
-    .s-input { pointer-events: none; }
+    .s-input { pointer-events: none; min-height: var(--control-height); }
     input[type="checkbox"] { position: static; opacity: 1; outline: none; pointer-events: auto;
       :where(:hover) > &:hover { box-shadow: inset 0 0 0 var(--hairline) var(--accent1); }
       :where(:active) > &:active { background-color: var(--accent1); }
@@ -295,10 +307,11 @@ export default function leva({
      swatch is positioned (native's is an absolute ::before) so the clip antialiases it
      separately from the base, leaving native's faint light corner fringe ── */
   .s-color {
-    &.s-picker .s-color-input { gap: var(--column-gap);
+    &:is(.s-picker, .s-rgba) .s-color-input { gap: var(--column-gap);
       input[type="color"] { position: static; width: var(--control-height); height: var(--control-height); padding: 0; border: none; border-radius: var(--r); overflow: hidden; background: #fff; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 0; position: relative; } :where(:hover) > &:hover { box-shadow: inset 0 0 0 var(--hairline) var(--accent1); } }
       input[type="text"] { flex: 1; min-width: 0; } }
-    &.s-rgba .s-color-input { gap: var(--column-gap); input[type="color"] { width: var(--control-height); height: var(--control-height); } input[type="text"] { flex: 1; } }
+    /* the value keeps its length where it fits; the alpha takes the rest, never under 40px */
+    &.s-rgba .s-color-input input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; }
     &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: none; &.s-selected { outline: 2px solid var(--accent); } }
   }
 

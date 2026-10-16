@@ -66,8 +66,10 @@ export default function uil({
   // uil Knob needle: 4-unit round stroke r20 → r25, pointing up in a 24px (76.8-unit) dial box
   const needle = svg(76.8, "<path d='M38.4 13.4L38.4 18.4' stroke='#000' stroke-width='4' stroke-linecap='round'/>")
 
+  // Body 11px: uil sets its labels and values at 11px.
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Roboto Mono', 'Source Code Pro', Menlo, Courier, monospace", lineHeight: 15.4, controlHeight: 22, inset: 6, rowGap: 0, columnGap: 0, sectionGap: 4, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: "'Roboto Mono', 'Source Code Pro', Menlo, Courier, monospace", lineHeight: 15.4, controlHeight: 22, inset: 6, rowGap: 0, columnGap: 0, sectionGap: 4, panelPadding: 0})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -122,7 +124,7 @@ export default function uil({
   width: calc(240 * var(--length));
   min-width: 0;
   max-width: 100%;
-  border: 2px solid var(--bg);
+  border: calc(2 * var(--length)) solid var(--bg);
   border-radius: 0;
   padding: var(--panel-padding);
 
@@ -147,10 +149,15 @@ export default function uil({
   .s-control { gap: var(--column-gap); padding: 0; min-height: var(--row-h); align-items: center; background: transparent;
     &:not(.s-folder, :has(> .s-input[inert])):hover:not(:has(.s-control:hover)) { background: var(--bg); box-shadow: var(--gutter) 0 var(--bg); } }
   /* uil: sa = w·0.3 + 8, with w = row + 2·2px frame + gutter */
-  .s-label-group { flex: 0 0 calc((100% + 4px + var(--gutter)) * .3 + 8 * var(--length)); width: auto; min-width: 0; max-width: none; padding: 0 0 0 calc(8 * var(--space)); line-height: normal; }
-  .s-label { color: var(--label); font-weight: 400; }
+  .s-label-group { flex: 0 0 calc((100% + 4 * var(--length) + var(--gutter)) * .3 + 8 * var(--length)); width: auto; min-width: 0; max-width: none; padding: 0 0 0 calc(8 * var(--space)); line-height: normal; }
+  /* uil sets each row at a fixed 24px and clips a long name, so a name never wraps out of its row */
+  .s-label { min-width: 0; color: var(--label); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .s-control:has(> .s-input[inert]) .s-label { color: var(--label-off); }
-  .s-hint { color: ${hintInk}; opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-hint { color: ${hintInk}; opacity: 1; }
+  /* a hint grows the label downward; the label itself stays centred on its control's line */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--row-h) - 1lh) / 2); } > .s-input { min-height: var(--row-h); } }
+  /* secondary text, one step under the body; knob and pad values stay body-size, as uil prints them */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label) { font-size: calc(10 * var(--length)); }
   .s-input { flex: 1; width: 0; min-width: 0; gap: calc(4 * var(--space)); align-items: center; &[inert] { opacity: 1; } }
 
   /* ── Fields: text/number are dashed wells (padding 4); editing darkens the well and
@@ -172,41 +179,55 @@ export default function uil({
      Hovering the track brightens fill, thumb and readout by ColorLuma(+.25). ── */
   .s-slider {
     align-items: center;
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
+    /* labelled marks hang in a line the row reserves under its content (the gap and a 1.25 line of the label), so the label still centres on the track */
+    &:has(.s-mark-labels:not(:empty)) { padding-bottom: calc(14.5 * var(--length)); }
     .s-input { gap: calc(4 * var(--space)); }
     .s-track { flex: 1; min-width: 0; height: var(--control-height); margin: 0;
       background: linear-gradient(var(--well-1), var(--well-1)) center / 100% calc(4 * var(--length)) no-repeat; }
     .s-input:has(.s-track:hover) { --slide-over: ${luma('var(--slide)', .25)}; }${native ? `
     /* uil's default text keeps its palette constant textOver #eee instead of the derived #fff */
     @container style(--slide: #dddddd) { .s-input:has(.s-track:hover) { --slide-over: #eeeeee; } }` : ''}
-    input[type="range"] {
-      --thumb: calc(9 * var(--length)); --rail-inset: calc(3 * var(--length));
-      -webkit-appearance: none; appearance: none; cursor: pointer; border-radius: 0;
-      color: var(--slide-over, var(--slide));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border-radius: calc(2 * var(--length)); background: currentColor; cursor: ew-resize; }
-      &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: none; border-radius: calc(2 * var(--length)); background: currentColor; cursor: ew-resize; }
-    }
     .s-track input[type="range"] {
       width: calc(100% + var(--thumb) - 2 * var(--rail-inset)); margin: 0 calc(var(--rail-inset) - var(--thumb) / 2); height: var(--control-height);
       background: linear-gradient(to right, currentColor var(--p, 0%), transparent 0) calc(var(--thumb) / 2) center / calc(100% - var(--thumb)) calc(2 * var(--length)) no-repeat;
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--hint); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--hint); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     /* readout box: sc - 6 = 41 wide + 2 spare to the column end, padding 4; uil sets it
        top 2 / height h-2 around a 14px line, so its text sits .5px below the label's; a longer value widens it */
     .s-readout { flex: 0 0 auto; width: calc(43 * var(--length)); min-width: calc(43 * var(--length)); text-align: left; color: var(--slide-over, var(--slide)); background: transparent; border: 0; border-radius: 0; height: var(--control-height); padding: calc(1 * var(--length)) 0 0 calc(4 * var(--space)); font-variant-numeric: tabular-nums;
       &:focus { background: transparent; }
       @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--tooltip-bg); color: var(--text); padding: calc(1 * var(--length)) calc(5 * var(--space)); border-radius: var(--r); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: var(--control-height); margin: 0; border-radius: var(--r); background: var(--well-2); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--slide); opacity: .6; } }
+    /* the interval is the same 4px well and 2px fill, the fill between the thumbs */
+    &.s-multiple .s-interval-track { height: var(--control-height); margin: 0; position: relative;
+      background: linear-gradient(var(--well-1), var(--well-1)) center / 100% calc(4 * var(--length)) no-repeat;
+      /* the thumbs' centres travel half a thumb in from each end: the fill's stops are laid in that span */
+      &::before { content: ''; position: absolute; inset: 0 calc(4.5 * var(--length)); margin: auto 0; height: calc(2 * var(--length)); background: linear-gradient(to right, transparent var(--low, 0%), var(--slide-over, var(--slide)) 0 var(--high, 100%), transparent 0); }
+      &:hover { --slide-over: ${luma('var(--slide)', .25)}; } }
   }
+
+  /* the thumb every range input shares; the colour's alpha is the slider's 4px well, the checkerboard
+     under the colour's ramp in place of the fill */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    --thumb: calc(9 * var(--length)); --rail-inset: calc(3 * var(--length));
+    -webkit-appearance: none; appearance: none; cursor: pointer; border-radius: 0;
+    color: var(--slide-over, var(--slide));
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border: none; border-radius: calc(2 * var(--length)); background: currentColor; cursor: ew-resize; }
+    &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: none; border-radius: calc(2 * var(--length)); background: currentColor; cursor: ew-resize; }
+  }
+  .s-rgba .s-alpha { height: var(--control-height); min-width: calc(40 * var(--length));
+    background: linear-gradient(to right, transparent, var(--c)) center / 100% calc(4 * var(--length)) no-repeat, repeating-linear-gradient(to right, #fff 0 calc(4 * var(--length)), #c4c4c4 0 calc(8 * var(--length))) center / 100% calc(4 * var(--length)) no-repeat;
+    &:hover { --slide-over: ${luma('var(--slide)', .25)}; }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; } }
 
   /* ── Select (uil list: face button, padding m=5, two-bar icon 9px off the right edge) ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer;
       background-color: var(--face); border-style: solid;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg' fill='${enc(text)}'%3E%3Crect width='6' height='2'/%3E%3Crect y='4' width='6' height='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(8 * var(--length)) center; background-size: calc(6 * var(--length)) calc(6 * var(--length)); padding: 0 calc(20 * var(--space)) 0 calc(5 * var(--space)); line-height: calc(var(--control-height) - 2px);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg' fill='${enc(text)}'%3E%3Crect width='6' height='2'/%3E%3Crect y='4' width='6' height='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(8 * var(--length)) center; background-size: calc(6 * var(--length)) calc(6 * var(--length)); padding: 0 calc(20 * var(--space)) 0 calc(5 * var(--space)); line-height: calc(var(--control-height) - 2 * var(--length));
       &:hover { background-color: var(--face-hover); color: var(--text-over); }
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
       option { background: var(--option-bg); color: var(--text); } }
@@ -225,7 +246,7 @@ export default function uil({
       &:has(input:checked) { --track: var(--well-1); --knob: var(--text-over); }
       &:hover { --track: var(--well-1); --knob: var(--face-hover); }
       &:hover:has(input:checked) { --track: var(--well-3); --knob: var(--text-select); }
-      .s-track { width: calc(36 * var(--length)); height: calc(17 * var(--length)); border-radius: calc(10 * var(--length)); background: var(--track); border: 2px solid var(--track); position: relative; cursor: pointer;
+      .s-track { width: calc(36 * var(--length)); height: calc(17 * var(--length)); border-radius: calc(10 * var(--length)); background: var(--track); border: calc(2 * var(--length)) solid var(--track); position: relative; cursor: pointer;
         &::after { content: ''; position: absolute; inset: 0 auto; margin: auto 0; left: 0; width: calc(16 * var(--length)); height: calc(13 * var(--length)); border-radius: calc(10 * var(--length)); background: var(--knob); } }
       &:has(input:checked) .s-track::after { left: calc(100% - calc(17 * var(--length))); }
       &:has(input:focus-visible) .s-track { outline: 1px solid var(--accent); outline-offset: 1px; }
@@ -246,11 +267,13 @@ export default function uil({
          invisible pointer target on the right */
       input[type="color"] { position: absolute; inset: 0 0 0 auto; width: calc(24 * var(--length)); height: var(--control-height); padding: 0; border: none; opacity: 0; cursor: pointer; }
       &:has(input[type="color"]:focus-visible) { outline: 1px solid var(--accent); outline-offset: -1px; }
-      input[type="text"] { position: relative; flex: 1; margin-right: calc(24 * var(--space)); background: transparent; border: 0; border-radius: 0; padding: 0 0 0 calc(8 * var(--space)); height: calc(var(--control-height) - 2px);
+      input[type="text"] { position: relative; flex: 1; margin-right: calc(24 * var(--space)); background: transparent; border: 0; border-radius: 0; padding: 0 0 0 calc(8 * var(--space)); height: calc(var(--control-height) - 2 * var(--length));
         --ink: clamp(0, (.179 - (.2126 * pow((r / 255 + .055) / 1.055, 2.4) + .7152 * pow((g / 255 + .055) / 1.055, 2.4) + .0722 * pow((b / 255 + .055) / 1.055, 2.4))) * 1e6, 255);
         color: rgb(from var(--color) var(--ink) var(--ink) var(--ink));
         &:focus { background: transparent; } } }
-    &.s-rgba .s-color-input { gap: calc(4 * var(--space)); input[type="color"] { flex: none; width: calc(28 * var(--length)); height: var(--control-height); border: 1px solid var(--border); border-radius: var(--r); } input[type="text"] { flex: 1; } }
+    &.s-rgba .s-color-input { gap: calc(4 * var(--space));
+      input[type="color"] { flex: none; width: calc(28 * var(--length)); height: var(--control-height); padding: 0; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; background: none; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } &::-moz-color-swatch { border: none; } }
+      input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; } }
     &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: 1px solid var(--border); &.s-selected { outline: 1px solid var(--accent); } }
   }
 

@@ -67,11 +67,13 @@ export default function apple({
   const thumb = dark ? '#dfdfdf' : '#fff'             // slider thumb
   const chevron = dark ? '#fff' : a(.259)             // disclosure chevron (tertiaryLabel in Aqua)
 
-  const shadowThumb = '0 1px 4px rgb(0 0 0 / .08)'
-  const shadowKnob = '0 -1px 4px rgb(0 0 0 / .1)'
+  const shadowThumb = '0 1px calc(4 * var(--length)) rgb(0 0 0 / .08)'
+  const shadowKnob = '0 -1px calc(4 * var(--length)) rgb(0 0 0 / .1)'
 
+  // Body 13px: macOS sets labels and values in the 13pt system font.
+  const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 13, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif", lineHeight: 16, controlHeight: 24, inset: 10, rowGap: 0, columnGap: 8, sectionGap: 20, panelPadding: 0 })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif", lineHeight: 16, controlHeight: 24, inset: 10, rowGap: 0, columnGap: 8, sectionGap: 20, panelPadding: 0 })}
 
   /* ── Axes → color tokens ── */
   --bg: ${shade};
@@ -143,7 +145,9 @@ export default function apple({
     &:first-child { border-top: 0; background: none; } }
   .s-label-group { width: calc(45% - var(--column-gap)); min-width: 0; max-width: none; padding: 0; gap: calc(2 * var(--length)); line-height: var(--line-height); }
   .s-label { color: var(--ink); font-weight: 400; }
-  .s-hint { color: var(--dim); opacity: 1; font-size: calc(11 * var(--length)); line-height: calc(14 * var(--length)); }
+  .s-hint { color: var(--dim); opacity: 1; line-height: calc(14 * var(--length)); }
+  /* secondary text at the 11pt small system size; vector axis names are labels and keep the body */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-knob-val, .s-pad-val) { font-size: calc(11 * var(--length)); }
   .s-input { gap: var(--column-gap); align-items: center; justify-content: flex-end; margin-left: auto; }
 
   /* ── Fields: borderless, trailing, textColor (grouped-form text fields have no bezel) ── */
@@ -167,17 +171,24 @@ export default function apple({
   }
 
   /* ── Slider: 6px capsule track, 20x16 capsule thumb, secondary readout ── */
+  /* the colour's alpha is the same capsule track and thumb, the checkerboard under the colour's ramp in place of the fill */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    width: 100%; height: var(--track-h); -webkit-appearance: none; appearance: none; border-radius: calc(var(--track-h) / 2); cursor: pointer;
+    background: linear-gradient(to right, var(--accent-fill) var(--p, 0%), var(--track) var(--p, 0%));
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb-w); height: var(--thumb-h); border-radius: calc(var(--thumb-h) / 2); background: var(--thumb-face); box-shadow: var(--shadow-thumb); cursor: pointer; }
+    &::-moz-range-thumb { width: var(--thumb-w); height: var(--thumb-h); border: none; border-radius: calc(var(--thumb-h) / 2); background: var(--thumb-face); box-shadow: var(--shadow-thumb); cursor: pointer; }
+    &:focus-visible { outline: none; &::-webkit-slider-thumb { box-shadow: var(--shadow-thumb), 0 0 0 3px var(--focus); } &::-moz-range-thumb { box-shadow: var(--shadow-thumb), 0 0 0 3px var(--focus); } }
+    &.s-alpha { flex: 1 1 0; min-width: calc(48 * var(--length)); order: -2;
+      background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#d9d9d9 90deg, #fff 0 180deg, #d9d9d9 0 270deg, #fff 0) 0 0 / var(--track-h) var(--track-h); }
+  }
   .s-slider {
     .s-track { height: var(--thumb-h); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: var(--track-h); -webkit-appearance: none; appearance: none; border-radius: calc(var(--track-h) / 2); cursor: pointer;
-      background: linear-gradient(to right, var(--accent-fill) var(--p, 0%), var(--track) var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb-w); height: var(--thumb-h); border-radius: calc(var(--thumb-h) / 2); background: var(--thumb-face); box-shadow: var(--shadow-thumb); cursor: pointer; }
-      &::-moz-range-thumb { width: var(--thumb-w); height: var(--thumb-h); border: none; border-radius: calc(var(--thumb-h) / 2); background: var(--thumb-face); box-shadow: var(--shadow-thumb); cursor: pointer; }
-      &:focus-visible { outline: none; &::-webkit-slider-thumb { box-shadow: var(--shadow-thumb), 0 0 0 3px var(--focus); } &::-moz-range-thumb { box-shadow: var(--shadow-thumb), 0 0 0 3px var(--focus); } }
-    }
+    /* labelled marks hang in a line the row reserves under the track (padding, so the readout still centres on the track): the 4pt gap and a 1.25 line of the label */
+    &:has(.s-mark-labels:not(:empty)) .s-input { padding-bottom: calc(17.75 * var(--length)); }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 4px); font-size: calc(11 * var(--length)); color: var(--dim); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(4 * var(--length))); color: var(--dim); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(4 * var(--length))); } &.s-last { transform: translate(-100%, calc(4 * var(--length))); } }
     .s-readout { flex: none; field-sizing: content; width: auto; min-width: 1ch; background: none; color: var(--dim); border: none; height: var(--line-height); padding: 0; font: inherit; font-variant-numeric: tabular-nums; text-align: right; cursor: ew-resize; }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(6 * var(--space)); white-space: nowrap; }
     &.s-multiple .s-interval-track { height: var(--track-h); margin: calc(5 * var(--length)) 0; background: var(--track); border-radius: calc(var(--track-h) / 2); position: relative;
@@ -207,7 +218,8 @@ export default function apple({
         &:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; } } }
     &.s-radio, &.s-checkboxes { .s-input label { display: flex; align-items: center; gap: calc(5 * var(--length)); cursor: pointer; } }
     &.s-radio .s-input { flex-direction: row; align-items: center; flex-wrap: wrap; column-gap: calc(16 * var(--length)); row-gap: calc(var(--u) * 2); }   /* radio group: options in a trailing row */
-    &.s-checkboxes .s-input { flex-direction: column; align-items: flex-end; gap: calc(var(--u) * 2); }
+    /* checkboxes: a leading-aligned column (box, then title) at the trailing edge, as a VStack of Toggles lays out */
+    &.s-checkboxes .s-input { flex: none; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 2); }
     &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: var(--check); height: var(--check); border-radius: 50%; background: var(--track); display: grid; place-items: center;
       &::after { content: ''; width: calc(5 * var(--length)); height: calc(5 * var(--length)); border-radius: 50%; background: var(--on-accent); opacity: 0; }
       &:checked { background: var(--accent-fill); &::after { opacity: 1; } }
@@ -229,13 +241,14 @@ export default function apple({
       &:has(input:checked) .s-track { background: var(--accent-fill); &::after { transform: translate(calc(var(--switch-w) - var(--knob-w) - var(--inset-knob)), var(--inset-knob)); background: var(--knob-on); } }
       &:has(input:focus-visible) .s-track { outline: 3px solid var(--focus); outline-offset: 0; }
     }
-    &.s-checkbox {
+    /* Toggle(.checkbox) in a Form puts the box before its title, at the row's leading edge */
+    &.s-checkbox { gap: calc(5 * var(--length)); .s-input { order: -1; flex: none; margin-left: 0; } .s-label-group { width: auto; flex: 1; }
       .s-track { display: grid; place-items: center; width: var(--check); height: var(--check); border-radius: var(--r-check); background: var(--track);
         &::after { content: ''; width: calc(10 * var(--length)); height: calc(9.5 * var(--length)); -webkit-mask: var(--check-glyph) center / contain no-repeat; mask: var(--check-glyph) center / contain no-repeat; background: var(--on-accent); opacity: 0; } }
       &:has(input:checked) .s-track { background: var(--accent-fill); &::after { opacity: 1; } }
       &:has(input:focus-visible) .s-track { outline: 3px solid var(--focus); outline-offset: 0; }
     }
-    &.s-toggle .s-track { padding: 0 calc(12 * var(--length)); height: var(--field-h); border-radius: var(--r); background: var(--control); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; &::after { content: 'Off'; } }
+    &.s-toggle .s-track { margin-top: calc(-4 * var(--length)); padding: 0 calc(12 * var(--length)); height: var(--field-h); border-radius: var(--r); background: var(--control); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; &::after { content: 'Off'; } }
     &.s-toggle:has(input:checked) .s-track { background: var(--action); color: var(--on-accent); &::after { content: 'On'; } }
   }
 
@@ -249,7 +262,10 @@ export default function apple({
     &.s-picker .s-color-input { gap: var(--column-gap); justify-content: flex-end;
       input[type="color"] { position: static; }
       input[type="text"] { flex: 1; min-width: 7ch; order: -1; } }
-    &.s-rgba .s-color-input { gap: var(--column-gap); justify-content: flex-end; input[type="text"] { flex: 1; } }
+    /* rgba: the alpha slider, the value, then the well at the trailing edge, as the picker row ends */
+    &.s-rgba .s-color-input { gap: var(--column-gap); justify-content: flex-end; input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; order: -1; } }
+    /* the label keeps only its own width there, so the slider has the room the trailing controls leave */
+    &.s-rgba .s-label-group { width: auto; flex: 0 1 auto; max-width: calc(45% - var(--column-gap)); }
     &.s-swatches { .s-input { flex-wrap: wrap; justify-content: flex-end; } button { width: var(--check); height: var(--check); border-radius: 50%; border: none; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .1); &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } } }
   }
 
@@ -257,6 +273,9 @@ export default function apple({
   button { font: inherit; cursor: pointer; }
   .s-button {
     .s-input { gap: var(--column-gap); }
+    /* beside a label, Form aligns the buttons' text baseline to the label's: they rise 4pt into the
+       row's top inset (6 above, 10 below, as a segmented row); a button row with no label keeps 10 all round */
+    &:not(:has(> .s-label-group[hidden])) .s-input { margin-top: calc(-4 * var(--length)); }
     button { flex: none; height: var(--field-h); padding: 0 calc(12 * var(--length)); background: var(--action); color: var(--on-accent); border: none; border-radius: var(--r); font-weight: 400; white-space: nowrap;
       &:active { filter: brightness(.92); }
       &:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
@@ -277,12 +296,13 @@ export default function apple({
   /* ── XY pad / knob ── */
   .s-pad { border-radius: var(--r); background: var(--control); border-color: var(--line); }
   .s-knob-dial { background: var(--control); border: none; }
+  .s-knob { align-items: center; }   /* a dial is one tall line: its label centres on it */
 
   /* ── Help tag (circled "?", hover shows an NSToolTip-style 11pt tag); slider tooltip shares the tag ── */
   .s-title { display: inline-grid; place-items: center; flex: none; width: var(--check); height: var(--check); border-radius: 50%; background: var(--control); color: var(--ink); font-size: calc(11 * var(--length)); font-weight: 600; line-height: 1; cursor: help;
     &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
   .s-title-text { position: absolute; left: 0; top: 100%; z-index: 10; margin-top: calc(4 * var(--length)); width: max-content; max-width: 30ch; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .12s var(--ease); }
-  .s-title-text, .s-tooltip { padding: calc(3 * var(--length)) calc(7 * var(--length)); font-size: calc(11 * var(--length)); line-height: calc(14 * var(--length)); color: var(--ink); background: var(--fill); border-radius: var(--r); box-shadow: 0 2px 8px rgb(0 0 0 / .2), 0 0 0 .5px rgb(0 0 0 / .12); }
+  .s-title-text, .s-tooltip { padding: calc(3 * var(--length)) calc(7 * var(--length)); line-height: calc(14 * var(--length)); color: var(--ink); background: var(--fill); border-radius: var(--r); box-shadow: 0 calc(2 * var(--length)) calc(8 * var(--length)) rgb(0 0 0 / .2), 0 0 0 .5px rgb(0 0 0 / .12); }
 
   /* ── Info / separator ── */
   .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: var(--dim); opacity: 1; text-align: right; } }

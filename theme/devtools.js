@@ -26,9 +26,11 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   const placeholder = ink(shade, reach, '#757575')
   const own = native[dark ? 'dark' : 'light'], tint = `color-mix(in srgb, ${custom} 40%, ${shade})`
   const [primary, bright, inverse, outline, onPrimary, onSelection] = accent == null || String(custom).toLowerCase() === own[0] ? own : [custom, custom, tint, tint, onAccent, onAccent]
+  // Body 11px: the Styles pane sets its declarations in an 11px monospace.
+  const body = 11
   return baseCSS + `
 .s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 11, lineHeight: 13, controlHeight: 14, inset: 2, rowGap: 0, columnGap: 4, sectionGap: 3, panelPadding: 4, fontFamily: 'Menlo, Consolas, "Noto Sans Mono", "DejaVu Sans Mono", monospace' })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, lineHeight: 13, controlHeight: 14, inset: 2, rowGap: 0, columnGap: 4, sectionGap: 3, panelPadding: 4, fontFamily: 'Menlo, Consolas, "Noto Sans Mono", "DejaVu Sans Mono", monospace' })}
   --bg: ${shade}; --accent: ${primary}; --accent-bright: ${bright}; --accent-inverse: ${inverse}; --outline: ${outline}; --on-accent: ${onPrimary}; --on-selection: ${onSelection};
   --fg: ${dark ? '#e3e3e3' : '#1f1f1f'}; --rule: ${dark ? '#5e5e5e' : '#e3e3e3'};
   --property: ${dark ? '#5cd5fb' : '#dc362e'};
@@ -71,7 +73,7 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   .s-label::after { content: ':'; margin-right: calc(14 * var(--length) - 1ch); color: var(--fg); }
   /* devtools-tooltip, simple variant */
   .s-title { flex: none; margin-right: 1ch; color: var(--muted); cursor: help; &:is(:hover, :focus-visible) + .s-title-text { visibility: visible; } }
-  .s-title-text { position: absolute; left: 0; top: 100%; z-index: 10; width: max-content; max-width: calc(240 * var(--length)); margin: calc(2 * var(--length)); padding: calc(6 * var(--length)) calc(8 * var(--length)); font: 400 calc(12 * var(--length))/calc(16 * var(--length)) system-ui, sans-serif; color: var(--tip-fg); background: var(--tip-bg); border-radius: calc(4 * var(--length)); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 30%), 0 2px 6px 2px rgb(0 0 0 / 15%); visibility: hidden; pointer-events: none; }
+  .s-title-text { position: absolute; left: 0; top: 100%; z-index: 10; width: max-content; max-width: calc(240 * var(--length)); margin: calc(2 * var(--length)); padding: calc(6 * var(--length)) calc(8 * var(--length)); font: 400 calc(12 * var(--length))/calc(16 * var(--length)) system-ui, sans-serif; color: var(--tip-fg); background: var(--tip-bg); border-radius: calc(4 * var(--length)); box-shadow: 0 1px calc(2 * var(--length)) 0 rgb(0 0 0 / 30%), 0 calc(2 * var(--length)) calc(6 * var(--length)) calc(2 * var(--length)) rgb(0 0 0 / 15%); visibility: hidden; pointer-events: none; }
   .s-input { flex: 0 1 auto; align-items: center; gap: var(--column-gap); max-width: 100%; }
   input, select, textarea, button { font: inherit; color: inherit; }
   input[type=text], input[type=number], select, textarea {
@@ -91,7 +93,9 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   .s-slider:has(.s-mark-labels:not(:empty)) { .s-input, .s-track { flex: 1; } .s-input { align-items: flex-start; } .s-track { margin: calc(1.5 * var(--length)) 2ch calc(12 * var(--length)) 0; } }
   .s-marks { display: none; }
   .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-  .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(9 * var(--length)); line-height: 1; color: var(--muted); white-space: nowrap; }
+  .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); line-height: 1; color: var(--muted); white-space: nowrap;
+    /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+    &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
   input[type=range] { appearance: none; width: 100%; height: calc(10 * var(--length)); margin: 0; padding: 0; background: none; outline: none;
     &::-webkit-slider-runnable-track { height: calc(2 * var(--length)); background: var(--track); }
     &::-webkit-slider-thumb { appearance: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); margin-top: calc(-5 * var(--length)); border: 0; border-radius: 50%; background: var(--accent); }
@@ -100,6 +104,10 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
     &::-moz-range-thumb { width: calc(12 * var(--length)); height: calc(12 * var(--length)); border: 0; border-radius: 50%; background: var(--accent); }
     &:focus::-moz-range-thumb { box-shadow: 0 0 0 2px var(--accent-inverse); }
   }
+  /* the colour's alpha is the same 2px track and thumb, a row of checker cells under the colour's ramp in place of the track tone */
+  .s-rgba .s-alpha { --ramp: linear-gradient(to right, transparent, var(--c)), repeating-linear-gradient(to right, #fff 0 calc(2 * var(--length)), #c7c7c7 0 calc(4 * var(--length)));
+    &::-webkit-slider-runnable-track { background: var(--ramp); }
+    &::-moz-range-track { background: var(--ramp); } }
   .s-slider .s-readout { flex: none; }
   .s-slider .s-tooltip { position: static; transform: none; }
   .s-boolean .s-input { justify-content: flex-start; }
@@ -123,14 +131,16 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   .s-color input[type=text] { flex: 0 1 auto; width: auto; }
   /* spectrum.css .spectrum-palette-color */
   .s-color.s-swatches .s-input { flex-wrap: wrap; gap: calc(6 * var(--space)); padding-top: 1px; }
-  .s-color.s-swatches button { flex: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); padding: 0; border: 1px solid var(--rule); border-radius: 2px; cursor: pointer; transition: transform 100ms cubic-bezier(0, 0, .2, 1);
+  .s-color.s-swatches button { flex: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); padding: 0; border: 1px solid var(--rule); border-radius: calc(2 * var(--length)); cursor: pointer; transition: transform 100ms cubic-bezier(0, 0, .2, 1);
     &:hover { transform: scale(1.15); }
     &.s-selected, &:focus-visible { border-color: var(--accent); outline: none; }
   }
   .s-select:is(.s-checkboxes, .s-radio) .s-input { align-items: flex-start; }
   .s-select.s-checkboxes { label { display: flex; align-items: center; gap: var(--column-gap); } input[type=checkbox] { position: static; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; } .s-track { display: none; } }
+  /* radios as the checkboxes: a 13px native mark, the same gap to its text */
+  .s-select.s-radio { .s-input label { display: flex; align-items: center; gap: var(--column-gap); } input[type=radio] { width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; } }
   .s-vector input[type=number] { min-width: 4ch; text-align: left; }
-  .s-control.s-button { align-items: center; padding-top: var(--u); }
+  .s-control:is(.s-button, .s-segmented) { align-items: center; padding-top: var(--u); }
   .s-button button, .s-select.s-segmented button {
     position: relative; font: 500 calc(12 * var(--length))/calc(16 * var(--length)) system-ui, sans-serif; white-space: nowrap;
     height: calc(24 * var(--length)); padding: 0 calc(12 * var(--length));
@@ -153,5 +163,11 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   .s-separator:not(.s-separator-labeled), .s-separator-labeled::before, .s-separator-labeled::after { background: var(--rule); opacity: 1; }
   .s-separator-label { color: var(--muted); opacity: 1; }
   .s-hint { color: var(--muted); opacity: 1; }   /* at 60% it read 2.3:1 */
+  /* secondary text, one step under the 11px declarations; a knob's or pad's value is the declared value,
+     body-size like a slider's; the ? tooltip keeps Chrome's 12px system tooltip type */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-vec-label) { font-size: calc(10 * var(--length)); }
+  :is(.s-knob-val, .s-pad-val) { font-size: inherit; opacity: 1; }
+  /* a hint is a comment line under its declaration: it takes the row's width instead of widening the name */
+  .s-control:has(> .s-label-group .s-hint) { flex-wrap: wrap; > .s-label-group { display: contents; } .s-label-row { max-width: 45%; } .s-hint { order: 1; flex-basis: 100%; } }
 }`
 }

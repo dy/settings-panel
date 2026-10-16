@@ -89,7 +89,7 @@
       panel?.[Symbol.dispose]()
       panel = settings(schema, {
         container,
-        theme: () => swiss({ titleFont, labelFont, valueFont }),
+        theme: () => swiss({ titleFont, labelFont, valueFont, size: 14 / 13 }),
         title: 'Be in Cahoots',
       })
       const title = container.querySelector('.s-panel-title')

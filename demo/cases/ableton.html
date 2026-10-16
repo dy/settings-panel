@@ -116,7 +116,7 @@
     const host = document.querySelector('.synth')
     for (const [accent, schema] of columns) {
       const column = host.appendChild(document.createElement('div'))
-      settings(schema, { container: column, theme: () => synth({ accent, hues: [], ...(dark && { shade: '#1b1b1d' }) }) })
+      settings(schema, { container: column, theme: () => synth({ accent, hues: [], size: 12 / 13, ...(dark && { shade: '#1b1b1d' }) }) })
     }
   </script>
 </body>

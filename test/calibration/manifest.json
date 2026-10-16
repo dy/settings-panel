@@ -44,7 +44,7 @@
         "width": 364,
         "height": 388
       },
-      "budget": 4240,
+      "budget": 7787,
       "source": "control-panel 1.3.4, demo/_ref/cp-ref.html",
       "mode": "switch"
     },
@@ -60,7 +60,7 @@
         "width": 364,
         "height": 388
       },
-      "budget": 0,
+      "budget": 4991,
       "source": "control-panel 1.3.4, light shade",
       "mode": "switch"
     },
@@ -92,7 +92,7 @@
         "width": 320,
         "height": 470
       },
-      "budget": 998,
+      "budget": 3622,
       "source": "tweakpane 4 at its 256px default width, demo/_ref/tp.html",
       "mode": "switch"
     },
@@ -108,7 +108,7 @@
         "width": 264,
         "height": 760
       },
-      "budget": 7061,
+      "budget": 8142,
       "source": "ControlKit, demo/_ref/ck-ref.html",
       "mode": "switch"
     },

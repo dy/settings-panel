@@ -422,6 +422,7 @@ async function inks(page, el, strip, { arg, boxes } = {}) {
       g.drawImage(img, 0, 0)
       return g.getImageData(0, 0, img.width, img.height)
     }))
+    if (a.width !== b.width || a.height !== b.height) throw new Error(`strip resized the element: ${a.width}×${a.height} → ${b.width}×${b.height}`)
     const { width, height } = b, k = devicePixelRatio, { min, max, floor, ceil } = Math
     const rgb = (d, i) => d[i] << 16 | d[i + 1] << 8 | d[i + 2], hex = n => '#' + n.toString(16).padStart(6, '0')
     return (boxes || [[0, 0, width / k, height / k]]).map(([x, y, w, h]) => {
@@ -442,16 +443,16 @@ const inkOn = async (page, el, strip) => (await inks(page, el, strip))[0]
 
 // An empty field's placeholder, or a field's value, at rest (the pointer away), hovered and focused. A
 // hovered field's text decoration is not its text (DevTools underlines it in the field's own ink): it is
-// made transparent while measured.
+// made transparent while measured. A field sized to its content (DevTools) keeps its box when emptied.
 async function fieldText(page, field, { value = '', placeholder = '', settle = 250 } = {}) {
   const out = {}, { width, height } = page.viewportSize()
   for (const state of ['rest', 'hover', 'focus']) {
-    await field.evaluate((e, [value, placeholder]) => { e.blur(); e.value = value; e.placeholder = placeholder; e.style.textDecorationColor = 'transparent' }, [value, placeholder])
+    await field.evaluate((e, [value, placeholder]) => { e.blur(); e.style.width = e.style.fieldSizing = ''; e.value = value; e.placeholder = placeholder; e.style.textDecorationColor = 'transparent' }, [value, placeholder])
     await page.mouse.move(width - 1, height - 1)
     if (state === 'hover') await field.hover()
     if (state === 'focus') await field.focus()
     await page.waitForTimeout(settle)
-    out[state] = await inkOn(page, field, e => { e.value = ''; e.placeholder = '' })
+    out[state] = await inkOn(page, field, e => { e.style.width = getComputedStyle(e).width; e.style.fieldSizing = 'fixed'; e.value = ''; e.placeholder = '' })
   }
   return out
 }
@@ -654,7 +655,74 @@ test.describe('text measured from pixels', () => {
     await page.close()
     expect(failures).toEqual({})
   })
+
+  // Size 1 is a 13px body in every theme (theme/metrics.js BODY): a text field's "0123456789" stands as
+  // tall in each, and twice as tall at size 2. Faces differ in figure height, so each is held to its own,
+  // measured here at 13px. Outline faces span 8.67 (Courier: Control Panel's Hack fallback, Industrial's
+  // Courier New) to 10.15 (Menlo, the monospace inspectors), held within .1px of that span; pixel faces
+  // draw their own figure pixels, scaled from their design size to 13px, within .15px (resampled edges):
+  // ProggyClean's 8 of 13 (Dear ImGui), Geneva 9's 7 of 9 (Bitmap), Pixelated MS Sans Serif's 9 of 11
+  // (Retro). Size 2 doubles each within .5px, the most a face moves an edge by at the other size (Retro's
+  // pixels resampled at 2.36x against 1.18x).
+  test('size 1 sets body text at 13px in every theme, size 2 at 26px', async ({ browser }) => {
+    test.setTimeout(120_000)
+    const page = await browser.newPage({ deviceScaleFactor: 2, viewport: { width: 1000, height: 800 } })
+    await page.goto('/')
+    await quiet(page)
+    await page.mouse.move(999, 799)
+    const grounds = Object.fromEntries(registry.filter(t => t.ground).map(t => [t.file || t.id, t.ground]))
+    const heights = {}
+    for (const name of themes) for (const size of [1, 2]) {
+      await page.evaluate(async ([name, size, ground]) => {
+        const { default: settings } = await import('/index.js')
+        const { default: theme } = await import(`/theme/${name}.js`)
+        window.digitsPanel?.[Symbol.dispose]()
+        document.querySelector('#digits')?.remove()
+        const host = document.createElement('div')
+        host.id = 'digits'
+        host.style.cssText = `width: 900px; background: ${ground || ''}`
+        document.body.prepend(host)
+        window.digitsPanel = settings({ value: { type: 'text', value: '0123456789' } }, { container: host, title: 'Digits', collapsed: false, theme: theme({ size }) })
+        host.offsetHeight
+        await document.fonts.ready
+      }, [name, size, grounds[name]])
+      ;(heights[name] ??= []).push(await glyphHeight(page, page.locator('#digits input[type=text]')))
+    }
+    await page.close()
+    const pixels = { imgui: 8 / 13, bitmap: 7 / 9, retro: 9 / 11 }, [low, high] = [8.67 - .1, 10.15 + .1]
+    const body = (name, h) => name in pixels ? Math.abs(h - 13 * pixels[name]) <= .15 : h >= low && h <= high
+    const off = Object.entries(heights).filter(([name, [one, two]]) => !body(name, one) || Math.abs(two - 2 * one) > .5)
+    expect(Object.fromEntries(off)).toEqual({})
+  })
 })
+
+// The height in CSS px of a field's lettering, from pixels at 2x: the field shot as drawn and with its text's
+// fill transparent (shadows off in both); each pixel row counts by its strongest change against the
+// strongest within 3 rows, so a glyph's antialiased top and bottom rows add their coverage and a field's
+// gradient ground does not dim its middle rows.
+async function glyphHeight(page, el) {
+  await el.evaluate(e => e.style.setProperty('text-shadow', 'none', 'important'))
+  const shown = await el.screenshot()
+  await el.evaluate(e => e.style.setProperty('-webkit-text-fill-color', 'transparent', 'important'))
+  const bare = await el.screenshot()
+  await el.evaluate(e => { e.style.removeProperty('-webkit-text-fill-color'); e.style.removeProperty('text-shadow') })
+  return page.evaluate(async pngs => {
+    const [a, b] = await Promise.all(pngs.map(async png => {
+      const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob())
+      const c = new OffscreenCanvas(img.width, img.height), g = c.getContext('2d')
+      g.drawImage(img, 0, 0)
+      return g.getImageData(0, 0, img.width, img.height)
+    }))
+    const rows = []
+    for (let y = 0; y < a.height; y++) {
+      let most = 0
+      for (let i = y * a.width * 4; i < (y + 1) * a.width * 4; i += 4) most = Math.max(most, Math.hypot(a.data[i] - b.data[i], a.data[i + 1] - b.data[i + 1], a.data[i + 2] - b.data[i + 2]))
+      rows.push(most)
+    }
+    const full = y => Math.max(...rows.slice(Math.max(0, y - 3), y + 4))
+    return +(rows.reduce((sum, v, y) => v ? sum + v / full(y) : sum, 0) / devicePixelRatio).toFixed(2)
+  }, [shown, bare].map(png => png.toString('base64')))
+}
 
 // Themes measure contrast on colors they mix in JS (theme/color.js mix) and paint with CSS color-mix():
 // the two must agree. Each mix is painted to a canvas by the browser and read back; every channel

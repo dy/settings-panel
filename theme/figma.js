@@ -81,8 +81,10 @@ export default function figma({
   // C: 16px icons (chevron-down-16, check-16), stroked on the 1px icon grid
   const chevron = c => `url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.9 7.1 8 9.2l2.1-2.1' fill='none' stroke='${enc(c)}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
+  // Body 11px: UI3 sets its labels and values at 11px.
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: `"Inter", ui-sans-serif, system-ui, -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif`, lineHeight: 16, controlHeight: 24, inset: 8, rowGap: 0, columnGap: 8, sectionGap: 16, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: `"Inter", ui-sans-serif, system-ui, -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif`, lineHeight: 16, controlHeight: 24, inset: 8, rowGap: 0, columnGap: 8, sectionGap: 16, panelPadding: 0})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -154,10 +156,18 @@ export default function figma({
   }
 
   /* ── Row: 32px, 16px lead, 88px label, 8px tail (D) ── */
-  .s-control { gap: var(--column-gap); padding: calc(4 * var(--space)) calc(8 * var(--space)) calc(4 * var(--space)) calc(16 * var(--space)); min-height: calc(32 * var(--length)); align-items: center; }
-  .s-label-group { width: calc(88 * var(--length)); min-width: 0; max-width: none; padding: 0; }
+  /* the label centres on the control's first 24px line: a hint, a list or a wrapped control grows the row downward */
+  .s-control { gap: var(--column-gap); padding: calc(4 * var(--space)) calc(8 * var(--space)) calc(4 * var(--space)) calc(16 * var(--space)); min-height: calc(32 * var(--length)); align-items: flex-start; }
+  .s-label-group { width: calc(88 * var(--length)); min-width: 0; max-width: none; padding: calc((var(--field-h) - 1lh) / 2) 0 0; }
+  .s-input { min-height: var(--field-h); }
+  /* a list's first option and a swatch palette's first row sit on that line too; a knob's label centres on its dial */
+  :is(.s-select:is(.s-radio, .s-checkboxes), .s-color.s-swatches) .s-input { padding-top: calc((var(--field-h) - var(--line-height)) / 2); }
+  .s-knob { align-items: center; > .s-label-group { padding-top: 0; } }
   .s-label { color: var(--dim); font-weight: var(--weight); }
-  .s-hint { opacity: 1; color: var(--dim); font-size: calc(11 * var(--length)); }
+  .s-hint { opacity: 1; color: var(--dim); }
+  /* UI3 sets all its text at 11px: secondary text is the body size in text-secondary, not a smaller step */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: var(--font-size); }
+
   .s-input { gap: calc(8 * var(--space)); align-items: center; }
 
   /* ── Fields: filled, hairline on hover, blue line on focus (C textbox) ── */
@@ -188,22 +198,28 @@ export default function figma({
   }
 
   /* ── Slider: 16px filled pill with a hairline, blue progress, ringed thumb (C range slider, D) ── */
+  /* the colour's alpha is the same pill and thumb, the checkerboard under the colour's ramp in place of the progress */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; border: 1px solid transparent; border-radius: calc(8 * var(--length)); cursor: pointer; outline: none;
+    background:
+      linear-gradient(var(--accent), var(--accent)) border-box 0 0 / var(--p, 0%) 100% no-repeat,
+      linear-gradient(var(--field), var(--field)) padding-box,
+      linear-gradient(var(--line), var(--line)) border-box;
+    &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px calc(3 * var(--length)) rgba(0,0,0,.1), 0 calc(3 * var(--length)) calc(8 * var(--length)) rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
+    &::-moz-range-thumb { box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px calc(3 * var(--length)) rgba(0,0,0,.1), 0 calc(3 * var(--length)) calc(8 * var(--length)) rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
+    &:focus-visible::-webkit-slider-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
+    &:focus-visible::-moz-range-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
+    &.s-alpha { flex: 1 1 0; min-width: calc(32 * var(--length));
+      background: linear-gradient(to right, transparent, var(--c)) border-box, conic-gradient(#e6e6e6 90deg, #fff 0 180deg, #e6e6e6 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)) border-box; }
+  }
   .s-slider {
-    align-items: center;
     .s-track { height: var(--field-h); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; border: 1px solid transparent; border-radius: calc(8 * var(--length)); cursor: pointer; outline: none;
-      background:
-        linear-gradient(var(--accent), var(--accent)) border-box 0 0 / var(--p, 0%) 100% no-repeat,
-        linear-gradient(var(--field), var(--field)) padding-box,
-        linear-gradient(var(--line), var(--line)) border-box;
-      &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
-      &::-moz-range-thumb { box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
-      &:focus-visible::-webkit-slider-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
-      &:focus-visible::-moz-range-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
-    }
+    /* labelled marks hang in a line the row reserves under the track (padding, so the readout still centres on the track): the gap and a 1.25 line of the label */
+    &:has(.s-mark-labels:not(:empty)) .s-input { padding-bottom: calc(15.75 * var(--length)); }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(9 * var(--length)); color: var(--dim); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--dim); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     .s-readout { flex: 0 0 auto; width: calc(48 * var(--length)); min-width: calc(48 * var(--length)); @supports (field-sizing: content) { field-sizing: content; width: auto; } display: flex; align-items: center; text-align: left; background: var(--field); color: var(--ink); border: 1px solid transparent; border-radius: var(--r); height: var(--field-h); padding: 0 calc(7 * var(--space)); font-variant-numeric: tabular-nums; cursor: ew-resize; transition: border-color .12s var(--ease); &:hover { border-color: var(--line); } &:focus { outline: none; border-color: var(--accent); cursor: text; } }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(4 * var(--space)); background: var(--tooltip-bg); color: var(--tooltip-fg); padding: calc(2 * var(--length)) calc(6 * var(--space)); border-radius: var(--r); white-space: nowrap; }
     /* Interval: two 48px readouts leave the 120px column no track, so the track takes the column and the readouts pair under it, as X / Y fields do */
@@ -236,7 +252,6 @@ export default function figma({
 
   /* ── Boolean ── */
   .s-boolean {
-    align-items: center;
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     /* Switch: 32×16 pill, 14px knob inside a 1px rim (C toggle) */
     &.s-switch {
@@ -267,7 +282,13 @@ export default function figma({
       &:focus-within { border-color: var(--accent); }
       input[type="color"] { appearance: none; -webkit-appearance: none; position: static; flex: none; width: calc(14 * var(--length)); height: calc(14 * var(--length)); padding: 0; border: none; border-radius: var(--r-small); overflow: hidden; background: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r-small); } &::-moz-color-swatch { border: none; border-radius: var(--r-small); } }
       input[type="text"] { flex: 1; width: 0; min-width: 0; height: 100%; background: transparent; border: none; border-radius: 0; padding: 0 calc(7 * var(--space)) 0 0; text-transform: uppercase; }
-      .s-alpha { display: none; } }
+      .s-alpha { order: 1; } }
+    /* rgba: the field (chip and value) takes the column and the alpha slider the line under it, as the interval's track does */
+    &.s-rgba .s-color-input { position: relative; flex-wrap: wrap; height: auto; row-gap: calc(8 * var(--space)); padding: 0; background: none; border: 0;
+      input[type="color"] { position: absolute; left: calc(5 * var(--space)); top: calc((var(--field-h) - 14 * var(--length)) / 2); z-index: 1; }
+      input[type="text"] { flex: 1 0 100%; height: var(--field-h); background: var(--field); border: 1px solid transparent; border-radius: var(--r); padding: 0 calc(7 * var(--space)) 0 calc(5 * var(--space) + 20 * var(--length)); transition: border-color .12s var(--ease);
+        &:hover { border-color: var(--line); } &:focus { border-color: var(--accent); } }
+      .s-alpha { flex: 1 0 100%; } }
     &.s-swatches button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: none; border-radius: var(--r-small); box-shadow: var(--swatch-ring); outline: none; &.s-selected, &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; } }
   }
 

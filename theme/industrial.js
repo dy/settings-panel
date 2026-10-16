@@ -70,8 +70,10 @@ export default function industrial({
   // carries labelled marks, ticks, a tooltip or a second thumb (those keep their row).
   const bank = `:is(.s-panel-content, .s-content):has(> :is(.s-knob, .s-slider) ~ :is(.s-knob, .s-slider)):not(:has(> :not(.s-knob, .s-slider, .s-boolean, .s-separator), > .s-multiple, > .s-slider .s-mark, > .s-slider .s-mark-label, > .s-slider .s-tooltip))`
 
+  // Body 10px: the printed labels and the screen's values are Courier New at 10px; 12.5px is the keys' lettering.
+  const body = 10
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 10, lineHeight: 12, controlHeight: 44, inset: 12, rowGap: 22, columnGap: 14, sectionGap: 23, panelPadding: 23, fontFamily: "'Courier New', Courier, monospace" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 10, lineHeight: 12, controlHeight: 44, inset: 12, rowGap: 22, columnGap: 14, sectionGap: 23, panelPadding: 23, fontFamily: "'Courier New', Courier, monospace" })}
 
   /* ── Tones ── */
   --bg: ${shade};
@@ -109,7 +111,7 @@ export default function industrial({
   --black-rim: ${dark ? ink(bottom, 3, '#1a1a1a') : 'transparent'};   /* a black key on a black body keeps a 3:1 edge */
   color-scheme: ${dark ? 'dark' : 'light'};
 
-  /* ── Geometry (reference px at size 1) ── */
+  /* ── Geometry (reference px at size 10 / 13, the 10px body) ── */
   --key-font: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
   --screen-font: 'Courier New', Courier, monospace;
   --key-size: calc(12.5 * var(--length));
@@ -166,7 +168,7 @@ export default function industrial({
     margin-left: auto; flex: none; display: grid; place-items: center;
     width: calc(22 * var(--length)); height: calc(22 * var(--length)); border-radius: 50%;
     background: var(--key); box-shadow: var(--raised);
-    i { width: 50%; height: 50%; background: var(--text); ${mask(minus)}; }
+    i { width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--text); ${mask(minus)}; }
   }
   &:is(details):not([open]) {
     > summary { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; box-shadow: none; }
@@ -219,7 +221,7 @@ export default function industrial({
     &:focus-visible { outline: 2px solid var(--focus); }
   }
   .s-title-text {
-    top: calc(100% + 4px); padding: calc(6 * var(--length) + var(--frame)) calc(8 * var(--length) + var(--frame));
+    top: calc(100% + 4 * var(--length)); padding: calc(6 * var(--length) + var(--frame)) calc(8 * var(--length) + var(--frame));
     background: var(--screen); color: var(--screen-text); box-shadow: inset 0 0 0 var(--frame) var(--screen-edge); border-radius: calc(2 * var(--length));
     font-family: var(--screen-font); text-transform: none; letter-spacing: -.05em; line-height: var(--line-height);
   }
@@ -235,7 +237,7 @@ export default function industrial({
   }
   button:not(:disabled):active, .s-boolean.s-toggle:active .s-track { transform: translateY(var(--hair)); box-shadow: 0 0 0 var(--lip); }
   button:disabled, button[aria-busy="true"] { color: var(--label); cursor: default; }
-  button[aria-busy="true"] { background: repeating-linear-gradient(-45deg, var(--key) 0 6px, var(--pressed) 6px 12px); }
+  button[aria-busy="true"] { background: repeating-linear-gradient(-45deg, var(--key) 0 calc(6 * var(--length)), var(--pressed) calc(6 * var(--length)) calc(12 * var(--length))); }
 
   /* single action: a wide key */
   .s-button .s-input { flex-wrap: wrap; gap: calc(12 * var(--space)) var(--key-gap); }
@@ -297,7 +299,7 @@ export default function industrial({
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
     .s-step { gap: calc(4 * var(--length)); }
     .s-step button { display: grid; place-items: center; width: calc(26 * var(--length)); height: calc(var(--h) / 2 - 3 * var(--length)); padding: 0; font-size: 0; border-radius: calc(3 * var(--length));
-      &::before { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: var(--text); ${mask(caret)}; } }
+      &::before { content: ''; width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--text); ${mask(caret)}; } }
     .s-step-up::before { rotate: 180deg; }
   }
 
@@ -322,17 +324,9 @@ export default function industrial({
       box-shadow: inset 0 0 calc(3 * var(--length)) var(--groove-edge);
     }
     input[type="range"] {
-      -webkit-appearance: none; appearance: none; display: block; width: 100%; height: var(--fader-w); margin: 0; background: none; cursor: grab;
+      -webkit-appearance: none; appearance: none; display: block; width: 100%; height: var(--fader-w); margin: 0; background: none;
       &::-webkit-slider-runnable-track { height: var(--fader-w); background: none; }
       &::-moz-range-track { height: var(--fader-w); background: none; }
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--fader-l); height: var(--fader-w); border-radius: var(--r); background: var(--fader-cap); box-shadow: var(--fader-shadow); }
-      &::-moz-range-thumb { box-sizing: border-box; border: 0; width: var(--fader-l); height: var(--fader-w); border-radius: var(--r); background: var(--fader-cap); box-shadow: var(--fader-shadow); }
-      --fader-line: var(--engrave);
-      --fader-cap: linear-gradient(90deg, var(--fader-line), var(--fader-line)) calc(50% - var(--hair) / 2) 50% / var(--hair) calc(18 * var(--length)) no-repeat,
-        linear-gradient(90deg, var(--glint), var(--glint)) calc(50% + var(--hair) / 2) 50% / var(--hair) calc(18 * var(--length)) no-repeat, var(--key);
-      --fader-shadow: 0 calc(1.5 * var(--length)) 0 var(--cap-edge), 0 calc(3 * var(--length)) calc(5 * var(--length)) rgb(0 0 0 / .22);
-      &:active { cursor: grabbing; --fader-line: var(--accent); }
-      &:focus-visible { outline: none; --fader-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
     }
     .s-marks, .s-mark-labels { position: absolute; inset: 0 calc(var(--fader-l) / 2); pointer-events: none; }
     .s-mark { position: absolute; top: calc(50% + var(--groove-w) / 2 + 3 * var(--length)); width: var(--hair); height: calc(5 * var(--length)); background: var(--label); translate: -50% 0; &.s-active { background: var(--text); } }
@@ -344,9 +338,21 @@ export default function industrial({
       font-family: var(--screen-font); letter-spacing: -.05em; font-variant-numeric: tabular-nums;
     }
   }
+  /* one fader cap: the slider's, the interval's and the alpha's */
+  .s-control.s-slider input[type="range"], .s-color .s-alpha {
+    cursor: grab;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--fader-l); height: var(--fader-w); border: 0; border-radius: var(--r); background: var(--fader-cap); box-shadow: var(--fader-shadow); }
+    &::-moz-range-thumb { box-sizing: border-box; border: 0; width: var(--fader-l); height: var(--fader-w); border-radius: var(--r); background: var(--fader-cap); box-shadow: var(--fader-shadow); }
+    --fader-line: var(--engrave);
+    --fader-cap: linear-gradient(90deg, var(--fader-line), var(--fader-line)) calc(50% - var(--hair) / 2) 50% / var(--hair) calc(18 * var(--length)) no-repeat,
+      linear-gradient(90deg, var(--glint), var(--glint)) calc(50% + var(--hair) / 2) 50% / var(--hair) calc(18 * var(--length)) no-repeat, var(--key);
+    --fader-shadow: 0 calc(1.5 * var(--length)) 0 var(--cap-edge), 0 calc(3 * var(--length)) calc(5 * var(--length)) rgb(0 0 0 / .22);
+    &:active { cursor: grabbing; --fader-line: var(--accent); }
+    &:focus-visible { outline: none; --fader-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
+  }
   .s-slider.s-multiple .s-interval-track {
     height: var(--fader-w);
-    &::after { content: ''; position: absolute; z-index: 0; top: 50%; height: calc(3 * var(--length)); translate: 0 -50%; border-radius: 9px; background: var(--accent);
+    &::after { content: ''; position: absolute; z-index: 0; top: 50%; height: calc(3 * var(--length)); translate: 0 -50%; border-radius: calc(9 * var(--length)); background: var(--accent);
       left: calc(var(--fader-l) / 2 + (100% - var(--fader-l)) * var(--low, 0%) / 100%); width: calc((100% - var(--fader-l)) * (var(--high, 100%) - var(--low, 0%)) / 100%); }
     input[type="range"] { width: 100%; z-index: 1; &.s-top { z-index: 2; } &:focus-visible { z-index: 3; } }
   }
@@ -452,9 +458,12 @@ export default function industrial({
     &.s-picker .s-color-input { gap: var(--key-gap); input[type="color"] { position: static; } }
     .s-color-input input[type="text"] { font-variant-numeric: tabular-nums; }
     .s-color-input.s-rgba, &.s-rgba .s-color-input { gap: calc(10 * var(--space)); }
-    .s-alpha { height: calc(10 * var(--length)); border-radius: 99px;
-      &::-webkit-slider-thumb { width: calc(14 * var(--length)); height: calc(22 * var(--length)); border-radius: calc(3 * var(--length)); border: 0; background: var(--key); box-shadow: 0 var(--hair) 0 var(--lip), 0 1px 3px rgb(0 0 0 / .2); }
-      &::-moz-range-thumb { box-sizing: border-box; width: calc(14 * var(--length)); height: calc(22 * var(--length)); border-radius: calc(3 * var(--length)); border: 0; background: var(--key); } }
+    /* the alpha slider is a fader on its own line under the cap and its code: its groove, here the checkerboard and the
+       colour's ramp, the cap travelling its length */
+    &.s-rgba .s-color-input { flex-wrap: wrap; }
+    .s-alpha { order: 1; flex: 0 0 calc(100% - var(--fader-l)); height: var(--groove-w); border-radius: var(--groove-w); margin: calc((var(--fader-w) - var(--groove-w)) / 2) calc(var(--fader-l) / 2); box-shadow: inset 0 0 calc(3 * var(--length)) var(--groove-edge);
+      &::-webkit-slider-runnable-track { height: var(--groove-w); margin-inline: calc(var(--fader-l) / -2); background: none; }
+      &::-webkit-slider-thumb { margin-top: calc((var(--groove-w) - var(--fader-w)) / 2); } }
     &.s-swatches .s-input { gap: calc(10 * var(--space)); }
     &.s-swatches button { width: calc(24 * var(--length)); height: calc(24 * var(--length)); padding: 0; border-radius: 50%; min-width: 0; flex: none;
       box-shadow: var(--raised);
@@ -477,7 +486,7 @@ export default function industrial({
     .s-pad-dot { width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: var(--accent); box-shadow: 0 0 calc(6 * var(--length)) var(--accent); }
     &:focus-visible:not(:active) { outline: 2px solid var(--focus); outline-offset: 2px; }
   }
-  .s-pad-val { color: var(--label); opacity: 1; }
+  .s-pad-val { color: var(--label); opacity: 1; font-size: var(--font-size); }
 
   /* ── Separator: an etched seam ── */
   .s-separator { height: auto; background: none; opacity: 1; margin: 0;

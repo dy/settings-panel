@@ -25,7 +25,8 @@
  * pixel removed.
  *
  * Axes: shade (paper; a dark shade inverts), accent (the ink), size (scales like every theme's;
- * glyphs are crisp at whole multiples, and at half steps on 2x screens), spacing (gaps, rounded to
+ * glyphs are crisp at whole multiples of the original's pixels, size 9 / 13, 18 / 13, and at half steps on
+ * 2x screens; size 1 sets Geneva 9 at 13px, between them), spacing (gaps, rounded to
  * the pixel grid), font (body face; headings stay Chicago), weight (600+ is QuickDraw bold:
  * the glyph smeared 1px right).
  *
@@ -107,6 +108,9 @@ export default function bitmap({
     return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' shape-rendering='crispEdges'>${paths}</svg>`)}")`
   }
 
+  // Body: labels and field values are Geneva 9 (Chicago 12 is for headings, buttons and pop-ups); a
+  // replacement font is set at 12px. Geneva's CSS size is its design size: size-adjust draws its em.
+  const body = font ? 12 : 9
   const px = n => `calc(${n} * var(--length))`
   const sp = n => `round(nearest, calc(${n} * var(--space)), var(--length))`
   const geneva = font ? 'normal' : `${-2 / 9}em`
@@ -116,7 +120,7 @@ export default function bitmap({
 @font-face { font-family: ChiKareGo2; src: url(data:font/woff2;base64,${CHICAGO}) format('woff2'); size-adjust: 133.3334%; ascent-override: 75%; descent-override: 25%; line-gap-override: 0%; }
 @font-face { font-family: FindersKeepers; src: url(data:font/woff2;base64,${GENEVA}) format('woff2'); size-adjust: 177.7778%; ascent-override: 75%; descent-override: 25%; line-gap-override: 0%; }
 .s-panel {
-  ${metrics({ size, spacing, font }, { unit: 4, fontSize: font ? 12 : 9, fontFamily: "FindersKeepers, Geneva, 'Helvetica Neue', sans-serif", lineHeight: 12, controlHeight: 16, inset: 3, rowGap: 12, columnGap: 10, sectionGap: 12, panelPadding: 12 })}
+  ${metrics({ size, spacing, font }, { unit: 4, body, fontSize: body, fontFamily: "FindersKeepers, Geneva, 'Helvetica Neue', sans-serif", lineHeight: 12, controlHeight: 16, inset: 3, rowGap: 12, columnGap: 10, sectionGap: 12, panelPadding: 12 })}
 
   --paper: ${paper};
   --ink: ${ink};
@@ -405,22 +409,24 @@ export default function bitmap({
   }
 
   /* ── Slider: the scroll bar – a 25% grey track and a white scroll box ── */
+  /* one scroll bar: the slider's, the interval's and the colour's alpha */
+  .s-slider input[type="range"], .s-color.s-rgba .s-alpha {
+    -webkit-appearance: none; appearance: none; height: ${px(12)}; margin: 0; padding: 0; border: 0; border-radius: 0;
+    background: none; cursor: pointer;
+    &::-webkit-slider-runnable-track { height: ${px(12)}; border: var(--length) solid var(--ink); background: var(--ltgray), var(--paper); }
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: ${px(12)}; height: ${px(12)}; margin-top: calc(-1 * var(--length)); background: var(--paper); border: var(--length) solid var(--ink); border-radius: 0; }
+    &::-moz-range-track { height: ${px(10)}; border: var(--length) solid var(--ink); background: var(--ltgray), var(--paper); }
+    &::-moz-range-thumb { width: ${px(10)}; height: ${px(10)}; background: var(--paper); border: var(--length) solid var(--ink); border-radius: 0; }
+    &:active::-webkit-slider-thumb { background: var(--ink); }
+    &:active::-moz-range-thumb { background: var(--ink); }
+    &:focus { outline: none; }
+    &:focus-visible { outline: var(--ring); outline-offset: ${px(1)}; }
+  }
   .s-slider {
     --thumb: ${px(12)};
     .s-input { align-items: flex-start; gap: ${px(8)}; }
     .s-track { height: ${px(12)}; flex: 1; min-width: 0; }
-    input[type="range"] {
-      -webkit-appearance: none; appearance: none; width: 100%; height: ${px(12)}; margin: 0; padding: 0;
-      background: none; cursor: pointer;
-      &::-webkit-slider-runnable-track { height: ${px(12)}; border: var(--length) solid var(--ink); background: var(--ltgray), var(--paper); }
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: ${px(12)}; margin-top: calc(-1 * var(--length)); background: var(--paper); border: var(--length) solid var(--ink); border-radius: 0; }
-      &::-moz-range-track { height: ${px(10)}; border: var(--length) solid var(--ink); background: var(--ltgray), var(--paper); }
-      &::-moz-range-thumb { width: calc(var(--thumb) - 2 * var(--length)); height: ${px(10)}; background: var(--paper); border: var(--length) solid var(--ink); border-radius: 0; }
-      &:active::-webkit-slider-thumb { background: var(--ink); }
-      &:active::-moz-range-thumb { background: var(--ink); }
-      &:focus { outline: none; }
-      &:focus-visible { outline: var(--ring); outline-offset: ${px(1)}; }
-    }
+    input[type="range"] { width: 100%; }
     .s-marks, .s-mark-labels { position: absolute; left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2); top: 100%; height: 0; pointer-events: none; }
     .s-mark { position: absolute; top: var(--length); width: var(--length); height: ${px(3)}; background: var(--ink); }
     .s-mark-label { position: absolute; top: ${px(4)}; transform: translateX(-50%); white-space: nowrap; line-height: var(--line-height); }
@@ -432,6 +438,8 @@ export default function bitmap({
       font-variant-numeric: tabular-nums;
     }
     span.s-readout { border: 0; height: auto; margin-top: 0; padding: 0 ${px(3)}; }
+    /* a range's two readouts take 3 figures, so the row keeps its track in a narrow panel */
+    &.s-multiple .s-readout { min-width: calc(3ch + ${px(8)}); }
     .s-tooltip {
       margin-bottom: ${px(3)}; padding: 0 ${px(3)}; z-index: 2;
       background: var(--paper); color: var(--ink);
@@ -459,11 +467,13 @@ export default function bitmap({
     }
     &.s-picker .s-color-input, &.s-rgba .s-color-input { gap: ${px(6)}; align-items: flex-start; }
     .s-color-input input[type="text"] { flex: 1; min-width: 0; }
-    &.s-rgba .s-alpha {
-      height: ${px(12)}; border: var(--length) solid var(--ink); border-radius: 0; flex: 1;
-      &::-webkit-slider-thumb { width: ${px(10)}; height: ${px(12)}; border-radius: 0; background: var(--paper); border: var(--length) solid var(--ink); }
-      &::-moz-range-thumb { width: ${px(8)}; height: ${px(10)}; border-radius: 0; background: var(--paper); border: var(--length) solid var(--ink); }
+    /* the alpha is the scroll bar, the checkerboard and ramp in place of its 25% grey; its code keeps its nine figures */
+    &.s-rgba .s-alpha { flex: 1; margin-top: ${px(2)};
+      &::-webkit-slider-runnable-track { background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / ${px(4)} ${px(4)}; }
+      &::-moz-range-track { background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / ${px(4)} ${px(4)}; }
     }
+    &.s-rgba .s-color-input { flex-wrap: wrap; row-gap: ${px(4)}; }
+    &.s-rgba input[type="text"] { flex: none; width: calc(9ch + ${px(8)}); @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     &.s-swatches .s-input { gap: ${px(5)}; }
     &.s-swatches button {
       width: ${px(12)}; height: ${px(12)}; padding: 0; border: var(--length) solid var(--ink); border-radius: 0;

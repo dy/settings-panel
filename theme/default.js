@@ -11,9 +11,11 @@ import { surface, woodFigure, woodGrain } from './texture.js'
 
 const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
+// Body 14px: soft sets its labels and values at 14px.
+const body = 14
 const softCSS = (t) => `@layer s-soft {
 .s-panel {
-  ${metrics(t, {panelPadding: 20, fontFamily: "system-ui, -apple-system, sans-serif"})}
+  ${metrics(t, { body, panelPadding: 20, fontFamily: "system-ui, -apple-system, sans-serif"})}
 
   --bg: ${t.shade};
   --accent: ${t.accent};
@@ -66,7 +68,7 @@ const softCSS = (t) => `@layer s-soft {
     justify-content: center;
     width: calc(var(--u) * 3.5);
     height: calc(var(--u) * 3.5);
-    font-size: 10px;
+    font-size: calc(10 * var(--length));
     font-weight: 600;
     line-height: 1;
     border-radius: 50%;
@@ -94,7 +96,7 @@ const softCSS = (t) => `@layer s-soft {
     z-index: 10;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-2px);
+    transform: translateY(calc(-2 * var(--length)));
     transition: opacity 100ms, visibility 100ms, transform 100ms;
   }
 
@@ -146,7 +148,7 @@ const softCSS = (t) => `@layer s-soft {
           border-radius: 50%;
           transition: transform 200ms;
           transform: translateX(0);
-          box-shadow: 0 1px 2px color-mix(in oklab, light-dark(black, white), transparent 75%);
+          box-shadow: 0 1px calc(2 * var(--length)) color-mix(in oklab, light-dark(black, white), transparent 75%);
         }
       }
       &:has(input:checked) .s-track {
@@ -247,7 +249,7 @@ const softCSS = (t) => `@layer s-soft {
     .s-mark-label {
       position: absolute;
       top: 100%;
-      transform: translate(-50%, 4px);
+      transform: translate(-50%, calc(4 * var(--length)));
       font-size: smaller;
       text-align: center;
       white-space: nowrap;
@@ -271,7 +273,7 @@ const softCSS = (t) => `@layer s-soft {
       pointer-events: none;
       background: color-mix(in oklab, var(--bg), light-dark(black, white) 85%);
       color: light-dark(white, black);
-      padding: 2px 6px;
+      padding: calc(2 * var(--length)) calc(6 * var(--length));
       border-radius: var(--r);
       margin-bottom: var(--u);
     }
@@ -282,7 +284,7 @@ const softCSS = (t) => `@layer s-soft {
         background: linear-gradient(to right,
           transparent var(--low, 0%), color-mix(in oklab, var(--accent), transparent 75%) var(--low, 0%),
           color-mix(in oklab, var(--accent), transparent 75%) var(--high, 100%), transparent var(--high, 100%));
-        border-radius: 2px;
+        border-radius: calc(2 * var(--length));
       }
       .s-readout {
         align-self: center;
@@ -367,9 +369,9 @@ const softCSS = (t) => `@layer s-soft {
       max-height: 50vh;
       scrollbar-width: thin;
       scrollbar-color: color-mix(in srgb, currentColor 40%, transparent) transparent;
-      &::-webkit-scrollbar { width: 4px; height: 4px; }
+      &::-webkit-scrollbar { width: calc(4 * var(--length)); height: calc(4 * var(--length)); }
       &::-webkit-scrollbar-track { background: transparent; }
-      &::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 40%, transparent); border-radius: 2px; }
+      &::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 40%, transparent); border-radius: calc(2 * var(--length)); }
       &::-webkit-scrollbar-corner { background-color: Canvas; }
     }
     &.s-code textarea { font-family: ui-monospace, monospace; font-size: smaller; }
@@ -489,6 +491,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   const faceOf = ([hi, lo] = live, over) => `background: ${over ? over + ', ' : ''}${figure}linear-gradient(${hi}, ${lo}); ` +
     `background-blend-mode: ${over ? 'normal, ' : ''}${figure ? 'soft-light, soft-light, ' : ''}normal;`
   // Native controls cannot tint a mask, so these glyphs are baked in their ink.
+  // One stroke weight (1.6 in a 12-unit box drawn 12px) for chevrons, checks and steppers
   const glyph = (d, stroke, w = 1.6) => `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='${d}' fill='none' stroke='${encodeURIComponent(stroke)}' stroke-width='${w}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const check = 'M2.5 6.2 L5 8.6 L9.5 3.6', chevron = 'M3 4.5 L6 7.5 L9 4.5'
   const w = n => Math.min(900, weight + n)
@@ -507,6 +510,14 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     0 calc(-1 * var(--hair)) 0 0 ${alpha(wall, .55)}, 0 var(--hair) 0 0 ${lip}`
   const ring = 'calc(2 * var(--length)) solid color-mix(in oklab, var(--accent), transparent 40%)'
   const thumbRing = `${riding('calc(3 * var(--length))')}, 0 0 0 calc(3 * var(--length)) color-mix(in oklab, var(--accent), transparent 55%)`
+  // One thumb for every range input (slider, interval, the colour's alpha): a raised cap riding its groove
+  const knob = `width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: calc(9 * var(--length) * var(--roundness)); border: none; ${faceOf(cap)} box-shadow: ${riding('calc(3 * var(--length))')};`
+  const thumb = `
+      &::-webkit-slider-thumb { -webkit-appearance: none; ${knob} }
+      &::-moz-range-thumb { ${knob} }
+      &:focus-visible { outline: none; }
+      &:focus-visible::-webkit-slider-thumb { box-shadow: ${thumbRing}; }
+      &:focus-visible::-moz-range-thumb { box-shadow: ${thumbRing}; }`
 
   return `@layer s-soft-look {
 .s-panel {
@@ -523,12 +534,14 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   --r-pill: calc(var(--control-height) / 2 * var(--roundness));
   --control-height: calc(var(--line-height) + 16 * var(--space));
   --row-gap: max(calc(10 * var(--space)), calc(2 * var(--g) + 3 * var(--length)));   /* sockets never touch */
+  /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
+  --font-size-small: calc(12 * var(--length));
 
   color: var(--fg);
   border-radius: var(--r-panel);
   padding-bottom: calc(var(--panel-padding) + var(--g));   /* the last row's socket reaches below its box */
   ${surf ? `background: ${surf.image}, var(--bg); background-blend-mode: ${surf.blend};` : ''}
-  box-shadow: inset 0 var(--hair) 0 ${alpha(rim, .5)}, 0 0 0 1px ${alpha(wall, dark ? .9 : .35)}, 0 1px 2px ${alpha(deep, .12)}, 0 10px 28px -10px ${alpha(deep, .35)};
+  box-shadow: inset 0 var(--hair) 0 ${alpha(rim, .5)}, 0 0 0 1px ${alpha(wall, dark ? .9 : .35)}, 0 1px calc(2 * var(--length)) ${alpha(deep, .12)}, 0 calc(10 * var(--length)) calc(28 * var(--length)) calc(-10 * var(--length)) ${alpha(deep, .35)};
 
   > summary, > .s-panel-title { font-size: calc(15 * var(--length)); font-weight: ${w(200)}; letter-spacing: -0.01em; }
   /* Layout here keeps off margins: soft sits in cascade layers, so a page's own reset (* { margin: 0 })
@@ -538,7 +551,11 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   .s-search { order: 2; }
   .s-search-input::placeholder { color: var(--fg-muted); }
   .s-label { font-weight: ${w(100)}; }
-  .s-hint { color: var(--fg-muted); font-size: calc(12 * var(--length)); opacity: 1; }
+  .s-hint { color: var(--fg-muted); opacity: 1; }
+  :is(.s-hint, .s-readout, .s-mark-label, .s-tooltip, .s-separator-label, .s-knob-val, .s-pad-val, .s-vec-label, .s-title-text) { font-size: var(--font-size-small); }
+  /* Rows keep the fields' pitch: switch, checkbox and read-only rows too; a row's parts centre on it */
+  :is(.s-boolean, .s-info) .s-input { min-height: var(--control-height); align-items: center; }
+  .s-slider .s-input, .s-color.s-rgba { align-items: center; }
   .s-info .s-monitor { opacity: 1; }
 
   /* ── The fold button: a round raised piece in its socket ── */
@@ -579,23 +596,22 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     &:hover { --face-hi: ${hover[0]}; --face-lo: ${hover[1]}; }
     &:focus-visible { outline: ${ring}; outline-offset: calc(var(--g) + 2px); }
   }
-  .s-number .s-step button { color: var(--fg-muted); opacity: 1; &:hover { color: var(--fg); } }
+  .s-number .s-step button { color: var(--fg-muted); opacity: 1; font-size: 0; &:hover { color: var(--fg); }
+    &::before { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: currentColor; -webkit-mask: ${glyph(chevron, '#000', 1.92)} center / contain no-repeat; mask: ${glyph(chevron, '#000', 1.92)} center / contain no-repeat; }
+    &.s-step-up::before { rotate: 180deg; } }
 
   /* ── Slider: a thin socket, filled with the accent, under a raised thumb ── */
   .s-slider {
     .s-track { height: var(--control-height); margin: 0; display: flex; align-items: center; }
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }   /* the mark labels' line */
     input[type="range"] {
       -webkit-appearance: none; appearance: none; height: calc(6 * var(--length)); border-radius: 999px;
       background: linear-gradient(to right, var(--accent) var(--p, 0%), var(--channel) var(--p, 0%));
       box-shadow: ${sunk('calc(2 * var(--length))')};
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: calc(9 * var(--length) * var(--roundness)); border: none; ${faceOf(cap)} box-shadow: ${riding('calc(3 * var(--length))')}; }
-      &::-moz-range-thumb { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: calc(9 * var(--length) * var(--roundness)); border: none; ${faceOf(cap)} box-shadow: ${riding('calc(3 * var(--length))')}; }
-      &:focus-visible { outline: none; }
-      &:focus-visible::-webkit-slider-thumb { box-shadow: ${thumbRing}; }
-      &:focus-visible::-moz-range-thumb { box-shadow: ${thumbRing}; }
+      ${thumb}
     }
     /* The readout fits its value and unit: at least 6ch, so the track holds still while dragging. */
-    .s-readout { flex: none; min-width: calc(6ch + 12 * var(--space)); padding: 0 calc(6 * var(--space)); text-align: right; background: transparent; box-shadow: none; color: var(--fg-muted); font-size: calc(12.5 * var(--length));
+    .s-readout { flex: none; min-width: calc(6ch + 12 * var(--space)); padding: 0 calc(6 * var(--space)); text-align: right; background: transparent; box-shadow: none; color: var(--fg-muted); font-size: var(--font-size-small);
       &:focus-visible { color: ${onWell}; background: var(--well); box-shadow: ${sunk()}; } }
     input.s-readout { width: calc(9ch + 12 * var(--space)); @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     &.s-multiple .s-interval-track { height: calc(6 * var(--length)); border-radius: 999px; box-shadow: ${sunk('calc(2 * var(--length))')};
@@ -631,11 +647,11 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     cursor: pointer;
     &:focus-visible { outline: ${ring}; outline-offset: calc(2 * var(--length)); }
   }
-  .s-boolean.s-checkbox input[type="checkbox"]:checked { background-image: ${glyph(check, acc, 2)}; }
+  .s-boolean.s-checkbox input[type="checkbox"]:checked { background-image: ${glyph(check, acc)}; background-size: calc(12 * var(--length)); }
   .s-select.s-radio input[type="radio"] { border-radius: 50%;
     &:checked { background-image: radial-gradient(circle, var(--accent) 0 32%, transparent 36%); background-size: 100%; } }
   .s-select.s-checkboxes {
-    .s-track { display: block; &::after { content: ''; position: absolute; inset: 10%; background: var(--s-color, var(--accent)); -webkit-mask: ${glyph(check, '#000', 2)} center / contain no-repeat; mask: ${glyph(check, '#000', 2)} center / contain no-repeat; opacity: 0; } }
+    .s-track { display: block; &::after { content: ''; position: absolute; inset: calc(3 * var(--length)); background: var(--s-color, var(--accent)); -webkit-mask: ${glyph(check, '#000')} center / contain no-repeat; mask: ${glyph(check, '#000')} center / contain no-repeat; opacity: 0; } }
     label:has(input:checked) .s-track::after { opacity: 1; }
     label:has(input:focus-visible) .s-track { outline: ${ring}; outline-offset: calc(2 * var(--length)); }
   }
@@ -644,7 +660,8 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   .s-select.s-segmented {
     .s-input { gap: 0; padding: calc(3 * var(--length)); border-radius: var(--r-pill); background: var(--track); box-shadow: ${sunk()}; }
     button {
-      height: calc(var(--control-height) - 6 * var(--length)); min-width: 0; margin: 0; padding: 0 calc(8 * var(--space));
+      flex: 1 1 auto; height: calc(var(--control-height) - 6 * var(--length)); min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share */
+      padding: 0 max(calc(8 * var(--space)), (var(--r-pill) - 3 * var(--length)) * .75);
       border: none; border-radius: calc(var(--r-pill) - 3 * var(--length)); background: transparent;
       color: ${onTrack}; font-size: inherit; font-weight: ${w(100)};
       transition: color 140ms, box-shadow 140ms;
@@ -659,6 +676,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     input[type="color"] { left: calc(6 * var(--length)); width: calc(20 * var(--length)); height: calc(20 * var(--length)); }
     input[type="text"] { padding-left: calc(36 * var(--length)); }
   }
+  .s-color .s-alpha { height: calc(6 * var(--length)); border-radius: 999px; box-shadow: ${sunk('calc(2 * var(--length))')}; ${thumb} }
   .s-color {
     input[type="color"] { border-radius: calc(10 * var(--length) * var(--roundness)); overflow: hidden; box-shadow: ${riding('calc(2 * var(--length))')};
       &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: inherit; }
@@ -687,8 +705,9 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   }
 
   /* ── Structure: engraved rules ── */
-  .s-folder > summary { opacity: 1; color: var(--fg); font-weight: ${w(200)}; border-bottom-color: ${alpha(wall, .45)};
-    &::after { background: var(--fg-muted); } }
+  .s-folder > summary { min-height: var(--control-height); padding: 0; opacity: 1; color: var(--fg); font-weight: ${w(200)}; border-bottom-color: ${alpha(wall, .45)};
+    &::after { width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--fg-muted); -webkit-mask: ${glyph(chevron, '#000')} center / contain no-repeat; mask: ${glyph(chevron, '#000')} center / contain no-repeat; } }
+  .s-folder > .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }   /* contents keep the rows' pitch */
   .s-folder:not([open], .s-section) > summary { box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator-labeled { background: none; box-shadow: none; &::before, &::after { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; } }

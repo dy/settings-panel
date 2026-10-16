@@ -83,7 +83,7 @@
       },
     }, {
       container: '#panel',
-      theme: (s) => controlPanel({ shade: s.dark ? DARK : LIGHT, accent }),
+      theme: (s) => controlPanel({ shade: s.dark ? DARK : LIGHT, accent, size: 11 / 13 }),
       title: 'example panel',
       onchange(s) { setBodyBg(s.dark) },
     })

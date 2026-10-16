@@ -63,8 +63,10 @@ export default function dat({
   while (reach < 21 && veiled(ink(title, reach, mix(shade, text, .514706))) < 4.6) reach += .05
   const searchPlaceholder = ink(title, reach, mix(shade, text, .514706))
 
+  // Body 11px: lil-gui sets its labels and values at 11px.
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif", lineHeight: 15.95, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif", lineHeight: 15.95, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 0})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -88,9 +90,9 @@ export default function dat({
   background: var(--bg);
   color: var(--text);
 
-  width: calc(245 * var(--length));
+  width: calc(245 * var(--length));   /* capped by a narrower host */
   min-width: 0;
-  max-width: calc(245 * var(--length));
+  max-width: 100%;
   border-radius: 0;
   padding: var(--panel-padding);
 
@@ -126,13 +128,16 @@ export default function dat({
     margin: var(--row-gap) 0;
     padding: 0 calc(4 * var(--space));
     min-height: var(--control-height);
-    align-items: center;
+    align-items: flex-start;   /* a hint or a list grows the row downward; the label stays on its control's line */
     /* Disabled: dim the whole row (lil-gui .controller.disabled), not just the widget — .s-input[inert] is the only disabled hook base.js exposes */
     &:has(> .s-input[inert]) .s-label-group { opacity: .5; }
   }
+  .s-knob { align-items: center; }   /* a dial is one tall line: its label centres on it */
   .s-label-group { flex: 0 0 auto; width: auto; min-width: 45%; max-width: none; padding: 0 calc(4 * var(--space)) 0 0; line-height: var(--control-height); overflow: visible; }
   .s-label { color: var(--text); font-weight: 400; white-space: nowrap; overflow: visible; }
-  .s-hint { color: ${hint}; opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-hint { color: ${hint}; opacity: 1; line-height: var(--line-height); contain: inline-size; }   /* wraps in the name column instead of widening it */
+  /* secondary text, one step under the body */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: calc(10 * var(--length)); }
   .s-input { flex: 1 1 auto; min-width: 0; gap: calc(4 * var(--space)); align-items: center; }
 
   /* ── Widgets (inputs / select) ── */
@@ -158,23 +163,30 @@ export default function dat({
     .s-step { display: none; }
   }
 
-  /* ── Slider: thumbless fill-bar + cyan number ── */
+  /* ── Slider: thumbless fill-bar + cyan number. The colour's alpha is the same widget box and knob,
+     its fill base's checkerboard under the colour's ramp. ── */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    width: 100%; height: var(--control-height); -webkit-appearance: none; appearance: none; cursor: ew-resize;
+    border-radius: var(--r);
+    background-color: var(--widget);
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--length)); height: var(--control-height); border: none; border-radius: 0; background: var(--accent); cursor: ew-resize; }
+    &::-moz-range-thumb { width: calc(2 * var(--length)); height: var(--control-height); border: none; border-radius: 0; background: var(--accent); cursor: ew-resize; }
+    &:focus-visible { outline: none; }
+  }
+  .s-rgba .s-alpha:focus-visible { box-shadow: inset 0 0 0 1px var(--widget-focus); }
   .s-slider {
-    align-items: center;
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(14 * var(--space)); }
+    /* labelled marks hang in a line the row reserves under the track (padding, so the readout still centres on the track): the gap and a 1.25 line of the label */
+    &:has(.s-mark-labels:not(:empty)) .s-input { padding-bottom: calc(14.5 * var(--length)); }
     .s-track { height: var(--control-height); margin: 0; }
     input[type="range"] {
-      width: 100%; height: var(--control-height); -webkit-appearance: none; appearance: none; cursor: ew-resize;
-      border-radius: var(--r);
-      background: var(--widget);
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--length)); height: var(--control-height); background: var(--accent); cursor: ew-resize; }
-      &::-moz-range-thumb { width: calc(2 * var(--length)); height: var(--control-height); border: none; border-radius: 0; background: var(--accent); cursor: ew-resize; }
       &:hover { background: var(--widget-hover); }
       &:active, &:focus-visible { background: var(--widget-focus); outline: none; }
     }
     .s-marks { display: none; }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--hint); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--hint); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     .s-readout {
       flex: 0 0 auto; width: 27%; min-width: calc(45 * var(--length)); text-align: left;
       background: var(--widget); color: var(--accent); border: none; border-radius: var(--r);
@@ -196,7 +208,7 @@ export default function dat({
       &:hover select { background: var(--widget-hover); } }
     &.s-dropdown select { flex: 0 1 auto; width: auto; field-sizing: content; max-width: 100%; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--text); padding: 0 1.75em 0 0.55em; line-height: var(--control-height);
       option { background: var(--menu); color: var(--text); } }
-    &.s-segmented { .s-input { gap: calc(1 * var(--length)); } button { flex: 1; background: var(--widget); border: none; color: var(--text); padding: calc(3 * var(--space)); &:hover { background: var(--widget-hover); } &.s-selected { background: var(--accent); color: var(--ink); } } }
+    &.s-segmented { .s-input { gap: calc(1 * var(--length)); } button { flex: 1; background: var(--widget); border: none; border-radius: var(--r); color: var(--text); height: var(--control-height); padding: 0 calc(3 * var(--space)); &:hover { background: var(--widget-hover); } &.s-selected { background: var(--accent); color: var(--ink); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); padding: calc(3 * var(--space)) 0; } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
@@ -204,7 +216,7 @@ export default function dat({
   .s-boolean input[type="checkbox"], .s-checkboxes .s-track { -webkit-appearance: none; appearance: none; flex: none; width: calc(.75 * var(--control-height)); height: calc(.75 * var(--control-height)); margin: 0; background: var(--widget); color: var(--text); border-radius: var(--r); font: inherit; line-height: normal; text-align: center; cursor: pointer; }
   .s-boolean input[type="checkbox"]:checked::before, .s-checkboxes input:checked + .s-track::before { content: '✓'; font-family: 'lil-gui'; font-size: calc(.75 * var(--control-height)); line-height: calc(.75 * var(--control-height)); }
   .s-boolean {
-    align-items: center;
+    .s-input { min-height: var(--control-height); }
     input[type="checkbox"] { position: static; opacity: 1; outline: none;
       &:hover { background: var(--widget-hover); }
       &:active { background: var(--widget-focus); }

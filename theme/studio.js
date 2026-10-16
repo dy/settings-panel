@@ -1,27 +1,21 @@
 /**
- * studio – an original theme for the row-as-instrument idiom pioneered by
+ * studio – an original theme after the pill-row dial panel of
  * DialKit (Josh Puckett – https://www.dialkit.dev/, https://github.com/joshpuckett/dialkit,
  * verified against commit 0301abdf0b84fc3d60a4c4fa3a99bfb2044959e3: theme.css + Slider.tsx).
  *
  * Signature: every row is a soft alpha-tinted pill, label at left / value at
- * right. A slider's fill IS its own row background – the label rides on top
- * of it, the value edits in place past its edge, a hairline handle marks the
- * fill's current position. One ink color drives every state; there is no
- * accent axis (tweakpane's precedent here – interaction reads as lightness/
- * alpha, never hue).
+ * right. One ink color drives every state; there is no accent axis
+ * (tweakpane's precedent here – interaction reads as lightness/alpha, never hue).
+ * A box inside a row (button, segment, toggle, axis, textarea, pad) sits one
+ * nest inset from the row's top, bottom and near edge, its radius the row's
+ * less that inset.
  *
  * Deliberate departures from the shipped DialKit source, matching the
  * reference screenshots over the current repo (per orchestrator decision):
  *   - color swatch is a circle (source draws a 5px-rounded square)
- *   - step dots are visible at rest (subtle) rather than hidden until
- *     interaction, in both shades - orchestrator decision, per the light
- *     reference's own Width row
- *   - in light shade only, the slider handle is visible at rest too
- *     (subtle), strengthening on hover/drag; dark keeps the source's own
- *     rest opacity of 0 (Slider.tsx) - the dark reference's own screenshot
- *     confirms this: its fill edge is a soft gradient with no separate
- *     resting hairline anywhere, including rows where the fill lands mid-
- *     label (Label Animation Ms, Translate Px, Blur Px)
+ *   - the slider is a track and thumb in the value column, not DialKit's
+ *     row-as-fill (owner's decision): the thumb is the switch's knob, the
+ *     track its ink steps; step dots mark the steps still ahead
  *   - values (text/number/select/slider) render in the UI font with tabular
  *     numerals, not a separate monospace face
  *   - boolean gains a `segmented` Off/On variant – the design-tool "grey
@@ -32,14 +26,6 @@
  *     real sentence-case title + chevron (`folder`, dark reference's
  *     Enter/Exit/Dividers) – each screenshot's own convention, kept apart
  *     rather than merged into one
- *   - a slider's label reserves a small leading gap past the row's own
- *     inset (measured off the light reference's own Offset row: the resting
- *     handle sits at the row's normal inset, same as every other control's
- *     label, and the label text starts ~8px further in) so the handle never
- *     sits under the first glyph at low values. It is a fixed reserve, not
- *     the reference's live text-width dodge (that needs JS-measured text,
- *     out of scope for a CSS-only theme) - it clears the common low-value
- *     case, not every label length at every fill percentage
  *
  * Contrast: every text / UI-boundary tone comes from theme/color.js's
  * `ink()` against `shade`, not a hand-picked alpha. `ink(shade)` is the
@@ -101,14 +87,18 @@ export default function studio({
   const placeholderOnFace = fit([...page(face), ...page(g => face(g, hovered))], tertiary)
   // and the search field's, which lies on the bare panel in the title
   const placeholderOnPanel = fit(page(g => g), tertiary)
-  const knobRing = dark ? '' : 'box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.08);'
+  const knobRing = dark ? '' : 'box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 1px calc(2 * var(--length)) rgba(0,0,0,.08);'
 
   const chevDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 2 L6 6.5 L10.5 2' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const chevUpDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L5 1 L9 5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M1 9 L5 13 L9 9' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
-  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  const chevUp = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 6 L5 2 L9 6' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  const chevDn = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1 L5 5 L9 1' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
+  // Body 13px: DialKit sets its labels and values at 13px.
+  const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 13, fontFamily: "-apple-system, system-ui, 'SF Pro Display', sans-serif", lineHeight: 18, controlHeight: 36, inset: 12, rowGap: 6, columnGap: 12, sectionGap: 12, panelPadding: 12 })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, fontFamily: "-apple-system, system-ui, 'SF Pro Display', sans-serif", lineHeight: 18, controlHeight: 36, inset: 12, rowGap: 6, columnGap: 12, sectionGap: 12, panelPadding: 12 })}
 
   /* ── Ink (shade axis only – no accent; every state is lightness/alpha of one ink) ── */
   --bg: ${shade};
@@ -132,8 +122,20 @@ export default function studio({
   --r: calc(8 * var(--length) * ${roundness});
   --r-panel: calc(14 * var(--length) * ${roundness});
   --h: var(--control-height);
+  /* A box inside a row sits one nest in from its top, bottom and near edge; its radius nests too */
+  --nest: calc(4 * var(--space));
+  --r-nest: max(0px, calc(var(--r) - var(--nest)));
+  --box: calc(var(--h) - 2 * var(--nest));
+  /* A value that fills its column (track, segments, axes, buttons, options) starts at one x in every row */
+  --label-col: 50%;
+  /* One slider: a pill track in the ink's steps under the switch's knob */
+  --track: calc(6 * var(--length));
+  --thumb: calc(16 * var(--length));
+  --knob: #fff;
+  --glyph: calc(16 * var(--length)); /* check box and radio */
+  --chev-w: calc(9 * var(--length)); /* the up/down chevron's width: select and number stepper */
   --w: calc(320 * var(--length));
-  --shadow: ${dark ? '0 8px 32px rgba(0,0,0,.5)' : '0 4px 20px rgba(0,0,0,.08)'};
+  --shadow: ${dark ? '0 calc(8 * var(--length)) calc(32 * var(--length)) rgba(0,0,0,.5)' : '0 calc(4 * var(--length)) calc(20 * var(--length)) rgba(0,0,0,.08)'};
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background: color-mix(in srgb, var(--bg) 88%, transparent);
@@ -157,7 +159,7 @@ export default function studio({
   > summary, > .s-panel-title {
     font-weight: calc(var(--weight) + 150); font-size: calc(15 * var(--length)); color: var(--ink);
     padding: 0 0 calc(8 * var(--space));
-    &::after { content: ''; width: calc(11 * var(--length)); height: calc(11 * var(--length)); margin-left: auto; background: var(--ink-tertiary); -webkit-mask: ${chevDown} center / contain no-repeat; mask: ${chevDown} center / contain no-repeat; opacity: .7; transition: transform .15s, opacity .15s; }
+    &::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); margin-left: auto; background: var(--ink-tertiary); -webkit-mask: ${chevDown} center / contain no-repeat; mask: ${chevDown} center / contain no-repeat; opacity: .7; transition: transform .15s, opacity .15s; }
     &:hover::after { opacity: 1; }
     &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: calc(var(--r) / 2); }
   }
@@ -171,72 +173,59 @@ export default function studio({
   .s-control:hover, .s-control:focus-within { background: var(--row-hover); }
   .s-control:has(> .s-input[inert]) { opacity: .5; }
   .s-label-group { width: auto; max-width: 55%; flex: 0 1 auto; min-width: 0; gap: 0; }
+  :is(.s-slider:not(.s-multiple), .s-select:is(.s-segmented, .s-radio, .s-checkboxes), .s-button) > .s-label-group { flex: 0 0 auto; width: var(--label-col); max-width: var(--label-col); }
+  /* an interval leads with its low readout, so its track cannot share that x: it takes the room its label leaves */
   .s-label { font-weight: var(--weight); color: var(--ink-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .s-hint { display: none; } /* DialKit rows carry no secondary hint line – title (?) still works */
+  .s-title-text { font-size: calc(11 * var(--length)); background: var(--ink); color: var(--bg); padding: calc(2 * var(--space)) calc(6 * var(--space)); border-radius: calc(var(--r) / 2); } /* as the slider's tooltip */
   .s-input { flex: 1 1 auto; justify-content: flex-end; align-items: center; gap: var(--inset); color: var(--ink); min-width: 0; }
+  /* A box at the row's end nests: the row's own inset at the near edge becomes the nest */
+  .s-control:is(.s-button, .s-vector, .s-textarea, .s-xy, .s-select.s-segmented, .s-boolean:is(.s-toggle, .s-segmented)) { padding-block: var(--nest); padding-right: var(--nest); }
+  .s-button:has(> .s-label-group[hidden]) { padding-left: var(--nest); }
+  /* A row of several lines keeps its label on the first, centred where a one-line row centres it */
+  .s-control:is(.s-radio, .s-checkboxes, .s-swatches, .s-textarea, .s-xy) { align-items: flex-start;
+    > .s-label-group { min-height: var(--h); justify-content: center; }
+  }
+  .s-control:is(.s-textarea, .s-xy) > .s-label-group { min-height: var(--box); }
   .s-folder, .s-separator,
   .s-folder:hover, .s-folder:focus-within,
   .s-separator:hover, .s-separator:focus-within { background: none; padding: 0; min-height: 0; }
   input, select, textarea, button { font-family: inherit; font-size: inherit; font-variant-numeric: tabular-nums; }
-  .s-text input, .s-number input, .s-select.s-dropdown select { height: var(--h); padding-block: 0; }
+  /* Values end at the row's inset, as every row's value does */
+  .s-text input, .s-number input, .s-select.s-dropdown select, .s-color input[type="text"] { height: var(--h); padding-block: 0; padding-inline: 0; }
   button { cursor: pointer; }
 
-  /* ── Slider – the signature: the row IS the instrument ── */
+  /* ── Slider: label left, a pill track and the switch's knob in the value column, the readout at the row's end ── */
   .s-slider {
-    position: relative;
-    display: grid; grid-template-columns: 1fr; align-items: stretch; padding: 0; gap: 0;
-    /* The handle travels one handle-inset in from each end, so at rest it sits just
-       before the label; the fill always ends one handle-inset past the handle. */
-    --handle-x: calc(var(--inset) * .45);
-    --handle: ${wash(dark ? 0 : 35)};
-    > .s-label-group, > .s-input { grid-area: 1 / 1; width: 100%; }
-    > .s-label-group { z-index: 2; pointer-events: none; flex-direction: row; align-items: center; padding: 0 var(--inset); max-width: 62%; }
-    > .s-input { max-width: none; position: relative; padding: 0; align-items: stretch; }
-    .s-track { flex: 1; position: relative; display: flex; }
+    .s-track { height: var(--thumb); }
+    input[type="range"], .s-interval-track { height: var(--track); border-radius: 999px; }
     input[type="range"] {
-      -webkit-appearance: none; appearance: none; width: 100%; height: 100%; margin: 0; padding: 0 var(--handle-x);
-      border-radius: var(--r); overflow: hidden; background: none; cursor: pointer;
-      &::-webkit-slider-runnable-track { height: 100%; }
-      /* The thumb is the hairline handle; its offset shadow is the fill, clipped by the
-         row's radius, so fill and handle can never drift apart. */
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: 3px; height: calc(20 * var(--length)); margin-top: calc((var(--h) - 20 * var(--length)) / 2); border-radius: 999px; background: linear-gradient(var(--handle), var(--handle)), var(--border-hover);
-        box-shadow: calc(var(--handle-x) - 100vw) 0 0 100vw var(--border-hover); }
-      &::-moz-range-thumb { width: 3px; height: calc(20 * var(--length)); border-radius: 999px; border: none; background: linear-gradient(var(--handle), var(--handle)), var(--border-hover);
-        box-shadow: calc(var(--handle-x) - 100vw) 0 0 100vw var(--border-hover); }
-      &:hover, &:focus-visible { --handle: ${wash(65)}; }
-      &:active { --handle: ${wash(95)}; }
-      &:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+      -webkit-appearance: none; appearance: none; width: 100%; margin: 0; cursor: pointer;
+      background: linear-gradient(to right, var(--dot-active) var(--p, 0%), var(--row-active) var(--p, 0%));
+      &:focus-visible { outline: none; }
     }
-    .s-marks, .s-mark-labels { position: absolute; inset: 0 calc(var(--handle-x) + 1.5px); pointer-events: none; }
+    /* Step dots mark the steps still ahead: those under the fill are hidden, and the far end,
+       which the track's own end marks */
+    .s-marks, .s-mark-labels { position: absolute; inset: 0 calc(var(--thumb) / 2); pointer-events: none; }
     .s-mark-labels { display: none; } /* DialKit's hashmarks carry no text, dots only */
-    /* Step dots mark the steps still ahead: those under the fill, and the end the
-       value sits over, are hidden (light reference, Width row). */
     .s-mark { position: absolute; top: 50%; width: calc(3 * var(--length)); height: calc(3 * var(--length)); border-radius: 50%; transform: translate(-50%, -50%); background: var(--border-hover); transition: background .2s; }
     .s-mark.s-active, .s-marks:not(:has(~ .s-marks)) .s-mark { visibility: hidden; }
     &:hover .s-mark, &:focus-within .s-mark { background: var(--dot-active); }
-    .s-readout { position: absolute; right: var(--inset); top: 50%; transform: translateY(-50%); z-index: 3; pointer-events: auto;
-      background: transparent; border: none; padding: 0; width: auto; min-width: 0; max-width: 7ch; text-align: right;
-      font-weight: var(--weight); color: var(--ink); cursor: text;
-    }
+    /* The readout is the row's value: body size, at the row's end; at least 4ch, so the track holds still */
+    .s-readout { flex: none; min-width: 4ch; background: transparent; border: none; padding: 0; text-align: right; font-weight: var(--weight); color: var(--ink); cursor: text; }
+    input.s-readout { width: 7ch; @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     .s-readout:focus-visible { outline: none; box-shadow: inset 0 -1px var(--focus); }
-    .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(6 * var(--space)); background: var(--ink); color: var(--bg); padding: calc(2 * var(--space)) calc(6 * var(--space)); border-radius: calc(var(--r) / 2); white-space: nowrap; z-index: 4; }
-    /* Interval (multiple) sliders keep two native thumbs – out of scope for the fill-as-row
-       treatment (no reference image covers it), so it falls back to the plain generic row:
-       label in its own column, low readout + track + high readout in a normal flex line. */
-    &.s-multiple {
-      display: flex; padding: 0 var(--inset); gap: var(--inset);
-      > .s-label-group { position: static; z-index: auto; pointer-events: auto; width: auto; max-width: 55%; padding: 0; }
-      > .s-input { position: static; padding: 0; width: auto; }
-      .s-readout { position: static; field-sizing: content; }
+    .s-tooltip { margin-bottom: calc(6 * var(--space)); background: var(--ink); color: var(--bg); font-size: calc(11 * var(--length)); padding: calc(2 * var(--space)) calc(6 * var(--space)); border-radius: calc(var(--r) / 2); z-index: 4; }
+    &.s-multiple .s-interval-track { flex: 1; align-self: center;
+      background: linear-gradient(to right, var(--row-active) var(--low, 0%), var(--dot-active) var(--low, 0%), var(--dot-active) var(--high, 100%), var(--row-active) var(--high, 100%));
+      input[type="range"] { background: none; height: 100%; }
     }
-    &.s-multiple .s-interval-track { align-self: center; height: calc(6 * var(--length)); margin: 0; background: var(--row); border-radius: 999px; position: relative; overflow: visible;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--border-hover); border-radius: inherit; }
-      input[type="range"] { background: none; height: calc(6 * var(--length)); overflow: visible;
-        &::-webkit-slider-thumb { width: calc(14 * var(--length)); height: calc(14 * var(--length)); margin-top: calc(-4 * var(--length)); border-radius: 50%; opacity: .9; background: #fff; box-shadow: none; ${knobRing} }
-        &::-moz-range-thumb { width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: 50%; opacity: .9; background: #fff; box-shadow: none; ${knobRing} }
-      }
-    }
-    &.s-multiple .s-readout { position: static; transform: none; flex: 0 0 auto; }
+  }
+  .s-slider input[type="range"], .s-color.s-rgba .s-alpha {
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border: none; border-radius: 50%; background: var(--knob); ${knobRing} }
+    &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: none; border-radius: 50%; background: var(--knob); ${knobRing} }
+    &:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--focus); }
+    &:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(--focus); }
   }
 
   /* ── Boolean: switch (image 1), segmented Off/On (image 2), plus checkbox/toggle ── */
@@ -244,29 +233,28 @@ export default function studio({
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &.s-switch .s-track {
       width: calc(36 * var(--length)); height: calc(20 * var(--length)); border-radius: 999px; background: var(--row-active); position: relative; cursor: pointer; transition: background .2s;
-      &::after { content: ''; position: absolute; top: 2px; left: 2px; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: #fff; transition: left .2s; ${knobRing} }
+      &::after { content: ''; position: absolute; top: calc(2 * var(--length)); left: calc(2 * var(--length)); width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: #fff; transition: left .2s; ${knobRing} }
     }
-    &.s-switch:has(input:checked) .s-track { background: var(--border-hover); &::after { left: calc(100% - 18px); } }
+    &.s-switch:has(input:checked) .s-track { background: var(--border-hover); &::after { left: calc(100% - 18 * var(--length)); } }
     &.s-switch:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-    &.s-checkbox .s-track { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: calc(var(--r) / 2); background: var(--row-active); display: grid; place-items: center; cursor: pointer; transition: background .15s;
+    &.s-checkbox .s-track { width: var(--glyph); height: var(--glyph); border-radius: calc(var(--r) / 2); background: var(--row-active); display: grid; place-items: center; cursor: pointer; transition: background .15s;
       &::after { content: ''; width: 62%; height: 50%; opacity: 0; background: var(--ink); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; transition: opacity .1s; }
     }
     &.s-checkbox:has(input:checked) .s-track { background: var(--border-hover); &::after { opacity: 1; } }
     &.s-checkbox:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-    &.s-toggle .s-track { height: var(--h); border-radius: var(--r); cursor: pointer; padding: 0 calc(14 * var(--space)); background: var(--row-active); display: flex; align-items: center; justify-content: center; font-weight: var(--weight); color: var(--ink-label); transition: background .15s, color .15s;
+    &.s-toggle .s-track { height: var(--box); border-radius: var(--r-nest); cursor: pointer; padding: 0 calc(14 * var(--space)); background: var(--row-active); display: flex; align-items: center; justify-content: center; font-weight: var(--weight); color: var(--ink-label); transition: background .15s, color .15s;
       &::after { content: 'Off'; }
     }
     &.s-toggle:has(input:checked) .s-track { background: var(--border-hover); color: var(--ink); &::after { content: 'On'; } }
     &.s-toggle:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-    /* segmented: both labels always visible, a sliding pill highlights the active one – image 3's design-tool convention */
-    /* Off/On sit compact at the row's end; the active word carries the raised pill (image 2). */
+    /* segmented: both words always visible at the row's end; the active one carries the raised pill (image 2) */
     &.s-segmented .s-input { flex: 0 0 auto; margin-left: auto; }
     &.s-segmented .s-track {
-      display: flex; gap: 2px; padding: 2px; border-radius: var(--r); cursor: pointer;
-      &::before, &::after { display: grid; place-items: center; height: calc(var(--h) - 8 * var(--length)); padding: 0 calc(14 * var(--space)); border-radius: calc(var(--r) - 2px); font-weight: var(--weight); transition: background .2s, color .15s; }
+      display: flex; cursor: pointer;
+      &::before, &::after { display: grid; place-items: center; height: var(--box); padding: 0 calc(14 * var(--space)); border-radius: var(--r-nest); font-weight: var(--weight); transition: background .2s, color .15s; }
       &::before { content: 'Off'; color: var(--ink); background: var(--border-hover); }
       &::after { content: 'On'; color: var(--ink-label); }
     }
@@ -276,25 +264,26 @@ export default function studio({
 
   /* ── Select: dropdown with an up/down chevron (image 1), segmented (image 3), radio/checkboxes ── */
   .s-select {
-    &.s-dropdown .s-input { position: relative; flex: 0 1 auto; min-width: 0; padding-right: calc(16 * var(--space));
-      &::after { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: calc(9 * var(--length)); height: calc(13 * var(--length)); background: var(--ink-tertiary); -webkit-mask: ${chevUpDown} center / contain no-repeat; mask: ${chevUpDown} center / contain no-repeat; pointer-events: none; }
+    &.s-dropdown .s-input { position: relative; flex: 0 1 auto; min-width: 0; margin-left: auto; padding-right: calc(var(--chev-w) + var(--nest));
+      &::after { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: var(--chev-w); height: calc(13 * var(--length)); background: var(--ink-tertiary); -webkit-mask: ${chevUpDown} center / contain no-repeat; mask: ${chevUpDown} center / contain no-repeat; pointer-events: none; }
     }
     &.s-dropdown select { flex: 0 1 auto; width: auto; min-width: 0; max-width: 100%; appearance: none; -webkit-appearance: none; background: transparent; border: none; cursor: pointer; color: var(--ink); font-weight: var(--weight); text-align: right; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
       option { background: var(--bg); color: var(--ink); }
     }
-    &.s-segmented .s-input { gap: 0; padding: 2px; background: var(--row); border-radius: var(--r); }
-    &.s-segmented button { flex: 1; height: calc(var(--h) - 4 * var(--length)); background: transparent; border: none; border-radius: calc(var(--r) - 2px); color: var(--ink-label); font-weight: var(--weight); transition: background .15s, color .15s;
+    /* the row is the segments' track: the chosen one is a pill nested in it */
+    &.s-segmented .s-input { gap: 0; }
+    &.s-segmented button { flex: 1; height: var(--box); padding: 0 calc(8 * var(--space)); background: transparent; border: none; border-radius: var(--r-nest); color: var(--ink-label); font-weight: var(--weight); transition: background .15s, color .15s;
       &:hover { color: var(--ink); }
-      &.s-selected { background: var(--row-active); color: var(--ink); }
+      &.s-selected { background: var(--border-hover); color: var(--ink); }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
     }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(6 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(8 * var(--space)); cursor: pointer; color: var(--ink-label); } }
-    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: 50%; background: var(--row-active); flex-shrink: 0; display: grid; place-items: center; cursor: pointer;
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(6 * var(--space)); padding-block: calc((var(--h) - var(--line-height)) / 2); } .s-input label { display: flex; align-items: center; gap: calc(8 * var(--space)); cursor: pointer; color: var(--ink-label); } }
+    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: var(--glyph); height: var(--glyph); border-radius: 50%; background: var(--row-active); flex-shrink: 0; display: grid; place-items: center; cursor: pointer;
       &::after { content: ''; width: 50%; height: 50%; border-radius: 50%; background: var(--ink); opacity: 0; }
       &:checked::after { opacity: 1; }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
     }
-    &.s-checkboxes .s-track { width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: calc(var(--r) / 2); background: var(--row-active); display: grid; place-items: center; flex-shrink: 0;
+    &.s-checkboxes .s-track { width: var(--glyph); height: var(--glyph); border-radius: calc(var(--r) / 2); background: var(--row-active); display: grid; place-items: center; flex-shrink: 0;
       &::after { content: ''; width: 62%; height: 50%; opacity: 0; background: var(--ink); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; }
     }
     &.s-checkboxes label:has(input:checked) .s-track { background: var(--border-hover); &::after { opacity: 1; } }
@@ -311,12 +300,10 @@ export default function studio({
     }
     &.s-picker input[type="text"] { width: 0; min-width: 0; opacity: 0; padding: 0; border: none; background: transparent; text-align: right; color: var(--ink-label); font-weight: var(--weight); transition: width .15s, opacity .15s, margin .15s; }
     &.s-picker:hover input[type="text"], &.s-picker:focus-within input[type="text"] { width: 9ch; opacity: 1; }
-    &.s-rgba .s-alpha { height: calc(6 * var(--length)); border-radius: 999px;
-      &::-webkit-slider-thumb { width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; background: var(--ink); border: 2px solid var(--bg); }
-      &::-moz-range-thumb { width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; background: var(--ink); border: 2px solid var(--bg); }
-    }
+    /* the alpha slider is the slider: its track and knob, the checkerboard and ramp in place of the fill */
+    &.s-rgba .s-alpha { height: var(--track); border-radius: 999px; }
     &.s-rgba input[type="text"] { flex: 1; min-width: 6ch; background: transparent; border: none; text-align: right; color: var(--ink-label); font-weight: var(--weight); }
-    &.s-swatches .s-input { flex-wrap: wrap; justify-content: flex-end; gap: calc(8 * var(--space)); }
+    &.s-swatches .s-input { flex-wrap: wrap; justify-content: flex-end; gap: calc(8 * var(--space)); padding-block: calc((var(--h) - 20 * var(--length)) / 2); }
     &.s-swatches button { width: calc(20 * var(--length)); height: calc(20 * var(--length)); padding: 0; border-radius: 50%; border: 1px solid var(--border);
       &.s-selected { outline: 2px solid var(--ink); outline-offset: 2px; }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -333,12 +320,17 @@ export default function studio({
     &:focus { cursor: text; }
     &:focus-visible { outline: none; box-shadow: inset 0 -1px var(--focus); }
   }
-  .s-number .s-step { opacity: 0; transition: opacity .15s;
-    button { width: calc(14 * var(--length)); background: transparent; border: none; padding: 0; color: var(--ink-tertiary); font-size: .6em; line-height: 1; &:hover { color: var(--ink); } }
+  /* the stepper is the select's up/down chevron cut in two, one nest past the value, shown in hand */
+  .s-number .s-input { gap: var(--nest); }
+  .s-number .s-step { opacity: 0; transition: opacity .15s; gap: 0;
+    button { width: var(--chev-w); height: calc(6.5 * var(--length)); padding: 0; border: none; font-size: 0; background: var(--ink-tertiary); -webkit-mask: ${chevUp} center / contain no-repeat; mask: ${chevUp} center / contain no-repeat; &:hover { background: var(--ink); } }
+    .s-step-down { -webkit-mask-image: ${chevDn}; mask-image: ${chevDn}; }
   }
   .s-number:hover .s-step, .s-number:focus-within .s-step { opacity: .7; }
-  .s-textarea { align-items: stretch;
-    textarea { flex: 1; background: var(--row-active); border: none; border-radius: var(--r); padding: var(--inset); color: var(--ink); resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height) + 2 * var(--inset)); max-height: 50vh;
+  .s-textarea {
+    /* its first line sits on the label's */
+    --pad-y: calc((var(--h) - var(--line-height)) / 2 - var(--nest));
+    textarea { flex: 1; background: var(--row-active); border: none; border-radius: var(--r-nest); padding: var(--pad-y) calc(var(--inset) - var(--nest)); color: var(--ink); resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height) + 2 * var(--pad-y)); max-height: 50vh;
       &::placeholder { color: var(--ink-placeholder-face); }
       &:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--border-hover); }
     }
@@ -346,7 +338,8 @@ export default function studio({
   }
 
   /* ── Button ── */
-  .s-button button { flex: 1; min-height: var(--h); background: var(--row-active); color: ${onButton}; border: none; border-radius: var(--r); font-weight: var(--weight); transition: background .15s, color .15s;
+  .s-button .s-input { gap: var(--nest); }
+  .s-button button { flex: 1; min-height: var(--box); background: var(--row-active); color: ${onButton}; border: none; border-radius: var(--r-nest); font-weight: var(--weight); transition: background .15s, color .15s;
     &:hover { background: var(--border-hover); color: var(--ink); }
     &:active { background: var(--border-hover); }
     &:disabled, &[aria-busy="true"] { opacity: .4; cursor: not-allowed; }
@@ -360,8 +353,8 @@ export default function studio({
   .s-info .s-monitor { color: var(--ink); font-weight: var(--weight); opacity: 1; }
 
   /* ── Vector ── */
-  .s-vector .s-input { gap: calc(6 * var(--space)); }
-  .s-vector .s-vec-axis { flex: 1; min-width: 0; gap: calc(4 * var(--space)); background: var(--row-active); border-radius: var(--r); padding: 0 calc(8 * var(--space)); height: var(--h);
+  .s-vector .s-input { gap: var(--nest); }
+  .s-vector .s-vec-axis { flex: 1; min-width: 0; gap: calc(4 * var(--space)); background: var(--row-active); border-radius: var(--r-nest); padding: 0 calc(8 * var(--space)); height: var(--box);
     &:focus-within { box-shadow: inset 0 0 0 1px var(--border-hover); }
   }
   .s-vector .s-vec-label { color: var(--ink-tertiary); font-size: calc(11 * var(--length)); }
@@ -369,13 +362,13 @@ export default function studio({
   .s-vector .s-vec-expand { background: var(--ink-tertiary); opacity: .7; &:hover, &.s-open { opacity: 1; } }
 
   /* ── XY pad / Knob ── */
-  .s-pad { background: var(--row-active); border: 1px solid var(--border); border-radius: var(--r);
+  .s-pad { background: var(--row-active); border: 1px solid var(--border); border-radius: var(--r-nest);
     .s-pad-x, .s-pad-y { background: var(--border-hover); }
-    .s-pad-dot { background: var(--ink); box-shadow: 0 0 0 2px var(--bg); }
+    .s-pad-dot { background: var(--ink); box-shadow: 0 0 0 calc(2 * var(--length)) var(--bg); }
   }
-  .s-pad-val { color: var(--ink-tertiary); }
+  .s-pad-val { color: var(--ink-tertiary); font-size: calc(11 * var(--length)); }
   .s-knob-dial { background: var(--row-active); border: 1px solid var(--border); i { background: var(--ink); } }
-  .s-knob-val { color: var(--ink); font-weight: var(--weight); opacity: 1; }
+  .s-knob-val { color: var(--ink); font-size: inherit; font-weight: var(--weight); opacity: 1; } /* the row's value, as a slider's readout */
 
   /* ── Folder: DialKit's real group title – sentence case, chevron (dark reference: Enter/Exit/Dividers) ── */
   .s-folder {
@@ -385,12 +378,13 @@ export default function studio({
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: calc(var(--r) / 2); }
     }
     &[open] > summary::after { transform: rotate(180deg); }
-    .s-content { gap: var(--row-gap); padding: 0 0 calc(2 * var(--space)); }
+    .s-content { gap: var(--row-gap); padding: 0; }
   }
 
   /* ── Separator: uppercase tracked eyebrow – non-interactive (light reference: TEXT/LAYOUT/PATH) ── */
   .s-separator { height: 1px; background: var(--border); opacity: 1; margin: calc(4 * var(--space)) 0; }
-  .s-separator-labeled { height: auto; background: none; padding: calc(6 * var(--space)) 0 calc(2 * var(--space));
+  /* a heading, folder title or eyebrow, sits 14 below the row before it and 8 above its first row */
+  .s-separator-labeled { height: auto; background: none; padding: calc(8 * var(--space)) 0 calc(2 * var(--space));
     &::before, &::after { display: none; }
   }
   .s-separator-label { font-size: calc(11 * var(--length)); font-weight: calc(var(--weight) + 100); text-transform: uppercase; letter-spacing: .06em; color: ${eyebrow}; opacity: 1; white-space: normal; }

@@ -22,7 +22,7 @@
     const appearance = document.querySelector('#appearance')
     appearance.value = location.hash === '#dark' ? 'dark' : 'light'
     const mode = signal(appearance.value)
-    const theme = () => devtools({ shade: mode.value === 'dark' ? '#282828' : '#ffffff' })
+    const theme = () => devtools({ shade: mode.value === 'dark' ? '#282828' : '#ffffff', size: 11 / 13 })
     const defaults = { display: 'grid', 'font-size': 14, opacity: .85, color: '#1a73e8', visible: true, transform: 'translateY(0)', gap: 16, 'align-items': 'center' }
     const panel = settings({
       display: { options: ['grid', 'flex', 'block', 'none'], value: defaults.display },

@@ -122,8 +122,10 @@ export default function controlkit({
   const subOpen = sprite(subPal, '....KK....', '...KddK...', '..KdnndK..', '.KdnnnndK.', 'KdnnnnnndK', 'HhhhhhhhhH')
   const subShut = sprite(subPal, 'KkkkkkkkkK', 'HmnnnnnnmH', '.HmnnnnmH.', '..HmnnmH..', '...HmmH...', '....HH....')
 
+  // Body 11px: ControlKit sets its labels and values in Arial at 11px.
+  const body = 11
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "Arial, sans-serif", lineHeight: 15.4, controlHeight: 25, inset: 4, rowGap: 0, columnGap: 0, sectionGap: 8, panelPadding: 0})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: "Arial, sans-serif", lineHeight: 15.4, controlHeight: 25, inset: 4, rowGap: 0, columnGap: 0, sectionGap: 8, panelPadding: 0})}
 
   --bg: ${shade};
   --accent: ${legible(inset, 3, acc)};   /* the fill reads 3:1 in its slot (WCAG 1.4.11): ControlKit's #b32435 gives 2.5:1 */
@@ -142,12 +144,12 @@ export default function controlkit({
   --field-bg: linear-gradient(var(--overlay-1), var(--overlay-2)), var(--field);
   --bevel-dk: ${bevelDk};
   --bevel-lt: ${bevelLt};
-  --bevel: inset 0 0 0 1px var(--bevel-dk), inset -1px 2px 0 0 var(--bevel-lt);
+  --bevel: inset 0 0 0 1px var(--bevel-dk), inset -1px calc(2 * var(--length)) 0 0 var(--bevel-lt);
   /* same bevel technique, darker-toned — for chrome that sits on the near-black
      title rather than the light gray button gradient */
   --bevel-dark-dk: ${bevelDarkDk};
   --bevel-dark-lt: ${bevelDarkLt};
-  --bevel-dark: inset 0 0 0 1px var(--bevel-dark-dk), inset -1px 2px 0 0 var(--bevel-dark-lt);
+  --bevel-dark: inset 0 0 0 1px var(--bevel-dark-dk), inset -1px calc(2 * var(--length)) 0 0 var(--bevel-dark-lt);
   --menu-bg: ${menuBg};
   --chrome-hot: ${chromeHot};
   --chrome-hi: ${chromeHi};
@@ -183,7 +185,7 @@ export default function controlkit({
   max-width: calc(200 * var(--length));
   border-radius: calc(3 * var(--length));
   padding: var(--panel-padding);
-  box-shadow: var(--shadow) 0 2px 2px 0;
+  box-shadow: var(--shadow) 0 calc(2 * var(--length)) calc(2 * var(--length)) 0;
   /* native's overflow:hidden: the square title and last row take the rounded corners */
   overflow: clip;
 
@@ -212,7 +214,9 @@ export default function controlkit({
   .s-label-group { flex: 0 0 30%; width: 30%; min-width: 0; max-width: none; padding: calc(12 * var(--space)) calc(5 * var(--space)) 0 0; line-height: normal; }
   /* native ellipsizes in a 34px-tall box; clip (not hidden) with a 1px margin keeps the 1px text-shadow under descenders */
   .s-label-group .s-label { min-width: 0; overflow: clip; overflow-clip-margin: 1px; white-space: nowrap; text-overflow: ellipsis; color: var(--text); font-weight: 400; text-shadow: 1px 1px 0 var(--text-shadow); }
-  .s-hint { color: var(--quiet); opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-hint { color: var(--quiet); opacity: 1; }
+  /* secondary text, one step under the body */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: calc(10 * var(--length)); }
   .s-input { gap: calc(4 * var(--space)); align-items: flex-start; padding-top: calc(5 * var(--space)); }
 
   /* ── Fields ── */
@@ -231,7 +235,8 @@ export default function controlkit({
   /* ── Slider: 70% slot with a thumbless red fill, 25% readout flush right ── */
   .s-slider {
     &:not(.s-multiple) .s-input { padding-top: calc(6 * var(--space)); justify-content: space-between; gap: 0; }
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
+    /* labelled marks hang in a line the row reserves under the track: the gap and a 1.25 line of the label */
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(14.5 * var(--length)); }
     .s-track { flex: 0 1 70%; height: var(--control-height); margin: 0; background: var(--inset); border-radius: calc(2 * var(--length)); padding: calc(3 * var(--space)) calc(3 * var(--space)) calc(2 * var(--space)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize; }
     /* fill = handle face + its shading gradient over a 1px drop line, --p wide rounded to whole
        px like native's Math.round(intrpl * slotWidth) */
@@ -243,7 +248,9 @@ export default function controlkit({
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
     }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--quiet); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--quiet); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     /* the original's 25% box; a longer value ('440 Hz') widens it and the slot gives way */
     .s-readout { flex: 0 0 auto; width: 25%; min-width: 25%; @supports (field-sizing: content) { field-sizing: content; width: auto; } text-align: center; background: var(--field-bg); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: var(--control-height); padding: 0; line-height: normal; font-variant-numeric: tabular-nums; text-shadow: 1px 1px 0 var(--text-shadow); box-shadow: inset 0 0 0 1px var(--bevel-dk); }
     /* read-only readouts are spans: center the normal line box the way an input does */
@@ -255,21 +262,32 @@ export default function controlkit({
     &.s-multiple .s-readout { position: relative; width: auto; cursor: ew-resize; }
     &.s-multiple .s-readout-lo { grid-column: 2; }
     &.s-multiple .s-readout-hi { grid-column: 4; }
-    &.s-multiple .s-readout-lo::before,
-    &.s-multiple .s-readout-hi::before { position: absolute; right: 100%; top: 0; width: 100%; padding-top: calc(8 * var(--space)); text-align: center; line-height: normal; color: var(--minmax-label); font-weight: 700; text-shadow: 1px 1px 0 var(--bg); }
-    &.s-multiple .s-readout-lo::before { content: 'MIN'; }
-    &.s-multiple .s-readout-hi::before { content: 'MAX'; }
+    /* the grid's own pseudo cells, so an editable readout (an input, which draws no ::before) keeps them */
+    &.s-multiple .s-input::before, &.s-multiple .s-input::after { grid-row: 1; padding-top: calc(8 * var(--space)); text-align: center; line-height: normal; color: var(--minmax-label); font-weight: 700; text-shadow: 1px 1px 0 var(--bg); }
+    &.s-multiple .s-input::before { content: 'MIN'; grid-column: 1; }
+    &.s-multiple .s-input::after { content: 'MAX'; grid-column: 3; }
+  }
+
+  /* ── The colour's alpha: the slider's slot, the checkerboard under the colour's ramp in place of the fill;
+     a ramp cannot show the value by its length, so a 2px ink handle marks it ── */
+  .s-rgba .s-alpha {
+    flex: 1 1 0; min-width: calc(40 * var(--length)); height: var(--control-height); padding: calc(3 * var(--space)) calc(3 * var(--space)) calc(2 * var(--space)); border-radius: calc(2 * var(--length)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize;
+    background: linear-gradient(to right, transparent, var(--c)) content-box, conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)) content-box, var(--inset);
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--length)); height: calc(var(--control-height) - 5 * var(--space)); border: none; border-radius: 0; background: var(--ink); box-shadow: 0 0 0 1px var(--void); }
+    &::-moz-range-thumb { width: calc(2 * var(--length)); height: calc(var(--control-height) - 5 * var(--space)); border: none; border-radius: 0; background: var(--ink); box-shadow: 0 0 0 1px var(--void); }
+    &:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
   }
 
   /* ── Select: the same gray-gradient button as .s-button, regular weight ── */
   .s-select {
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--ink); font-weight: 400;
-      height: calc(var(--control-height) + 1 * var(--length)); padding: 0 calc(20 * var(--space)) 0 calc(10 * var(--space)); box-shadow: var(--bevel); text-overflow: ellipsis; white-space: nowrap;
+      height: var(--control-height); padding: 0 calc(20 * var(--space)) 0 calc(10 * var(--space)); box-shadow: var(--bevel); text-overflow: ellipsis; white-space: nowrap;
       background: ${selectArrow} right calc(8 * var(--length)) center / calc(8 * var(--length)) calc(11 * var(--length)) no-repeat, var(--chrome);
       &:hover { background-image: ${selectArrow}, var(--chrome-hover); }
       option { background: var(--field); color: var(--text); } }
-    &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: var(--field); border: 1px solid var(--void); color: var(--text); margin-left: calc(-1 * var(--length)); padding: calc(2 * var(--length)); font: inherit; &:first-child { margin-left: 0; } &.s-selected { background: var(--accent); color: var(--ink); } } }
-    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(2 * var(--length)); } .s-input label { display: flex; align-items: center; gap: calc(5 * var(--space)); cursor: pointer; } }
+    &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: var(--field); border: 1px solid var(--void); color: var(--text); margin-left: calc(-1 * var(--length)); height: var(--control-height); padding: 0 calc(2 * var(--length)); font: inherit; &:first-child { margin-left: 0; } &.s-selected { background: var(--accent); color: var(--ink); } } }
+    /* a list starts on the label's line: the first option's text where the label's is, 12px down */
+    &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(2 * var(--length)); padding-top: calc(12 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(5 * var(--space)); cursor: pointer; } }
   }
 
   /* ── Boolean: the OS checkbox, which native ControlKit leaves unstyled; the checkboxes list shows the same box ── */
@@ -288,7 +306,10 @@ export default function controlkit({
         --hex-ink: clamp(0, (.179 - (.2126 * pow((r / 255 + .055) / 1.055, 2.4) + .7152 * pow((g / 255 + .055) / 1.055, 2.4) + .0722 * pow((b / 255 + .055) / 1.055, 2.4))) * 1e6, 255);
         color: rgb(from var(--color) var(--hex-ink) var(--hex-ink) var(--hex-ink));
         text-shadow: 1px 1px 0 rgb(from var(--color) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) / calc(.5 + var(--hex-ink) / 510)); } }
-    &.s-rgba .s-color-input { gap: calc(4 * var(--space)); input[type="color"] { width: calc(28 * var(--length)); height: calc(19 * var(--length)); } input[type="text"] { flex: 1; } }
+    /* rgba: the swatch is a small field, then the alpha slot, then the value at its length */
+    &.s-rgba .s-color-input { gap: calc(4 * var(--space));
+      input[type="color"] { width: calc(28 * var(--length)); height: var(--control-height); padding: 0; border: none; border-radius: calc(2 * var(--length)); overflow: hidden; cursor: pointer; box-shadow: inset 0 0 0 1px var(--field-line); &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } &::-moz-color-swatch { border: none; } }
+      input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; } }
     &.s-swatches .s-input { flex-wrap: wrap; }
     &.s-swatches button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); border: 1px solid var(--void); &.s-selected { outline: 1px solid var(--accent); } }
   }
@@ -298,7 +319,7 @@ export default function controlkit({
   .s-button {
     /* full-width by owner's decision — native ControlKit keeps buttons at the value column */
     .s-input { flex: 1; }
-    button { width: 100%; background: var(--chrome); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: calc(var(--control-height) + 1 * var(--length)); font-size: calc(10 * var(--length)); line-height: normal; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 0 var(--text-shadow); box-shadow: var(--bevel); &:hover { background: var(--chrome-hover); } &:active { background: var(--chrome); } }
+    button { width: 100%; background: var(--chrome); color: var(--ink); border: none; border-radius: calc(2 * var(--length)); height: var(--control-height); font-size: calc(10 * var(--length)); line-height: normal; font-weight: 700; text-transform: uppercase; text-shadow: 0 1px 0 var(--text-shadow); box-shadow: var(--bevel); &:hover { background: var(--chrome-hover); } &:active { background: var(--chrome); } }
     &.s-secondary button, button.s-secondary { background: var(--field); }
   }
 

@@ -20,7 +20,7 @@
  * imgui(axes?) → CSS string
  */
 
-import metrics from './metrics.js'
+import metrics, { scale } from './metrics.js'
 import baseCSS from './base.js'
 import { parseColor, normalizeHex, resolveAccent, contrast, ink, toHex } from './color.js'
 
@@ -123,12 +123,14 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
   // the search field is a frame on the title bar
   const searchPlaceholder = ink(hex(over(P.FrameBg, over(P.TitleBgActive, base).slice(0, 3))), 4.5, hex(P.TextDisabled))
   const textDim = ink(hex(base), 4.5, hex(P.TextDisabled))
+  // Body 13px: ProggyClean's design size, which its 16px CSS em draws; a replacement font is set at 13px.
+  const body = 13
   const axis = v => typeof v === 'number' && Number.isFinite(v) ? Math.min(2, Math.max(.5, v)) : 1
-  const clipMargin = +(4 * axis(size) * axis(spacing)).toFixed(2)   // WindowPadding.x / 2
+  const clipMargin = +(4 * scale(size, body) * axis(spacing)).toFixed(2)   // WindowPadding.x / 2
 
   const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, {
-    fontSize: font ? 13 : 16, fontFamily: "'ProggyClean', ui-monospace, Menlo, Consolas, monospace",
+    body, fontSize: font ? body : 16, fontFamily: "'ProggyClean', ui-monospace, Menlo, Consolas, monospace",
     lineHeight: 13, controlHeight: 19, inset: 3, rowGap: 4, columnGap: 4, sectionGap: 4, panelPadding: 8,
   })}
 
@@ -437,6 +439,7 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
         background: linear-gradient(to right, transparent, var(--c)), var(--checker);
         &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--grab-min); height: calc(var(--fh) - 2 * var(--grab-pad)); border: 0; border-radius: 0; background: var(--grab); }
         &::-moz-range-thumb { width: var(--grab-min); height: calc(var(--fh) - 2 * var(--grab-pad)); border: 0; border-radius: 0; background: var(--grab); }
+        &:active { &::-webkit-slider-thumb { background: var(--grab-active); } &::-moz-range-thumb { background: var(--grab-active); } }
         &:focus { outline: none; }
         &:focus-visible { outline: 2px solid var(--nav); outline-offset: 3px; }
       }

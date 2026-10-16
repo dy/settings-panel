@@ -98,8 +98,10 @@ export default function synth({
 
   const cycle = Array.isArray(hues) ? hues.filter(h => h != null && h !== '').map(h => resolveAccent(h, shade)) : []
 
+  // Body 12px: Learning Synths sets its labels and values in Outfit at 12px.
+  const body = 12
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 12, lineHeight: 18, controlHeight: 28, inset: 7.5, rowGap: 9, columnGap: 8, panelPadding: 21, fontFamily: "'Outfit', system-ui, sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 12, lineHeight: 18, controlHeight: 28, inset: 7.5, rowGap: 9, columnGap: 8, panelPadding: 21, fontFamily: "'Outfit', system-ui, sans-serif" })}
 
   /* ── Tones (shade axis) ── */
   --bg: ${shade};
@@ -188,7 +190,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: 50%;
     border: calc(1.5 * var(--length)) solid currentColor; font-size: calc(9 * var(--length)); line-height: 1;
   }
-  .s-title-text { top: calc(100% + 4px); padding: calc(4 * var(--space)) calc(8 * var(--space)); background: var(--ink); color: var(--bg); border-radius: var(--r); line-height: var(--line-height); }
+  .s-title-text { top: calc(100% + 4 * var(--length)); padding: calc(4 * var(--space)) calc(8 * var(--space)); background: var(--ink); color: var(--bg); border-radius: var(--r); line-height: var(--line-height); }
 
   /* ── Fields: grey wells on the card ── */
   input[type="text"], input[type="number"], textarea, select {
@@ -215,7 +217,9 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
       &:focus { cursor: text; } &:focus-visible { outline: none; } }
     /* the arrows lie on the field, not the card: the hue mark held to 3:1 there (the card's mark reads 2.8:1 on a light field) */
     .s-step { gap: 0; padding-right: calc(4 * var(--space));
-      button { width: calc(16 * var(--length)); height: calc(var(--h) / 2 - 2px); padding: 0; border: 0; background: none; color: ${legible(3, luminance(field))}; font-size: calc(13 * var(--length)); line-height: 1; &:hover { color: var(--accent-text); } } }
+      /* the dropdown's caret, pointing up and down */
+      button { width: calc(16 * var(--length)); height: calc(var(--h) / 2 - 2 * var(--length)); padding: 0; border: 0; font-size: 0; background: ${legible(3, luminance(field))}; ${mask(caret)}; -webkit-mask-size: calc(7 * var(--length)) calc(5 * var(--length)); mask-size: calc(7 * var(--length)) calc(5 * var(--length)); &:hover { background: var(--accent-text); } }
+      .s-step-up { transform: rotate(180deg); } }
   }
 
   /* ── Slider: a label line with the value at its end; a hairline that fills from zero ── */
@@ -238,14 +242,6 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
       --b: max(var(--z), var(--p, 0%));
       background: linear-gradient(to right, var(--track) var(--a), var(--accent-mark) var(--a) var(--b), var(--track) var(--b))
         center calc(var(--slide) / 2) / calc(100% - var(--thumb)) var(--hair) no-repeat;
-      &::-webkit-slider-runnable-track { height: var(--slide); background: none; }
-      &::-moz-range-track { height: var(--hair); background: none; }
-      &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: var(--thumb); height: var(--thumb); margin-top: calc(var(--slide) / 2 - var(--thumb) / 2); border-radius: 50%; border: var(--ring) solid var(--accent-mark); background: var(--bg); }
-      &::-moz-range-thumb { box-sizing: border-box; width: var(--thumb); height: var(--thumb); border-radius: 50%; border: var(--ring) solid var(--accent-mark); background: var(--bg); }
-      &:active { cursor: grabbing; &::-webkit-slider-thumb { background: var(--accent-mark); } &::-moz-range-thumb { background: var(--accent-mark); } }
-      &:focus-visible { outline: none;
-        &::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-text); }
-        &::-moz-range-thumb { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-text); } }
     }
     .s-readout { background: none; border: 0; border-radius: 0; padding: 0; min-height: 0; height: 1lh; line-height: 1; width: auto; min-width: 1ch; field-sizing: content;
       text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; cursor: ew-resize;
@@ -253,11 +249,22 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark { position: absolute; top: calc(var(--slide) / 2 + var(--hair) / 2); width: calc(4 * var(--length)); height: calc(4 * var(--length)); border-radius: 50%; background: var(--track); transform: translate(-50%, -50%); &.s-active { background: var(--accent-mark); } }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: 1em; }
-    .s-mark-label { position: absolute; top: calc(var(--slide) / 2 + var(--thumb) / 2 + 2px); transform: translateX(-50%); line-height: 1; white-space: nowrap; color: var(--quiet); &.s-active { color: var(--accent-text); } }
+    .s-mark-label { position: absolute; top: calc(var(--slide) / 2 + var(--thumb) / 2 + 2 * var(--length)); transform: translateX(-50%); line-height: 1; white-space: nowrap; color: var(--quiet); &.s-active { color: var(--accent-text); } }
     :not(.s-mark-labels) + .s-mark-labels .s-mark-label { transform: none; }
     .s-mark-labels:not(:has(+ .s-mark-labels)) .s-mark-label { transform: translateX(-100%); }
     /* a tooltip readout keeps the theme's one place for a value: the end of the label line */
     .s-tooltip { left: auto !important; right: 0; bottom: 100%; transform: none; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+  }
+  .s-control.s-slider input[type="range"], .s-color .s-alpha {
+    --body: var(--slide);
+    &::-webkit-slider-runnable-track { height: var(--body); background: none; }
+    &::-moz-range-track { height: var(--hair); background: none; }
+    &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: var(--thumb); height: var(--thumb); margin-top: calc(var(--body) / 2 - var(--thumb) / 2); border-radius: 50%; border: var(--ring) solid var(--accent-mark); background: var(--bg); }
+    &::-moz-range-thumb { box-sizing: border-box; width: var(--thumb); height: var(--thumb); border-radius: 50%; border: var(--ring) solid var(--accent-mark); background: var(--bg); }
+    &:active { cursor: grabbing; &::-webkit-slider-thumb { background: var(--accent-mark); } &::-moz-range-thumb { background: var(--accent-mark); } }
+    &:focus-visible { outline: none;
+      &::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-text); }
+      &::-moz-range-thumb { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-text); } }
   }
   .s-control[style*="--accent"] .s-readout { color: var(--accent-text); }
   .s-slider.s-multiple {
@@ -298,8 +305,9 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   .s-control.s-boolean {
     flex-direction: row; align-items: center; justify-content: space-between;
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .s-label-group { flex: 1; }
+    .s-label-group { flex: 1; justify-content: center; }
     .s-input { flex: none; cursor: pointer; }
+    > .s-label-group, > .s-input { min-height: var(--h); }
     &.s-switch .s-track { position: relative; width: calc(var(--thumb) * 2.25); height: var(--thumb);
       background: linear-gradient(var(--track), var(--track)) center / 100% var(--hair) no-repeat;
       &::after { content: ''; position: absolute; left: 0; top: 0; box-sizing: border-box; width: var(--thumb); height: var(--thumb); border-radius: 50%; border: var(--ring) solid var(--accent-mark); background: var(--bg); transition: left .15s, background-color .15s; } }
@@ -331,9 +339,10 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     &.s-picker .s-color-input { gap: calc(6 * var(--space)); input[type="color"] { position: static; } }
     .s-color-input input[type="text"] { font-variant-numeric: tabular-nums; }
     .s-color-input.s-rgba, &.s-rgba .s-color-input { gap: calc(6 * var(--space)); }
-    .s-alpha { height: var(--thumb); border-radius: 999px;
-      &::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); border: var(--ring) solid var(--ink); background: var(--bg); }
-      &::-moz-range-thumb { box-sizing: border-box; width: var(--thumb); height: var(--thumb); border: var(--ring) solid var(--ink); background: var(--bg); } }
+    /* the alpha slider is the slider: its hairline, here the colour's ramp over a one-row checkerboard, under the ring thumb */
+    .s-alpha { --body: var(--thumb); height: var(--body); border-radius: 0;
+      background: linear-gradient(to right, transparent, var(--c)), repeating-linear-gradient(to right, #c4c4c4 0 var(--hair), #fff 0 calc(2 * var(--hair)));
+      background-position: center; background-size: calc(100% - var(--thumb)) var(--hair); background-repeat: no-repeat; }
     &.s-swatches .s-input { gap: calc(8 * var(--space)); flex-wrap: wrap; }
     &.s-swatches button { width: calc(21 * var(--length)); height: calc(21 * var(--length)); padding: 0; border: 0; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--track);
       &.s-selected { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
@@ -343,7 +352,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   /* ── Vector ── */
   .s-vector {
     .s-vec-axis { background: var(--field); border-radius: var(--r); padding-left: var(--inset); height: var(--h); &:focus-within { outline: 2px solid var(--accent-text); } }
-    .s-vec-label { color: var(--quiet); opacity: 1; }
+    .s-vec-label { color: var(--quiet); opacity: 1; font-size: 1em; }
     input[type="number"] { background: none; padding-left: 0; -moz-appearance: textfield; &::-webkit-inner-spin-button { -webkit-appearance: none; } &:focus-visible { outline: none; } }
     .s-vec-expand { background: var(--accent-mark); opacity: 1; }
   }
@@ -354,7 +363,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     .s-pad-dot { width: calc(22 * var(--length)); height: calc(22 * var(--length)); background: var(--bg); border: calc(3 * var(--length)) solid var(--accent-mark); box-shadow: none; }
     &:active .s-pad-dot { background: var(--accent-mark); }
     &:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; } }
-  .s-pad-val { color: var(--quiet); opacity: 1; }
+  .s-pad-val { color: var(--quiet); opacity: 1; font-size: 1em; }
 
   /* ── Knob: a ring dial with a hue pointer ── */
   .s-control.s-knob { flex-direction: row; align-items: center; .s-label-group { flex: 1; } .s-input { flex: none; } }

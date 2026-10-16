@@ -10,7 +10,7 @@
  * contrast = strength of the light, light = its angle (CSS degrees, 0 = from above),
  * texture = 'grain' | 'wood', grain = its strength (.3 = as measured).
  */
-import metrics from './metrics.js'
+import metrics, { scale } from './metrics.js'
 import baseCSS from './base.js'
 import { resolveRoles, parseColor, toHex, clamp, lerp, mix, ink as readable } from './color.js'
 import { surface } from './texture.js'
@@ -75,7 +75,9 @@ export default function neu({
   const shadow = (a, tone = umbra) => oklch(tone, alpha(a))
 
   const rad = light * Math.PI / 180, lx = Math.sin(rad), ly = -Math.cos(rad)
-  const scale = clamp(Number.isFinite(size) ? size : 1, .5, 2), k = scale * Math.max(0, depth)
+  // Body 14px: Neu sets its labels and values at 14px.
+  const body = 14
+  const unit = scale(size, body), k = unit * Math.max(0, depth)
   const soft = Math.max(0, softness)
   const len = v => `${+(v * k).toFixed(2)}px`
   const layer = (n, [d, blur, spread = 0], color, inset = '') =>
@@ -117,7 +119,7 @@ export default function neu({
   // sink (n .7 against .55). The placeholder reads 4.5:1 there, at rest and hovered (light from above or below).
   const [castD, castBlur, castSpread, castA] = CAST
   const floor = n => {
-    const x = ((castSpread - castD) * n * k - 13 * scale) / (castBlur / 2 * soft * n * k)
+    const x = ((castSpread - castD) * n * k - 13 * unit) / (castBlur / 2 * soft * n * k)
     return mix(shade, toHex(penumbra), alpha(castA * shadeK) / (1 + Math.exp(-1.702 * x)))
   }
   const placeholder = [floor(.55), floor(.7)].reduce((t, g) => readable(g, 4.5, t), fgMuted)
@@ -126,11 +128,12 @@ export default function neu({
     : `${len(-lx)} ${len(-ly)} 0 ${bright(lightK * 1.2)}`
 
   const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
-  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.75,6.25 5,8.5 9.25,3.75' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
+  // One stroke for every glyph: the chevron draws at 1.4× its viewBox (3.5u), the check at 1.56× its own
+  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.75,6.25 5,8.5 9.25,3.75' fill='none' stroke='%23000' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const selectArrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${encodeURIComponent(fgMuted)}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {controlHeight: 36, rowGap: 16, sectionGap: 16, panelPadding: 24, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
+  ${metrics({ size, spacing, font }, { body, controlHeight: 36, rowGap: 16, sectionGap: 16, panelPadding: 24, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -140,9 +143,15 @@ export default function neu({
   --weight: ${weight};
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 2.2);
-  --r-panel: calc(var(--u) * var(--roundness) * 5);
   --h: var(--control-height);
+  /* keys are capsules at twice the wells' radius; the plate and trays are concentric with the parts at their edge */
+  --r-key: min(calc(var(--r) * 2), var(--h) / 2);
+  --tray-pad: calc(16 * var(--space));
+  --r-panel: calc(var(--r-key) + var(--panel-padding) * min(1, var(--roundness)));
+  --r-tray: calc(var(--r-key) + var(--tray-pad) * min(1, var(--roundness)));
   --knob: calc(var(--u) * 5.5);
+  --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */
+  --font-size-small: calc(12 * var(--length)); /* secondary text: hints, readouts, marks, tooltips (11px at size 1) */
   --s-clear-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
 
   /* The material: its texture, a raised face, and the relief of each kind of part. */
@@ -209,7 +218,7 @@ export default function neu({
   }
   .s-fold-icon { margin-left: auto; order: 2; cursor: pointer;
     .s-search ~ &, :has(> .s-search) > & { margin-left: 0; }
-    i { width: 45%; height: 45%; background: var(--fg); -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; } }
+    i { width: var(--glyph); height: var(--glyph); background: var(--fg); -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; } }
   &[open] .s-fold-icon i { transform: rotate(-180deg); }
   > summary:focus-visible { outline: none; .s-fold-icon { outline: 2px solid var(--accent); outline-offset: 3px; } }
 
@@ -229,14 +238,16 @@ export default function neu({
   &.s-searching .s-search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Rows ── */
-  .s-control { align-items: center; gap: var(--column-gap); }
+  .s-control { align-items: center; gap: var(--column-gap); min-height: var(--h); }
+  /* under a hint the row aligns at the top, the label's first line level with the control's text */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-input { align-items: center; }
   .s-label-group { min-width: 0; width: 30%; }
   .s-label { font-weight: 500; }
-  .s-hint { color: var(--fg-muted); opacity: 1; font-size: smaller; font-weight: 500; }
-  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border-radius: 50%; box-shadow: var(--neu-sink-sm); color: var(--fg-muted); font-size: 10px; font-weight: 800; cursor: help;
+  .s-hint { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); font-weight: 500; }
+  .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border-radius: 50%; box-shadow: var(--neu-sink-sm); color: var(--fg-muted); font-size: calc(10 * var(--length)); font-weight: 800; cursor: help;
     &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
-  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 3); font-size: smaller; font-weight: 600; border-radius: var(--r); box-shadow: var(--neu-raise-sm); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
+  .s-title-text { position: absolute; left: 0; top: 100%; margin-top: var(--u); padding: calc(var(--u) * 2) calc(var(--u) * 3); font-size: var(--font-size-small); font-weight: 600; border-radius: var(--r); box-shadow: var(--neu-raise-sm); width: max-content; max-width: 30ch; z-index: 10; opacity: 0; visibility: hidden; pointer-events: none; }
 
   /* ── Fields: wells in the material ── */
   input[type="text"], input[type="number"], textarea {
@@ -254,7 +265,7 @@ export default function neu({
   /* ── Select: pressed to open, so raised like a button ── */
   select { color: var(--fg); border: none; border-radius: calc(var(--r) * 2); box-shadow: var(--neu-raise);
     font: inherit; font-weight: 600; cursor: pointer; appearance: none; -webkit-appearance: none; transition: box-shadow .15s;
-    background: ${selectArrow} right calc(var(--u) * 3.5) center / calc(var(--u) * 3.5) no-repeat, var(--neu-face);
+    background: ${selectArrow} right calc(var(--u) * 3.5) center / var(--glyph) no-repeat, var(--neu-face);
     background-blend-mode: normal, var(--neu-face-blend); padding-right: calc(var(--u) * 9);
     &:hover { box-shadow: var(--neu-lift); }
     &:active { box-shadow: var(--neu-press); }
@@ -265,8 +276,8 @@ export default function neu({
   .s-number {
     input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
     .s-step { flex-direction: column; gap: calc(var(--u) * 1);
-      button { width: calc(var(--u) * 6); height: calc(var(--u) * 4); padding: 0; display: grid; place-items: center; border: none; border-radius: calc(var(--u) * 2); box-shadow: var(--neu-raise-xs); color: var(--fg-muted); font-size: 0; cursor: pointer; transition: box-shadow .1s, color .1s;
-        &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; }
+      button { width: calc(var(--u) * 6); height: calc(var(--u) * 4); padding: 0; display: grid; place-items: center; border: none; border-radius: calc(var(--u) * 2); box-shadow: var(--neu-raise-xs); color: var(--fg-muted); font-size: 0; line-height: 0; cursor: pointer; transition: box-shadow .1s, color .1s;
+        &::before { content: ''; width: var(--glyph); height: var(--glyph); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; }
         &.s-step-up::before { transform: rotate(180deg); }
         &:hover { color: var(--fg); }
         &:active { box-shadow: var(--neu-press); } } }
@@ -276,7 +287,7 @@ export default function neu({
   .s-vector {
     .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 2.5); border-radius: var(--r); box-shadow: var(--neu-sink);
       &:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; } }
-    .s-vec-label { font-weight: 700; color: var(--fg-muted); opacity: 1; }
+    .s-vec-label { font-size: var(--font-size-small); font-weight: 700; color: var(--fg-muted); opacity: 1; }
     input[type="number"] { height: auto; padding: 0; box-shadow: none; background: transparent; &:hover { box-shadow: none; } &:focus-visible { outline: none; } }
   }
 
@@ -285,7 +296,7 @@ export default function neu({
   .s-button {
     .s-input { gap: calc(var(--u) * 3); }
     button { flex: 1; min-width: 0; min-height: var(--h); color: var(--fg); font-weight: var(--weight); border: none; border-radius: calc(var(--r) * 2); box-shadow: var(--neu-raise);
-      padding: calc(var(--u) * 2) calc(var(--u) * 3); transition: box-shadow .15s, color .15s;
+      padding: calc((var(--h) - var(--line-height)) / 2) calc(var(--u) * 3); transition: box-shadow .15s, color .15s;
       &:hover:enabled { box-shadow: var(--neu-lift); }
       &:active:enabled { box-shadow: var(--neu-press); }
       &:disabled, &[aria-busy="true"] { color: var(--fg-muted); box-shadow: var(--neu-raise-xs); cursor: not-allowed; }
@@ -323,31 +334,31 @@ export default function neu({
     }
   }
 
-  /* ── Slider: a groove filled with ink, a raised knob ── */
+  /* ── Slider: a groove filled with ink, a raised knob; the colour's alpha slider is the same slider ── */
+  .s-slider input[type="range"], .s-color .s-alpha {
+    width: 100%; height: calc(var(--u) * 2.5); -webkit-appearance: none; appearance: none; border-radius: 999px; cursor: pointer;
+    background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent 0), var(--neu-floor);
+    background-blend-mode: normal, var(--neu-blend);
+    box-shadow: var(--neu-sink-sm);
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; transition: box-shadow .12s; }
+    &::-moz-range-thumb { width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; }
+    &:hover::-webkit-slider-thumb { box-shadow: var(--neu-raise); }
+    &:active::-webkit-slider-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
+    &:active::-moz-range-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
+    &:focus-visible { outline: none; }
+    &:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
+    &:focus-visible::-moz-range-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
+  }
   .s-slider {
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--u) * 4); }
     .s-track { height: var(--h); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: calc(var(--u) * 2.5); -webkit-appearance: none; appearance: none; border-radius: 999px; cursor: pointer;
-      background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent 0), var(--neu-floor);
-      background-blend-mode: normal, var(--neu-blend);
-      box-shadow: var(--neu-sink-sm);
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--knob); height: var(--knob); border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; transition: box-shadow .12s; }
-      &::-moz-range-thumb { width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; }
-      &:hover::-webkit-slider-thumb { box-shadow: var(--neu-raise); }
-      &:active::-webkit-slider-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
-      &:active::-moz-range-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
-      &:focus-visible { outline: none; }
-      &:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
-      &:focus-visible::-moz-range-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
-    }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-marks { display: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: smaller; font-weight: 600; color: var(--fg-muted); white-space: nowrap; &.s-active { color: var(--accent); } }
-    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: smaller; font-weight: 700; color: var(--fg-muted); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize;
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); font-size: var(--font-size-small); font-weight: 600; color: var(--fg-muted); white-space: nowrap; &.s-active { color: var(--accent); } }
+    .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: var(--font-size-small); font-weight: 700; color: var(--fg-muted); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize;
       &:hover, &.s-scrubbing { color: var(--fg); box-shadow: none; }
       &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; box-shadow: none; } }
-    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -.5); border-radius: calc(var(--r) * .6); box-shadow: var(--neu-raise-xs); padding: 2px 8px; font-size: smaller; font-weight: 700; white-space: nowrap; }
+    .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -.5); border-radius: calc(var(--r) * .6); box-shadow: var(--neu-raise-xs); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); font-weight: 700; white-space: nowrap; }
     &.s-multiple .s-interval-track { height: calc(var(--u) * 2.5); margin: calc(var(--u) * 3.25) 0; border-radius: 999px; box-shadow: var(--neu-sink-sm); position: relative;
       &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: 999px; }
       input[type="range"] { box-shadow: none; background: transparent; } }
@@ -370,7 +381,7 @@ export default function neu({
       .s-input { flex-direction: column; align-items: stretch; gap: calc(var(--u) * 2.5); }
       .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2.5); cursor: pointer; font-weight: 600; min-height: calc(var(--u) * 6.5); }
     }
-    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 6); height: calc(var(--u) * 6); border-radius: 50%; box-shadow: var(--neu-sink-sm); display: grid; place-items: center; cursor: pointer;
+    &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: calc(var(--u) * 6.5); height: calc(var(--u) * 6.5); border-radius: 50%; box-shadow: var(--neu-sink-sm); display: grid; place-items: center; cursor: pointer;
       &::after { content: ''; width: 40%; height: 40%; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity .12s; }
       &:checked::after { opacity: 1; }
       &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; } }
@@ -390,14 +401,14 @@ export default function neu({
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; }
         &:hover { box-shadow: var(--neu-raise); }
         &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; } }
-      input[type="text"] { flex: 1; min-width: 0; font-family: ui-monospace, monospace; font-size: .95em; } }
+      input[type="text"] { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; } }
     &.s-rgba .s-color-input { gap: calc(var(--u) * 2.5);
       input[type="color"] { width: var(--h); height: var(--h); border-radius: 50%; box-shadow: var(--neu-raise-sm); overflow: hidden;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } }
-      .s-alpha { height: calc(var(--u) * 2.5); box-shadow: var(--neu-sink-sm);
-        &::-webkit-slider-thumb { width: var(--knob); height: var(--knob); border: none; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); }
-        &::-moz-range-thumb { width: var(--knob); height: var(--knob); border: none; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); } }
-      input[type="text"] { font-family: ui-monospace, monospace; font-size: .95em; } }
+      /* the slider's groove, showing the colour's ramp over a checkerboard instead of the fill */
+      .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); background-blend-mode: normal; }
+      /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
+      input[type="text"] { flex: 0 1 auto; width: calc(10ch + var(--u) * 7); font-variant-numeric: tabular-nums; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2.5); }
       button { width: calc(var(--u) * 7); height: calc(var(--u) * 7); padding: 0; border: none; border-radius: 50%; box-shadow: var(--neu-raise-xs); transition: box-shadow .15s;
         &:hover { box-shadow: var(--neu-raise-sm); }
@@ -411,14 +422,14 @@ export default function neu({
   .s-textarea { align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2.5); }
     textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 5); max-height: 50vh; }
-    &.s-code textarea { font-family: ui-monospace, monospace; font-size: smaller; } }
+    &.s-code textarea { font-family: ui-monospace, monospace; } }
 
   /* ── Info / separator: an engraved line ── */
   .s-info .s-monitor { font-weight: 600; color: var(--fg-muted); opacity: 1; }
   .s-separator { height: 1px; background: none; opacity: 1; box-shadow: var(--neu-groove); margin: calc(var(--u) * 1) 0; }
   .s-separator-labeled { height: auto; box-shadow: none;
     &::before, &::after { height: 1px; background: none; opacity: 1; box-shadow: var(--neu-groove); } }
-  .s-separator-label { color: var(--fg-muted); font-weight: 600; opacity: 1; }
+  .s-separator-label { color: var(--fg-muted); font-weight: 600; opacity: 1; font-size: var(--font-size-small); }
 
   /* ── XY pad / knob ── */
   .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 1.25); } }
@@ -426,17 +437,17 @@ export default function neu({
     .s-pad-x, .s-pad-y { background: color-mix(in oklab, var(--fg), transparent 85%); }
     .s-pad-dot { box-shadow: var(--neu-raise-xs); } }
   .s-knob-dial { width: calc(var(--u) * 11); height: calc(var(--u) * 11); border: none; box-shadow: var(--neu-raise);
-    i { background: var(--accent); width: 3px; border-radius: 2px; } }
-  .s-knob-val { font-weight: 700; color: var(--fg-muted); opacity: 1; }
+    i { background: var(--accent); width: calc(3 * var(--length)); border-radius: calc(2 * var(--length)); } }
+  .s-knob-val, .s-pad-val { font-size: var(--font-size-small); font-weight: 700; color: var(--fg-muted); opacity: 1; }
 
   /* ── Folder: a shallow tray ── */
   .s-folder {
-    > summary { font-weight: 700; color: var(--fg-muted); min-height: calc(var(--u) * 8); padding: 0; transition: color .12s;
+    > summary { font-weight: 700; color: var(--fg-muted); min-height: var(--h); padding: 0; transition: color .12s;
       &:hover { color: var(--fg); }
-      &::after { content: ''; width: calc(var(--u) * 4); height: calc(var(--u) * 4); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
+      &::after { content: ''; width: var(--glyph); height: var(--glyph); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
       &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; } }
     &[open] > summary { color: var(--fg); &::after { transform: rotate(-180deg); } }
-    .s-content { gap: calc(var(--u) * (2 + 2 * var(--spacing))); padding: calc(var(--u) * 4); border-radius: var(--r); box-shadow: var(--neu-press); }
+    .s-content { gap: var(--row-gap); padding: var(--tray-pad); border-radius: var(--r-tray); box-shadow: var(--neu-press); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }
   }
 }`

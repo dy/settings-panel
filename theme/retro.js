@@ -14,7 +14,8 @@
  * Layout follows the property sheet: captions sit above their control, check boxes and radios
  * carry theirs to the right, folders are etched group boxes with the caption cut into the top
  * edge, a trackbar shows its ticks below a pointed thumb and its end captions (`marks` with text
- * on the ends only) beside the channel. Native metrics at size 1, spacing 1 are the dialog's own.
+ * on the ends only) beside the channel. Native metrics at size 11 / 13 (its 11px body), spacing 1 are the
+ * dialog's own.
  *
  * Colour: `shade` is the 3D face; the bevel tones derive from it so the classic face #c0c0c0 gives
  * exactly white / #808080 / black (highlight lifts the face by the classic step in OKLab
@@ -27,12 +28,12 @@
  * bold: /1384862), licensed CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), as woff2
  * converted by 98.css. A pixel copy of the 8pt system face: glyph shapes match the reference, but its
  * glyphs start 1px further left and its space is 1px narrower; text-indent and word-spacing restore
- * both. Crisp at size 1 and 2 (11px, 22px), soft in between.
+ * both. Crisp at 11px and 22px (size 11 / 13 and 22 / 13), soft in between, so at size 1 (13px).
  *
  * retro(axes?) → CSS string
  */
 
-import metrics from './metrics.js'
+import metrics, { scale } from './metrics.js'
 import baseCSS from './base.js'
 import { parseColor, normalizeHex, toHex, ink, resolveAccent, clamp, mix } from './color.js'
 
@@ -55,7 +56,6 @@ const art = (rows, colors) => {
 
 // The trackbar thumb as measured on the reference; the other glyphs as Win98 draws them (cross-checked with 98.css)
 const THUMB = ['WWWWWWWWWWk', ...Array(15).fill('W........gk'), ' W......gk ', '  W....gk  ', '   W..gk   ', '    Wgk    ', '     k     ']
-const BLOCK = ['WWWWWWWWWWk', ...Array(18).fill('W........gk'), 'Wgggggggggk', 'kkkkkkkkkkk']
 const CHECK = ['      k', '     kk', 'k   kkk', 'kk kkk ', 'kkkkk  ', ' kkk   ', '  k    ']
 const RADIO = ['    gggg    ', '  ggkkkkgg  ', ' gkkwwwwkkW ', ' gkwwwwwwlW ', 'gkwwwwwwwwlW', 'gkwwwwwwwwlW', 'gkwwwwwwwwlW', 'gkwwwwwwwwlW', ' gkwwwwwwlW ', ' gllwwwwllW ', '  WWllllWW  ', '    WWWW    ']
 const DOT = [...Array(4).fill(''), '     kk', '    kkkk', '    kkkk', '     kk', ...Array(4).fill('')].map(r => r.padEnd(12))
@@ -95,12 +95,14 @@ export default function retro({
   const selText = ink(sel, 4.5, '#ffffff')
   const gray = mix(face, text, 1 / 3)
   const placeholder = ink(win, 4.5, mix(win, winText, .5))
+  // Body 11px: Windows 98 sets labels and values in MS Sans Serif 8pt, 11px.
+  const body = 11
   // Bevel lines stay whole pixels at any size: Win98 never scaled its edges.
-  const px = Math.max(1, Math.round(clamp(+size || 1, .5, 2)))
+  const px = Math.max(1, Math.round(scale(size, body)))
 
   const c = { W: hi, '.': face, l: face, g: shadow, k: dk, w: win }
   const glyph = rows => art(rows, { k: text })
-  const thumb = art(THUMB, c), block = art(BLOCK, c)
+  const thumb = art(THUMB, c)
   const radio = art(RADIO, c), dot = art(DOT, { k: winText }), dotOff = art(DOT, { k: gray })
   const check = art(CHECK, { k: winText }), checkOff = art(CHECK, { k: gray })
   const down = glyph(DOWN), up = glyph(UP), left = glyph(LEFT), right = glyph(RIGHT)
@@ -127,7 +129,7 @@ export default function retro({
   const overrides = `${FONT(400, REGULAR)}
 ${FONT(700, BOLD)}
 .s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 11, lineHeight: 13, controlHeight: 23, inset: 4, rowGap: 23, columnGap: 6, sectionGap: 8, panelPadding: 21, fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Arial, sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, lineHeight: 13, controlHeight: 23, inset: 4, rowGap: 23, columnGap: 6, sectionGap: 8, panelPadding: 21, fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Arial, sans-serif" })}
 
   --face: ${face};
   --light: ${face};
@@ -354,25 +356,27 @@ ${FONT(700, BOLD)}
       &::-moz-range-thumb { width: ${len(11)}; height: ${len(21)}; border: 0; border-radius: 0; background: ${thumb} 0 0 / 100% 100%; }
     }
     .s-marks { grid-area: 2 / 2; position: relative; height: ${len(4)}; margin: ${len(1)} ${len(14)} ${len(1)} ${len(13)}; pointer-events: none; }
-    .s-mark { position: absolute; top: 0; width: var(--px); height: ${len(3)}; background: var(--text); &:is([style*="left:0%"], [style*="left:100%"]) { height: ${len(4)}; } }
+    .s-mark { position: absolute; top: 0; width: var(--px); height: ${len(3)}; background: var(--text); &:is(.s-first, .s-last) { height: ${len(4)}; } }
     /* end captions beside the channel; any inner caption puts them all under their ticks */
     .s-mark-labels { display: contents; }
     .s-mark-label { display: none; grid-row: 1; margin-top: ${len(1)}; line-height: ${len(13)}; white-space: nowrap;
-      &[style*="left:0%"] { display: block; grid-column: 1; }
-      &[style*="left:100%"] { display: block; grid-column: 3; } }
-    .s-track:has(.s-mark-label:not(:empty):not([style*="left:0%"]):not([style*="left:100%"])) {
+      &.s-first { display: block; grid-column: 1; }
+      &.s-last { display: block; grid-column: 3; } }
+    .s-track:has(.s-mark-label:not(:empty):not(.s-first):not(.s-last)) {
       .s-mark-labels { display: block; grid-area: 3 / 2; position: relative; height: ${len(13)}; margin: 0 ${len(14)} 0 ${len(13)}; }
       .s-mark-label { display: block; position: absolute; top: 0; margin: 0; translate: -50% 0; }
     }
     .s-readout { flex: none; width: calc(6ch + 2 * var(--inset)); text-align: left; }
     span.s-readout { width: auto; min-width: 3ch; margin-top: ${len(4)}; }
     .s-tooltip { grid-area: 1 / 2; justify-self: start; position: relative; margin-left: ${len(13)}; translate: -50% calc(-100% - ${len(2)}); pointer-events: none; }
+    /* a range is the trackbar's selection channel (TBS_ENABLESELRANGE): the same thumbs, box and channel ends,
+       the channel opened to 8px from the same top so the selection shows in it */
     &.s-multiple .s-interval-track {
       flex: 1; position: relative; height: ${len(23)};
-      &::before { content: ''; position: absolute; left: 0; right: 0; top: ${len(8)}; height: ${len(8)}; background: var(--win); box-shadow: ${sunken}; }
-      &::after { content: ''; position: absolute; left: ${len(5)}; right: ${len(6)}; top: ${len(10)}; height: ${len(4)}; background: linear-gradient(to right, transparent var(--low), var(--sel) var(--low) var(--high), transparent var(--high)); }
-      input[type="range"] { grid-area: auto; width: 100%; height: 100%; margin: 0; }
-      input[type="range"]:focus-visible { outline: ${focus}; outline-offset: 0; }
+      &::before { content: ''; position: absolute; left: 0; right: 0; top: ${len(9)}; height: ${len(8)}; background: var(--win); box-shadow: ${sunken}; }
+      &::after { content: ''; position: absolute; left: ${len(5)}; right: ${len(6)}; top: ${len(11)}; height: ${len(4)}; background: linear-gradient(to right, transparent var(--low), var(--sel) var(--low) var(--high), transparent var(--high)); }
+      input[type="range"] { grid-area: auto; top: ${len(2)}; width: 100%; height: ${len(21)}; margin: 0; }
+      input[type="range"]:focus-visible { outline: ${focus}; outline-offset: ${len(2)}; }
     }
   }
 
@@ -386,12 +390,14 @@ ${FONT(700, BOLD)}
       &:active { box-shadow: ${pressed}; }
       &:focus-visible { outline: ${focus}; outline-offset: calc(-3 * var(--px)); } }
     .s-color-input input[type="text"] { flex: 1; min-width: 0; }
+    /* the alpha slider is the trackbar's selection channel too, the checkerboard and ramp in it, under the same thumb */
     &.s-rgba .s-alpha {
-      height: ${len(21)}; border-radius: 0; box-shadow: ${sunken}; outline: none;
-      background: linear-gradient(to right, transparent, var(--c)), repeating-conic-gradient(var(--shadow) 0 25%, var(--hi) 0 50%) 0 0 / ${len(8)} ${len(8)};
-      &::-webkit-slider-thumb { width: ${len(11)}; height: ${len(21)}; border: 0; border-radius: 0; background: ${block} 0 0 / 100% 100%; }
-      &::-moz-range-thumb { width: ${len(11)}; height: ${len(21)}; border: 0; border-radius: 0; background: ${block} 0 0 / 100% 100%; }
-      &:focus-visible { outline: ${focus}; outline-offset: var(--px); }
+      height: ${len(8)}; margin: ${len(9)} 0 ${len(6)}; border-radius: 0; box-shadow: ${sunken}; outline: none;
+      background: linear-gradient(to right, transparent, var(--c)), repeating-conic-gradient(var(--shadow) 0 25%, var(--hi) 0 50%) 0 0 / ${len(4)} ${len(4)};
+      &::-webkit-slider-runnable-track { height: ${len(8)}; background: none; }
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: ${len(11)}; height: ${len(21)}; margin-top: ${len(-7)}; border: 0; border-radius: 0; background: ${thumb} 0 0 / 100% 100%; }
+      &::-moz-range-thumb { width: ${len(11)}; height: ${len(21)}; border: 0; border-radius: 0; background: ${thumb} 0 0 / 100% 100%; }
+      &:focus-visible { outline: ${focus}; outline-offset: ${len(2)}; }
     }
     &.s-swatches { .s-input { gap: ${len(4)}; }
       button { width: ${len(18)}; height: ${len(18)}; padding: 0; border: 0; border-radius: 0; box-shadow: ${sunken}; outline: none;

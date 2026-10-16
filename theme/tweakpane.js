@@ -72,10 +72,12 @@ export default function tweakpane({
   }
   const [hover, focus, active] = native ? ['#bbbcc4', '#c8cad0', '#d6d7db'] : [.05, .1, .15].map(d => lighten(button, d))
 
+  // Body 11px: Tweakpane sets its labels and values at 11px.
+  const body = 11
   const overrides = `.s-panel {
   /* native --bs-ff verbatim: where Roboto Mono isn't installed or loaded (native's page loads no
      webfont) both fall through to Menlo on macOS; weight 500 like native's root (Menlo Regular) */
-  ${metrics({ size, spacing, font }, {fontSize: 11, fontFamily: "'Roboto Mono', 'Source Code Pro', Menlo, Courier, monospace", lineHeight: 15.4, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 4})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, fontFamily: "'Roboto Mono', 'Source Code Pro', Menlo, Courier, monospace", lineHeight: 15.4, controlHeight: 20, inset: 4, rowGap: 4, columnGap: 0, sectionGap: 4, panelPadding: 4})}
 
   /* ── axes ── */
   --bg: ${shade};
@@ -97,7 +99,7 @@ export default function tweakpane({
   --active: ${active};
   --option-bg: rgb(${c255(shR + 7)},${c255(shG + 6)},${c255(shB + 5)});
   --well: rgba(0,0,0,.2);
-  --shadow: 0 2px 4px var(--well);
+  --shadow: 0 calc(2 * var(--length)) calc(4 * var(--length)) var(--well);
   --tooltip-bg: ${roles.dark ? '#000' : '#fff'};
   --on-button: ${native ? shade : resolveRoles(shade, button).onAccent};
 
@@ -114,15 +116,15 @@ export default function tweakpane({
   /* native .tp-txtv_k drag bar: 2px, row − 4px tall, 1px-rounded, fg at .1 (the field wash) */
   --guide: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1' fill='${enc(wash(0.1))}'/%3E%3C/svg%3E") var(--u) center / var(--track) calc(var(--row) - 4 * var(--length)) no-repeat;
   /* native .tp-fldv_m / .tp-rotv_m: two 2px bars of fg at half opacity, 11px in from the header's right edge */
-  --grip: linear-gradient(to left, var(--fg), var(--fg) 2px, transparent 2px, transparent 4px, var(--fg) 4px);
+  --grip: linear-gradient(to left, var(--fg), var(--fg) calc(2 * var(--length)), transparent calc(2 * var(--length)), transparent calc(4 * var(--length)), var(--fg) calc(4 * var(--length)));
   color-scheme: ${roles.dark ? 'dark' : 'light'};
 
   background: var(--bg);
   color: var(--fg);
 
-  width: var(--width);
+  width: var(--width);   /* capped by a narrower host */
   min-width: 0;
-  max-width: var(--width);
+  max-width: 100%;
   border-radius: var(--radius-lg);
   padding: var(--panel-padding);
   box-shadow: var(--shadow);
@@ -152,8 +154,12 @@ export default function tweakpane({
   /* ── Row: native .tp-lblv, label flexes, value column fixed at 160px ── */
   .s-control { gap: var(--column-gap); padding: 0; min-height: var(--row); align-items: center; &:has(> .s-input[inert]) > .s-label-group { opacity: .5; } }
   .s-label-group { flex: 1 1 0; width: auto; min-width: 0; max-width: none; padding: 0 calc(16 * var(--length)) 0 var(--u); line-height: 1.3; overflow: hidden; hyphens: auto; }
+  /* a hint grows the label downward; the label itself stays centred on its control's 20px line */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--row) - 1.3em) / 2); } }
   .s-label { color: var(--label); }
-  .s-hint { color: ${hint}; opacity: 1; font-size: calc(10 * var(--length)); }
+  .s-hint { color: ${hint}; opacity: 1; }
+  /* secondary text, one step under the body */
+  :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: calc(10 * var(--length)); }
   .s-input { flex: 0 0 var(--value); gap: var(--u); align-items: center; }
   .s-label-group[hidden] + .s-input { flex: 1; }
 
@@ -210,31 +216,37 @@ export default function tweakpane({
       background: linear-gradient(var(--pad-fill), var(--pad-fill)), var(--bg); }
   }
 
-  /* ── Slider: 2px track + 2px fill + 12px square knob ── */
+  /* ── Slider: 2px track + 2px fill + 12px square knob. The colour's alpha is the same groove and
+     knob, the groove a row of native's checker cells (.tp-aplv_b, #fff / #ddd) under the colour's ramp. ── */
+  :is(.s-slider, .s-rgba) input[type="range"] {
+    width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
+    background-image:
+      linear-gradient(to right, var(--fg) 0 var(--p, 0%), transparent var(--p, 0%)),
+      linear-gradient(var(--field) 0 0);
+    background-size: calc(100% - var(--thumb)) var(--track), calc(100% - var(--thumb)) var(--track); background-position: center; background-repeat: no-repeat;
+    /* native's groove and fill are 1px-rounded bars; gradients can't round, so a mask keeps the
+       groove's rounded shape plus the knob's strip (a --thumb-wide layer at --p lands exactly
+       where the knob travels: p × (width − thumb)) */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); cursor: pointer; }
+    &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); border: none; background: var(--button); cursor: pointer; }
+    /* native .tp-sldv_t knob states: hover / focus (any focus, as native's tabindex div takes it on click) / active */
+    &:hover::-webkit-slider-thumb { background: var(--hover); } &:focus::-webkit-slider-thumb { background: var(--focus); } &:active::-webkit-slider-thumb { background: var(--active); }
+    &:hover::-moz-range-thumb { background: var(--hover); } &:focus::-moz-range-thumb { background: var(--focus); } &:active::-moz-range-thumb { background: var(--active); }
+    &:focus { outline: none; }
+    &.s-alpha { flex: 1 1 0; min-width: calc(40 * var(--length)); -webkit-mask: none; mask: none;
+      background-image: linear-gradient(to right, transparent, var(--c)), repeating-linear-gradient(to right, #fff 0 var(--track), #ddd 0 calc(2 * var(--track))); }
+  }
   .s-slider {
     align-items: center;
-    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(12 * var(--space)); }
+    /* labelled marks hang in a line the row reserves under its content (the gap and a 1.25 line of the label), so the label still centres on the track */
+    &:has(.s-mark-labels:not(:empty)) { padding-bottom: calc(14.5 * var(--length)); }
     .s-track { height: var(--row); margin: 0; }
-    input[type="range"] {
-      width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; cursor: pointer; background: transparent;
-      background-image:
-        linear-gradient(to right, var(--fg) 0 var(--p, 0%), transparent var(--p, 0%)),
-        linear-gradient(var(--field) 0 0);
-      background-size: calc(100% - var(--thumb)) var(--track), calc(100% - var(--thumb)) var(--track); background-position: center; background-repeat: no-repeat;
-      /* native's groove and fill are 1px-rounded bars; gradients can't round, so a mask keeps the
-         groove's rounded shape plus the knob's strip (a --thumb-wide layer at --p lands exactly
-         where the knob travels: p × (width − thumb)) */
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' rx='1'/%3E%3C/svg%3E") center / calc(100% - var(--thumb)) var(--track) no-repeat, linear-gradient(#000 0 0) var(--p, 0%) 0 / var(--thumb) 100% no-repeat;
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); border-radius: var(--r); background: var(--button); cursor: pointer; }
-      &::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border-radius: var(--r); border: none; background: var(--button); cursor: pointer; }
-      /* native .tp-sldv_t knob states: hover / focus (any focus, as native's tabindex div takes it on click) / active */
-      &:hover::-webkit-slider-thumb { background: var(--hover); } &:focus::-webkit-slider-thumb { background: var(--focus); } &:active::-webkit-slider-thumb { background: var(--active); }
-      &:hover::-moz-range-thumb { background: var(--hover); } &:focus::-moz-range-thumb { background: var(--focus); } &:active::-moz-range-thumb { background: var(--active); }
-      &:focus { outline: none; }
-    }
     .s-marks { display: none; } .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, 2px); font-size: calc(10 * var(--length)); color: var(--label); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translate(-50%, calc(2 * var(--length))); color: var(--label); white-space: nowrap; line-height: 1.25;
+      /* the end labels stay inside the track's span: the first starts at 0%, the last ends at 100% */
+      &.s-first { transform: translate(0, calc(2 * var(--length))); } &.s-last { transform: translate(-100%, calc(2 * var(--length))); } }
     /* native .tp-sldtxtv: slider flex 2 : text flex 1 with a 4px gap → 104 + 4 + 52 in the 160px column */
     .s-readout { position: relative; flex: 0 0 auto; width: calc(52 * var(--length)); min-width: calc(52 * var(--length)); color: var(--fg); border: none; border-radius: var(--r); height: var(--row); padding: 0 var(--u); font-variant-numeric: tabular-nums; }
     .s-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: calc(2 * var(--length)); background: var(--tooltip-bg); color: var(--fg); padding: calc(1 * var(--length)) calc(5 * var(--space)); border-radius: var(--r); white-space: nowrap; }
@@ -251,7 +263,7 @@ export default function tweakpane({
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7h6l-3 3z' fill='${enc(shade)}'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right calc(2 * var(--length)) center; background-size: calc(16 * var(--length)) calc(16 * var(--length)); padding-right: calc(20 * var(--length));
       &:hover { background-color: var(--hover); } &:focus { background-color: var(--focus); } &:active { background-color: var(--active); }
       option { background: var(--option-bg); color: var(--fg); } }
-    &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); padding: calc(3 * var(--space)); font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--on-button); } } }
+    &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); height: var(--row); padding: 0 calc(3 * var(--space)); font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--on-button); } } }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
@@ -311,7 +323,9 @@ export default function tweakpane({
           linear-gradient(to top right, #ddd 25%, transparent 25% 75%, #ddd 75%) calc(5 * var(--length)) calc(5 * var(--length)) / calc(10 * var(--length)) calc(10 * var(--length)),
           #fff; }
       &::after { background: var(--color); }
-      .s-alpha { display: none; } input[type="text"] { flex: 1; min-width: 0; } }
+      input[type="text"] { flex: 1; min-width: 0; } }
+    /* the value keeps its length where it fits; the alpha takes the rest, never under 40px */
+    &.s-rgba .s-color-input input[type="text"] { flex: 0 1 auto; width: auto; min-width: 0; field-sizing: content; }
     &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: none; &.s-selected { outline: 1px solid var(--fg); } }
   }
 

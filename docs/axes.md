@@ -54,8 +54,10 @@ Default: `1`. Range 0.5–2.
 
 ### `size`
 
-Overall scale — type size, control dimensions, layout grid unit. At `1`, each
-theme uses its native baseline; `1.2` scales its type by 20%.
+Overall scale — type size, control dimensions, layout grid unit. At `1`, every
+theme sets its body text (labels and values) at 13px; `1.2` scales it by 20%.
+A theme's native size is its body over 13: `size: 10 / 13` draws OUI at its
+original 10px.
 
 Orthogonal to spacing: size scales elements, spacing scales the gaps.
  Default: `1`. Range 0.5–2.
@@ -92,7 +94,7 @@ Default varies per theme (e.g. `400` for soft, `500` for brutal). Range 100–90
 
 ### `bevel` *(skeu, brutal, porcelain)*
 
-Structural edge width. In `skeu` it sets edge contrast from `0` to `1`, then widens the rim from 1 to 2 units up to `2` (default `1`). In `brutal` it is the border thickness in px (default `2`). In `porcelain` it scales the ceramic lip (default `1`, 5px at size 1).
+Structural edge width. In `skeu` it sets edge contrast from `0` to `1`, then widens the rim from 1 to 2 units up to `2` (default `1`). In `brutal` it is the border thickness in px (default `2`). In `porcelain` it scales the ceramic lip (default `1`, 5px at its native size, 14 / 13).
 
 
 ### `blur` *(glass only)*
@@ -188,7 +190,7 @@ Axes (palette and shape support varies):
 | ink | color | derived from shade | lettering color (neu, glass, soft, skeu) |
 | texture | `grain`, `wood` | none | surface material (neu, soft, skeu) |
 | spacing | 0.5–2 | `1` | air between elements |
-| size | 0.5–2 | `1` | element and type scale (`--u = 4*size px`) |
+| size | 0.5–2 | `1` | element and type scale; `1` is a 13px body |
 | font | CSS font-family | theme default | body typeface |
 | roundness | 0–2 | `1` | corner radius |
 | weight | 100–900 | `400` | font weight |
@@ -247,12 +249,20 @@ Each axis moves one thing:
 The themes remain peers; they supply their baseline next to their color tokens.
 No runtime stylesheet rewriting or CSS zoom is involved.
 
+A baseline names its `body`: the px its labels and values read at (its font size
+unless the face says otherwise: ProggyClean's 16px CSS em reads 13px). One
+baseline pixel draws `size × 13 / body` px (`BODY` is 13, `size` clamped to 0.5–2
+first), so `size: 1` sets every theme's body at 13px and `size: body / 13` gives
+back its native pixels. `scale(size, body)` is that factor for lengths computed in
+JS (Neu's shadows, Retro's bevel pixel, Porcelain's lip).
+
 | Token | Meaning |
 |-------|---------|
-| `--size`, `--spacing` | independent scale factors, clamped to 0.5–2 |
-| `--length` | one baseline pixel multiplied by size |
-| `--space` | one baseline pixel multiplied by size and spacing |
-| `--u` | theme grid unit multiplied by size |
+| `--size` | CSS px per baseline pixel: `size × 13 / body` |
+| `--spacing` | density factor, clamped to 0.5–2 |
+| `--length` | one baseline pixel at the current size |
+| `--space` | one baseline pixel at the current size and spacing |
+| `--u` | theme grid unit in baseline pixels |
 | `--font-family`, `--font-size`, `--line-height` | body typography |
 | `--control-height` | line height plus density-scaled internal space |
 | `--inset` | padding inside a control |
@@ -265,8 +275,19 @@ geometry (bevels, switch proportions, Swiss display type, Terminal character cel
 remains local. Terminal derives its line height from its `leading` axis and snaps
 the cell to its character grid.
 
-Baselines intentionally differ: OUI uses 10px type, dat.gui/Tweakpane/Figma/DevTools 11px, Apple/Lab01 13px, and the material themes 14px. A native inspector
-can have zero row gap while Neu has a 16px gap for its shadows. At `size: 1,
-spacing: 1`, those are ordinary baseline parameters. Density changes their space,
+Baselines intentionally differ: bodies are Bitmap's Geneva 9, OUI and Industrial 10px,
+dat.gui/Tweakpane/Leva/ControlKit/UIL/Figma/DevTools/Control Panel/Retro 11px, Synth
+12px, Apple/Lab01/Studio/Terminal/Editorial/Dear ImGui 13px, and Soft/Skeu/Glass/Neu/
+Porcelain/Brutal/Swiss 14px. They set proportions, not the drawn size: at `size: 1` each body is
+13px and the rest of its baseline scales with it. A native inspector can have zero
+row gap while Neu has a 16px gap for its shadows. Density changes their space,
 never their font size. Hosts can override individual role tokens without replacing
 the theme's colors or material rules.
+
+A theme writes its lengths in baseline pixels through `--length` (or `--space`,
+`--u`), except those that stay device pixels: 1px hairlines and anything thinner,
+focus rings written in px (WCAG 2.4.13 asks for a 2 CSS px perimeter, which a
+factor under 1 would thin), pill radii, material optics (backdrop blur, grain and
+wood tiles) and lengths an axis sets in px (Brutal's `bevel` and `offset` with the
+2px ink borders matching them, Swiss's `hairline`, Editorial's `rule`, Glass's
+`blur`).

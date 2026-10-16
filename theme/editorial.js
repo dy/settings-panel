@@ -55,8 +55,12 @@ export default function editorial({
   const mutedHex = tone(muted).slice(1)
   const selectChevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1 L5 5 L9 1' fill='none' stroke='%23${mutedHex}' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
+  // Body 13px: labels, values, choices and folder titles. The sheet's small tracked capitals (actions and
+  // the fold pill, as the reference sets them; separator labels and the slider's ends) share the secondary
+  // 11px with hints and readouts.
+  const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { fontSize: 13, lineHeight: 17, controlHeight: 56, inset: 6, rowGap: 0, columnGap: 28, sectionGap: 25, panelPadding: 14, fontFamily: "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, lineHeight: 17, controlHeight: 56, inset: 6, rowGap: 0, columnGap: 28, sectionGap: 25, panelPadding: 14, fontFamily: "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif" })}
 
   /* ── Ink on paper ── */
   --bg: ${shade};
@@ -74,6 +78,9 @@ export default function editorial({
   --weight: ${weight};
   --row: var(--control-height);   /* row pitch: one rule to the next */
   --label-w: 28%;
+  --font-size-small: calc(11 * var(--length)); /* secondary text and the small capitals */
+  --caps: .1em;                   /* tracking of the small capitals */
+  --mark: calc(12 * var(--length)); /* the slider's dot, the radio and checkbox marks */
   color-scheme: ${dark ? 'dark' : 'light'};
 
   background: var(--paper);
@@ -107,7 +114,7 @@ export default function editorial({
     display: inline-flex; align-items: center; justify-content: center;
     height: calc(34 * var(--length)); padding: 0 calc(24 * var(--length));
     border-radius: 999px; background: var(--pill); color: var(--on-ink);
-    font-size: calc(11 * var(--length)); font-weight: 400; letter-spacing: .1em;
+    font-size: var(--font-size-small); font-weight: 400; letter-spacing: var(--caps);
     i { display: none; }
     &::before { content: 'Hide'; }
   }
@@ -119,15 +126,19 @@ export default function editorial({
   .s-control { gap: var(--column-gap); align-items: center; min-height: var(--row); padding: 0; }
   .s-label-group { flex: 0 0 var(--label-w); width: var(--label-w); max-width: var(--label-w); align-items: flex-end; text-align: right; gap: calc(2 * var(--space)); padding-block: calc(6 * var(--space)); }
   .s-label { color: var(--muted); font-weight: 400; }
-  .s-hint { color: var(--faint); font-size: calc(11 * var(--length)); line-height: 1.25; opacity: 1; }
+  .s-hint { color: var(--faint); font-size: var(--font-size-small); line-height: 1.25; opacity: 1; }
   .s-input { flex: 1; min-width: 0; align-self: stretch; align-items: center; gap: calc(12 * var(--space)); border-bottom: var(--rule) solid var(--rule-color); transition: border-color .15s; }
   .s-input:has(:focus-visible) { border-bottom-color: var(--ink); }
+  /* a label sits on its value's first line: under a hint, or beside taller content, the row aligns at the top */
+  .s-control:is(:has(.s-hint), .s-textarea) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--row) - var(--line-height)) / 2); } }
+  .s-control:has(.s-hint):not(.s-textarea) > .s-input { align-self: flex-start; height: var(--row); }
+  .s-textarea > .s-label-group { padding-top: calc(10 * var(--space)); }
   input, select, textarea, button { font: inherit; color: inherit; }
 
   input[type="text"], input[type="number"], select, textarea {
     flex: 1; min-width: 0; width: 100%; height: 100%;
     padding: 0; border: none; border-radius: 0; background: transparent;
-    font-size: calc(14 * var(--length)); color: var(--ink);
+    color: var(--ink);
     &::placeholder { color: var(--faint); }
     &:focus-visible { outline: none; }
   }
@@ -160,7 +171,7 @@ export default function editorial({
     input { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-track { display: none; }
     &::before {
-      content: ''; width: calc(12 * var(--length)); height: calc(12 * var(--length)); flex: none;
+      content: ''; width: var(--mark); height: var(--mark); flex: none;
       border: calc(1.5 * var(--length)) solid currentColor; border-radius: 50%; box-sizing: border-box;
     }
     &:has(input:checked)::before { background: radial-gradient(circle, currentColor 45%, transparent 50%); }
@@ -181,46 +192,51 @@ export default function editorial({
     &:has(input:checked) .s-track { &::before { color: var(--muted); } &::after { color: var(--ink); } }
     &:has(input:focus-visible) .s-track { outline: calc(2 * var(--length)) solid var(--accent); outline-offset: calc(4 * var(--length)); }
     &.s-checkbox .s-track {
-      gap: 0; width: calc(14 * var(--length)); height: calc(14 * var(--length));
+      gap: 0; width: var(--mark); height: var(--mark);
       border: calc(1.5 * var(--length)) solid var(--ink); box-sizing: border-box;
       &::before, &::after { content: none; }
     }
     &.s-checkbox:has(input:checked) .s-track { background: var(--ink); box-shadow: inset 0 0 0 calc(2 * var(--length)) var(--paper); }
   }
 
-  /* ── Slider: a hairline, an ink dot, LOW / HIGH read inline ── */
+  /* ── Slider: a hairline, an ink dot, LOW / HIGH read inline; the colour's alpha slider is the same slider ── */
+  .s-slider input[type="range"], .s-color .s-alpha {
+    -webkit-appearance: none; appearance: none; width: 100%; height: var(--mark); margin: 0; border-radius: 0; cursor: pointer;
+    background: linear-gradient(var(--ink), var(--ink)) 0 50% / var(--p, 0%) calc(2 * var(--length)) no-repeat, linear-gradient(var(--groove), var(--groove)) 0 50% / 100% calc(2 * var(--length)) no-repeat;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--mark); height: var(--mark); border-radius: 50%; border: none; background: var(--ink); }
+    &::-moz-range-thumb { width: var(--mark); height: var(--mark); border-radius: 50%; border: none; background: var(--ink); }
+  }
   .s-slider {
-    .s-track { flex: 1; position: relative; display: flex; align-items: center; min-height: var(--row); }
+    .s-track { flex: 1; position: relative; display: flex; align-items: center; }
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-inline: calc(40 * var(--length)); }
-    input[type="range"] {
-      -webkit-appearance: none; appearance: none; width: 100%; height: calc(12 * var(--length)); margin: 0; cursor: pointer;
-      background: linear-gradient(var(--ink), var(--ink)) 0 50% / var(--p, 0%) calc(2 * var(--length)) no-repeat, linear-gradient(var(--groove), var(--groove)) 0 50% / 100% calc(2 * var(--length)) no-repeat;
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; border: none; background: var(--ink); }
-      &::-moz-range-thumb { width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: 50%; border: none; background: var(--ink); }
-    }
     .s-marks { display: none; }
     .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
-    .s-mark-label { position: absolute; top: 100%; transform: translateX(-50%); font-size: calc(10 * var(--length)); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    .s-mark-label { position: absolute; top: 100%; transform: translateX(-50%); font-size: var(--font-size-small); letter-spacing: var(--caps); text-transform: uppercase; color: var(--muted); white-space: nowrap; }
     /* Each label sits in its own .s-mark-labels wrapper: the ends are found by sibling order.
        The sheet reads only its ends; inner labels have no room on the hairline, so they are not drawn. */
     .s-mark-labels:not(.s-mark-labels ~ .s-mark-labels) .s-mark-label { top: 50%; transform: translate(calc(-100% - 12 * var(--length)), -50%); }
     .s-mark-labels:not(:has(~ .s-mark-labels)) .s-mark-label { top: 50%; transform: translate(calc(12 * var(--length)), -50%); }
     .s-mark-labels ~ .s-mark-labels:has(~ .s-mark-labels) { display: none; }
-    .s-readout { flex: none; width: 5ch; min-width: 5ch; @supports (field-sizing: content) { field-sizing: content; width: auto; } height: auto; text-align: right; color: var(--muted); font-size: calc(12 * var(--length)); border: none; background: transparent; padding: 0; }
-    .s-tooltip { background: var(--ink); color: var(--on-ink); font-size: calc(11 * var(--length)); padding: calc(2 * var(--length)) calc(6 * var(--length)); }
+    .s-readout { flex: none; width: 5ch; min-width: 5ch; @supports (field-sizing: content) { field-sizing: content; width: auto; } height: auto; text-align: right; color: var(--muted); font-size: var(--font-size-small); border: none; background: transparent; padding: 0; }
+    .s-tooltip { background: var(--ink); color: var(--on-ink); font-size: var(--font-size-small); padding: calc(2 * var(--length)) calc(6 * var(--length)); }
     &.s-multiple .s-interval-track { height: calc(2 * var(--length)); background: var(--groove); position: relative;
       &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--ink); }
       input[type="range"] { top: 50%; translate: 0 -50%; background: none; } }
   }
 
-  /* ── Number ── */
+  /* ── Number: steppers in the chevron of the select and folders, shown on hover ── */
   .s-number .s-step { opacity: 0; transition: opacity .12s;
-    button { background: none; border: none; color: var(--muted); padding: 0 calc(3 * var(--length)); cursor: pointer; &:hover { color: var(--ink); } } }
+    button { display: grid; place-items: center; background: none; border: none; color: var(--muted); padding: calc(2 * var(--length)) calc(3 * var(--length)); font-size: 0; line-height: 0; cursor: pointer; &:hover { color: var(--ink); }
+      &::before { content: ''; width: calc(10 * var(--length)); height: calc(6 * var(--length)); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; }
+      &.s-step-up::before { transform: rotate(180deg); } } }
   .s-number:hover .s-step, .s-number:focus-within .s-step { opacity: 1; }
 
   /* ── Colour: a square swatch and the hex beside it ── */
   .s-color {
-    .s-color-input { gap: calc(12 * var(--space)); }
+    /* the code fills its row like any value */
+    .s-color-input { gap: calc(12 * var(--space)); align-self: stretch; }
+    /* the slider's hairline, showing the colour's ramp over a checkerboard instead of the fill */
+    &.s-rgba .s-color-input .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)) 0 50% / 100% calc(2 * var(--length)) no-repeat, linear-gradient(to right, #c4c4c4 50%, #fff 0) 0 50% / calc(4 * var(--length)) calc(2 * var(--length)) repeat-x; }
     input[type="color"] { position: static; flex: none; width: calc(20 * var(--length)); height: calc(20 * var(--length)); padding: 0; border: 1px solid var(--rule-color); border-radius: 0; background: none; cursor: pointer;
       &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 0; } &::-moz-color-swatch { border: none; border-radius: 0; } }
     &.s-swatches button { width: calc(20 * var(--length)); height: calc(20 * var(--length)); padding: 0; border: 1px solid var(--rule-color); border-radius: 0; cursor: pointer;
@@ -230,11 +246,13 @@ export default function editorial({
   /* ── Actions: pills, the primary solid ink with tracked capitals ── */
   .s-button {
     .s-input { justify-content: center; gap: calc(12 * var(--space)); border-bottom: none; padding-top: calc(25 * var(--space)); }
+    /* level with the pills, below the gap that sets the actions off */
+    .s-label-group { padding-top: calc((25 + 6) * var(--space)); }
     button {
       flex: 0 1 auto; min-width: min(40%, calc(140 * var(--length)));
-      height: calc(50 * var(--length)); padding: 0 calc(28 * var(--length));
+      min-height: calc(50 * var(--length)); padding: calc(19.5 * var(--length)) calc(28 * var(--length));
       border: none; border-radius: 999px; background: var(--ink); color: var(--on-ink);
-      font-size: calc(11 * var(--length)); font-weight: 400; letter-spacing: .12em; text-transform: uppercase; line-height: 1;
+      font-size: var(--font-size-small); font-weight: 400; letter-spacing: var(--caps); text-transform: uppercase; line-height: 1;
       cursor: pointer; transition: opacity .12s;
       &:hover { opacity: .86; }
       &:active { opacity: .72; }
@@ -248,14 +266,19 @@ export default function editorial({
   .s-folder > summary {
     display: flex; align-items: center; justify-content: space-between;
     padding: calc(16 * var(--space)) 0 calc(8 * var(--space));
-    font-size: calc(11 * var(--length)); font-weight: var(--weight); letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    font-weight: var(--weight); letter-spacing: var(--caps); text-transform: uppercase; color: var(--muted);
     &::after { content: ''; width: calc(10 * var(--length)); height: calc(6 * var(--length)); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .15s; }
   }
   .s-folder[open] > summary::after { transform: rotate(180deg); }
+  /* a folder's rows keep the sheet's pitch: one rule to the next */
+  .s-folder .s-content { gap: var(--row-gap); }
   .s-separator { color: var(--rule-color); opacity: 1; }
   .s-separator::before, .s-separator::after { background: var(--rule-color); opacity: 1; }
-  .s-separator-label { color: var(--muted); font-size: calc(11 * var(--length)); letter-spacing: .1em; text-transform: uppercase; opacity: 1; }
+  .s-separator-label { color: var(--muted); font-size: var(--font-size-small); letter-spacing: var(--caps); text-transform: uppercase; opacity: 1; }
   .s-info .s-monitor { color: var(--muted); opacity: 1; }
+  .s-title-text, .s-knob-val, .s-pad-val, .s-vec-label { font-size: var(--font-size-small); }
+  .s-vector input[type="number"] { height: 100%; }
+  .s-vec-axis { align-self: stretch; }
 }`
 
   return baseCSS + '\n' + overrides

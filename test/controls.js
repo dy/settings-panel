@@ -145,6 +145,19 @@ test('slider: marks array positions', () => {
   cleanup(ctrl, c)
 })
 
+test('slider: labeled and listed marks render in position order, whatever order they are given in', () => {
+  const c = mount()
+  const s = signal(.5)
+  // { 0, .5, 1 } enumerates as 0, 1, .5: integer keys come first
+  const ctrl = slider(s, { min: 0, max: 1, step: .5, marks: { 0: 'Low', .5: 'Mid', 1: 'High' }, container: c })
+  is([...ctrl.el.querySelectorAll('.s-mark-label')].map(l => l.textContent), ['Low', 'Mid', 'High'])
+  is([...ctrl.el.querySelectorAll('.s-mark-label')].map(l => l.style.left), ['0%', '50%', '100%'])
+  cleanup(ctrl, c)
+  const listed = slider(signal(0), { min: 0, max: 100, step: 1, marks: [100, 0, 50], container: c })
+  is([...listed.el.querySelectorAll('.s-mark')].map(m => m.style.left), ['0%', '50%', '100%'])
+  cleanup(listed, c)
+})
+
 test('slider: marks ends', () => {
   const c = mount()
   const s = signal(0)

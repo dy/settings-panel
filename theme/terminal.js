@@ -44,8 +44,10 @@ export default function terminal({
   // focused field lights (well-hi) too.
   const dimField = ink(mix(shade, fg, dark ? .14 : .1, 'oklab'), 4.5, dimWell)
 
+  // Body 13px: every cell is 13px type.
+  const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace", lineHeight: 20, controlHeight: 20, rowGap: 10})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace", lineHeight: 20, controlHeight: 20, rowGap: 10})}
 
   --bg: ${shade};
   --fg: ${fg};
@@ -128,7 +130,9 @@ export default function terminal({
       -webkit-mask: var(--s-clear-icon) center / contain no-repeat; mask: var(--s-clear-icon) center / contain no-repeat; &:hover { background: var(--fg); } } }
 
   /* ── Rows — one line high, one cell apart ── */
+  /* a control sits on its label's first line, so a wrapped label or a taller control stays on the line grid */
   .s-control { min-height: var(--lh); align-items: center; gap: var(--column-gap); }
+  .s-control:not(.s-separator-labeled) { align-items: flex-start; }
   .s-input { gap: 1ch; align-items: center; }
   .s-label-group { width: var(--label-w); min-width: var(--label-w); max-width: none; line-height: var(--lh); gap: 0; }
   .s-label { color: var(--fg); }
@@ -163,13 +167,13 @@ export default function terminal({
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } }
     .s-step { gap: 1px;
-      button { width: 2ch; height: calc(var(--lh) / 2 - 0.5px); padding: 0; border: 0; background: var(--well); color: var(--dim); font-size: .6em; line-height: 1; cursor: pointer;
+      button { width: 2ch; height: calc(var(--lh) / 2 - 0.5px); padding: 0; border: 0; background: var(--well); color: var(--dim); font-size: inherit; line-height: calc(var(--lh) / 2 - 0.5px); overflow: hidden; cursor: pointer;
         &:hover { color: var(--bg); background: var(--accent); } } }
   }
 
   /* ── Vector — labelled cells ── */
   .s-vector {
-    .s-input { gap: 1ch; }
+    .s-input { gap: 0 1ch; }
     .s-vec-axis { gap: 0; height: var(--lh); min-width: 8ch; background: var(--well); padding: 0 0 0 1ch;
       &:focus-within { background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); } }
     .s-vec-label { color: var(--dim); font-size: inherit; opacity: 1; &::after { content: ':'; } }
@@ -202,7 +206,7 @@ export default function terminal({
     }
     &.s-switch {
       .s-track { width: 4ch; height: var(--lh); background: var(--well); position: relative;
-        &::after { content: ''; position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(2ch - 3px); background: var(--dim); transition: left .12s, background .12s; } }
+        &::after { content: ''; position: absolute; top: calc(2 * var(--length)); bottom: calc(2 * var(--length)); left: calc(2 * var(--length)); width: calc(2ch - 3 * var(--length)); background: var(--dim); transition: left .12s, background .12s; } }
       .s-input:hover .s-track { background: var(--well-hi); }
       &:has(input:checked) .s-track::after { left: calc(2ch + 1px); background: var(--accent); }
       &:has(input:focus-visible) .s-track { box-shadow: inset 0 0 0 1px var(--accent); }
@@ -217,17 +221,21 @@ export default function terminal({
   }
 
   /* ── Slider — a bar of cells, a block cursor for the thumb ── */
+  --cells: repeating-linear-gradient(90deg, transparent 0 calc(1ch - 1px), var(--bg) calc(1ch - 1px) 1ch);
+  .s-slider input[type="range"], .s-color.s-rgba .s-alpha {
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: 1ch; height: var(--lh); background: var(--fg); border: 0; border-radius: 0; cursor: ew-resize; }
+    &::-moz-range-thumb { width: 1ch; height: var(--lh); background: var(--fg); border: 0; border-radius: 0; cursor: ew-resize; }
+    &:hover::-webkit-slider-thumb, &:active::-webkit-slider-thumb { background: var(--accent); box-shadow: inset 0 0 0 1px var(--bg); }
+    &:hover::-moz-range-thumb, &:active::-moz-range-thumb { background: var(--accent); box-shadow: inset 0 0 0 1px var(--bg); }
+    &:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent); }
+  }
   .s-slider {
-    --cells: repeating-linear-gradient(90deg, transparent 0 calc(1ch - 1px), var(--bg) calc(1ch - 1px) 1ch);
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
+    .s-input { align-items: flex-start; }
     .s-track { height: var(--lh); margin: 0; }
     input[type="range"] {
       width: 100%; height: var(--lh); -webkit-appearance: none; appearance: none; cursor: ew-resize; border-radius: 0; margin: 0;
       background: var(--cells), linear-gradient(90deg, var(--accent) var(--p, 0%), var(--well) var(--p, 0%));
-      &::-webkit-slider-thumb { -webkit-appearance: none; width: 1ch; height: var(--lh); background: var(--fg); border: 0; border-radius: 0; cursor: ew-resize; }
-      &::-moz-range-thumb { width: 1ch; height: var(--lh); background: var(--fg); border: 0; border-radius: 0; cursor: ew-resize; }
-      &:hover::-webkit-slider-thumb, &:active::-webkit-slider-thumb { background: var(--accent); box-shadow: inset 0 0 0 1px var(--bg); }
-      &:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent); }
     }
     .s-marks { display: none; }
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
@@ -279,9 +287,9 @@ export default function terminal({
     &.s-rgba .s-color-input { gap: 1ch;
       input[type="color"] { width: 2ch; height: var(--lh); border-radius: 0; -webkit-appearance: none; appearance: none; background: none;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: 0; border-radius: 0; } }
+      /* the alpha slider is the slider: its cells over the checkerboard and ramp */
       .s-alpha { height: var(--lh); border-radius: 0;
-        &::-webkit-slider-thumb { width: 1ch; height: var(--lh); border: 0; border-radius: 0; background: var(--fg); }
-        &::-moz-range-thumb { width: 1ch; height: var(--lh); border: 0; border-radius: 0; background: var(--fg); } } }
+        background: var(--cells), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: 1ch calc(1ch - 1px); }
       button { width: 2ch; height: var(--lh); padding: 0; border: 0; border-radius: 0; cursor: pointer;
         &:hover { outline: 1px solid var(--fg); outline-offset: 1px; }
@@ -305,11 +313,12 @@ export default function terminal({
   .s-pad-val { color: var(--dim); font-size: inherit; opacity: 1; }
   .s-pad { width: 24ch; height: calc(var(--lh) * 8); aspect-ratio: auto; background: var(--well); border: 0; border-radius: 0;
     .s-pad-x, .s-pad-y { background: repeating-linear-gradient(90deg, var(--line) 0 0.5ch, transparent 0.5ch 1ch); }
-    .s-pad-y { background: repeating-linear-gradient(180deg, var(--line) 0 2px, transparent 2px 4px); }
+    .s-pad-y { background: repeating-linear-gradient(180deg, var(--line) 0 calc(2 * var(--length)), transparent calc(2 * var(--length)) calc(4 * var(--length))); }
     .s-pad-dot { width: 1ch; height: var(--lh); border-radius: 0; background: var(--accent); box-shadow: none; }
     &:focus-visible:not(:active) { outline: 1px solid var(--accent); outline-offset: 1px; } }
+  .s-knob-wrap { align-items: flex-start; }
   .s-knob-dial { width: calc(var(--lh) * 2); height: calc(var(--lh) * 2); background: var(--well); border: 1px solid var(--line);
-    i { background: var(--accent); width: 2px; border-radius: 0; } }
+    i { background: var(--accent); width: calc(2 * var(--length)); border-radius: 0; } }
   .s-knob-wrap:focus-visible:not(:active) .s-knob-dial { outline: 1px solid var(--accent); outline-offset: 1px; }
   .s-knob-val { color: var(--accent); font-size: inherit; opacity: 1; }
 

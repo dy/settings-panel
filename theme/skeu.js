@@ -4,6 +4,8 @@
  * The panel is a plate of one material lit from above. Anything pressable is a keycap
  * cut from it: a dark silhouette edge, a lit top rim, a face lighter than the plate, the
  * key's front wall along its bottom, the dark line it stands on and a short shadow below.
+ * Anything dragged (slider thumbs, the switch knob) is a cap of the same material, domed. Shadows
+ * are light taken away: laid translucent, they darken whatever lies under them, an accent fill too.
  * Anything that holds a value is engraved: a well whose upper wall is in shadow and whose
  * lower lip catches the light. Lettering is printed in the ink and engraved with it (a lit
  * lower edge under dark ink, a shaded upper edge over light ink). On-states use the accent.
@@ -46,7 +48,8 @@ const study = L => ([g, b, c]) => {
 // The Customize key, measured as lightness offsets from the surface in each finish
 // (graphite, bronze, chalk): silhouette edge, lit top rim, the face from under the rim to its
 // lower edge, the front wall, the dark line it stands on; then its shadow's two layers (tight
-// contact, long falloff) fitted to the profile of the plate below it.
+// contact, long falloff) fitted to the profile of the plate below it, laid as translucent shade
+// (where they overlap they deepen each other, as two occlusions do).
 const KEY = {
   outline: [-.048, -.13, -.035],
   rim: [.204, .168, .03],
@@ -55,7 +58,7 @@ const KEY = {
   low: [.09, -.02, .024],
   wall: [.067, -.088, -.011],
   base: [-.067, -.208, -.194],
-  contact: [-.028, -.119, -.089],
+  contact: [-.028, -.035, -.05],
   falloff: [-.016, -.156, -.048],
 }
 // Engraved wells in the same light: the floor a little below the plate, the upper wall in
@@ -102,11 +105,23 @@ export default function skeu({
   const deep = squared(S)
   const ab = ({ C, H }) => [C * cos(H * PI / 180), C * sin(H * PI / 180)]
   const [a0, b0] = ab(S), [a1, b1] = ab(deep)
-  const tone = (d, alpha) => {
+  const toneOf = d => {
     const L = clamp(sL + d, 0, 1)
-    if (d >= 0) return $(L, sC * (1 - clamp(d / max(1 - sL, .001), 0, 1)), sH, alpha)
+    if (d >= 0) return { L, C: sC * (1 - clamp(d / max(1 - sL, .001), 0, 1)), H: sH }
     const t = clamp(-d / max(sL - deep.L, .02), 0, 2), a = lerp(a0, a1, t), b = lerp(b0, b1, t)
-    return $(L, hypot(a, b), (atan2(b, a) * 180 / PI + 360) % 360, alpha)
+    return { L, C: hypot(a, b), H: (atan2(b, a) * 180 / PI + 360) % 360 }
+  }
+  const tone = (d, alpha) => { const { L, C, H } = toneOf(d); return $(L, C, H, alpha) }
+  // A shadow is light taken away: the colour and opacity that give tone(d) (at alpha) exactly over
+  // the plate, and over anything darker (an accent fill, a groove) darken it rather than paint the
+  // plate's lighter tone there as a glow. The least opacity keeps the colour as dark as the hue allows.
+  const srgb = c => toHex(c).slice(1).match(/../g).map(h => parseInt(h, 16) / 255)
+  const P = isFunc ? null : srgb(S)
+  const shadow = (d, alpha = 1) => {
+    if (!P) return tone(d, alpha)
+    const T = srgb(toneOf(d)), t = P.map((p, i) => p + alpha * (T[i] - p))
+    const k = min(1, max(.001, ...P.map((p, i) => p > 0 ? (p - t[i]) / p : 0)))
+    return `rgb(${P.map((p, i) => Math.round(clamp(p + (t[i] - p) / k, 0, 1) * 255)).join(' ')} / ${+k.toFixed(3)})`
   }
   const at = study(sL)
   const K = Object.fromEntries(Object.entries(KEY).map(([n, v]) => [n, at(v)]))
@@ -135,10 +150,14 @@ export default function skeu({
   const lifted = keyTones(1), flush = keyTones(0)
   // The face falls off quickly under the rim, then slowly to its lower edge
   const faceOf = t => `linear-gradient(180deg, ${tone(t.top)} 6%, 20%, ${tone(t.mid)} 50%, ${tone(t.low)} 90%)`
+  // A round cap (slider thumbs, the switch knob, the pad's dot, the knob) is the key's material on a
+  // dome: its crown faces the light and takes the face's top, its lower side turns away to the tone of
+  // the key's front wall. It keeps the key's rim, silhouette, base line and shadow; a dome has no wall.
+  const domeOf = t => `radial-gradient(circle farthest-corner at 50% 30%, ${tone(t.top)}, ${tone(t.mid)} 40%, ${tone(t.low)} 62%, ${tone(t.wall)} 88%)`
   // Its shadow at elevation e (1 at rest, higher under a hovering finger)
   const drop = (e = 1) => D ? [
-    `0 ${len(.5 * D * e)} ${len(1.5 * D * e)} ${tone(K.contact)}`,
-    `0 ${len(2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${tone(K.falloff)}`,
+    `0 ${len(.5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
+    `0 ${len(2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
   ] : []
   // All inside the key's box, in proportion at every size: the dark line along its bottom, the
   // front wall over the silhouette edge (1 unit at the sides, 3/4 at top and bottom), the lit rim.
@@ -150,18 +169,19 @@ export default function skeu({
   ].filter(Boolean)
   const colors = t => ({ base: tone(t.base), wall: tone(t.wall), outline: tone(t.outline), rim: tone(t.rim) })
   const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e) : [])].join(', ')
+  const capShadow = (c, e = 1) => [...edges(c, false), ...drop(e)].join(', ')
   // The same key over a face of any colour (swatches): its edges as light and shade
   const glaze = {
     base: tone(K.base * E, .55), outline: tone(K.outline * E, .5),
     rim: `oklch(1 0 0 / ${+(.45 * E).toFixed(3)})`, wall: `oklch(0 0 0 / ${+(.16 * E).toFixed(3)})`,
   }
 
-  // ── Wells ──
+  // ── Wells ── the inner shades are shadows too: over an accent fill they deepen it
   const floor = tone(W.floor)
   const well = [
-    `inset 0 1px 0 ${tone(W.floor + (W.wall - W.floor) * E)}`,               // upper wall, in shadow
-    `inset 0 ${len(1.5)} ${len(3)} ${tone(W.shade, .45 * E)}`,                  // its shade on the floor
-    `inset 0 0 0 1px ${tone(K.outline * E, .7)}`,                             // the cut
+    `inset 0 1px 0 ${shadow(W.floor + (W.wall - W.floor) * E)}`,             // upper wall, in shadow
+    `inset 0 ${len(1.5)} ${len(3)} ${shadow(W.shade, .45 * E)}`,                // its shade on the floor
+    `inset 0 0 0 1px ${shadow(K.outline * E, .7)}`,                           // the cut
     `0 1px 0 ${tone(W.lip * E)}`,                                             // lower lip, lit
   ].join(', ')
 
@@ -171,6 +191,8 @@ export default function skeu({
   const faceTex = texture === 'wood'
     ? { image: `${woodFigure(1.1)} ${len(-30)} 0 / ${len(120)} ${len(60)}, ${woodGrain(.12)} 0 0 / ${len(240)} ${len(120)}`, blend: 'soft-light, soft-light' }
     : surface(texture, tone(lifted.mid))
+  // A cap is turned, not planed: it shows the material's grain at its own lightness, no figure
+  const capTex = surface(texture, tone(lifted.mid))
   const layer = (tex, grad) => tex ? `${tex.image}, ${grad}` : grad
   const blend = tex => tex ? `${tex.blend}, normal` : 'normal'
 
@@ -212,10 +234,13 @@ export default function skeu({
   const plateLayers = [...gridLayers.map(l => `${l.url} ${l.off}px ${l.off}px`), ...(plateTex ? [plateTex.image] : [])]
   const plateBlend = [...gridLayers.map(() => 'normal'), ...(plateTex ? [plateTex.blend] : []), 'normal']
 
-  const stroke = max(1.2, weight / 330)
+  // Glyphs: one stroke weight and one optical size (a 3.5u box) for chevrons and checks; the
+  // stepper's smaller chevron keeps the same stroke in px
+  const stroke = max(1.2, weight / 330) * 1.2
   const svg = body => `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E${body}%3C/svg%3E")`
-  const chevron = svg(`%3Cpolyline points='3,4.5 6,7.5 9,4.5' fill='none' stroke='%23000' stroke-width='${stroke * 1.2}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
-  const check = svg(`%3Cpolyline points='2.5,6.2 5,8.6 9.5,3.6' fill='none' stroke='%23000' stroke-width='${stroke * 1.5}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
+  const chevronOf = w => svg(`%3Cpolyline points='3,4.5 6,7.5 9,4.5' fill='none' stroke='%23000' stroke-width='${+w.toFixed(3)}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
+  const chevron = chevronOf(stroke), chevronSm = chevronOf(stroke * 3.5 / 2.5)
+  const check = svg(`%3Cpolyline points='2.5,6.2 5,8.6 9.5,3.6' fill='none' stroke='%23000' stroke-width='${+stroke.toFixed(3)}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
 
   // Shared surfaces, as declaration blocks
   const key = (kind = 'key', shadow = `var(--${kind})`) => `
@@ -236,9 +261,22 @@ export default function skeu({
     background: ${color};
     -webkit-mask: ${mask} center / contain no-repeat;
     mask: ${mask} center / contain no-repeat;`
+  // One thumb for every range input (slider, interval, the colour's alpha): a cap, in its states
+  const thumb = `
+      &::-webkit-slider-thumb { -webkit-appearance: none; ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; transition: filter 140ms, box-shadow 90ms; }
+      &::-moz-range-thumb { ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; }
+      &:hover::-webkit-slider-thumb { box-shadow: var(--cap-up); filter: var(--hover); }
+      &:hover::-moz-range-thumb { box-shadow: var(--cap-up); filter: var(--hover); }
+      &:active::-webkit-slider-thumb { box-shadow: var(--cap-down); cursor: grabbing; }
+      &:active::-moz-range-thumb { box-shadow: var(--cap-down); cursor: grabbing; }
+      &:focus-visible { outline: none; }
+      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--cap), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
+      &:focus-visible::-moz-range-thumb { box-shadow: var(--cap), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }`
 
+  // Body 14px: skeu sets its labels and values at 14px.
+  const body = 14
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { panelPadding: 20, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, panelPadding: 20, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif" })}
 
   --bg: ${plate};
   --accent: ${accentCSS};
@@ -263,6 +301,11 @@ export default function skeu({
   --key: ${keyShadow(colors(lifted))};
   --key-up: ${keyShadow(colors(lifted), 1.5)};
   --key-down: ${keyShadow(colors(lifted), 0, false)};
+  --cap-image: ${layer(capTex, domeOf(lifted))};
+  --cap-blend: ${blend(capTex)};
+  --cap: ${capShadow(colors(lifted))};
+  --cap-up: ${capShadow(colors(lifted), 1.5)};
+  --cap-down: ${capShadow(colors(lifted), 0)};
   --flush: ${keyShadow(colors(flush))};
   --flush-up: ${keyShadow(colors(flush), 1.5)};
   --flush-down: ${keyShadow(colors(flush), 0, false)};
@@ -282,12 +325,14 @@ export default function skeu({
   --r: calc((var(--h) / 2 + var(--panel-padding) / 2) * var(--roundness));
   --thumb: calc(var(--u) * ${+thumbU.toFixed(4)});
   --gap: ${len(3)};
+  /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
+  --font-size-small: calc(12 * var(--length));
 
   color: var(--ink);
   background: ${[...plateLayers, 'var(--bg)'].join(', ')};
   background-blend-mode: ${plateBlend.join(', ')};
   border-radius: var(--r);
-  box-shadow: inset 0 0 0 1px ${tone(K.outline * E * .8)}, inset 0 ${rimW}px 0 ${tone(K.rim * .6 * E)}, 0 ${len(D)} ${len(2 * D)} ${tone(K.contact, .8)}, 0 ${len(10 * D)} ${len(28 * D)} ${len(-6)} ${tone(K.falloff * 1.5, .6)};
+  box-shadow: inset 0 0 0 1px ${tone(K.outline * E * .8)}, inset 0 ${rimW}px 0 ${tone(K.rim * .6 * E)}, 0 ${len(D)} ${len(2 * D)} ${shadow(K.contact, .8)}, 0 ${len(10 * D)} ${len(28 * D)} ${len(-6)} ${shadow(K.falloff * 1.5, .6)};
   text-shadow: var(--engrave);
   isolation: isolate;
   font-family: var(--font-family);
@@ -301,6 +346,7 @@ export default function skeu({
   .s-select.s-radio .s-input, .s-select.s-checkboxes .s-input { align-items: stretch; }
   .s-label { color: var(--ink); font-weight: calc(var(--weight) + 100); }
   .s-hint { color: var(--ink-dim); opacity: 1; }
+  :is(.s-hint, span.s-readout, .s-mark-label, .s-tooltip, .s-separator-label, .s-knob-val, .s-pad-val, .s-vec-label, .s-title-text) { font-size: var(--font-size-small); }
   .s-title { border: none; color: var(--ink-dim); box-shadow: inset 0 0 0 1px var(--edge); text-shadow: none; }
   .s-title-text { ${key('flush', 'var(--glaze)')} color: var(--ink); text-shadow: var(--engrave-key); border-radius: calc(var(--u) * 2 * var(--round)); }
 
@@ -327,7 +373,7 @@ export default function skeu({
   .s-fold-icon {
     margin-left: auto; order: 2;
     .s-search ~ &, :has(> .s-search) > & { margin-left: 0; }
-    i { position: relative; width: 45%; height: 45%; translate: 0 calc(var(--travel) / -2); }  /* centred on the face, above the wall */
+    i { position: relative; width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); translate: 0 calc(var(--travel) / -2); }  /* centred on the face, above the wall */
     i::before, i::after { content: ''; position: absolute; inset: 0; transition: transform 200ms; }
     i::before { ${glyph(chevron, onKeyEdge.color)} transform: translateY(${onKeyEdge.dy}px); }
     i::after { ${glyph(chevron, 'var(--ink-key)')} }
@@ -384,6 +430,7 @@ export default function skeu({
   /* ── Boolean ── */
   .s-boolean {
     label { display: flex; cursor: pointer; }
+    .s-input { min-height: var(--h); }   /* switch, checkbox and toggle rows keep the fields' pitch */
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
     &.s-switch {
@@ -391,13 +438,13 @@ export default function skeu({
         ${sunk}
         --sw: calc(var(--h) - var(--pad));
         width: calc(var(--sw) * 1.8); height: var(--sw);
-        margin: calc(var(--pad) / 2) 0;
+        margin: 0;
         border-radius: calc(var(--sw) / 2 * var(--round));
         position: relative; cursor: pointer;
         transition: background-color 160ms;
         &::after {
           content: '';
-          ${key()}
+          ${key('cap')}
           position: absolute; top: ${len(2)}; left: ${len(2)};
           width: calc(var(--sw) - ${len(4)}); height: calc(var(--sw) - ${len(4)});
           margin: 0;
@@ -405,8 +452,8 @@ export default function skeu({
           transition: transform 180ms cubic-bezier(.3, .7, .4, 1), box-shadow 90ms;
         }
       }
-      .s-input:hover .s-track::after { box-shadow: var(--key-up); filter: var(--hover); }
-      .s-input:active .s-track::after { box-shadow: var(--key-down); }
+      .s-input:hover .s-track::after { box-shadow: var(--cap-up); filter: var(--hover); }
+      .s-input:active .s-track::after { box-shadow: var(--cap-down); }
       &:has(input:checked) .s-track { background-color: var(--accent);
         &::after { transform: translateX(calc(var(--sw) * .8)); } }
     }
@@ -439,7 +486,7 @@ export default function skeu({
         border-radius: calc(var(--u) * 1.25 * var(--round));
         transition: background-color 140ms;
         &::after {
-          content: ''; position: absolute; inset: 16%;
+          content: ''; position: absolute; inset: calc(var(--u) * .5);
           ${glyph(check, 'var(--on-accent)')}
           opacity: 0; transform: scale(.5); transition: opacity 140ms, transform 140ms;
         }
@@ -459,7 +506,7 @@ export default function skeu({
       border-radius: calc(var(--u) * 1.25 * var(--round));
       font-size: 0; opacity: 1;
       ${press('flush')}
-      &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); ${glyph(chevron, 'var(--ink)')} }
+      &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); ${glyph(chevronSm, 'var(--ink)')} }
     }
     .s-step-up::before { rotate: 180deg; }
   }
@@ -476,15 +523,7 @@ export default function skeu({
       border-radius: calc(var(--u) * var(--round));
       overflow: visible;
       appearance: none; -webkit-appearance: none;
-      &::-webkit-slider-thumb { -webkit-appearance: none; ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; transition: filter 140ms, box-shadow 90ms; }
-      &::-moz-range-thumb { ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; }
-      &:hover::-webkit-slider-thumb { box-shadow: var(--key-up); filter: var(--hover); }
-      &:hover::-moz-range-thumb { box-shadow: var(--key-up); filter: var(--hover); }
-      &:active::-webkit-slider-thumb { box-shadow: var(--key-down); cursor: grabbing; }
-      &:active::-moz-range-thumb { box-shadow: var(--key-down); cursor: grabbing; }
-      &:focus-visible { outline: none; }
-      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--key), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
-      &:focus-visible::-moz-range-thumb { box-shadow: var(--key), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
+      ${thumb}
     }
     datalist { display: none; }
     .s-marks, .s-mark-labels { left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2); }
@@ -496,7 +535,11 @@ export default function skeu({
     }
     .s-mark-label { color: var(--ink-dim); opacity: 1; &.s-active { color: var(--ink); } }
     .s-readout { color: var(--ink-dim); opacity: 1; font-variant-numeric: tabular-nums; text-shadow: none; }
-    input[type="text"].s-readout { padding: 0 var(--pad); color: var(--ink-well); min-width: calc(6ch + var(--pad) * 2); text-align: center; }
+    /* An editable readout is a field: body type, the field's inset, as wide as its value (at least three
+       figures, so the track holds still while a short value is dragged) */
+    input[type="text"].s-readout { flex: none; font-size: inherit; padding: 0 max(var(--pad), var(--rk) * .75); color: var(--ink-well); text-align: center;
+      width: calc(7ch + 2 * max(var(--pad), var(--rk) * .75)); min-width: calc(3ch + 2 * max(var(--pad), var(--rk) * .75));
+      @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     .s-tooltip { ${key('flush', 'var(--glaze)')} bottom: calc(50% + var(--thumb) / 2); border-radius: calc(var(--u) * 1.5 * var(--round)); color: var(--ink); text-shadow: var(--engrave-key); }
     &.s-multiple .s-interval-track {
       height: var(--h); margin: 0;
@@ -507,8 +550,6 @@ export default function skeu({
         top: 50%; height: calc(var(--u) * 2); translate: 0 -50%;
         &.s-interval-lo { ${sunk} background-image: linear-gradient(to right, transparent var(--low-fill), var(--accent) var(--low-fill), var(--accent) var(--high-fill), transparent var(--high-fill)); }
         &.s-interval-hi { background: none; box-shadow: none; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; }
-        &::-moz-range-thumb { ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; }
       }
     }
   }
@@ -522,8 +563,8 @@ export default function skeu({
       border-radius: var(--rk);
     }
     button {
-      flex: 1; min-width: 0; margin: 0;
-      height: calc(var(--h) - var(--gap) * 2); padding: 0 var(--pad);
+      flex: 1 1 auto; min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share: one inset for all */
+      height: calc(var(--h) - var(--gap) * 2); padding: 0 max(var(--pad), (var(--rk) - var(--gap)) * .75);
       border: none; border-radius: calc(var(--rk) - var(--gap) * var(--round));
       background: none; box-shadow: none;
       color: var(--ink-dim); font-size: inherit; text-shadow: none;
@@ -563,7 +604,7 @@ export default function skeu({
       border-radius: calc(var(--u) * 1.25 * var(--round));
       transition: background-color 140ms;
       &::after {
-        content: ''; position: absolute; inset: 16%;
+        content: ''; position: absolute; inset: calc(var(--u) * .5);
         ${glyph(check, 'var(--on-accent)')}
         opacity: 0; transform: scale(.5); transition: opacity 140ms, transform 140ms;
       }
@@ -608,8 +649,7 @@ export default function skeu({
     }
     .s-alpha {
       box-shadow: var(--well); height: calc(var(--u) * 2); border-radius: calc(var(--u) * var(--round));
-      &::-webkit-slider-thumb { ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; }
-      &::-moz-range-thumb { ${key()} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; }
+      ${thumb}
     }
   }
   .s-color.s-swatches .s-input { gap: calc(var(--u) * 1.5); }
@@ -653,6 +693,7 @@ export default function skeu({
   }
 
   /* ── Info / separator ── */
+  .s-info .s-input { min-height: var(--h); }
   .s-info .s-monitor { color: var(--ink-dim); opacity: 1; }
   .s-separator { height: 1px; background: var(--edge); opacity: 1; box-shadow: 0 1px 0 var(--catch); }
   .s-separator-labeled { height: auto; background: none; box-shadow: none;
@@ -662,19 +703,23 @@ export default function skeu({
   /* ── XY pad / knob ── */
   .s-pad { ${sunk} border-radius: calc(var(--u) * 2.5 * var(--round));
     .s-pad-x, .s-pad-y { background: var(--edge); }
-    .s-pad-dot { ${key()} width: var(--thumb); height: var(--thumb); border-radius: 50%; position: absolute; } }
-  .s-knob-dial { ${key()} width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%;
-    i { background: var(--accent); width: 2px; } }
+    .s-pad-dot { ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: 50%; position: absolute; } }
+  .s-knob-dial { ${key('cap')} width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%;
+    i { background: var(--accent); width: calc(2 * var(--length)); } }
   .s-knob-val { color: var(--ink-dim); opacity: 1; }
 
   /* ── Folder: an engraved rule ── */
+  /* A folder title is a row on the rows' pitch, its rule along the row's foot; its contents keep the
+     pitch, a row gap below the rule, and the next row follows one row gap after them */
   .s-folder > summary {
+    min-height: var(--h); padding: 0;
     color: var(--ink);
     font-weight: calc(var(--weight) + 100);
-    border-bottom: 1px solid var(--edge); box-shadow: 0 1px 0 var(--catch);
+    border: none; background: linear-gradient(to top, var(--catch) 0 1px, var(--edge) 1px 2px, transparent 2px);
     opacity: 1;
-    &::after { ${glyph(chevron, 'var(--ink-dim)')} }
+    &::after { width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); ${glyph(chevron, 'var(--ink-dim)')} }
   }
+  .s-folder > .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }
 }`
 
   return form({ size, spacing, font }) + '\n' + overrides

@@ -42,7 +42,7 @@
     const finishes = { Chalk: colormaps.chalk, Bronze: colormaps.bronze, Graphite: colormaps.graphite }
     const material = ({ finish, depth, bevel }) => {
       const { shade, accent, ink, texture } = finishes[finish]
-      return { shade, accent, ink, texture, depth, bevel }
+      return { shade, accent, ink, texture, depth, bevel, size: 14 / 13 }
     }
     const ground = finish => {
       const { shade, texture } = finishes[finish], t = surface(texture, shade)

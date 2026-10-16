@@ -9,6 +9,7 @@ export default `@layer s-base {
   /* ── Tokens (override in theme) ── */
   --bg: #f5f4f2;
   --accent: #2563eb;
+  --length: 1px;
   --u: 4px;
   --lh: calc(var(--u) * 4);
   --spacing: 1;
@@ -41,9 +42,9 @@ export default `@layer s-base {
   > summary:focus-visible, .s-folder > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Search (opt-in via search option; themes refine) ── */
-  .s-search { margin-left: auto; min-width: 0; display: inline-flex; align-items: center; gap: 4px; }
+  .s-search { margin-left: auto; min-width: 0; display: inline-flex; align-items: center; gap: calc(4 * var(--length)); }
   .s-search-btn {
-    flex: none; width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
+    flex: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: none; cursor: pointer;
     background: currentColor;
     -webkit-mask: var(--s-search-icon) center / contain no-repeat;
     mask: var(--s-search-icon) center / contain no-repeat;
@@ -204,7 +205,7 @@ export default `@layer s-base {
       cursor: pointer;
       background:
         linear-gradient(to right, transparent, var(--c)),
-        conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / 8px 8px;
+        conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length));
       &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.35); cursor: pointer; }
       &::-moz-range-thumb { width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.35); cursor: pointer; }
     }
@@ -312,7 +313,7 @@ export default `@layer s-base {
     }
     /* expandable 2D pad (pad option) — dot-in-corners glyph toggle, pad on its own row */
     .s-vec-expand {
-      flex: none; width: 16px; height: 16px; padding: 0; border: none; cursor: pointer;
+      flex: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: none; cursor: pointer;
       background: currentColor; opacity: .55;
       -webkit-mask: var(--s-expand-icon) center / contain no-repeat;
       mask: var(--s-expand-icon) center / contain no-repeat;
@@ -350,7 +351,7 @@ export default `@layer s-base {
       transform: translate(-50%, -50%);
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 2px color-mix(in oklab, var(--bg, #000), transparent 35%);
+      box-shadow: 0 0 0 calc(2 * var(--length)) color-mix(in oklab, var(--bg, #000), transparent 35%);
       pointer-events: none;
     }
   }
@@ -370,7 +371,7 @@ export default `@layer s-base {
     border-radius: 50%;
     background: color-mix(in oklab, currentColor 10%, transparent);
     border: 1px solid color-mix(in oklab, currentColor 22%, transparent);
-    i { position: absolute; left: 50%; top: 9%; width: 2px; height: 30%; border-radius: 1px; background: var(--accent); transform: translateX(-50%); }
+    i { position: absolute; left: 50%; top: 9%; width: calc(2 * var(--length)); height: 30%; border-radius: 1px; background: var(--accent); transform: translateX(-50%); }
   }
   .s-knob-val { font-size: smaller; opacity: .8; font-variant-numeric: tabular-nums; }
 

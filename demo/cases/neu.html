@@ -71,7 +71,7 @@
       search: true,
       theme: s => {
         const { shade, accent, ink, texture } = finishes[s.finish]
-        return neu({ shade, accent, ink, texture, depth: s.depth, softness: s.softness, contrast: s.contrast, light: s.light, grain: s.grain })
+        return neu({ shade, accent, ink, texture, size: 14 / 13, depth: s.depth, softness: s.softness, contrast: s.contrast, light: s.light, grain: s.grain })
       },
       onchange: mirror,
     })

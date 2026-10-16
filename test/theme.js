@@ -1,17 +1,17 @@
 import './register.js'
 import test, { is, ok } from 'tst'
 import { readdirSync } from 'node:fs'
-import metrics from '../theme/metrics.js'
+import metrics, { BODY, scale } from '../theme/metrics.js'
 
 test('metrics: invalid axes fall back, finite axes clamp, and font defaults survive empty overrides', () => {
   const token = (css, name) => css.match(new RegExp(`--${name}: ([^;]+);`))[1]
   for (const value of [undefined, null, '', '2', NaN, Infinity, -Infinity]) {
-    const css = metrics({ size: value, spacing: value })
+    const css = metrics({ size: value, spacing: value }, { body: BODY })
     is(token(css, 'size'), '1')
     is(token(css, 'spacing'), '1')
   }
   for (const [value, expected] of [[-1, '.5'], [0, '.5'], [.5, '.5'], [1, '1'], [2, '2'], [3, '2']]) {
-    const css = metrics({ size: value, spacing: value })
+    const css = metrics({ size: value, spacing: value }, { body: BODY })
     is(Number(token(css, 'size')), Number(expected))
     is(Number(token(css, 'spacing')), Number(expected))
   }
@@ -23,6 +23,24 @@ test('metrics: invalid axes fall back, finite axes clamp, and font defaults surv
   is(metrics({}), initial)
   metrics({ size: 2, spacing: .5, font: 'serif' })
   is(metrics(), initial)
+})
+
+// size 1 is a 13px body in every theme: --size is the size axis, clamped to .5–2 first, times BODY over
+// the theme's apparent body px (its font size unless it says otherwise), so a native size gives 1 exactly.
+test('metrics: --size normalises the clamped size axis to a 13px body', () => {
+  const size = (axes, base) => Number(metrics(axes, base).match(/--size: ([^;]+);/)[1])
+  is(BODY, 13)
+  is(size({}, { fontSize: 13 }), 1)
+  is(size({}), scale(1, 14))
+  is(size({}, { fontSize: 11 }), 1.181818)
+  is(size({}, { fontSize: 16, body: 13 }), 1)
+  for (const body of [9, 10, 11, 12, 12.5, 13, 14, 16]) {
+    is(size({ size: body / BODY }, { body }), 1)
+    is(size({ size: 1.2 * body / BODY }, { body }), 1.2)
+  }
+  is(size({ size: 3 }, { body: 10 }), 2.6)
+  is(size({ size: .1 }, { body: 10 }), .65)
+  is(scale(2, 9), 2.888889)
 })
 
 // Every theme is a pure function: axes in, one scoped stylesheet out. A theme

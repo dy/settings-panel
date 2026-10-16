@@ -84,7 +84,7 @@ export default function lab01({
   const secondaryShadow = plateDark ? `0 -1px 0 ${black('.15')}` : dark ? 'none' : `0 1px 0 ${white('.2')}`
 
   // Raised glass surface (primary button, fold circle, switch and slider thumbs).
-  const glow = a => `radial-gradient(ellipse at -20px top, ${white(a)}, ${white('0')})`
+  const glow = a => `radial-gradient(ellipse at calc(-20 * var(--length)) top, ${white(a)}, ${white('0')})`
   const btnBg = dark ? `${glow('0.05')}, hsl(from var(--bg-light) h s l / .8)`
     : gold ? `${glow('0.25')}, var(--bg-light)` : `${glow('0.2')}, hsl(from var(--bg-light) h s l / .95)`
   const btnBgHover = `${glow(dark ? '0.1' : gold ? '0.35' : '0.3')}, var(--bg-light)`
@@ -93,13 +93,13 @@ export default function lab01({
   const sh = a => gold ? tone(-0.1704, 0.945, -7.9, a) : `rgba(0, 0, 0, ${a})`
   const edge = ring => `inset 0 0 0 1px ${white('.04')}, 0 0 0 1px ${black(ring)}`
   const btnShadow = dark
-    ? `${edge('.45')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.025)}, 0px 14px 9px ${sh(0.1)}, 0px 6px 6px ${sh(0.15)}, 0px 2px 4px ${sh(0.25)}`
+    ? `${edge('.45')}, 0px calc(40 * var(--length)) calc(11 * var(--length)) ${sh(0.01)}, 0px calc(26 * var(--length)) calc(10 * var(--length)) ${sh(0.025)}, 0px calc(14 * var(--length)) calc(9 * var(--length)) ${sh(0.1)}, 0px calc(6 * var(--length)) calc(6 * var(--length)) ${sh(0.15)}, 0px calc(2 * var(--length)) calc(4 * var(--length)) ${sh(0.25)}`
     : gold
-    ? `${edge('.15')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.05)}, 0px 14px 9px ${sh(0.17)}, 0px 6px 6px ${sh(0.29)}, 0px 2px 4px ${sh(0.33)}`
-    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 4.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 18px 18px -9px hsla(0 0% 0% / 0.25)`
+    ? `${edge('.15')}, 0px calc(40 * var(--length)) calc(11 * var(--length)) ${sh(0.01)}, 0px calc(26 * var(--length)) calc(10 * var(--length)) ${sh(0.05)}, 0px calc(14 * var(--length)) calc(9 * var(--length)) ${sh(0.17)}, 0px calc(6 * var(--length)) calc(6 * var(--length)) ${sh(0.29)}, 0px calc(2 * var(--length)) calc(4 * var(--length)) ${sh(0.33)}`
+    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 calc(4.5 * var(--length)) calc(4.5 * var(--length)) calc(-2.25 * var(--length)) hsla(0 0% 0% / 0.15), 0 calc(18 * var(--length)) calc(18 * var(--length)) calc(-9 * var(--length)) hsla(0 0% 0% / 0.25)`
   const btnActive = dark || gold
-    ? `${edge('.15')}, 0px 20px 10px ${sh(0.01)}, 0px 12px 10px ${sh(0.05)}, 0px 6px 9px ${sh(0.17)}, 0px 2px 4px ${sh(0.29)}, 0px 1px 2px ${sh(0.33)}`
-    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 2.5px 4.5px -2.25px hsla(0 0% 0% / 0.15), 0 8px 18px -9px hsla(0 0% 0% / 0.25)`
+    ? `${edge('.15')}, 0px calc(20 * var(--length)) calc(10 * var(--length)) ${sh(0.01)}, 0px calc(12 * var(--length)) calc(10 * var(--length)) ${sh(0.05)}, 0px calc(6 * var(--length)) calc(9 * var(--length)) ${sh(0.17)}, 0px calc(2 * var(--length)) calc(4 * var(--length)) ${sh(0.29)}, 0px 1px calc(2 * var(--length)) ${sh(0.33)}`
+    : `${edge('.15')}, 0 1px 1px -.5px hsla(0 0% 0% / 0.1), 0 calc(2.5 * var(--length)) calc(4.5 * var(--length)) calc(-2.25 * var(--length)) hsla(0 0% 0% / 0.15), 0 calc(8 * var(--length)) calc(18 * var(--length)) calc(-9 * var(--length)) hsla(0 0% 0% / 0.25)`
 
   // Bevels (gradient borders)
   const btnBevel = dark
@@ -120,7 +120,7 @@ export default function lab01({
   const thumbBg = dark ? thumbFace('0.15', 'hsl(from var(--bg-light) h s l / .8)', btnBevel)
     : thumbFace(gold ? '0.25' : '0.2', gold ? 'var(--bg-light)' : 'hsl(from var(--bg-light) h s l / .95)', btnBevel)
   const thumbBgOn = dark ? thumbFace('0', 'var(--bg-light)', `linear-gradient(180deg, ${white('0.4')}, ${black('.88')} 41%, ${black('.46')} 75%, ${white('.25')})`) : thumbBg
-  const thumbShadowOn = dark ? `0 0 0 1px ${black('0.85')}, 0px 40px 11px ${sh(0.01)}, 0px 26px 10px ${sh(0.025)}, 0px 14px 9px ${sh(0.1)}, 0px 6px 6px ${sh(0.15)}, 0px 2px 4px ${sh(0.25)}` : btnShadow
+  const thumbShadowOn = dark ? `0 0 0 1px ${black('0.85')}, 0px calc(40 * var(--length)) calc(11 * var(--length)) ${sh(0.01)}, 0px calc(26 * var(--length)) calc(10 * var(--length)) ${sh(0.025)}, 0px calc(14 * var(--length)) calc(9 * var(--length)) ${sh(0.1)}, 0px calc(6 * var(--length)) calc(6 * var(--length)) ${sh(0.15)}, 0px calc(2 * var(--length)) calc(4 * var(--length)) ${sh(0.25)}` : btnShadow
 
   // Recesses. The switch track is the source's; fields, slider grooves and swatches
   // share it. The image-card well (plate) has its own lighter recipe. Gold's are
@@ -128,18 +128,18 @@ export default function lab01({
   // yields, since a track carries its thumb and a field its text.
   const trackBg = dark ? black('.95') : gold ? tone(-0.0686, 1.024, -7.8) : black('.1')
   const trackBevel = dark
-    ? `0 1px 0 ${white('.1')}, inset 0 1px 0 ${black('.95')}, inset 0 1px 4px ${black('.4')}`
-    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.1')}, inset 0 1px 4px ${black(gold ? '.08' : '.25')}`
+    ? `0 1px 0 ${white('.1')}, inset 0 1px 0 ${black('.95')}, inset 0 1px calc(4 * var(--length)) ${black('.4')}`
+    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.1')}, inset 0 1px calc(4 * var(--length)) ${black(gold ? '.08' : '.25')}`
   const cardFrame = dark ? black('.9') : gold ? tone(-0.0515, 1.026, -5.4) : black('.1')
   const plateShadow = dark
-    ? `0 1px 0 ${white('.15')}, inset 0 1px 0 ${black('1')}, inset 0 1px 4px ${black('.25')}`
-    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.15')}, inset 0 1px 4px ${black(gold ? '.08' : '.1')}`
+    ? `0 1px 0 ${white('.15')}, inset 0 1px 0 ${black('1')}, inset 0 1px calc(4 * var(--length)) ${black('.25')}`
+    : `0 1px 0 ${white('.2')}, inset 0 1px 0 ${black(gold ? '.07' : '.15')}, inset 0 1px calc(4 * var(--length)) ${black(gold ? '.08' : '.1')}`
   const cardRing = 'hsl(from white h s l / 1)' // selection ring — white on every theme
 
   // Switch on: the source's checked track keeps its recess's outer highlight.
   const switchOnBg = dark ? white('.83') : gold ? inkHighest : `hsl(from ${inkHighest} h s l / .85)`
   const switchOnShadow = dark
-    ? `0 1px 0 ${white('.1')}, 0px 5.8px 5.5px -5px hsla(0 0% 100% / 0.0825), 0px 16px 15px -5px hsl(0 0% 100% / 0.12)`
+    ? `0 1px 0 ${white('.1')}, 0px calc(5.8 * var(--length)) calc(5.5 * var(--length)) calc(-5 * var(--length)) hsla(0 0% 100% / 0.0825), 0px calc(16 * var(--length)) calc(15 * var(--length)) calc(-5 * var(--length)) hsl(0 0% 100% / 0.12)`
     : `0 1px 0 ${white('.2')}`
 
   // Footer rule: a dark and a light hairline, both blended by overlay.
@@ -224,8 +224,10 @@ export default function lab01({
     ${bevelRing(grad, w, blend)}`
   const ovl = 'mix-blend-mode: overlay;' // raised-button bevel always blends overlay
 
+  // Body 13px: lab01.dev sets its labels and values in Geist Mono at 13px.
+  const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {fontSize: 13, controlHeight: 38, inset: 12, rowGap: 16, sectionGap: 24, panelPadding: 24, fontFamily: "'Geist Mono', 'Geist', system-ui, sans-serif"})}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, controlHeight: 38, inset: 12, rowGap: 16, sectionGap: 24, panelPadding: 24, fontFamily: "'Geist Mono', 'Geist', system-ui, sans-serif"})}
 
   /* ════════════════ Design tokens — override any to retheme ════════════════ */
   /* Palette */
@@ -297,7 +299,7 @@ export default function lab01({
   --blur: calc(20 * var(--length));                  /* backdrop-filter glass blur */
   --noise-opacity: ${dark ? '.1' : '.15'};
   --fs: var(--font-size);                    /* base type size */
-  --fs-sm: calc(12 * var(--length));                 /* slider readout */
+  --fs-sm: calc(12 * var(--length));                 /* secondary step: readouts, mark labels, tooltips, separator labels */
   --fs-head: calc(20 * var(--length));               /* panel title */
   --tracking-head: -0.025em;
   --icon-size: calc(16 * var(--length));             /* chevron glyph */
@@ -445,11 +447,14 @@ export default function lab01({
     text-shadow: var(--text-shadow);
   }
   .s-hint {
-    font-size: var(--fs);
+    font-size: var(--fs);   /* the source sets its hints at the label's size, set apart by ink alone */
     color: var(--hint);
     opacity: 1;
     text-shadow: var(--text-shadow);
   }
+  :is(.s-mark-label, .s-tooltip, .s-separator-label, .s-knob-val, .s-pad-val, .s-vec-label, .s-title-text) { font-size: var(--fs-sm); }
+  /* Rows without a box (switch, checkbox, read-only text) share one step: the source's switch row */
+  :is(.s-boolean, .s-info) .s-input { min-height: calc(var(--track-h) + var(--pad)); align-items: center; }
   .s-input { gap: calc(var(--u) * var(--spacing)); align-items: center; }
 
   /* ── Interactive elements ── */
@@ -538,7 +543,11 @@ export default function lab01({
       &:hover, &:focus { background: transparent; }
       &:focus { box-shadow: var(--field-selected); outline: none; }
     }
-    .s-track { height: var(--ctrl-h); }
+    /* a slider row is a box's height, the interval's too; mark labels hang in a line of their own */
+    .s-track { height: var(--ctrl-h); margin: 0; }
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
+    &.s-multiple .s-input { min-height: var(--ctrl-h); }
+    .s-input { gap: var(--column-gap); }   /* a readout keeps clear of its track's end */
     /* marks: the panel's ink, dimmed; the reached ones in the on fill (the accent is the shade itself) */
     .s-mark-label { opacity: ${dim(.5)}; &.s-active { opacity: 1; color: var(--switch-on-bg); } }
     /* interval: the slider's groove, the span between the thumbs filled as a switch that is on */
@@ -593,8 +602,9 @@ export default function lab01({
 
     &.s-toggle {
       .s-track {
-        width: auto; height: auto;
-        padding: var(--pad-i) calc(var(--pad));
+        width: auto; height: var(--ctrl-h);
+        display: flex; align-items: center;
+        padding: 0 var(--pad);
         border-radius: calc(var(--r) * 0.5);
         background: var(--field);
         cursor: pointer;
@@ -619,6 +629,7 @@ export default function lab01({
 
   /* Radio: the native dot in the on-fill, like every on-state here */
   .s-select.s-radio input[type="radio"] { accent-color: var(--switch-on-bg); }
+  .s-select.s-radio .s-input { align-items: flex-start; }   /* options line up under each other, as the checkboxes' do */
 
   /* Checkbox: one box for the boolean and each option of the checkboxes list */
   .s-boolean.s-checkbox .s-track, .s-checkboxes .s-track {
@@ -632,7 +643,7 @@ export default function lab01({
     &::after {
       content: '';
       width: var(--checkbox-fill); height: var(--checkbox-fill);
-      border-radius: calc(var(--r) * 0.2);
+      border-radius: max(0px, calc(var(--r) * 0.3 - (var(--checkbox) - var(--checkbox-fill)) / 2));   /* nested: the box's radius less its inset */
       background: transparent;
       transition: background 140ms;
     }
@@ -651,7 +662,7 @@ export default function lab01({
       padding-right: calc(var(--u) * 8);
       background-image: ${chevron(dark ? '%23ddd' : '%23333')};
       background-position: right calc(var(--u) * 3) center;
-      background-size: calc(var(--u) * 3);
+      background-size: var(--icon-size);   /* the fold icon's chevron, one size and stroke */
       background-repeat: no-repeat;
     }
     /* One sunken track (the secondary plate); the selection is a raised plate inside it. */
@@ -661,11 +672,12 @@ export default function lab01({
       border-radius: calc(var(--r) * 0.5 + var(--seg-inset));
       background: var(--secondary-bg);
     }
+    &.s-segmented:not(:has(button[style*="background-image"])) button { flex: 1 1 auto; }   /* each label its width and an equal share */
     &.s-segmented button {
-      min-width: 0;
+      min-width: 0; white-space: nowrap;
       background: transparent;
       border-radius: calc(var(--r) * 0.5);
-      padding: 0 var(--seg-pad);
+      padding: 0 max(var(--seg-pad), var(--r) * 0.375);
       color: ${segText};
       font-size: var(--fs);
       height: calc(var(--ctrl-h) - 2 * var(--seg-inset));
@@ -734,8 +746,8 @@ export default function lab01({
       border: none; border-radius: calc(var(--r) * 0.5);
       cursor: pointer;
       &::-webkit-color-swatch-wrapper { padding: 0; }
-      &::-webkit-color-swatch { border: none; border-radius: calc(var(--r) * 0.3); }
-      &::-moz-color-swatch { border: none; border-radius: calc(var(--r) * 0.3); }
+      &::-webkit-color-swatch { border: none; border-radius: max(0px, calc(var(--r) * 0.5 - var(--u))); }   /* nested in the well */
+      &::-moz-color-swatch { border: none; border-radius: max(0px, calc(var(--r) * 0.5 - var(--u))); }
       &:focus { box-shadow: var(--field-selected); outline: none; }
     }
     input[type="text"] { flex: 1; min-width: 0; width: 0; padding: 0 var(--pad); }
@@ -744,6 +756,8 @@ export default function lab01({
   .s-color.s-rgba .s-color-input {
     flex-wrap: wrap;
     input[type="text"] { min-width: 10ch; }
+    /* the slider's groove, its checkerboard and ramp in place of the fill */
+    .s-alpha { height: var(--slider-h); border-radius: calc(var(--r) * 0.5); box-shadow: var(--track-bevel); }
   }
 
   /* ── Button group ── */
@@ -804,7 +818,7 @@ export default function lab01({
       mix-blend-mode: overlay;
       pointer-events: none;
     }
-    .s-content { gap: var(--row-gap); padding-block: var(--row-gap); }
+    .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }   /* a row gap under the title and after the last row */
   }
 
   .s-separator-label { opacity: ${dim(.6)}; }
