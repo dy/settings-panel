@@ -115,11 +115,12 @@ test('reported flat themes paint a distinct panel surface and UIL fills its avai
 
 test('Swiss preserves its transparent demo surface and action spacing through colormap changes', async ({ page }) => {
   await page.goto('/demo/cases/swiss')
-  const demo = page.locator('#panel .s-panel')
+  const demo = page.locator('#cahoots .s-panel')
   await expect(demo).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await expect(demo.locator('[data-key=company] input')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
-  await expect(demo.locator('.s-button')).toHaveCSS('padding-top', '56px')
-  await expect(demo.locator('.s-button')).toHaveCSS('padding-bottom', '16px')
+  // the section gap (56) and the key's foot (16) at the case's size 15/13 over Swiss's 14px body, spacing 1.2
+  await expect(demo.locator('.s-button')).toHaveCSS('padding-top', '72px')
+  await expect(demo.locator('.s-button')).toHaveCSS('padding-bottom', /^20\.57/)
   await page.goto('/#theme=swiss')
   const live = page.locator('#live-panel .s-panel')
   for (const map of ['chalk', 'graphite', 'chalk']) {

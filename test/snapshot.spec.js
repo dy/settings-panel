@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 const cases = [
   { name: 'devtools', path: '/demo/cases/devtools.html' },
   { name: 'devtools-dark', path: '/demo/cases/devtools.html#dark' },
-  { name: 'swiss', path: '/demo/cases/swiss.html' },
+  { name: 'swiss', path: '/demo/cases/swiss.html', width: 1280 },
   { name: 'control-panel', path: '/demo/cases/control-panel.html' },
   { name: 'control-panel-light', path: '/demo/cases/control-panel.html#shade=ebebeb' },
   { name: 'skeu', path: '/demo/cases/skeu.html' },
