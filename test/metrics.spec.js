@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { contrast, mix } from '../theme/color.js'
 import { themes as registry } from '../demo/themes.js'
 
-const themes = ['default', 'skeu', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial']
+const themes = ['default', 'skeu', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit']
 
 test('DevTools empty declarations keep braces on static panels and through collapse cycles', async ({ page }) => {
   await page.goto('/')

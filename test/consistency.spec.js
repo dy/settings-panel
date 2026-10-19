@@ -19,7 +19,9 @@ const typeExceptions = {
 // painted button rows whose side inset follows another grid by design
 const sideInsetExceptions = { controlkit: 'the label grid sets the side inset' }
 // sliders whose fill is the value, without a thumb to match
-const fillSliders = ['oui']
+const fillSliders = ['oui', 'dialkit']
+// themes whose colour alpha slider keeps its own thumb by design
+const alphaExceptions = { studio: 'the row is the slider, its handle a hairline at the fill edge; the alpha keeps a knob over its ramp' }
 // themes whose boxed controls keep more than one height by design
 const boxExceptions = { studio: 'boxes nest inside its 36px rows', apple: 'borderless fields', devtools: 'inline declarations', oui: "native's 25px buttons", bitmap: "System 7's control heights", synth: "the original's 25.5px chips", swiss: 'typographic rows', editorial: 'reader rows' }
 
@@ -57,6 +59,39 @@ test('a slider marks its end ticks and labels s-first / s-last', async ({ page }
   for (const ends of classes) expect(ends).toEqual([[true, false], [false, false], [false, true]])
 })
 
+// dragging a slider's number drags the slider: the same value per pixel as the track, so the fill (or
+// thumb) follows the pointer whichever part is grabbed; a click without movement still edits the number
+for (const file of ['studio', 'default']) test(`${file}: dragging the slider's number moves it as dragging the slider does`, async ({ page }) => {
+  await mount(page, file, { level: { type: 'slider', value: 20, min: 0, max: 100, step: 1 } })
+  const drag = async (sel, from, dx) => {
+    const box = await page.locator(`#consistency [data-key=level] ${sel}`).boundingBox()
+    const x = from(box), y = box.y + box.height / 2
+    await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + dx / 2, y, { steps: 4 }); await page.mouse.move(x + dx, y, { steps: 4 }); await page.mouse.up()
+    return page.evaluate(() => consistencyPanel.level)
+  }
+  // the thumb sits at 20% of the track; grab it there
+  const track = await drag('input[type=range]', b => b.x + b.width * .2, 60)
+  await page.evaluate(() => { consistencyPanel.level = 20 })
+  await page.waitForTimeout(50)
+  const number = await drag('.s-readout', b => b.x + b.width / 2, 60)
+  expect(number - 20, `${file}: number moved ${number - 20}, track ${track - 20}`).toBeGreaterThan(0)
+  expect(Math.abs((number - 20) - (track - 20)), `${file}: number moved ${number - 20}, track ${track - 20}`).toBeLessThanOrEqual(Math.max(2, (track - 20) * .15))
+  // a press without movement still opens the number for typing
+  await page.locator('#consistency [data-key=level] .s-readout').click()
+  await expect(page.locator('#consistency [data-key=level] .s-readout')).toBeFocused()
+})
+
+// a scrubbing number keeps the convention: 1px = 1 step (shift ×10), whatever slider readouts do
+test('dragging a number steps it one step per pixel', async ({ page }) => {
+  await mount(page, 'default', { count: { type: 'number', value: 7, step: 1, scrub: true } })
+  const input = page.locator('#consistency [data-key=count] input')
+  const box = await input.boundingBox(), y = box.y + box.height / 2
+  await page.mouse.move(box.x + 10, y); await page.mouse.down(); await page.mouse.move(box.x + 22, y, { steps: 4 }); await page.mouse.up()
+  expect(await page.evaluate(() => consistencyPanel.count)).toBe(19)
+  await page.keyboard.down('Shift'); await page.mouse.move(box.x + 10, y); await page.mouse.down(); await page.mouse.move(box.x + 5, y, { steps: 4 }); await page.mouse.up(); await page.keyboard.up('Shift')
+  expect(await page.evaluate(() => consistencyPanel.count)).toBe(-31)
+})
+
 for (const [id, file] of files) test.describe(id, () => {
   test('type roles and boxes', async ({ page }) => {
     await mount(page, file, {
@@ -83,6 +118,7 @@ for (const [id, file] of files) test.describe(id, () => {
   })
 
   test('the alpha slider wears the slider\'s thumb', async ({ page }) => {
+    test.skip(!!alphaExceptions[id], alphaExceptions[id])
     await mount(page, file, { a: { type: 'slider', value: 50, min: 0, max: 100, readout: false }, b: { type: 'color', variant: 'rgba', value: '#8b80f980' } })
     // the thumb painted two flat colours in turn: the pixels that differ are exactly its drawn shape,
     // whatever lies behind it (a white thumb on a white track would otherwise vanish)

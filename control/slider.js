@@ -99,6 +99,8 @@ export default (sig, opts = {}) => {
     const fmtHigh = computed(() => readoutText(high.value))
 
     const clampVal = v => clamp(v, min, max)
+    const onStep = v => step ? +(min + Math.round((v - min) / step) * step).toFixed(decimals(step)) : v
+    const perPx = e => (max - min) / (e.currentTarget.closest('.s-input').querySelector('.s-interval-track').getBoundingClientRect().width || 100)
     const stepSize = e => step * stepMul(e)
     const isUp = e => e.key === 'ArrowUp' || e.key === 'ArrowRight'
     const makeActual = fn => e => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) fn(clampVal(v)) }
@@ -128,8 +130,9 @@ export default (sig, opts = {}) => {
       low, high, lowPct, highPct, min, max, step,
       setLow, setHigh, setLowActual, setHighActual, stepKeyLow, stepKeyHigh,
       showInput, showReadonly, fmtLow, fmtHigh, top, pickThumb,
-      scrubLo: scrub(() => low.value, v => setLow(clampVal(v)), step),
-      scrubHi: scrub(() => high.value, v => setHigh(clampVal(v)), step)
+      // a readout drags its thumb: the track's value per pixel
+      scrubLo: scrub(() => low.value, v => setLow(clampVal(onStep(v))), perPx),
+      scrubHi: scrub(() => high.value, v => setHigh(clampVal(onStep(v))), perPx)
     })
   }
 
@@ -310,7 +313,9 @@ export default (sig, opts = {}) => {
     type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, listId, nativeTicks,
     dMin, dMax, dStep, set, setActual, stepKey, grab, release,
     readout, showInput, showReadonly, showTooltip, readoutText, format,
-    scrubR: scrub(() => sig.value, v => { sig.value = clean(clamp(v, min, max)) }, step || (max - min) / 100)
+    // dragging the number drags the slider: display space, the track's value per pixel, the drag's snapping
+    scrubR: scrub(() => value.value, d => { dragging = true; set(clamp(d, dMin, dMax)); dragging = false },
+      e => (dMax - dMin) / (e.currentTarget.closest('.s-input').querySelector('input[type=range]').getBoundingClientRect().width || 100))
   })
 
   // el is now in live DOM (panel mounted before controls) — detect sync

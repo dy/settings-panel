@@ -45,6 +45,12 @@ const CASES = {
   imgui: { ...imgui(), rect: [650, 68, 550, 868], at: [0, 44] },
   'imgui-light-title': { ...imgui('light'), rect: [650, 20, 550, 44] },
   'imgui-light': { ...imgui('light'), rect: [650, 68, 550, 868], at: [0, 44] },
+  // DialKit's popover over a toolbar (its version menu and copy key) our panel has no element for: the
+  // title, then everything from the header's hairline down, each part against ours where it sits.
+  'dialkit-title': dialkit('', [804, 16, 280, 37], [0, 0], 'title and close cross'),
+  dialkit: dialkit('', [804, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot'),
+  'dialkit-light-title': dialkit('#light', [804, 16, 280, 37], [0, 0], 'title and close cross, light'),
+  'dialkit-light': dialkit('#light', [804, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot, light'),
   // Learning Synths without its graphs and modulation dots (the panel has no graph), restacked by the
   // page's own rule; the six columns against our six panels.
   ableton: synth('light'),
@@ -92,6 +98,10 @@ function imgui(scheme) {
       ['drag', 1195, 695, 1195, 1085], ['move', 100, 1050], ['wait', 1000]],
     source: `Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColors${scheme ? 'Light' : 'Dark'} (sokol-samples imgui-sapp)`,
   }
+}
+function dialkit(hash, rect, at, part) {
+  return { mode: 'page', page: 'demo/cases/dialkit.html' + hash, viewport: [1100, 1000], original: 'demo/_ref/dialkit-ref.html' + hash, steps: [['wait', 800]], rect, at,
+    source: `DialKit 2.0.2 vanilla build, its README example, popover${hash ? ', light' : ''}, demo/_ref/dialkit-ref.html: ${part}` }
 }
 function synth(scheme) {
   const panel = '.components_embeds_subtractive-synth__panel'

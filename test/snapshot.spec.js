@@ -21,6 +21,8 @@ const cases = [
   { name: 'terminal', path: '/demo/cases/terminal.html' },
   { name: 'dat', path: '/demo/cases/dat.html' },
   { name: 'tweakpane', path: '/demo/cases/tweakpane.html' },
+  { name: 'dialkit', path: '/demo/cases/dialkit.html' },
+  { name: 'dialkit-light', path: '/demo/cases/dialkit.html#light' },
   { name: 'leva', path: '/demo/cases/leva.html' },
   { name: 'controlkit', path: '/demo/cases/controlkit.html' },
   { name: 'uil', path: '/demo/cases/uil.html' },
@@ -121,16 +123,18 @@ test.describe('interval slider readout keyboard', () => {
     await expect(page.locator('.s-interval-hi')).toHaveClass(/s-top/)
   })
 
-  // Numeric inputs drag-scrub (1px = 1 step); a clean click still enters editing.
+  // A readout drags its thumb: 10px of drag moves the value as 10px of the track does (0..100, step 1);
+  // a clean click still enters editing.
   test('readout scrubs on horizontal drag', async ({ page }) => {
     const lo = page.locator('input.s-readout-lo')
     const box = await lo.boundingBox()
+    const track = (await page.locator('.s-interval-track').first().boundingBox()).width
     const y = box.y + box.height / 2
     await page.mouse.move(box.x + 10, y)
     await page.mouse.down()
     await page.mouse.move(box.x + 10 + 10, y, { steps: 4 })
     await page.mouse.up()
-    await expect(lo).toHaveValue('35')
+    await expect(lo).toHaveValue(String(25 + Math.round(10 * 100 / track)))
     // input not focused after a scrub
     expect(await lo.evaluate(el => document.activeElement === el)).toBe(false)
   })

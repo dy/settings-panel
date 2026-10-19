@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DialKit — calibration</title>
+  <!-- Replica of DialKit's README example, popover panel, dark (#light for light) · ref: https://github.com/joshpuckett/dialkit -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; background: #161616; font-size: 14px; }
+    body.light { background: #f0f0f0; }
+    /* where DialKit's popover sits: 16px from the top right */
+    #panel { position: fixed; top: 16px; right: 16px; width: 280px; max-width: calc(100% - 32px); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import dialkit from '../../theme/dialkit.js'
+    import { nativeToggle } from './native-toggle.js'
+
+    const light = location.hash === '#light'
+    document.body.classList.toggle('light', light)
+    const fixed = n => v => v.toFixed(n)
+
+    settings({
+      radius: { type: 'slider', value: 24, min: 0, max: 64, step: 1, label: 'Radius' },
+      scale: { type: 'slider', value: 1, min: .5, max: 1.5, step: .01, format: fixed(2), label: 'Scale' },
+      visible: { type: 'boolean', value: true, label: 'Visible' },
+      title: { type: 'text', value: 'Hello, HTML.', label: 'Title' },
+      accent: { type: 'color', value: '#a78bfa', label: 'Accent' },
+      choice: { type: 'select', value: 'center', options: [{ value: 'center', label: 'Center' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }], label: 'Choice' },
+      position: { type: 'vector', value: [0, 0], min: -1, max: 1, step: .01, pad: 'open', label: 'Position' },
+      shadow: { type: 'folder', label: 'Shadow' },
+      'shadow.blur': { type: 'slider', value: 12, min: 0, max: 40, step: 1, label: 'Blur' },
+      'shadow.opacity': { type: 'slider', value: .4, min: 0, max: 1, step: .01, format: fixed(2), label: 'Opacity' },
+      actions: { type: 'folder', label: 'Actions', collapsed: true },
+      'actions.replay': { type: 'button', label: false, text: 'Replay' },
+      'actions.reset': { type: 'button', label: false, text: 'Reset' },
+    }, {
+      container: '#panel',
+      title: 'Card',
+      collapsed: false,
+      theme: () => dialkit(light ? { shade: '#fafafa' } : {}),
+    })
+
+    nativeToggle({ ref: '../_ref/dialkit-ref.html' + location.hash, nativeLabel: 'DialKit' })
+  </script>
+</body>
+</html>

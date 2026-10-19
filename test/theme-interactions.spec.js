@@ -466,3 +466,50 @@ test('material case defaults safely for empty, unknown, and inherited property n
     await expect(page.locator('.s-panel')).toBeVisible()
   }
 })
+
+// Ink in a slider groove, read from pixels (OKLab L down the fill's height). Neu: the groove's
+// catch-light lies under the ink and a knob spills no light, so the fill never lightens toward its
+// far wall or beside its knob, on the slider and the on switch alike. Glass: the groove is thinner
+// than the lens's bands, so no dark band crosses its lower half.
+test.describe('ink in a groove', () => {
+  test.use({ deviceScaleFactor: 3 })
+  const lightness = (page, clip) => page.screenshot({ clip }).then(png => page.evaluate(async png => {
+    const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob())
+    const c = new OffscreenCanvas(img.width, img.height), g = c.getContext('2d'); g.drawImage(img, 0, 0)
+    const { data } = g.getImageData(0, 0, img.width, img.height), lin = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4
+    const L = i => { const [r, gg, b] = [lin(data[i]), lin(data[i + 1]), lin(data[i + 2])]
+      return .2104542553 * Math.cbrt(.4122214708 * r + .5363325363 * gg + .0514459929 * b) + .793617785 * Math.cbrt(.2119034982 * r + .6806995451 * gg + .1073969566 * b) - .0040720468 * Math.cbrt(.0883024619 * r + .2817188376 * gg + .6299787005 * b) }
+    return { w: img.width, h: img.height, rows: [...Array(img.height)].map((_, y) => [...Array(img.width)].map((_, x) => +L((y * img.width + x) * 4).toFixed(4))) }
+  }, png.toString('base64')))
+  const mount = (page, file) => page.evaluate(async file => {
+    const { default: settings } = await import('/index.js'), { default: theme } = await import(`/theme/${file}.js`)
+    const host = document.createElement('div'); host.style.cssText = 'width: 360px; position: absolute; left: 0; top: 0; z-index: 9'; document.body.prepend(host)
+    settings({ level: { type: 'slider', value: 62, min: 0, max: 100 }, on: true }, { container: host, theme: theme() })
+  }, file)
+  const at = ({ rows, w, h }, fx, fy) => rows[Math.min(h - 1, Math.round(fy * (h - 1)))][Math.min(w - 1, Math.round(fx * (w - 1)))]
+
+  test('neu: the fill and the on switch do not lighten toward their far wall or beside the knob', async ({ page }) => {
+    await page.goto('/')
+    await mount(page, 'neu')
+    const range = await page.locator('[data-key=level] input[type=range]').boundingBox()
+    // the thumb's size is the theme's --knob, resolved in place
+    const knob = await page.locator('[data-key=level] input[type=range]').evaluate(el => { const d = el.parentElement.appendChild(document.createElement('div')); d.style.width = 'var(--knob)'; const w = d.getBoundingClientRect().width; d.remove(); return w })
+    // the fill from its left end to 2px short of the knob's left edge
+    const end = range.x + knob / 2 + .62 * (range.width - knob) - knob / 2 - 2
+    const fill = await lightness(page, { x: range.x + range.height, y: range.y, width: end - range.x - range.height, height: range.height })
+    for (const fy of [.6, .75, .9]) expect(at(fill, .3, fy), `fill at ${fy} of its height`).toBeLessThanOrEqual(at(fill, .3, .5) + .01)
+    expect(at(fill, 1, .3), 'beside the knob').toBeLessThanOrEqual(at(fill, .3, .3) + .01)
+    const track = await page.locator('[data-key=on] .s-track').boundingBox()
+    const on = await lightness(page, { x: track.x + track.height / 2, y: track.y, width: track.width * .3, height: track.height })
+    for (const fy of [.6, .75, .9]) expect(at(on, .5, fy), `on switch at ${fy} of its height`).toBeLessThanOrEqual(at(on, .5, .5) + .01)
+  })
+
+  test('glass: no dark band crosses the lower half of the fill', async ({ page }) => {
+    await page.goto('/')
+    await mount(page, 'glass')
+    const range = await page.locator('[data-key=level] input[type=range]').boundingBox()
+    const fill = await lightness(page, { x: range.x + range.width * .2, y: range.y, width: range.width * .2, height: range.height })
+    // between the middle and the caustic above the bottom edge
+    for (const fy of [.65, .75, .85]) expect(at(fill, .5, fy), `fill at ${fy} of its height`).toBeGreaterThanOrEqual(at(fill, .5, .5) - .015)
+  })
+})

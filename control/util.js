@@ -21,6 +21,8 @@ export const decimals = (step, fallback = 0) =>
  * Drag-to-scrub for numeric inputs (dat.gui / tweakpane / figma convention):
  * horizontal drag steps the value (1px = 1 step; shift ×10, alt ×0.1),
  * a sub-3px press falls through to normal click-to-edit.
+ * `step` may be a function of the pointerdown event, read once per drag (a slider's
+ * readout passes its track's value per pixel, so the number drags as the slider does).
  * Returns a pointerdown handler; a focused input keeps native text editing.
  */
 export const scrub = (get, set, step = 1) => {
@@ -28,13 +30,13 @@ export const scrub = (get, set, step = 1) => {
     const el = e.currentTarget
     if (e.button !== 0 || document.activeElement === el) return
     e.preventDefault() // no focus/selection yet — granted on clean click in `up`
-    const x0 = e.clientX, v0 = get()
+    const x0 = e.clientX, v0 = get(), rate = typeof step === 'function' ? step(e) : step
     let moved = false
     const move = ev => {
       if (!moved && Math.abs(ev.clientX - x0) < 3) return
       if (!moved) { moved = true; el.setPointerCapture(e.pointerId); el.classList.add('s-scrubbing') }
       // toFixed(10) kills float noise without quantizing away the value's own precision
-      set(+(v0 + Math.round(ev.clientX - x0) * step * stepMul(ev)).toFixed(10))
+      set(+(v0 + Math.round(ev.clientX - x0) * rate * stepMul(ev)).toFixed(10))
     }
     const up = () => {
       el.removeEventListener('pointermove', move)

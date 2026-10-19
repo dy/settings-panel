@@ -59,7 +59,7 @@ Every theme supports size, density, and body-font tuning through
 [DevTools case](demo/cases/devtools.html) presents editable, syntax-colored declarations.
 The original editor is available in the [playground](demo/playground.html).
 
-Sixteen original themes, all functions: `theme(axes?) → CSS string`. The gallery also ships ten faithful reproductions of classic panels (dat.gui, Tweakpane, Leva, ControlKit, UIL, OUI, Dear ImGui, Figma, Apple, DevTools).
+Sixteen original themes, all functions: `theme(axes?) → CSS string`. The gallery also ships eleven faithful reproductions of classic panels (dat.gui, Tweakpane, Leva, DialKit, ControlKit, UIL, OUI, Dear ImGui, Figma, Apple, DevTools).
 
 | Import | Name | Character |
 |--------|------|-----------|
@@ -136,6 +136,6 @@ ChiKareGo2 and FindersKeepers by Giles Booth ([CC BY](https://www.pentacom.jp/pe
 
 ## Alternatives
 
-<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [lil-gui](https://github.com/georgealways/lil-gui) · [uil](https://github.com/lo-th/uil) · [dat.gui](https://github.com/dataarts/dat.gui) · [control-panel](https://github.com/freeman-lab/control-panel) · [oui](https://github.com/wearekuva/oui)</sup>
+<sup>[tweakpane](https://github.com/cocopon/tweakpane) · [leva](https://github.com/pmndrs/leva) · [dialkit](https://github.com/joshpuckett/dialkit) · [lil-gui](https://github.com/georgealways/lil-gui) · [uil](https://github.com/lo-th/uil) · [dat.gui](https://github.com/dataarts/dat.gui) · [control-panel](https://github.com/freeman-lab/control-panel) · [oui](https://github.com/wearekuva/oui)</sup>
 
 <p align=center><a href="https://github.com/krsnzd/license/">ॐ</a></p>

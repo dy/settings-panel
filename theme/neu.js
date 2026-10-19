@@ -82,20 +82,25 @@ export default function neu({
   const len = v => `${+(v * k).toFixed(2)}px`
   const layer = (n, [d, blur, spread = 0], color, inset = '') =>
     `${inset}${len(lx * d * n)} ${len(ly * d * n)} ${len(blur * soft * n)} ${len(spread * n)} ${color}`
-  const raise = n => [
+  // A knob riding in a groove spills no light: the spill would land on the ink beside it, and light
+  // composited over ink fogs it (spill light on paint brightens it by a share, no more than it does the ground).
+  const raise = (n, spill = true) => [
     layer(n, [-RIM, 0], bright(rimK), 'inset '),
-    layer(n, HALO, bright(lightK)),
+    ...spill ? [layer(n, HALO, bright(lightK))] : [],
     layer(n, CREASE, shadow(CREASE[3])),
     layer(n, CONTACT, shadow(CONTACT[3] * shadeK)),
     layer(n, CAST, shadow(CAST[3] * shadeK, penumbra)),
   ].join(', ')
-  const sink = n => [
+  // A sunken part is the lit lip's shade over its floor, the catch-light on the far wall, and the rim
+  // on the lip. Ink laid on the floor (a fill, an on switch) covers the catch-light and lies in the shade.
+  const lipShade = n => [
     layer(n, CREASE, shadow(CREASE[3]), 'inset '),
     layer(n, CONTACT, shadow(CONTACT[3] * shadeK), 'inset '),
     layer(n, CAST, shadow(CAST[3] * shadeK, penumbra), 'inset '),
-    layer(n, HALO, bright(lightK), 'inset '),
-    layer(n, [-RIM, 0], bright(rimK)),
   ].join(', ')
+  const lip = n => layer(n, [-RIM, 0], bright(rimK))
+  const floorLight = n => `${layer(n, HALO, bright(lightK), 'inset ')}, ${lip(n)}`
+  const sink = n => `${lipShade(n)}, ${floorLight(n)}`
   // An engraved hairline: shade on the lit side, catch-light on the far side.
   const groove = `${layer(1, [-1, 0], shadow(.5), 'inset ')}, ${layer(1, [-1, 0], bright(rimK))}`
 
@@ -165,9 +170,15 @@ export default function neu({
   --neu-lift: ${raise(1.2)};
   --neu-raise-sm: ${raise(.55)};
   --neu-raise-xs: ${raise(.35)};
+  --neu-knob: ${raise(.55, false)};
+  --neu-knob-lift: ${raise(1, false)};
+  --neu-knob-press: ${raise(.35, false)};
   --neu-sink: ${sink(.55)};
   --neu-sink-deep: ${sink(.7)};
   --neu-sink-sm: ${sink(.4)};
+  --neu-sink-sm-shade: ${lipShade(.4)};
+  --neu-sink-sm-light: ${floorLight(.4)};
+  --neu-sink-sm-ink: ${lipShade(.4)}, ${lip(.4)};
   --neu-press: ${sink(.3)};
   --neu-groove: ${groove};
   --neu-emboss: ${emboss};
@@ -193,7 +204,7 @@ export default function neu({
   /* Parts cut from the material */
   input[type="text"], input[type="number"], textarea,
   .s-vector .s-vec-axis, .s-boolean .s-track, .s-select.s-checkboxes .s-track, .s-select.s-radio input[type="radio"],
-  .s-select.s-segmented .s-input, .s-slider input[type="range"], .s-slider .s-interval-track, .s-pad, .s-title {
+  .s-select.s-segmented .s-input, .s-slider input[type="range"], .s-slider .s-interval-track, .s-color .s-alpha, .s-pad, .s-title {
     background: var(--neu-floor); background-blend-mode: var(--neu-blend);
   }
   .s-fold-icon, .s-search-btn, .s-button button, select, .s-number .s-step button, .s-boolean.s-toggle .s-track,
@@ -314,8 +325,8 @@ export default function neu({
     &.s-switch {
       .s-track { width: calc(var(--u) * 13); height: calc(var(--u) * 7); border-radius: 999px; box-shadow: var(--neu-sink-sm); position: relative; transition: background-color .2s;
         &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * .75); width: var(--knob); height: var(--knob); transform: translateY(-50%); border-radius: 50%;
-          background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
-      &:has(input:checked) .s-track { background: var(--accent); &::after { left: calc(100% - var(--knob) - var(--u) * .75); } }
+          background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-knob); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
+      &:has(input:checked) .s-track { background: var(--accent); box-shadow: var(--neu-sink-sm-ink); &::after { left: calc(100% - var(--knob) - var(--u) * .75); } }
       &:has(input:focus-visible) .s-track { outline: 2px solid var(--accent); outline-offset: 3px; }
     }
     &.s-checkbox {
@@ -334,17 +345,20 @@ export default function neu({
     }
   }
 
-  /* ── Slider: a groove filled with ink, a raised knob; the colour's alpha slider is the same slider ── */
+  /* ── Slider: a groove filled with ink, a raised knob; the colour's alpha slider is the same slider ──
+     the groove's floor and its light are the input; the ink and the lip's shade over it are the track */
   .s-slider input[type="range"], .s-color .s-alpha {
     width: 100%; height: calc(var(--u) * 2.5); -webkit-appearance: none; appearance: none; border-radius: 999px; cursor: pointer;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent 0), var(--neu-floor);
-    background-blend-mode: normal, var(--neu-blend);
-    box-shadow: var(--neu-sink-sm);
-    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; transition: box-shadow .12s; }
-    &::-moz-range-thumb { width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-raise-sm); cursor: grab; }
-    &:hover::-webkit-slider-thumb { box-shadow: var(--neu-raise); }
-    &:active::-webkit-slider-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
-    &:active::-moz-range-thumb { cursor: grabbing; box-shadow: var(--neu-raise-xs); }
+    box-shadow: var(--neu-sink-sm-light);
+    --neu-ink: linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent 0);
+    --neu-ink-shade: var(--neu-sink-sm-shade);
+    &::-webkit-slider-runnable-track { height: 100%; border-radius: 999px; background: var(--neu-ink); box-shadow: var(--neu-ink-shade); }
+    &::-moz-range-track { height: 100%; border-radius: 999px; background: var(--neu-ink); box-shadow: var(--neu-ink-shade); }
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--knob); height: var(--knob); margin-top: calc((var(--u) * 2.5 - var(--knob)) / 2); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-knob); cursor: grab; transition: box-shadow .12s; }
+    &::-moz-range-thumb { width: var(--knob); height: var(--knob); border: none; border-radius: 50%; background: var(--neu-face); background-blend-mode: var(--neu-face-blend); box-shadow: var(--neu-knob); cursor: grab; }
+    &:hover::-webkit-slider-thumb { box-shadow: var(--neu-knob-lift); }
+    &:active::-webkit-slider-thumb { cursor: grabbing; box-shadow: var(--neu-knob-press); }
+    &:active::-moz-range-thumb { cursor: grabbing; box-shadow: var(--neu-knob-press); }
     &:focus-visible { outline: none; }
     &:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
     &:focus-visible::-moz-range-thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -359,9 +373,10 @@ export default function neu({
       &:hover, &.s-scrubbing { color: var(--fg); box-shadow: none; }
       &:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; box-shadow: none; } }
     .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -.5); border-radius: calc(var(--r) * .6); box-shadow: var(--neu-raise-xs); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); font-weight: 700; white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(var(--u) * 2.5); margin: calc(var(--u) * 3.25) 0; border-radius: 999px; box-shadow: var(--neu-sink-sm); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: 999px; }
-      input[type="range"] { box-shadow: none; background: transparent; } }
+    &.s-multiple .s-interval-track { height: calc(var(--u) * 2.5); margin: calc(var(--u) * 3.25) 0; border-radius: 999px; position: relative;
+      box-shadow: var(--neu-sink-sm-light);
+      &::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(to right, transparent var(--low, 0%), var(--accent) 0 var(--high, 100%), transparent 0); box-shadow: var(--neu-sink-sm-shade); }
+      input[type="range"] { box-shadow: none; background: transparent; --neu-ink: none; --neu-ink-shade: none; } }
   }
 
   /* ── Select variants ── */
@@ -406,7 +421,7 @@ export default function neu({
       input[type="color"] { width: var(--h); height: var(--h); border-radius: 50%; box-shadow: var(--neu-raise-sm); overflow: hidden;
         &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } }
       /* the slider's groove, showing the colour's ramp over a checkerboard instead of the fill */
-      .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); background-blend-mode: normal; }
+      .s-alpha { width: 0; --neu-ink: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
       /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
       input[type="text"] { flex: 0 1 auto; width: calc(10ch + var(--u) * 7); font-variant-numeric: tabular-nums; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2.5); }

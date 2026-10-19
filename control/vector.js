@@ -3,7 +3,7 @@
  *
  * value: number[]  ·  opts: dimensions, labels (or false), min, max, step
  * (each of min/max/step may be a scalar or a per-axis array),
- * pad (2D only) — expandable XY-pad picker, tweakpane point2d style.
+ * pad (2D only) — expandable XY-pad picker, tweakpane point2d style; 'open' starts it shown.
  */
 
 import control from './control.js'
@@ -54,7 +54,7 @@ export default (sig, opts = {}) => {
 
   // Expandable XY-pad picker (2D vectors only) — shares the xy control's widget
   const withPad = pad && n === 2
-  const padExtras = withPad ? { padOpen: signal(false), ...padState(sig, opts) } : null
+  const padExtras = withPad ? { padOpen: signal(pad === 'open'), ...padState(sig, opts) } : null
   const template = withPad
     ? expandTemplate + axesTemplate + padTemplate(' :if="padOpen"')
     : axesTemplate

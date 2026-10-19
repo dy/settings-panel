@@ -633,6 +633,70 @@
       "budget": 112,
       "source": "DMX-FIELD mockup (owner's image, 2x) cropped at 1, 1000, 1939, 1060: chassis bottom edge and shadow",
       "mode": "image"
+    },
+    "dialkit-title": {
+      "page": "demo/cases/dialkit.html",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 804,
+        "y": 16,
+        "width": 280,
+        "height": 37
+      },
+      "budget": 0,
+      "source": "DialKit 2.0.2 vanilla build, its README example, popover, demo/_ref/dialkit-ref.html: title and close cross",
+      "mode": "page"
+    },
+    "dialkit": {
+      "page": "demo/cases/dialkit.html",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 804,
+        "y": 59,
+        "width": 280,
+        "height": 744
+      },
+      "budget": 1295,
+      "source": "DialKit 2.0.2 vanilla build, its README example, popover, demo/_ref/dialkit-ref.html: from the header hairline to the panel's foot",
+      "mode": "page"
+    },
+    "dialkit-light-title": {
+      "page": "demo/cases/dialkit.html#light",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 804,
+        "y": 16,
+        "width": 280,
+        "height": 37
+      },
+      "budget": 0,
+      "source": "DialKit 2.0.2 vanilla build, its README example, popover, light, demo/_ref/dialkit-ref.html: title and close cross, light",
+      "mode": "page"
+    },
+    "dialkit-light": {
+      "page": "demo/cases/dialkit.html#light",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 804,
+        "y": 59,
+        "width": 280,
+        "height": 744
+      },
+      "budget": 1328,
+      "source": "DialKit 2.0.2 vanilla build, its README example, popover, light, demo/_ref/dialkit-ref.html: from the header hairline to the panel's foot, light",
+      "mode": "page"
     }
   }
 }

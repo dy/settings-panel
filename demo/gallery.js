@@ -133,6 +133,9 @@ function surround(shade) {
   const { L, C, H } = parseColor(shade)
   return toHex({ L: L < .5 ? Math.min(.55, L + .10) : Math.max(.65, L - .10), C: C * .5, H })
 }
+// The surround sets a panel off the page; a transparent panel has no edge to set off and shows
+// the ground it was designed over, so it sits on that ground itself.
+const sceneBg = (theme, ground) => theme.ground ? ground : surround(ground)
 
 // A palette-colored backdrop gives translucent themes something to refract.
 function scenery(shade) {
@@ -181,7 +184,7 @@ function mountThumbnail(thumb, theme) {
   const stopScenery = effect(() => {
     const ground = groundFor(theme, state.look, state.extras[theme.id])
     untracked(() => {
-      thumb.style.setProperty('--material-bg', surround(ground))
+      thumb.style.setProperty('--material-bg', sceneBg(theme, ground))
       const backdrop = scenery(ground)
       thumb.style.setProperty('--thumb-glow', backdrop.glow)
       thumb.style.setProperty('--thumb-sky', backdrop.sky)
@@ -267,7 +270,7 @@ effect(() => {
   untracked(() => {
     const scene = $('preview-scene')
     scene.dataset.surface = theme.surface || 'solid'
-    scene.style.setProperty('--material-bg', surround(ground))
+    scene.style.setProperty('--material-bg', sceneBg(theme, ground))
     scene.style.setProperty('--scene-ink', ink(ground, 4.5))
     for (const [key, value] of Object.entries(scenery(ground))) scene.style.setProperty(`--scene-${key}`, value)
     const neu = token => neuCSS?.match(new RegExp(`--neu-${token}:\\s*([^;]+);`))?.[1]

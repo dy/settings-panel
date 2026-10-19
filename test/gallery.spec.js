@@ -262,6 +262,41 @@ test('Swiss switch is visible, toggles by pointer and keyboard, and its color pi
   expect(color.x + color.width).toBeLessThanOrEqual(text.x)
 })
 
+// A transparent panel has no edge for the surround to set off: preview and thumbnail show the very
+// ground it declares, while a painted panel keeps its surround (one step away from its own fill).
+test('a transparent theme sits on the ground it declares, under native and under a colormap', async ({ page }) => {
+  const bg = loc => loc.evaluate(el => el.style.getPropertyValue('--material-bg'))
+  await page.getByRole('button', { name: 'Preview Swiss', exact: true }).click()
+  const swiss = themes.find(t => t.id === 'swiss')
+  expect(await bg(page.locator('#preview-scene'))).toBe(swiss.ground)
+  expect(await bg(page.locator('[data-theme=swiss] .thumbnail'))).toBe(swiss.ground)
+  await setLight(page, 'chalk')
+  expect(await bg(page.locator('#preview-scene'))).toBe('#f1f2f4')
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  expect(await bg(page.locator('#preview-scene'))).not.toBe('#f1f2f4')
+})
+
+// The playground host gives every theme one width: a theme laid out in shares of its row
+// (control-panel) has none of its own to shrink to, and overflowed when the panel shrink-wrapped.
+test('playground: every theme keeps its controls inside the panel and its segments on one line', async ({ page }) => {
+  await page.goto('/demo/playground.html')
+  const select = page.locator('.s-panel select').first()
+  for (const name of await select.locator('option').allTextContents()) {
+    await page.locator('.s-panel select').first().selectOption(name)
+    await expect(page.locator('.s-panel select').first()).toHaveValue(name)
+    const fit = await page.evaluate(() => {
+      const panel = document.querySelector('.s-panel').getBoundingClientRect()
+      const out = [...document.querySelectorAll('.s-panel :is(input, select, button, textarea)')].filter(el => el.checkVisibility())
+        .filter(el => { const b = el.getBoundingClientRect(); return b.width > 0 && (b.left < panel.left - .5 || b.right > panel.right + .5) })
+        .map(el => el.className || el.type)
+      const code = document.querySelector('.s-panel textarea')
+      const tops = [...document.querySelectorAll('.s-panel .s-segmented button')].map(b => Math.round(b.getBoundingClientRect().top))
+      return { out, clipped: code.scrollWidth > code.clientWidth, lines: new Set(tops).size }
+    })
+    expect(fit, name).toEqual({ out: [], clipped: false, lines: 1 })
+  }
+})
+
 test('exports contain the selected axes; clipboard success and refusal have feedback', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.getByRole('button', { name: 'Rose', exact: true }).click()

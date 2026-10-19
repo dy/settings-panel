@@ -733,6 +733,21 @@ test('vector: pad option adds expand toggle + embedded xy pad (2D only)', async 
   cleanup(ctrl2, c2)
 })
 
+test("vector: pad: 'open' starts the pad shown, and its toggle still folds it", async () => {
+  const c = mount()
+  const s = signal([0, 0])
+  const ctrl = vector(s, { pad: 'open', min: -1, max: 1, step: .01, container: c })
+  await new Promise(r => setTimeout(r))
+  const pad = ctrl.el.querySelector('.s-pad')
+  ok(pad, 'pad shown at once')
+  pad.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
+  is(s.value, [0, .01])
+  ctrl.el.querySelector('.s-vec-expand').dispatchEvent(new Event('click', { bubbles: true }))
+  await new Promise(r => setTimeout(r))
+  ok(!ctrl.el.querySelector('.s-pad'), 'folded by its toggle')
+  cleanup(ctrl, c)
+})
+
 // ─────────────────────────────────────────────────────────────────────────────
 // XY PAD
 // ─────────────────────────────────────────────────────────────────────────────

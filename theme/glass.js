@@ -353,10 +353,11 @@ export default function glass({
     &.s-toggle:has(input:checked) .s-track { color: var(--on-accent); &::after { content: 'On'; } }
   }
 
-  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb; the colour's alpha slider is the same slider ── */
+  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb; the colour's alpha slider is the same slider ──
+     the groove is thinner than the lens's bands are drawn for: its accent lies under clear glass, the lit top without the body */
   .s-slider input[type="range"], .s-color .s-alpha {
     width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
-    background: var(--lens), linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%));
+    background: var(--lens-clear) 0 0 / var(--p, 0%) 100% no-repeat, linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%)), var(--lens);
     &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
     &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
     &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }
@@ -376,7 +377,7 @@ export default function glass({
       &:hover, &:focus-visible, &.s-scrubbing { color: var(--fg); box-shadow: none; background: transparent; } }
     .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge); border-radius: calc(var(--u) * 2 * var(--round)); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); white-space: nowrap; }
     &.s-multiple .s-interval-track { height: calc(var(--u) * 2); margin: calc((var(--h) - var(--u) * 2) / 2) 0; border-radius: calc(var(--u) * var(--round)); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--lens), var(--accent); border-radius: inherit; }
+      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--lens-clear), var(--accent); border-radius: inherit; }
       input[type="range"] { background: transparent; box-shadow: none; } }
   }
 
@@ -421,7 +422,7 @@ export default function glass({
       input[type="text"] { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; } }
     &.s-rgba .s-color-input { gap: calc(var(--u) * 2.5);
       /* the slider's groove, showing the colour's ramp over a checkerboard instead of the fill */
-      .s-alpha { width: 0; background: var(--lens), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
+      .s-alpha { width: 0; background: var(--lens-clear), linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
       /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
       input[type="text"] { flex: 0 1 auto; width: calc(10ch + var(--u) * 7); font-variant-numeric: tabular-nums; } }
     &.s-swatches { .s-input { flex-wrap: wrap; gap: calc(var(--u) * 2); }

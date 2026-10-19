@@ -36,6 +36,9 @@
         /* Derive from panel's --bg, darken by 0.1 L */
         background: oklch(from var(--bg, oklch(.96 0 0)) calc(l - 0.1) c h);
       }
+      /* one width for every theme, as the case pages give theirs: a panel laid out in shares of its
+         row (control-panel) has no width of its own to shrink to */
+      #panel { width: min(100%, 340px); }
     </style>
   </head>
 

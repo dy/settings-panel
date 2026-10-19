@@ -28,6 +28,7 @@ import imgui from '../theme/imgui.js'
 import retro from '../theme/retro.js'
 import bitmap from '../theme/bitmap.js'
 import industrial from '../theme/industrial.js'
+import dialkit from '../theme/dialkit.js'
 
 // Every "originals" theme reads a weight axis (100–900, native varies) – declared once, spread in.
 const weight = (native) => ({ key: 'weight', label: 'Weight', min: 100, max: 900, step: 100, default: native })
@@ -49,7 +50,7 @@ export const themes = [
     extras: [weight(500), { key: 'bevel', label: 'Border', min: 1, max: 6, step: 1, default: 2, unit: 'px' }, { key: 'offset', label: 'Shadow offset', min: 0, max: 12, step: 1, default: 4, unit: 'px' }, { key: 'grain', label: 'Halftone', min: 0, max: 1, step: .05, default: 0 }] },
   { id: 'swiss', name: 'Swiss', fn: swiss, ground: '#4a4a4a', axes: 'accent spacing size', description: 'Transparent fields, fine rules, and contrasting type.',
     extras: [weight(500), { key: 'hairline', label: 'Rule weight', min: .5, max: 3, step: .5, default: 1, unit: 'px' }, { key: 'scale', label: 'Type scale', min: .8, max: 1.4, step: .05, default: 1 }] },
-  { id: 'skeu', name: 'Skeu', fn: skeu, axes: 'accent spacing roundness size texture ink', description: 'Beveled edges and controls with physical weight.',
+  { id: 'skeu', name: 'Skeu', fn: skeu, axes: 'accent spacing roundness size', description: 'Beveled edges and controls with physical weight.',
     extras: [weight(400), { key: 'depth', label: 'Depth', min: 0, max: 2, step: .1, default: 1 }, { key: 'bevel', label: 'Edge crispness', min: 0, max: 2, step: .1, default: 1 }, { key: 'grid', label: 'Grid', type: 'select', options: ['none', 'dots', 'lines', 'crosses'], default: 'none' }] },
   { id: 'porcelain', name: 'Porcelain', fn: porcelain, surface: 'porcelain', axes: 'accent spacing roundness size', description: 'A glazed ceramic face, set into a pale mineral frame.',
     extras: [weight(500), { key: 'bevel', label: 'Lip', min: 0, max: 2, step: .1, default: 1 }, { key: 'grain', label: 'Relief', min: 0, max: 2, step: .1, default: 1 }] },
@@ -67,6 +68,7 @@ export const themes = [
   { id: 'dat', name: 'dat.gui', fn: dat, classic: true, axes: 'accent spacing size', description: 'The compact controller for creative coding.', extras: [] },
   { id: 'imgui', name: 'Dear ImGui', fn: imgui, classic: true, axes: 'accent spacing size', description: 'The immediate-mode tool window: filled frames, a pixel font, labels on the right.', extras: [] },
   { id: 'tweakpane', name: 'Tweakpane', fn: tweakpane, classic: true, axes: 'spacing size', description: 'Quiet grey instruments and precise, compact controls.', extras: [] },
+  { id: 'dialkit', name: 'DialKit', fn: dialkit, classic: true, axes: 'spacing size', description: 'Rows that are their own sliders, in one quiet ink.', extras: [] },
   { id: 'leva', name: 'Leva', fn: leva, classic: true, axes: 'accent spacing size', description: 'Deep blue-grey surfaces and bright interactive details.', extras: [] },
   { id: 'controlkit', name: 'ControlKit', fn: controlkit, classic: true, axes: 'accent spacing size', description: 'Dark fields, sharp geometry, and a red signal.', extras: [] },
   { id: 'uil', name: 'UIL', fn: uil, classic: true, axes: 'accent spacing size', description: 'Dense, direct controls with a technical character.', extras: [] },
