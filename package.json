@@ -4,6 +4,12 @@
   "description": "Controls designed for purpose that feel right",
   "type": "module",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "signals.js",
+    "control",
+    "theme"
+  ],
   "module": "index.js",
   "exports": {
     ".": "./index.js",
@@ -21,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dfcreative/settings-panel.git"
+    "url": "git+https://github.com/dy/settings-panel.git"
   },
   "keywords": [
     "settings",
@@ -39,9 +45,9 @@
   "author": "Dmitry Iv <df.creative@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dfcreative/settings-panel/issues"
+    "url": "https://github.com/dy/settings-panel/issues"
   },
-  "homepage": "https://github.com/dfcreative/settings-panel#readme",
+  "homepage": "https://github.com/dy/settings-panel#readme",
   "dependencies": {
     "sprae": "^13.9.2"
   },
