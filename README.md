@@ -27,7 +27,7 @@ Types are inferred from values.
 |------|---------------|
 | `boolean` | `true`, `false` |
 | `number` | `123` |
-| `slider` | `0.5` (normalized 0-1), or `{ min, max }` |
+| `slider` | `0.5` (normalized 0-1), or `{ min, max }`; a `[low, high]` value gives two thumbs (`slider:range`) |
 | `text` | `'hello'` |
 | `textarea` | `'line one\nline two'` (multiline) |
 | `color` | `'#hex'`, `'rgb()'`, `'hsl()'` |
@@ -59,7 +59,7 @@ Every theme supports size, density, and body-font tuning through
 [DevTools case](demo/cases/devtools.html) presents editable, syntax-colored declarations.
 The original editor is available in the [playground](demo/playground.html).
 
-Sixteen original themes, all functions: `theme(axes?) → CSS string`. The gallery also ships eleven faithful reproductions of classic panels (dat.gui, Tweakpane, Leva, DialKit, ControlKit, UIL, OUI, Dear ImGui, Figma, Apple, DevTools).
+Seventeen original themes, all functions: `theme(axes?) → CSS string`. The gallery also ships twelve faithful reproductions of classic panels (dat.gui, Tweakpane, Leva, DialKit, ControlKit, UIL, OUI, Dear ImGui, Figma, Apple, DevTools, control-panel). The [controls page](demo/controls.html) shows every control and variant in any theme.
 
 | Import | Name | Character |
 |--------|------|-----------|
@@ -79,6 +79,7 @@ Sixteen original themes, all functions: `theme(axes?) → CSS string`. The galle
 | `settings-panel/theme/retro` | **retro** | Raised and sunken bevels in border colour, system grey, pixel type (after Windows 98). |
 | `settings-panel/theme/bitmap` | **bitmap** | Two inks, greys only as dither, state by inversion (after the 1-bit Macintosh). |
 | `settings-panel/theme/industrial` | **industrial** | A chassis of modules: printed labels, white keys, faders, encoders, LEDs, a black screen (after Teenage Engineering). |
+| `settings-panel/theme/json` | **json** | The panel as a JSON literal: keys, strings, numbers and booleans in an editor's colours, each value editable in place. |
 | `settings-panel/theme/control-panel` | **control-panel** | freeman-lab/control-panel reproduction. |
 
 ```js

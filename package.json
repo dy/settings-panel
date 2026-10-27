@@ -8,8 +8,10 @@
   "exports": {
     ".": "./index.js",
     "./signals": "./signals.js",
-    "./control/*": "./control/*",
-    "./theme/*": "./theme/*"
+    "./control/*.js": "./control/*.js",
+    "./control/*": "./control/*.js",
+    "./theme/*.js": "./theme/*.js",
+    "./theme/*": "./theme/*.js"
   },
   "scripts": {
     "start": "npx serve .",
