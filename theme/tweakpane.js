@@ -175,11 +175,17 @@ export default function tweakpane({
     &:active { background-color: var(--field-active); }
   }
   .s-text input[type="text"] { flex: 1; }
+  .s-scrub-trail { display: none; }   /* the field's own guide draws the drag */
   /* numeric fields (native .tp-txtv-num): right-aligned, drag-scrubbed, with the drag bar at the left */
   .s-number input[type="number"], .s-vector input[type="number"], .s-slider .s-readout {
     text-align: right; cursor: ew-resize; background: var(--guide); background-color: var(--field);
     -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     &:hover { background-color: var(--field-hover); } &:focus { background-color: var(--field-focus); cursor: text; } &:active { background-color: var(--field-active); }
+  }
+  /* native .tp-txtv_g: while a number drags, a line runs from its knob to where the pointer has gone, the drag's distance */
+  :is(.s-number input[type="number"], .s-vector input[type="number"], .s-slider .s-readout).s-scrubbing {
+    background: linear-gradient(var(--fg), var(--fg)) calc(var(--u) + var(--track) / 2 + min(0px, var(--scrub, 0px))) center / max(var(--scrub, 0px), -1 * var(--scrub, 0px)) var(--length) no-repeat, var(--guide);
+    background-color: var(--field-active);
   }
 
   /* ── Number ── */
@@ -264,6 +270,8 @@ export default function tweakpane({
       &:hover { background-color: var(--hover); } &:focus { background-color: var(--focus); } &:active { background-color: var(--active); }
       option { background: var(--option-bg); color: var(--fg); } }
     &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--fg); border-radius: var(--r); height: var(--row); padding: 0 calc(3 * var(--space)); font: inherit; &:hover { background: var(--field-hover); } &.s-selected { background: var(--button); color: var(--on-button); } } }
+    /* an option list stands a step clear of its neighbours, so two lists never read as one */
+    &:is(.s-radio, .s-checkboxes) > .s-input { padding-block: calc(4 * var(--space)); }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
@@ -281,7 +289,7 @@ export default function tweakpane({
      (native's low-opacity .1 constant crosshair, i.e. var(--field) — the same fg-at-10% wash
      used throughout) rides a single ::before with two layered dashed backgrounds, painting
      under the line and the dot. ── */
-  .s-pad { background: var(--pad-fill); border: none; border-radius: var(--r); box-shadow: var(--shadow);
+  .s-pad { width: var(--vec-pad); height: var(--vec-pad); background: var(--pad-fill); border: none; border-radius: var(--r); box-shadow: var(--shadow);
     &::before { content: ''; position: absolute; inset: 0; pointer-events: none;
       background-image:
         repeating-linear-gradient(to right, var(--field) 0 1px, transparent 1px 2px),
@@ -337,7 +345,7 @@ export default function tweakpane({
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; line-height: var(--line-height); padding: calc(4 * var(--space)) calc(6 * var(--space)); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; line-height: var(--line-height); padding: calc(4 * var(--space)) calc(6 * var(--space)); } }
 
   /* ── Folder: native .tp-fldv, a full-bleed header (breaks out of the row inset on both sides)
      in container fg, title aligned with the row labels, the two-bar grip 11px from its right edge ── */
@@ -368,8 +376,9 @@ export default function tweakpane({
     &:not([open]) > summary { border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); } }
 
   /* ── Info / separator ── */
-  /* native .tp-sglv_i is a readonly input at line-height normal: its text box centers in the 20px well */
-  .s-info .s-monitor { display: flex; align-items: center; opacity: 1; background: var(--well); border-radius: var(--r); padding: 0 var(--u); height: var(--row); line-height: normal; color: var(--monitor); font-variant-numeric: tabular-nums; }
+  /* native .tp-sglv_i is a readonly input at line-height normal: its text box centers in the 20px well; a long value
+     wraps in a taller well, as a multiline monitor does, rather than losing its last line */
+  .s-info .s-monitor { display: flex; align-items: center; opacity: 1; background: var(--well); border-radius: var(--r); padding: calc(3 * var(--length)) var(--u); min-height: var(--row); line-height: normal; color: var(--monitor); font-variant-numeric: tabular-nums; }
   /* native .tp-sprv_r: a 2px groove across the full panel width */
   .s-separator { min-height: 0; height: var(--track); background: var(--field); opacity: 1; margin: 0 calc(var(--panel-padding) * -1); }
   .s-separator-labeled { height: auto; background: none; margin: 0; }

@@ -170,7 +170,9 @@ export default function controlkit({
   --minmax-label: ${minmaxLabel};
   --ink: ${ink};
   --void: ${voidC};
-  --text-shadow: ${dark ? '#000' : '#ffffff80'};
+  /* the original's lettering sits on a 1px black shadow (dark only); a light shade lifts its own colour instead, a
+     faint highlight in its hue rather than white */
+  --text-shadow: ${dark ? '#000' : `oklch(from ${shade} calc(l + .06) c h / .6)`};
   --shadow: rgba(0, 0, 0, .25);
   --overlay-1: rgba(0,0,0,.075);
   --overlay-2: rgba(0,0,0,.125);
@@ -271,7 +273,7 @@ export default function controlkit({
   /* ── The colour's alpha: the slider's slot, the checkerboard under the colour's ramp in place of the fill;
      a ramp cannot show the value by its length, so a 2px ink handle marks it ── */
   .s-rgba .s-alpha {
-    flex: 1 1 0; min-width: calc(40 * var(--length)); height: var(--control-height); padding: calc(3 * var(--space)) calc(3 * var(--space)) calc(2 * var(--space)); border-radius: calc(2 * var(--length)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize;
+    flex: 1 1 0; min-width: calc(24 * var(--length)); height: var(--control-height); padding: calc(3 * var(--space)) calc(3 * var(--space)) calc(2 * var(--space)); border-radius: calc(2 * var(--length)); box-shadow: inset 0 0 0 1px var(--bevel-dk); cursor: ew-resize;
     background: linear-gradient(to right, transparent, var(--c)) content-box, conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)) content-box, var(--inset);
     &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--length)); height: calc(var(--control-height) - 5 * var(--space)); border: none; border-radius: 0; background: var(--ink); box-shadow: 0 0 0 1px var(--void); }
     &::-moz-range-thumb { width: calc(2 * var(--length)); height: calc(var(--control-height) - 5 * var(--space)); border: none; border-radius: 0; background: var(--ink); box-shadow: 0 0 0 1px var(--void); }
@@ -297,19 +299,19 @@ export default function controlkit({
 
   /* ── Color: the swatch is the field; hex centered on it. ControlKit letters it in the panel ink,
      white on #ff0000 at 4.0:1; here black or white by WCAG luminance at .179, where both reach
-     the same contrast (color.js onAccent), so it reads 4.5:1 or more on any color, its 1px
-     shadow in the other one ── */
+     the same contrast (color.js onAccent), so it reads 4.5:1 or more on any color; flat, without the
+     fields' embossed shadow ── */
   .s-color {
     &.s-picker .s-color-input { gap: 0; position: relative; border-radius: calc(2 * var(--length)); overflow: hidden;
       input[type="color"] { position: absolute; inset: 0; width: 100%; height: var(--control-height); padding: 0; border: none; cursor: pointer; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } }
-      input[type="text"] { position: relative; flex: 1; background: transparent; text-align: center; padding: 0; line-height: var(--control-height); box-shadow: inset 0 0 0 1px var(--field-line);
+      input[type="text"] { position: relative; flex: 1; background: var(--color); text-align: center; padding: 0; line-height: var(--control-height); box-shadow: inset 0 0 0 1px var(--field-line);
         --hex-ink: clamp(0, (.179 - (.2126 * pow((r / 255 + .055) / 1.055, 2.4) + .7152 * pow((g / 255 + .055) / 1.055, 2.4) + .0722 * pow((b / 255 + .055) / 1.055, 2.4))) * 1e6, 255);
         color: rgb(from var(--color) var(--hex-ink) var(--hex-ink) var(--hex-ink));
-        text-shadow: 1px 1px 0 rgb(from var(--color) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) calc(255 - var(--hex-ink)) / calc(.5 + var(--hex-ink) / 510)); } }
+        text-shadow: none; } }   /* printed flat on the colour: the field's embossed shadow would bevel it */
     /* rgba: the swatch is a small field, then the alpha slot, then the value at its length */
     &.s-rgba .s-color-input { gap: calc(4 * var(--space));
       input[type="color"] { width: calc(28 * var(--length)); height: var(--control-height); padding: 0; border: none; border-radius: calc(2 * var(--length)); overflow: hidden; cursor: pointer; box-shadow: inset 0 0 0 1px var(--field-line); &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; } &::-moz-color-swatch { border: none; } }
-      input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; } }
+      input[type="text"] { flex: 0 0 auto; width: auto; field-sizing: content; } }   /* the whole code: the alpha gives way */
     &.s-swatches .s-input { flex-wrap: wrap; }
     &.s-swatches button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); border: 1px solid var(--void); &.s-selected { outline: 1px solid var(--accent); } }
   }
@@ -346,10 +348,11 @@ export default function controlkit({
   }
 
   /* ── Textarea / info: native's textarea field, text on top padding rather than centered ── */
-  .s-textarea { textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(2 * var(--space)); } }
+  .s-textarea { textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(2 * var(--space)); } }
+  /* a long value wraps in its field, as native's string output does, rather than hiding its end */
   .s-info .s-monitor {
     flex: 1; display: block; background: var(--field-bg); color: var(--ink); border-radius: calc(2 * var(--length));
-    height: var(--control-height); line-height: normal; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(2 * var(--space)); overflow: hidden; white-space: nowrap; text-shadow: 1px 1px 0 var(--text-shadow);
+    min-height: var(--control-height); line-height: normal; padding: calc(5 * var(--space)) calc(8 * var(--space)) calc(4 * var(--space)); overflow-wrap: break-word; text-shadow: 1px 1px 0 var(--text-shadow);
     box-shadow: inset 0 0 0 1px var(--bevel-dk); font-variant-numeric: tabular-nums; opacity: 1;
   }
 

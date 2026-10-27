@@ -200,7 +200,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     &:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 0; }
   }
   .s-text input, .s-number input, .s-color input[type="text"], textarea { flex: 1; }
-  textarea { padding: calc(5 * var(--space)) var(--inset); resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height) + 10 * var(--space)); max-height: 50vh; }
+  textarea { padding: calc(5 * var(--space)) var(--inset); resize: none; field-sizing: content; min-height: calc(3 * var(--line-height) + 10 * var(--space)); max-height: 50vh; }
   .s-textarea.s-code textarea { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .92em; }
   select { appearance: none; -webkit-appearance: none; flex: 1; cursor: pointer; height: var(--h); padding-right: calc(24 * var(--length));
     option { background: var(--bg); color: var(--ink); }
@@ -212,7 +212,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   /* ── Number ── */
   .s-number {
     .s-input { gap: 0; background: var(--field); border-radius: var(--r); &:focus-within { outline: 2px solid var(--accent-text); } }
-    input[type="number"] { background: none; text-align: right; cursor: ew-resize; -moz-appearance: textfield; font-variant-numeric: tabular-nums;
+    input[type="number"] { background: none; text-align: right; &.s-scrub { cursor: ew-resize; } -moz-appearance: textfield; font-variant-numeric: tabular-nums;
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } &:focus-visible { outline: none; } }
     /* the arrows lie on the field, not the card: the hue mark held to 3:1 there (the card's mark reads 2.8:1 on a light field) */
@@ -253,7 +253,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
     :not(.s-mark-labels) + .s-mark-labels .s-mark-label { transform: none; }
     .s-mark-labels:not(:has(+ .s-mark-labels)) .s-mark-label { transform: translateX(-100%); }
     /* a tooltip readout keeps the theme's one place for a value: the end of the label line */
-    .s-tooltip { left: auto !important; right: 0; bottom: 100%; transform: none; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .s-tooltip { left: auto !important; right: 0; bottom: 100%; transform: none; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; visibility: visible; }   /* the value, at the label line's end: always shown */
   }
   .s-control.s-slider input[type="range"], .s-color .s-alpha {
     --body: var(--slide);
@@ -358,7 +358,7 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   }
 
   /* ── XY pad: the Perform square, a heavy frame and a ring ── */
-  .s-pad { width: min(100%, calc(240 * var(--length))); height: auto; aspect-ratio: 1; background: var(--bg); border: calc(4 * var(--length)) solid var(--accent-mark); border-radius: 0;
+  .s-pad, .s-vector .s-pad { width: min(100%, calc(240 * var(--length))); max-width: calc(240 * var(--length)); height: auto; aspect-ratio: 1; background: var(--bg); border: calc(4 * var(--length)) solid var(--accent-mark); border-radius: 0;
     .s-pad-x, .s-pad-y { display: none; }
     .s-pad-dot { width: calc(22 * var(--length)); height: calc(22 * var(--length)); background: var(--bg); border: calc(3 * var(--length)) solid var(--accent-mark); box-shadow: none; }
     &:active .s-pad-dot { background: var(--accent-mark); }
@@ -368,9 +368,9 @@ ${cycle.map((hue, i) => `  .s-panel-content > .s-folder:nth-of-type(${cycle.leng
   /* ── Knob: a ring dial with a hue pointer ── */
   .s-control.s-knob { flex-direction: row; align-items: center; .s-label-group { flex: 1; } .s-input { flex: none; } }
   .s-knob-dial { width: var(--h); height: var(--h); background: var(--bg); border: var(--ring) solid var(--track);
-    i { top: 6%; width: var(--ring); height: 38%; background: var(--accent-mark); border-radius: 0; } }
+    i { top: 6%; width: var(--ring); height: 38%; --pivot: 115.789%; background: var(--accent-mark); border-radius: 0; } }
   .s-knob-wrap:focus-visible:not(:active) .s-knob-dial { outline: 2px solid var(--accent-text); outline-offset: 2px; }
-  .s-knob-val { color: var(--ink); opacity: 1; font-size: 1em; }
+  .s-knob-val { color: var(--ink); opacity: 1; font-size: 1em; text-align: right; }
 
   /* ── Info, separator ── */
   .s-info .s-monitor { opacity: 1; color: var(--ink); line-height: var(--line-height); }

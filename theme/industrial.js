@@ -13,8 +13,8 @@
  * Hardware vocabulary: a slider is a fader (a groove and a white cap with an engraved line); a knob is an
  * encoder, a cap in its own colour (`--accent` on the control) seated in a pale well; a boolean is a black
  * key with an LED; buttons and choices are white keys, a group of buttons round keys (a capsule when the
- * word is long); text, number and textarea are the black screen in mono type, and consecutive info rows
- * are lines on one screen. A group (folder or panel) holding only encoders, faders, keys and seams, with at
+ * word is long); values sit on the black screen in mono type (text, number, textarea and the dropdown's
+ * choice, its step keys beside it), and consecutive info rows are lines on one screen. A group (folder or panel) holding only encoders, faders, keys and seams, with at
  * least two encoders or faders, becomes a bank: a row of encoders at their own pitch with the label under
  * each, then the faders standing upright in equal columns with their keys beneath; values show while a
  * control is touched, in place of its label. In a panel taller than its content, the keys settle at the
@@ -73,7 +73,7 @@ export default function industrial({
   // Body 10px: the printed labels and the screen's values are Courier New at 10px; 12.5px is the keys' lettering.
   const body = 10
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { body, fontSize: 10, lineHeight: 12, controlHeight: 44, inset: 12, rowGap: 22, columnGap: 14, sectionGap: 23, panelPadding: 23, fontFamily: "'Courier New', Courier, monospace" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 10, lineHeight: 12, controlHeight: 44, inset: 12, rowGap: 16, columnGap: 14, sectionGap: 23, panelPadding: 23, fontFamily: "'Courier New', Courier, monospace" })}
 
   /* ── Tones ── */
   --bg: ${shade};
@@ -119,6 +119,7 @@ export default function industrial({
   --h: var(--control-height);                    /* keys: 44 */
   --r: calc(5 * var(--length));                  /* key and fader-cap corners */
   --round: var(--h);                             /* a round key */
+  --field-h: calc(30 * var(--length));           /* screens and the dropdown: a line of print, lower than a key */
   --key-gap: calc(13.5 * var(--space));
   --tile: max(calc(218 * var(--length)), 4 * var(--round) + 3 * var(--key-gap)); /* a module of rows: the reference's 218, four round keys at least */
   --frame: calc(3.5 * var(--length));            /* the screen's black bezel */
@@ -227,7 +228,7 @@ export default function industrial({
   }
 
   /* ── Keys: a white cap over a dark lip ── */
-  button, select, .s-boolean.s-toggle .s-track {
+  button, .s-boolean.s-toggle .s-track {
     font-family: var(--key-font); font-size: var(--key-size); font-weight: var(--weight); line-height: normal;
     color: var(--text); border: 0; border-radius: var(--r);
     background: var(--face);
@@ -253,29 +254,30 @@ export default function industrial({
     &.s-selected { background: var(--pressed); color: var(--accent-text-pressed); transform: translateY(var(--hair)); box-shadow: inset 0 var(--hair) calc(2 * var(--length)) rgb(0 0 0 / .12), 0 0 0 var(--lip); }
   }
 
-  /* dropdown: a key with a caret */
-  select {
-    appearance: none; -webkit-appearance: none; flex: 1; height: var(--h); cursor: pointer; padding: 0 calc(30 * var(--length)) 0 var(--inset);
-    option { background: var(--key); color: var(--text); }
-  }
-  .s-dropdown .s-input { position: relative; }
-  .s-dropdown .s-input::after { content: ''; position: absolute; right: calc(12 * var(--length)); top: 50%; width: calc(12 * var(--length)); height: calc(12 * var(--length)); translate: 0 -50%; background: var(--text); ${mask(caret)}; pointer-events: none; }
-
   /* ── The screen: black glass in a black bezel (drawn inset: border widths would round), mono type ── */
-  input[type="text"], input[type="number"], textarea, .s-info, .s-pad, .s-vector .s-vec-axis {
+  input[type="text"], input[type="number"], textarea, select, .s-info, .s-pad, .s-vector .s-vec-axis {
     --bezel: inset 0 var(--frame) var(--screen-edge), inset 0 calc(-1 * var(--frame)) var(--screen-edge);
     background: var(--screen); color: var(--screen-text); border: 0; border-radius: calc(2 * var(--length));
     box-shadow: inset var(--frame) 0 var(--screen-edge), inset calc(-1 * var(--frame)) 0 var(--screen-edge), var(--bezel);
     font-family: var(--screen-font); font-size: var(--font-size); letter-spacing: -.05em; line-height: var(--line-height);
   }
   input[type="text"], input[type="number"], textarea {
-    padding: 0 calc(var(--inset) + var(--frame)); min-height: var(--h); caret-color: var(--accent);
+    padding: 0 calc(var(--inset) + var(--frame)); min-height: var(--field-h); caret-color: var(--accent);
     &::placeholder { color: var(--screen-dim); }
     &::selection { background: var(--accent); color: #000; }
     &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   }
   .s-text input, .s-number input, .s-color input[type="text"], textarea { flex: 1; }
-  textarea { padding: calc(8 * var(--space) + var(--frame)) calc(var(--inset) + var(--frame)); resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height) + 22 * var(--space)); max-height: 50vh; }
+
+  /* dropdown: the choice on the screen, a caret lit beside it */
+  select {
+    appearance: none; -webkit-appearance: none; flex: 1; height: var(--field-h); cursor: pointer; padding: 0 calc(30 * var(--length)) 0 calc(var(--inset) + var(--frame));
+    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    option { background: var(--screen); color: var(--screen-text); }
+  }
+  .s-dropdown .s-input { position: relative; }
+  .s-dropdown .s-input::after { content: ''; position: absolute; right: calc(12 * var(--length)); top: 50%; width: calc(12 * var(--length)); height: calc(12 * var(--length)); translate: 0 -50%; background: var(--screen-text); ${mask(caret)}; pointer-events: none; }
+  textarea { padding: calc(8 * var(--space) + var(--frame)) calc(var(--inset) + var(--frame)); resize: none; field-sizing: content; min-height: calc(3 * var(--line-height) + 22 * var(--space)); max-height: 50vh; }
 
   /* info: a line on the screen, its label and value both lit; screens in a row merge into one */
   .s-control.s-info {
@@ -285,7 +287,7 @@ export default function industrial({
     .s-label { color: var(--screen-text); font-family: var(--screen-font); letter-spacing: -.05em; }
     .s-hint { color: var(--screen-dim); }
     .s-input { flex: 1; justify-content: flex-end; }
-    .s-monitor { flex: none; opacity: 1; color: var(--screen-text); text-align: right; white-space: pre-wrap; }
+    .s-monitor { flex: 0 1 auto; min-width: 0; opacity: 1; color: var(--screen-text); text-align: right; white-space: pre-wrap; overflow-wrap: anywhere; }   /* a long value wraps on the screen */
     .s-label-group[hidden] + .s-input { justify-content: flex-start; .s-monitor { text-align: left; } }
   }
   .s-info:has(+ .s-info) { --bezel: inset 0 var(--frame) var(--screen-edge); border-bottom-left-radius: 0; border-bottom-right-radius: 0; padding-bottom: calc(4 * var(--space)); }
@@ -297,8 +299,9 @@ export default function industrial({
     .s-input { gap: calc(6 * var(--space)); }
     input[type="number"] { text-align: right; font-variant-numeric: tabular-nums; -moz-appearance: textfield;
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
-    .s-step { gap: calc(4 * var(--length)); }
-    .s-step button { display: grid; place-items: center; width: calc(26 * var(--length)); height: calc(var(--h) / 2 - 3 * var(--length)); padding: 0; font-size: 0; border-radius: calc(3 * var(--length));
+    /* the step keys: two square keys beside the screen, down then up */
+    .s-step { flex-direction: row-reverse; gap: calc(6 * var(--space)); }
+    .s-step button { display: flex; align-items: center; justify-content: center; width: var(--field-h); height: var(--field-h); padding: 0; font-size: 0; border-radius: var(--r);
       &::before { content: ''; width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--text); ${mask(caret)}; } }
     .s-step-up::before { rotate: 180deg; }
   }
@@ -408,10 +411,11 @@ export default function industrial({
     &:focus-visible:not(:active)::before { outline: 2px solid var(--focus); outline-offset: 2px; }
     &:focus-visible:not(:active) .s-knob-dial { outline: none; }
   }
+  /* the cap itself turns (its lighting lies on the well and the dish over it, which stay) */
   .s-knob-dial {
-    z-index: 1; width: var(--cap); height: var(--cap); border: 0;
+    z-index: 1; width: var(--cap); height: var(--cap); border: 0; rotate: var(--turn, 0deg);
     background: radial-gradient(circle closest-side, transparent 68%, rgb(0 0 0 / .12) 72% 94%, rgb(0 0 0 / .06)), var(--accent);
-    i { top: 9%; width: calc(2 * var(--length)); height: 20%; border-radius: var(--hair); background: rgb(0 0 0 / .3); box-shadow: var(--hair) 0 0 rgb(255 255 255 / .18); }
+    i { top: 9%; width: calc(2 * var(--length)); height: 20%; rotate: none; border-radius: var(--hair); background: rgb(0 0 0 / .3); box-shadow: var(--hair) 0 0 rgb(255 255 255 / .18); }
   }
   .s-knob-val { position: absolute; left: calc(100% + 10 * var(--space)); top: 50%; translate: 0 -50%; z-index: 3; white-space: nowrap;
     font-size: var(--font-size); letter-spacing: var(--tracking); color: var(--text); opacity: 1; font-variant-numeric: tabular-nums; pointer-events: none; }
@@ -451,7 +455,7 @@ export default function industrial({
 
   /* ── Color: a cap in the colour and its code on the screen ── */
   .s-color {
-    input[type="color"] { flex: none; width: var(--h); height: var(--h); padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer;
+    input[type="color"] { flex: none; width: var(--field-h); height: var(--field-h); padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer;
       box-shadow: var(--raised);
       &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: 0; border-radius: 50%; } &::-moz-color-swatch { border: 0; border-radius: 50%; }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } }
@@ -473,13 +477,14 @@ export default function industrial({
 
   /* ── Vector: one screen per axis; XY pad: a square screen with a lit dot ── */
   .s-vector {
-    .s-vec-axis { padding-left: calc(8 * var(--length) + var(--frame)); height: var(--h); &:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; } }
+    .s-vec-axis { padding-left: calc(8 * var(--length) + var(--frame)); height: var(--field-h); &:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; } }
     .s-vec-label { color: var(--screen-dim); opacity: 1; font-size: var(--font-size); }
     input[type="number"] { background: none; border: 0; box-shadow: none; min-height: 0; padding: 0 calc(8 * var(--length) + var(--frame)) 0 0; -moz-appearance: textfield;
       &::-webkit-inner-spin-button { -webkit-appearance: none; } &:focus-visible { outline: none; } }
     .s-vec-expand { background: var(--label); opacity: 1; }
   }
-  .s-pad { width: min(100%, calc(200 * var(--length))); height: auto; aspect-ratio: 1;
+  /* a small square screen, the size of a well cluster: a vector's open pad no wider than a row's pad */
+  .s-pad { width: min(100%, calc(120 * var(--length))); max-width: calc(120 * var(--length)); height: auto; aspect-ratio: 1;
     background: linear-gradient(rgb(255 255 255 / .06) 1px, transparent 1px) 0 0 / 12.5% 12.5%, linear-gradient(90deg, rgb(255 255 255 / .06) 1px, transparent 1px) 0 0 / 12.5% 12.5%, var(--screen);
     .s-pad-x, .s-pad-y { background: rgb(255 255 255 / .18); }
     .s-pad-x { left: var(--frame); right: var(--frame); } .s-pad-y { top: var(--frame); bottom: var(--frame); }

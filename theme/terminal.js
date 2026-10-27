@@ -153,17 +153,17 @@ export default function terminal({
     &:read-only:not(select) { color: var(--dim-field); }
   }
   input.s-scrubbing { background: var(--well-hi); box-shadow: inset 2px 0 0 var(--accent); }
-  textarea { height: auto; min-height: calc(var(--lh) * 3); padding: 0 1ch; resize: vertical; field-sizing: content; max-height: 50vh; }
+  textarea { height: auto; min-height: calc(var(--lh) * 3); padding: 0 1ch; resize: none; field-sizing: content; max-height: 50vh; }
   select { cursor: pointer; appearance: none; -webkit-appearance: none; padding-right: 3ch;
     option { background: var(--bg); color: var(--fg); } }
   .s-select.s-dropdown .s-input { position: relative;
     select { flex: 1; }
-    &::after { content: '▾'; position: absolute; right: 1ch; top: 0; line-height: var(--lh); color: var(--dim); pointer-events: none; } }
+    &::after { content: '▾'; position: absolute; right: 1ch; top: 0; line-height: var(--lh); color: var(--dim); pointer-events: none; scale: 1.6; } }   /* the cell's ▾ drawn at a readable size */
 
   /* ── Number — well + two half-line step cells ── */
   .s-number {
     .s-input { gap: 1px; }
-    input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; cursor: ew-resize;
+    input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &.s-scrub { cursor: ew-resize; }
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } }
     .s-step { gap: 1px;

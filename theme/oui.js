@@ -117,6 +117,7 @@ export default function oui({
   .s-hint { color: var(--hint); opacity: 1; }
   /* secondary text, one step under the body */
   :is(.s-hint, .s-mark-label, .s-separator-label, .s-tooltip, .s-title-text, .s-vec-label, .s-knob-val, .s-pad-val) { font-size: calc(9 * var(--length)); }
+  .s-knob-val { text-align: right; }
   /* a hint grows the label downward; the label itself stays centred on its control's line */
   .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--control-height) - 1lh) / 2); } > .s-input { min-height: var(--control-height); } }
   .s-input { gap: calc(6 * var(--space)); align-items: center; justify-content: flex-end; }
@@ -131,7 +132,8 @@ export default function oui({
   .s-search-input::placeholder { color: var(--placeholder); }
   input[type="number"] { &:focus { outline: none; border-bottom-color: var(--accent); } }
   .s-text input[type="text"] { flex: 1; }
-  .s-text, .s-color.s-picker {
+  /* every field shares one value column, half the row: text, number, colour, dropdown, segments, vector, text area, info */
+  .s-text, .s-number, .s-color, .s-select:is(.s-dropdown, .s-segmented), .s-vector, .s-textarea, .s-info {
     .s-label-group { width: auto; flex: 0 1 auto; }
     .s-input { flex: 0 0 50.2%; margin-left: auto; }
     input[type="text"] { flex: 1; width: auto; }
@@ -202,6 +204,8 @@ export default function oui({
     &.s-dropdown select { flex: 1; appearance: none; -webkit-appearance: none; border-bottom: 1px solid var(--line);
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='1,1 5,5 9,1' fill='none' stroke='${enc(hint)}' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1px center; background-size: calc(9 * var(--length)) calc(6 * var(--length)); padding: 0 calc(18 * var(--space)) 0 calc(2 * var(--length)); }
     &.s-segmented { .s-input { gap: 0; } button { flex: 1; background: transparent; border: 1px solid var(--line); color: var(--text); margin-left: calc(-1 * var(--length)); height: var(--control-height); padding: 0 calc(3 * var(--space)); font: inherit; &:first-child { margin-left: 0; } &:hover { color: var(--accent); } &.s-selected { background: var(--action); color: var(--on-accent); border-color: var(--action); } } }
+    /* an option list stands a step clear of its neighbours, so two lists never read as one */
+    &:is(.s-radio, .s-checkboxes) > .s-input { padding-block: calc(4 * var(--space)); }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: flex-end; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
@@ -222,21 +226,23 @@ export default function oui({
       input[type="text"] { flex: 0 1 auto; width: auto; min-width: 8ch; } }
     &.s-rgba .s-color-input { gap: calc(6 * var(--space)); justify-content: flex-end;
       input[type="color"] { width: calc(16 * var(--length)); height: calc(16 * var(--length)); padding: 0; border: none; border-radius: 50%; overflow: hidden; background: none; &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 50%; } &::-moz-color-swatch { border: none; border-radius: 50%; } }
-      input[type="text"] { flex: 0 1 auto; width: auto; min-width: 8ch; field-sizing: content; } }
-    &.s-swatches { .s-input { justify-content: flex-end; } button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; border: 1px solid var(--line); &.s-selected { outline: 2px solid var(--accent); } } }
+      .s-alpha { min-width: 0; }
+      input[type="text"] { flex: none; width: auto; min-width: 8ch; field-sizing: content; } }
+    /* the swatches fill the value column from its start, so a short last line reads as the grid's end */
+    &.s-swatches { .s-input { justify-content: flex-start; } button { width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; border: 1px solid var(--line); &.s-selected { outline: 2px solid var(--accent); } } }
   }
 
   /* ── Button (small gray pill, left-aligned) ── */
   button { font: inherit; cursor: pointer; }
   .s-button {
     margin-top: calc(2 * var(--length)); /* native: 4px gap before button row vs the 2px row gap */
-    .s-input { justify-content: flex-start; gap: 0; }
+    .s-input { justify-content: flex-start; gap: calc(4 * var(--space)); }   /* keys a small gap apart, not fused */
     button { background: var(--tint); color: var(--text); border: none; border-radius: var(--r); min-width: calc(50 * var(--length)); height: calc(25 * var(--length)); padding: 0 calc(10 * var(--space)); &:hover { background: var(--accent); color: var(--on-accent); } &:active { filter: brightness(.92); } }
     &.s-secondary button, button.s-secondary { background: var(--tint-2); &:hover { background: var(--accent); color: var(--on-accent); } }
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)); text-align: left; border: 1px solid var(--line); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)); text-align: left; border: 1px solid var(--line); } }
 
   /* ── Folder ── */
   .s-folder {
@@ -251,6 +257,7 @@ export default function oui({
   /* ── Info / separator ── */
   .s-info { .s-input { justify-content: flex-end; } .s-monitor { flex: 0 1 auto; color: var(--text); font-variant-numeric: tabular-nums; } }
   .s-separator { background: var(--line); opacity: 1; }
+  .s-separator-labeled { background: none; &::before, &::after { background: var(--line); opacity: 1; } }
   .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 

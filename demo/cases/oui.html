@@ -33,7 +33,7 @@
   <script type="module">
     import settings from '../../index.js'
     import oui from '../../theme/oui.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar } from './case-bar.js'
 
     settings({
       someNum: { type: 'slider', value: 10, min: 0, max: 100, step: 1, label: 'someNum' },
@@ -56,7 +56,7 @@
       theme: () => oui({ size: 10 / 13 }),
     })
 
-    nativeToggle({ ref: '../_ref/oui-ref.html' })
+    caseBar({ ref: '../_ref/oui-ref.html' })
   </script>
 </body>
 </html>

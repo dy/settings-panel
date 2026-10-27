@@ -24,6 +24,7 @@
   <script type="module">
     import settings from '../../index.js'
     import synth from '../../theme/synth.js'
+    import { caseBar, appearance } from './case-bar.js'
 
     // The page's function colours (styles.min.css): --color-oscillator, --color-amplitude,
     // --color-filter, --color-modulation; utility cards use the ink (--color-foreground).
@@ -111,8 +112,9 @@
       }],
     ]
 
-    const dark = location.hash === '#dark'
+    const dark = appearance('light') === 'dark'
     document.body.classList.toggle('dark', dark)
+    caseBar({ appearance: 'light' })
     const host = document.querySelector('.synth')
     for (const [accent, schema] of columns) {
       const column = host.appendChild(document.createElement('div'))

@@ -95,10 +95,10 @@ test('theme: extreme axes stay finite', () => {
   }
 })
 
-test('theme: skeu accepts a ramp function as shade', () => {
+for (const name of ['skeu', 'matte']) test(`theme: ${name} accepts a ramp function as shade`, () => {
   const ramp = (L, C, H, a) => `oklch(${L} ${C} ${H}${a != null ? ` / ${a}` : ''})`
-  const css = themes.skeu({ shade: ramp, grid: ['dots', 'crosses'] })
-  ok(css.includes('.s-panel {'), 'skeu builds from a ramp function')
+  const css = themes[name]({ shade: ramp, grid: ['dots', 'crosses'] })
+  ok(css.includes('.s-panel {'), `${name} builds from a ramp function`)
   ok(!/NaN|undefined/.test(css), 'ramp-driven sheet emits no NaN/undefined')
 })
 

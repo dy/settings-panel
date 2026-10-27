@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow actions – settings-panel</title>
+  <!-- After an automation builder's Actions palette the owner supplied (test/calibration/workflow.png), drawn by
+       studio in a near-black shade: eyebrow sections, each action a key with its coloured glyph. The panel has no
+       element for the app's sidebar, breadcrumb and tabs, nor for an action's drag handle. -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(#ffffff0d 1px, transparent 1.2px) 0 0 / 14px 14px, #0c0c0f; }
+    #panel { width: min(100%, 416px); }
+    #panel .s-panel { width: 100%; max-width: none; }
+    /* the palette sets its actions 6px apart, closer than studio's 8.5 */
+    #panel .s-panel { --row-gap: calc(6 * var(--space)); }
+    /* actions read from their glyph, in a column, as a palette lists them */
+    #panel .s-button button { justify-content: flex-start; display: flex; align-items: center; text-align: left; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import studio from '../../theme/studio.js'
+    const glyph = (c, d) => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+    const act = (text, icon) => ({ type: 'button', label: false, buttons: [{ text, icon, onClick() {} }] })
+    settings({
+      messages: { type: 'separator', label: 'Messages' },
+      email: act('Send Email', glyph('#5fb4f0', '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>')),
+      data: { type: 'separator', label: 'Data' },
+      subscription: act('Update Subscription', glyph('#5ed38a', '<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" stroke-dasharray="2 2.5"/>')),
+      webhook: act('Send Webhook', glyph('#f0a35f', '<circle cx="12" cy="7" r="3"/><circle cx="6.5" cy="16.5" r="3"/><circle cx="17.5" cy="16.5" r="3"/><path d="M10.5 9.6 8 14M13.5 9.6 16 14M9.5 16.5h5"/>')),
+      delays: { type: 'separator', label: 'Delays' },
+      wait: act('Wait Until', glyph('#e66fd0', '<circle cx="12" cy="12" r="8" stroke-dasharray="3 2.4"/>')),
+      delay: act('Time Delay', glyph('#ef6a6a', '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 3h6"/>')),
+      flow: { type: 'separator', label: 'Flow Control' },
+      branch: act('True/False Branch', glyph('#4fd1c5', '<circle cx="6" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 7v12M18 7c0 6-12 4-12 12"/>')),
+      enroll: act('Enroll in Automation', glyph('#7aa7f7', '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.3-6 6.5-6 1.4 0 2.6.4 3.6 1.2M18 14v6M15 17h6"/>')),
+      template: act('Template', glyph('#a6a6ad', '<rect x="4" y="4" width="6.5" height="6.5" rx="3"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="3"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="3"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="3"/>')),
+    }, {
+      container: '#panel',
+      title: 'Actions',
+      collapsed: false,
+      theme: () => studio({ shade: '#131317', size: 17 / 13 }),
+    })
+  </script>
+</body>
+</html>

@@ -96,11 +96,23 @@ export default function settings(schema, options = {}) {
   // ── Flat store from all non-group entries ──
   // State is flat (state.x, not state.group.x), so a short key shared across two
   // folders collides on one signal — warn rather than corrupt silently.
-  const initials = {}
+  const initials = {}, fields = {}
   for (const e of entries) {
     if (e.isGroup || e.isSeparator) continue  // structural — no state
     if (e.shortKey in initials) console.warn(`[settings-panel] Key collision: '${e.shortKey}'${e.group ? ` in group '${e.group}'` : ''} — flat state shares one signal per key`)
     initials[e.shortKey] = e.field.value ?? null
+    fields[e.shortKey] = e.field
+  }
+  // A saved value restores only while the schema still admits it: one of a select's options (all of them for a
+  // multiple select), or the default's own kind. A value saved under an older schema (an option since renamed)
+  // falls back to the default instead of reaching the controls and the theme.
+  const fits = (field, v) => {
+    const def = field.value
+    if (field.options) {
+      const values = field.options.map(o => o != null && typeof o === 'object' ? o.value : o)
+      return Array.isArray(v) ? Array.isArray(def) && v.every(x => values.includes(x)) : values.includes(v)
+    }
+    return def == null || v == null ? true : Array.isArray(def) ? Array.isArray(v) && v.length === def.length : typeof v === typeof def
   }
 
   // Merge persisted state (restore every saved key — including falsy false/0/'')
@@ -109,7 +121,7 @@ export default function settings(schema, options = {}) {
     try {
       const saved = JSON.parse(localStorage.getItem(storeKey))
       if (saved) for (const k of Object.keys(initials)) {
-        if (k in saved) initials[k] = saved[k]
+        if (k in saved && fits(fields[k], saved[k])) initials[k] = saved[k]
       }
     } catch {}
   }
@@ -164,7 +176,7 @@ export default function settings(schema, options = {}) {
 
   for (const e of entries) {
     if (e.isGroup) {
-      const f = folder({ label: e.field.label || e.shortKey, collapsed: e.field.collapsed, name: e.field.name, variant: e.field.variant, style: e.field.style, container: body })
+      const f = folder({ key: e.shortKey, label: e.field.label || e.shortKey, collapsed: e.field.collapsed, name: e.field.name, variant: e.field.variant, style: e.field.style, container: body })
       groupEls[e.shortKey] = f
       disposers.push(f[Symbol.dispose])
       continue

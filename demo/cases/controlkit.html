@@ -32,7 +32,7 @@
   <script type="module">
     import settings from '../../index.js'
     import controlkit from '../../theme/controlkit.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar } from './case-bar.js'
 
     settings({
       number: { type: 'text', value: '123.00', label: 'number' },
@@ -58,7 +58,7 @@
       theme: () => controlkit({ size: 11 / 13 }),
     })
 
-    nativeToggle({ ref: '../_ref/ck-ref.html' })
+    caseBar({ ref: '../_ref/ck-ref.html' })
   </script>
 </body>
 </html>

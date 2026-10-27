@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Money – settings-panel</title>
+  <!-- After a "Send Money" wallet dialog the owner supplied (test/calibration/send.png), drawn by lab01 in its dark
+       shade with a gold accent: labels over their fields, the amounts as chips. The panel has no element for the
+       app's mark beside the title. -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: #171717; font-size: 13px; }
+    #panel { width: min(100%, 678px); }
+    #panel .s-panel { width: 100%; max-width: none; }
+    /* the dialog sets each label over its field */
+    #panel .s-control:not(.s-button) { flex-direction: column; align-items: stretch; }
+    #panel .s-label-group { width: auto; max-width: none; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import lab01 from '../../theme/lab01.js'
+    settings({
+      recipient: { type: 'text', value: '', placeholder: '0x… or ENS', label: 'Recipient Address' },
+      token: { type: 'select', value: 'USD1', options: [{ value: 'USD1', label: 'USD1 - 1.0100 available' }, { value: 'USDC', label: 'USDC - 0.0000 available' }], label: 'Token' },
+      amount: { type: 'select', variant: 'segmented', value: '5.00', options: ['5.00', '10.00', '100.00', '1000.00', 'Custom'], label: 'Amount' },
+      send: { type: 'button', label: false, text: 'Send $5.00', onClick() {} },
+    }, {
+      container: '#panel',
+      title: 'Send Money',
+      collapsed: false,
+      theme: () => lab01({ shade: '#252525', accent: '#e5b43c', size: 18 / 13, font: "'Geist', system-ui, sans-serif" }),
+    })
+  </script>
+</body>
+</html>

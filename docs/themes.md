@@ -56,7 +56,7 @@ on every face of their field: at rest, hovered and focused.
 |---|------|--------|--------|----------------------|------------------|
 | 1 | **soft** | ✅ shipped | `theme/default` | Subtle shadows, generous radius, gentle transitions | Linear, Tailwind UI, Figma |
 | 2 | **swiss** | ✅ shipped | `theme/swiss` | No shadows, grid-pure, typographic hierarchy only | Braun, Stripe, FabFilter |
-| 3 | **skeu** | ✅ shipped | `theme/skeu` | Realistic textures, directional lighting, physical affordances | iOS 1-6, Universal Audio |
+| 3 | **skeu** | ✅ shipped | `theme/skeu` | Keycaps cut from one material, engraved wells; calibrated to the material study's Customize row | iOS 1-6, Universal Audio |
 | 4 | **brutal** | ✅ shipped | `theme/brutal` | Hard offset shadows (no blur), thick borders | Gumroad |
 | 5 | **neu** | ✅ shipped | `theme/neu` | Directional rim, contact + ambient shadows, one molded material | Neumorphism / claymorphism |
 | 6 | **glass** | ✅ shipped | `theme/glass` | backdrop-filter blur, transparency, thin light borders | macOS Big Sur, Windows 11 |
@@ -72,6 +72,8 @@ on every face of their field: at rest, hovered and focused.
 | 16 | **imgui** | ✅ shipped | `theme/imgui` | Dear ImGui reproduction (StyleColorsDark): framed widgets left, labels right, collapsing-header bars, a pixel font | [Dear ImGui](https://github.com/ocornut/imgui) demo window |
 | 17 | **bitmap** | ✅ shipped | `theme/bitmap` | Two inks only: greys are dither patterns, state inverts, every glyph a measured 1-bit pixel map | Macintosh System 6/7 (Susan Kare) |
 | 18 | **dialkit** | ✅ shipped | `theme/dialkit` | DialKit reproduction: the row is the slider, Off / On booleans, one quiet ink | DialKit |
+| 19 | **matte** | ✅ shipped | `theme/matte` | Quiet skeuomorphism: one matte plate, low domed keys, shallow wells | Skeu's original design |
+| 20 | **json** | ✅ shipped | `theme/json` | The panel as the JSON object it edits: `"key": value` lines, folders as nested `{ }`, each value its control set as a literal | VS Code's JSON tokens (Default Light+ / Dark+) |
 
 ### What each structurally owns (can't be faked by another)
 
@@ -87,8 +89,10 @@ on every face of their field: at rest, hovered and focused.
 - **glass**: *backdrop-filter* — unique CSS mechanism, unique depth
 - **neu**: *directional relief in one molded material* — rim, contact and ambient lighting
 - **porcelain**: *a glazed face seated in a mineral frame* — ceramic lip and embossed relief
-- **skeu**: *real material textures* (leather, brushed metal) — unique surface
+- **skeu**: *keycaps cut from one material* (grain or wood), engraved wells — calibrated surface
+- **matte**: *one matte plate*, low domed keys and shallow wells — relief without texture
 - **retro**: *bevel via border-color* (light top-left, dark bottom-right) — unique border model
+- **json**: *the data as its own interface*: no chrome, the state's literal syntax is the layout
 
 
 ### What was merged (and why)
@@ -176,7 +180,7 @@ on every face of their field: at rest, hovered and focused.
 - Surface: transparent; the host background remains visible through fields and rows
 - Grid: mathematical, visible in alignment
 - Rhythm: one pitch for every single-line control, segment and heading (40px at the native body); a label sits on its control's first line; checkbox and radio lists keep the reference's smaller 26px step, each option with a gutter cell that takes its mark
-- One square slider for plain, interval and alpha: an outlined groove, the accent fill, a square thumb ringed in the groove's tone. The select is an open cell with the stepper's chevron
+- Slider: the value cell is the instrument (Studio's row-as-slider, square): the row's tone fills the cell up to the value, a hairline of the accent stands at the fill's edge, the value sits at the cell's end; an interval fills between its two hairlines across the whole cell, its two values inside the cell at its ends; the colour's alpha keeps a hairline rule with the accent up to a square. Switch: a square track in the row's tone with a square knob of the page's colour, the ink when on; toggle: two segments, Off | On, the chosen one in the row's tone. A colour fills a square cell at its field's start, closed by the column's rule; a swatch is a plain square of itself, no frame. Lists mark a ticked option with a check and the chosen radio with a dot. Values set lining, tabular figures (the serif's fallback is Times New Roman, whose figures line; Georgia's are old-style). Actions keep the one pitch. A focused field is ringed by a hairline of the ink at 40%. A field with no label starts its text where the labels do. A folder's chevron and a number's steppers stand where the select's chevron does; a number's field takes its cell. The select is an open cell with the stepper's chevron
 - Feel: an outlined form over its surroundings, with deliberate typographic contrast
 
 ### editorial
@@ -189,16 +193,21 @@ on every face of their field: at rest, hovered and focused.
 - Actions: pills, the primary solid ink with small tracked capitals, the secondary grey
 - Tones are ink mixed into the paper at the reference's measured ratios (masthead rule 65 %, row rules 13 %, slider groove 22 %); tones under or behind lettering rise until it reads 4.5:1: labels 52 → 56 %, grey pill 39 → 48 % on the reference paper (more where a paper needs it), and hints share the labels' tone where 40 % would not read; accent is the focus ring only; `rule` sets the row-rule weight
 - Type: body 13 for labels, values, choices and folder titles; 11 for hints, readouts, tooltips and the small tracked capitals (.1em): actions and the fold pill as the reference sets them, separator labels and slider end labels
-- Rhythm: one 56px pitch, folders included; values fill their row. The slider dot and the radio, checkbox and list marks are one 12px mark; the alpha slider is the hairline with the colour's ramp
+- Rhythm: one 40px pitch, folders included (the reference's 56 left each value floating far above its rule); values fill their row, a wrapping palette keeps the row's air above and below; number steppers always shown. The slider dot and the radio, checkbox and list marks are one 12px mark; the alpha slider is the hairline with the colour's ramp
 - Feel: a reader's settings sheet; quiet, typographic, generous rows
 
 ### studio
-- Rows: every control is a soft pill of one ink at low alpha; label left, value right
-- Slider: the row is the slider; the fill grows from the row edge, the label rides on it, a hairline handle sits one inset inside the fill edge (visible at rest on light shades); stepped sliders with `marks: true` show dots for the steps ahead. Dragging the readout drags the fill at the track's own value per pixel. The colour's alpha slider keeps a knob over its ramp
-- Buttons nest in their row: one inset (4px × spacing) from its top, bottom and near edge, the row's radius less that inset
-- Boolean: switch, or `boolean:segmented` Off/On with a raised active word (a Studio presentation; other themes do not draw this variant)
+- Panel: an opaque sheet in a 7px rim of its own colour a step lighter at 30% opacity, so the rim reads on any page and keeps the shade's hue; rows 11px from its sides, 8.5px apart, measured on the owner's shot of the light reference and held to it (`test/calibration/studio.png`, 29497 px of 685k differ: chiefly the labels, which the shot sets at 2.7:1 and Studio at 4.5:1, aimed at 4.6 since the browser composites the row's wash a level off; then the rim, 7px at 30% where the shot's is 5px of white at about 45%, and the colour rows, whose code Studio prints before the swatch where the shot shows the swatch alone: the owner's calls)
+- Rows: every control is a soft pill of one ink at low alpha inside a hairline of slightly more ink; label left, value right; nothing inside a row is boxed again: choices, Off / On and a vector's parts are words at its end. Labels take the lightest ink that reads 4.5:1 on every ground they lie on (row, hovered row, slider fill, selected face), a step back from the values
+- Slider: the row is the slider; the fill grows from the row edge to the value and ends in the row's own rounded corner, the label rides on it, a hairline handle sits one inset inside the fill's end (visible at rest on every shade, darker under the pointer, taller in a drag); the value is as wide as its text, so the caret's area is the value; stepped sliders with `marks: true` show dots for the steps ahead; under the pointer, every slider without marks shows its steps as dots along the whole row, under the fill and past it (one per step, one per tenth past ten; none under the value), stronger in hand: DialKit's hashmarks, as dots, each where the handle stands at that step; in hand the label steps aside only while the handle passes over it. An open vector pad is three rows tall, as wide as its ratio allows. A toggle is a key inset in the row; swatches wrap at the row's end at 18px. Dragging the readout drags the fill at the track's own value per pixel. A range (`slider:range`) is the same instrument with two handles: the fill spans low to high, a handle inside each end, the values at the row's end as `low – high`; a press anywhere on the row (but its values) moves the nearer handle, and in hand the label steps aside while a handle passes over it. The colour's alpha slider keeps a knob over its ramp
+- Number: its steppers are the select's up/down chevron just after the value, always shown; each half of the row's height takes a press for its step. Lists (radio, checkboxes), a textarea and info take the text's 88px label column; lists and textareas read from the row's top inset. A label wraps rather than crop, except a slider's. Knob and XY rows are inset top and bottom.
+- Text: a field read from the left after an 88px label column; a long value wraps and grows the row, five lines at most; focused, the row's wash marks it
+- Buttons are rows of their own: the row's height and corners, no row painted round them
+- Boolean: the switch, its knob springing across and stretching toward its travel while pressed (the reference's own); `boolean:segmented` reads Off / On at the row's end, the chosen word marked by a pill of the ink
+- Segmented select: its choices are words at the row's end, the chosen one marked as Off / On is
+- Vector: its parts are words at the row's end, each letter a step back from its number; an open pad (`pad`) takes the row's width under them, a faint grid in the row's ink with the dot, shaped by `--pad-ratio`
 - Headers: `separator:labeled` is an uppercase tracked eyebrow; folders keep a sentence-case title and chevron
-- Color: circular swatch; select: value with an up/down chevron
+- Color: the code, then a circular swatch, at the row's end; select: value at the row's end with an up/down chevron; the whole row opens the menu, which where selects are customizable is a sheet of the panel's rows under it, the chosen one checked
 - Color model: no accent axis; every state is a lightness or alpha step of one ink derived from `shade`
 - Feel: a design tool's dial panel, direct and quiet
 
@@ -220,14 +229,17 @@ on every face of their field: at rest, hovered and focused.
 ### dialkit
 - The reference: DialKit 2.0.2's popover (Josh Puckett, `dialkit/vanilla`), its README example in dark and light, rendered from the package's own build (`demo/_ref/dialkit-ref.html`); every value from its `styles.css`
 - Rows: 36px, 6px apart, one ink at 5% (light 4%) on the panel, 8px radius; labels 13px 500 at 70% ink (light 60%), values in the UI face, numbers and colour codes in Geist Mono (falling back to the system monospace, as native does)
-- Slider: the row is the slider: the fill (ink 11%) runs to the value, the label 10px in rides on it, the value sits 12px from the end; the 3×20px handle shows under the pointer only; hashmarks show while dragging
-- Boolean: Off / On, the chosen word on an ink-11% pill; a checkbox keeps a 20px box of the same inks
-- Select: the value and a chevron at 60%; colour: the code, then a 20px swatch with 5px corners
+- Slider: the row is the slider: the fill (ink 11%) runs to the value, the label 10px in rides on it, the value sits 12px from the end; under the pointer or in a drag the fill deepens to 15%, the value whitens, the 3×20px handle grows in 9px inside the fill's end (half ink hovered, 90% dragged) and 1×8px hashmarks show at every step, or every tenth past ten steps; a click springs the fill and handle to the step under it (native's spring: 0.25s, bounce 0.1), the number included: it is part of the track until the pointer rests on it 0.8s, when it underlines and a click edits it. Native's handle dims where it would cross the label or value; ours does not, as that needs the label measured
+- Boolean: Off / On, the chosen word on an ink-11% pill that slides between the words in 200ms; a checkbox keeps a 20px box of the same inks
+- Select: the value and a chevron at 60%; the whole row opens the menu, which where selects are customizable is native's own: a sheet under the row of 36px options, the chosen one on ink 11%
+- Text: a long value wraps, Enter breaks the line, and the row grows, five lines at most, as native's autosize; the field is as wide as its value (six characters at least), so the focus line runs under the value, not the row. Number: the field as wide as its value, its steppers the select's chevron up and down beside it, each half of the row's height a press
+- Range: the slider with two handles: the fill spans low to high, a handle 9px inside each end under the pointer, the values at the row's end as `low – high`; in hand a slider's label steps aside while a handle passes over it
+- Colour: the code, then a 20px swatch with 5px corners that grows 8% under the pointer
 - Pad: a caption and an X and Y field in three equal cells, the square surface below with a line every sixth (`vector` with `pad: 'open'`)
 - Folders: a 13px semibold title and chevron, 36px tall, between hairlines at 6% ink; buttons are rows with centred 60% labels
 - Panel: 280px wide, 14px radius, a 10% hairline, native's shadow; the 15px title and a close cross over a hairline. Native's version menu and copy key are its preset UI, which the panel has no element for
 - Colour model: native's white (dark) or black (light) alphas over any shade; a placeholder, native's 40% tertiary, is lifted to 4.5:1 on its row
-- Studio is the original this replica stands beside: the same row idiom, extended (marks at rest, a boolean segmented variant, eyebrow separators)
+- Studio is the original this replica stands beside: the same row idiom, set apart by outlined rows, rounded fill ends, a hairline handle at rest, a switch, a left-read text column, marks at rest and eyebrow separators
 
 ### imgui
 - The reference: the Dear ImGui 1.92.9b demo window (`imgui_demo.cpp`), Widgets > Basic, in `StyleColorsDark()`, captured from the original (sokol-samples `imgui-sapp`, WebAssembly); colours from `imgui_draw.cpp`, metrics from `ImGuiStyle::ImGuiStyle()` in `imgui.cpp`
@@ -253,7 +265,7 @@ on every face of their field: at rest, hovered and focused.
 - Selection and press invert: chosen segment, pressed button, on switch and toggle, selected text
 - Rows: Geneva 9 labels right-aligned in a 95px column (at most 42% of the row), 2px above a 12px control's title like static text; radio buttons run in a row; a section's first unlabeled control rides on its Chicago heading
 - Slider: the scroll bar, a 25% grey track and a white scroll box; the interval and the colour's alpha are the same scroll bar, the interval's band solid ink, the alpha's grey replaced by the checkerboard and ramp
-- Type: Chicago 12 for title, headings, buttons and pop-ups, Geneva 9 elsewhere (clones by Giles Booth, CC BY, embedded); `font` replaces the body face at 12px, aliased
+- Type: Chicago 12 for title and headings, Geneva 9 elsewhere: the reference titles its check boxes and radio buttons in the window's font (the Control Manager's useWFont), so push buttons and pop-ups take it too (clones by Giles Booth, CC BY, embedded); `font` replaces the body face at 12px, aliased
 - Whole pixels: glyphs are crisp at whole multiples of the original's pixels, `size` 9 / 13 and 18 / 13 (half steps on 2x screens), and scale smoothly between, like every theme's, so at `size` 1 (Geneva 9 at 13px); `spacing` rounds to the pixel; `weight` 600+ is QuickDraw bold
 - Boxes: System 7's control heights, text fields 16, pop-ups 18, push buttons and segmented 20 (not in the Easy Access reference, so not calibrated)
 - Feel: the first Macintosh; every pixel placed by hand
@@ -276,11 +288,11 @@ on every face of their field: at rest, hovered and focused.
 - Chassis: the panel is a matte body (`shade`, lit ±.009 L top to bottom) in a 1px edge, lighter on top and darker below, radius 10.5, standing on a long soft shadow
 - Modules: folders are modules cut apart by etched seams (1px dark over 1px light); a panel of modules sets them side by side where they fit, a module 218px wide (four round keys) and a bank taking the room left; seams at the panel's edge are clipped away; a separator is a seam
 - Labels: printed over their control in Courier New 10px capitals at 4.5:1 on the body (keys' lettering system-ui 12.5px: the reference's two printed sizes); a boolean's beside its key; a hint under its label
-- Keys: white caps on a 2px lip and a soft contact shadow, radius 5, system-ui 12.5px; a single button is a wide key, a group round keys (a capsule when the word is long), the primary (`variant: 'primary'`, or the non-secondary of a pair) in accent ink; segmented: key tiles sharing the row, the chosen one pressed in with accent ink; dropdown: a key with a caret
+- Keys: white caps on a 2px lip and a soft contact shadow, radius 5, system-ui 12.5px; a single button is a wide key, a group round keys (a capsule when the word is long), the primary (`variant: 'primary'`, or the non-secondary of a pair) in accent ink; segmented: key tiles sharing the row, the chosen one pressed in with accent ink
 - Faders: a 15px groove the length of the cap's travel with a centre line; a 33×49 white cap with an engraved line that turns accent in hand; no fill, the cap is the value
 - Encoders: a 39px cap in its own colour (`--accent` on the control, default the accent) in a 59px well; the cap and its pointer turn, its light and shadow do not
 - Booleans: a 33px black key with an LED lit in the accent (or the key's own `--accent`) with a halo; checkbox a small square key, toggle a key reading OFF / ON
-- Screen: text, number, textarea and colour codes are black glass in a 3.5px bezel, Courier New in `#c1c1c1`; consecutive info rows are lines on one screen; the XY pad is a square screen with a lit dot
+- Screen: values sit on it: text, number, textarea, colour codes and the dropdown's choice (its caret lit) are black glass in a 3.5px bezel, Courier New in `#c1c1c1`, 30px tall, a line of print lower than a key; a number's step keys are two square keys beside it, down then up; consecutive info rows are lines on one screen; the XY pad is a square screen with a lit dot
 - Bank: a group holding only encoders, faders, keys and seams, with at least two encoders or faders (none with marks, a tooltip or two thumbs), lays out as hardware: encoders in a row at their own pitch, labels under; a seam; faders upright in equal columns over their keys, labels over; a value shows in place of its label while the control is touched
 - Gravity: in a panel taller than its content, key rows settle at the bottom
 - Accent = interaction: focus (3:1), primary and chosen keys, a fader's line in hand, a lit LED; lettering in the accent is moved to 4.5:1 against the key it sits on, its dish as well as its rim, raised or pressed
@@ -288,6 +300,15 @@ on every face of their field: at rest, hovered and focused.
 - Type: Courier New and system-ui, matched by measurement on macOS; other platforms fall back to their own monospace and sans
 - Glyphs: carets and plus/minus 12px with a 1.5px stroke on every key; the colour's alpha slider is a fader too, on its own line under the colour cap and its code, its groove showing the checkerboard and ramp
 - Feel: the machine is the interface
+
+### json
+- The panel is the JSON object of its state: `{` for the title, `}` at the end, one `"key": value` line per entry (the schema key, not the label), a comma when another entry follows; folders nest as `"key": { … }`, indented 2ch, collapsed to `{…}`
+- Values stay their controls, set as literals sized to their text and selectable: text, a dropdown's choice and a colour are quoted strings (the dropdown opens its options, the colour keeps its swatch); a number, a slider's readout and a knob's value are numbers (they edit; the readout and a number's `: ` scrub); a boolean reads `true` / `false` and toggles on click; a range and a vector are `[a, b]`, each part its own field; an XY pad is `[x, y]` laid over the pad, which drags; choices in a row (segmented, radio, checkboxes) stand as quoted strings, the chosen ones lit
+- Punctuation (keys, braces, quotes, commas) is drawn by CSS: a text selection copies the values, not the JSON; a host copies the state itself
+- Not data: buttons are their names called, `name()`; separators are blank lines; hints and tooltips are left out
+- Colour: VS Code's Default Light+ / Dark+ JSON tokens (`microsoft/vscode`, `extensions/theme-defaults`), keys, strings, numbers and `true` / `false` each held to 4.5:1 on the shade; `accent` recolours the keys
+- Type: the platform's monospace, 12px, one line per entry
+- Feel: the state, as you would paste it
 
 ### brutal
 - Shadows: **hard offset, no blur** (4px 4px 0 black)
@@ -302,19 +323,20 @@ on every face of their field: at rest, hovered and focused.
 - Feel: raw, confrontational, playful punk
 
 ### glass
-- A pane of liquid glass over the scene (backdrop blur, tint, rim and one specular); its controls are lenses lying on it
+- A pane of liquid glass over the scene (backdrop blur, tint, rim and one specular); its controls are lenses lying on it. The pane's rim and specular are the glass's own colour lifted (OKLCH), white on a clear pane and a saturated pale gold on a yellow one, never white over colour; a lens's edges keep white light, as the material study shows them
 - A lens: a face lit from above, a deeper body toward the bottom, a hairline edge, a bright rim under the top edge, a caustic just above the bottom edge, and a short shadow
 - Raised lenses: primary buttons, the fold button, the selected segment, thumbs and knobs; flush lenses without a shadow: fields, select, tracks and the segmented track
 - Secondary buttons are clear glass; the accent fills on-states only
 - Lettering in the ink, cut into the glass; needs an interesting background behind it
 - Lettering holds 4.5:1 over its scene, a backdrop up to .35 lighter or .16 darker (OKLab L) than its shade: muted text and placeholders lighten to read there, and the tint thickens only where the ink itself would not (slate, mid greys). A dark glass on a white page is outside that: give it its scene
 - Calibrated against the study's Think row
+- A folded folder ends in the separator's cut line, so a stack of folded folders reads as rows
 
 - One slider: groove and bright lens thumb shared by plain, interval and alpha; the groove is thinner than the lens's bands are drawn for, so its accent and the alpha ramp lie under clear glass (the lit top, no body). The folder well is concentric with its lenses
 
 ### neu
 - One material: controls are the surface pushed up (buttons, knobs, the selected segment) or pressed in (fields, tracks, checkbox, radio)
-- A raised part has a rim on the lit edge, a halo toward the light, a hairline crease, a contact shadow and a soft cast shadow; its face shades from the lit edge to the far one
+- A raised part has a rim on the lit edge, a halo toward the light (at .6 of the measured spill, which read as a white edge; the study's halo zones rose with it: above chalk 1.1 → 1.2, bronze 1.5 → 2.1, graphite .8 → 1, graphite's top edge 1 → 1.3), a hairline crease, a contact shadow and a soft cast shadow; its face shades from the lit edge to the far one
 - Light is the shade screened with itself and shadow the shade multiplied by itself, so shadows on warm material run saturated and red while neutrals stay neutral
 - Lit from straight above by default; depth, diffusion, lighting contrast, direction and texture strength tune independently
 - Calibrated against the study's Search row; the [Neu demo](../demo/cases/neu.html) has a Material folder with the three finishes
@@ -323,7 +345,7 @@ on every face of their field: at rest, hovered and focused.
 - One slider: one pill for plain, interval and alpha. Ink laid in a groove (the fill, an on switch, the alpha ramp) covers the floor's catch-light and lies in the lip's shade; a knob riding in a groove spills no light, which would fog the ink beside it
 
 ### porcelain
-- A white ceramic face with subtle flowing relief, seated in a pale mineral frame
+- A white ceramic face with subtle flowing relief, seated in a pale mineral frame; a coloured light `shade` (gold, rose) sets the stone in its own hue, a little lighter than the body, and its glaze is the body lightened, never white
 - A crisp beveled lip catches the light; recessed fields and glazed thumbs share that construction
 - Serif labels and blue-grey ink, with explicit keyboard focus outlines
 - `shade` tints the body, `accent` the ink/actions, `bevel` scales the lip, `grain` the relief
@@ -332,23 +354,36 @@ on every face of their field: at rest, hovered and focused.
 - Boxes: every box (field, select, button, segment, toggle) and every row at the control height; the alpha slider shares the 6px groove and the 14×22 glazed thumb
 
 ### skeu
+- Keycaps: an outline, a bright rim, a face lighter than the plate, a front wall, a dark base line and a short shadow, all inside the key's box; lettering is engraved
+- Wells for fields, tracks, checkbox and radio; the segmented control is one sunken track with the selected key raised in it
+- The primary is a lifted key, the secondary sits flush with the plate; on-states take the accent
+- Tones are measured on the key in each of the study's finishes and interpolated by lightness for other palettes; darker tones take the material squared, so bronze reddens and neutrals stay neutral
+- `texture`: grain (default) or wood (planed-face figure on keys, grain on the plate); `grid` overlays dots, lines or crosses
+- Calibrated against the study's Customize row
+
+- Caps: anything dragged (slider thumbs, the switch knob, pad dot, knob) is a cap: the key's tones on a dome, its rim, silhouette, base line and shadow, no wall, grain without figure. Shadows are translucent: the calibrated tone over the plate, darker over any fill, so no part glows against the light
+- Type: body 13 at size 1 (the editable readout is a field, so body); secondary 12/14 of body; title 1.125em
+- Rhythm: every row on the control height; a folder title is a row with its engraved rule at its foot; contents keep the row gap. Readouts fit their value (at least three figures) with the field's inset; segmented options take their label's width plus an equal share. One glyph stroke and a 3.5u box
+
+### matte
 - One matte material lit softly from above: the panel is a molded plate with a top-to-bottom falloff and a fine grain
 - Fields, tracks and checkboxes are shallow wells (a shaded lip on top, a catch-light on the lower edge); selects, segments, steppers and buttons are low domed keys with a crisp rim and a contact shadow; the slider knob is a domed cap
-- States move in the material: a pressed key sinks, a checked switch fills its channel with the accent, a selected segment latches down
+- The catch-light is the material's own: on a light material, the body lifted toward white in its own hue (near-white on chalk, a warm light on bronze and gold); on a dark one, light scaled by the material's lightness
+- States move in the material: a pressed key loses its contact shadow without moving, a checked switch fills its channel with the accent, a selected segment latches down; a radio is the checkbox's well, round, with the accent's dot; a number's steppers are the select's engraved chevron up and down inside its field; a knob's dome keeps its light while its needle turns
 - The accent defaults to a deeper tone of the shade, so the theme stays monotone; the primary button is a key in the accent
 - Axes: `depth` (throw and relief), `bevel` (edge crispness), `roundness` (square to round, keys and knob alike), `grid` (dots, lines, crosses); a ramp function may supply the whole shade
 - Type and rhythm: body 13 at size 1, hints and readouts a step smaller; every key and field on the control height, the legend a bevel above centre
-- The original design (c5ff871), restored at the owner's request; it is not held to the material study's Customize row (the keycap calibrated to it is `git show 2de6ffd:theme/skeu.js`)
+- Skeu's original design (c5ff871), kept under its own name; the material study's Customize row is skeu's
 
 ### retro
 - The reference: Windows 98, Control Panel > Keyboard Properties (Speed tab), booted in v86 and captured at whole guest pixels; calibrated part by part (`test/calibration/win98-*.png`: title bar, group caption, trackbar ends, field, buttons, typed field)
 - Depth is border colour only: two 1px rings in DrawEdge order. Raised (buttons, thumbs, the window frame): highlight and 3D light top-left, dark shadow and shadow bottom-right. Sunken (fields, the slider channel, check boxes): the reverse. Etched (group boxes, separators): shadow over highlight. Edges stay whole pixels at any size
 - Radius 0, no shadow, no gradient; a pressed or checked toggle (segmented, toggle) sinks into the dithered face
 - Window: an 18px title bar in the accent with a bold caption; the fold control is a 16×14 caption button (minimize when open, maximize when folded)
-- Rows: captions above their control; check boxes (13×13) and radios (12×12) carry theirs 6px to the right; folders are etched group boxes with the caption cut into the top edge, collapsible ones with a tree +/- box
-- Trackbar: an 11×21 pointed thumb over a 4px sunken channel, ticks below; `marks` with text on the two ends only puts those captions beside the channel, inner captions sit under their ticks
+- Rows: captions above their control, 12px between rows (the Speed tab's 23 is its case's); check boxes (13×13) and radios (12×12) carry theirs 6px to the right; folders are etched group boxes with the caption cut into the top edge, collapsible ones with a tree +/- box
+- Trackbar: an 11×21 pointed thumb over a 4px sunken channel, ticks below; `marks` with text on the two ends only puts those captions beside the channel (the channel inset 8px from them, as native), inner captions sit under their ticks; with no end captions the channel lines up with the fields
 - Buttons: 75×23, right-aligned; the primary is the default button with a 1px frame; focus is a dotted rectangle 4px in
-- Fields: a sunken window, text 4px from the top-left; tooltips are InfoBackground `#ffffe1` in a 1px frame
+- Fields: a sunken window, text centred on it and 4px in; tooltips are InfoBackground `#ffffe1` in a 1px frame
 - Colour: `shade` is the 3D face and the bevel tones derive from it (the classic face `#c0c0c0` gives white / `#808080` / black); a dark shade flips the text, sinks the fields and holds the highlight at 3:1; `accent` is the title bar and the selection highlight (`#000080`). The emulator's 16-colour DAC draws navy as `#0000a8` and the face as `#c0c7c8`; the theme keeps the Windows Standard scheme
 - Type: MS Sans Serif 8pt for every role, as Windows 98 sets captions, values and tips in one size, the title bar in bold, through a CC BY-SA 3.0 pixel copy (FontStruct, by "lou") embedded in the theme; crisp at its native 11px and 22px (`size` 11/13 and 22/13), soft between
 - Ranges: a range and the colour's alpha use the trackbar's selection channel (TBS_ENABLESELRANGE): the same pointed thumb, box and channel ends, the channel opened to 8px from the same top so the selection, or the checkerboard and ramp, shows in it
@@ -406,7 +441,7 @@ using the same light-adjustment controls for comparison:
 |------|-------|------|
 | [Porcelain](../demo/cases/variants.html#porcelain) | porcelain | glazed ceramic face, mineral rim, embossed relief |
 | [Frost](../demo/cases/variants.html#frost) | glass | light mineral tint, blur 28, tint .85 |
-| [Soft](../demo/cases/variants.html#soft) | skeu | matte silver, green accent, spacing 1.6, depth .7 |
+| [Soft](../demo/cases/variants.html#soft) | matte | matte silver, green accent, spacing 1.6, depth .7 |
 | [Silver](../demo/cases/variants.html#silver) | lab01 | silver tint, one segmented track with a raised selection, consistent row spacing |
 | [Ink](../demo/cases/variants.html#ink) | brutal | off-white stock, lime accent, 2px borders, 3px offset |
 
@@ -522,14 +557,14 @@ shows it inline though native keeps alpha in its popup.
 [`test/calibration.spec.js`](../test/calibration.spec.js) keeps them there. Each original's render
 (and lab01.dev's three themes) is stored in `test/calibration/`, captured once from the original;
 each case may differ from it by at most its budget (dat.gui 0 px; UIL 23; Leva 2434; Tweakpane 3622,
-whose alpha slider shows inline where the original keeps it in a popup; Control Panel 7787, light 4991,
-its buttons and selects at the body size where the original leaks the browser's 13.3px; ControlKit 8142,
-its select and button at its fields' 25px; OUI 12892; ImGui title 96, body 93472,
-light 81316; DialKit title 0 (dark and light) and body 1295, light 1328, the body measured from the header's hairline because the original's version menu and copy key have no element in the panel; Learning Synths 108833, dark 123245, of 3.4M px; Windows 98 in seven parts, 0 to 642 px each, except the title bar's 24176, which is the
-emulator's 16-colour navy `#0000a8` against the scheme's `#000080`; System 7 in nine parts, 92 to 1024
+whose alpha slider shows inline where the original keeps it in a popup; Control Panel 8565, light 9876,
+its buttons and selects at the body size where the original leaks the browser's 13.3px, and its text box and checkbox at the others' 20px where the original's are 22 and 18 (a 3px gap under the text box, 7 over the checkbox, 5 everywhere else); ControlKit 8142,
+its select and button at its fields' 25px; OUI 13432, its dropdown on the half-row column its text and colour fields take, where the original sizes it to its value (12892 before); ImGui title 96, body 93472,
+light 81316; DialKit title 0 (dark and light) and body 1114, light 1145, the body measured from the header's hairline because the original's version menu and copy key have no element in the panel; Learning Synths 108833, dark 123245, of 3.4M px; Windows 98 in seven parts, 0 to 642 px each, except the title bar's 24176, which is the
+emulator's 16-colour navy `#0000a8` against the scheme's `#000080`; the typed field 556 since its text is centred, the owner's call, where the Speed tab sets it 1px higher; System 7 in nine parts, 92 to 1024
 px each, the font clones' glyphs). The DMX-FIELD mockup, which exists only as a picture, is measured in
 eight parts (capture.mjs `image` mode), 112 to 19152 px each: our module titles push the parts down, the
-picture lets fader travel run into the keys below, and its MASTER encoder is smaller and sits at the far right. The material themes are held to the study the same way: each of the
+picture lets fader travel run into the keys below, and its MASTER encoder is smaller and sits at the far right. The encoders' part rose from 5135 to 5148 px when the case page centred the desk: their gradients rasterise a little differently at another position, the theme unchanged. The material study itself is held as pictures too: its four rows of keys in each finish (`study-*`, the [Materials case](../demo/cases/materials.html)), 13581 to 43225 px of about 347k, bronze the most as the picture's wood is warmer than the finish (they rose from 13367 and 42882 with the rounds that made skeu's and soft's keys more pronounced and soft's sockets 4px wide at the owner's request; the part each change contributes is not isolated). The material rows (materials.json) rose where the owner asked for the family's one measure, 34px keys and fields 14 apart in soft, skeu, glass and neu: skeu's top edge (bronze 2.8 → 3.1, graphite 1.6 → 2, a fixed wall on a taller key), and soft's halo, lower edge and shadow with the wider socket and the taller key (bronze above 2.9 → 3.4, bottom edge 2.5 → 3.1, below 1.3 → 1.8; graphite above .5 → .8, below .7 → 1.3; chalk below 1.1 → 1.2). Five more pictures the owner supplied are drawn by the closest existing theme, each case scaled and cropped to fit by least squares or by measured centres (capture.mjs records the transform), and held at what they differ today: a dashboard by synth 281613 px, a wallet dialog by lab01 476353, a round key by soft 231513 (226956 before soft's sockets widened to 4px), an actions palette by studio 530410 (480409 before studio took its reference's row gap and insets; its crop does not align with the panel, so the number says little until the picture is recaptured), an element inspector by figma 79580 (79457 before figma's progress came to end under the thumb's centre). Those are far from the pictures: no theme has their knobs, chips or list rows; the budgets measure the distance, they do not excuse it. The material themes are held to the study the same way: each of the
 twelve rows keeps its averaged button profile within its zone budgets. Unlike snapshots, these
 references cannot be regenerated from our own render.
 

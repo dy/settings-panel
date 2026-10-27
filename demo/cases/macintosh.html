@@ -13,7 +13,7 @@
     ::-webkit-scrollbar { display: none; }
     /* the desktop: System 7's 50% grey pattern, one pixel per pixel */
     body {
-      min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 48px 16px;
+      min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 0 16px;
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h1v1H0zM1 1h1v1H1z'/%3E%3C/svg%3E") 0 0 / 2px 2px, #fff;
       image-rendering: pixelated;
     }
@@ -25,6 +25,7 @@
   <script type="module">
     import settings from '../../index.js'
     import bitmap from '../../theme/bitmap.js'
+    import { centre } from './case-bar.js'
 
     const steps = n => Array.from({ length: n }, (_, i) => ({ value: i + 1, label: '' }))
     const onOff = ['On', 'Off']
@@ -54,6 +55,7 @@
       collapsed: false,
       theme: () => bitmap({ size: 9 / 13 }),
     })
+    centre(document.querySelector('#panel'), 48)
   </script>
 </body>
 </html>

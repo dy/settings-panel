@@ -115,7 +115,7 @@ test('Dark matches Lab01’s demo; secondary reset retains focus and toggle help
     await page.setViewportSize({ width, height: 900 })
     for (const button of await live.locator('.s-button button').all()) {
       expect(await button.evaluate(el => {
-        const range = document.createRange(); range.selectNodeContents(el)
+        const range = document.createRange(); range.selectNodeContents(el.querySelector('.s-button-text') || el)
         const text = range.getBoundingClientRect(), box = el.getBoundingClientRect()
         return range.getClientRects().length === 1 && text.left >= box.left && text.right <= box.right
       })).toBe(true)
@@ -293,7 +293,8 @@ test('playground: every theme keeps its controls inside the panel and its segmen
       const tops = [...document.querySelectorAll('.s-panel .s-segmented button')].map(b => Math.round(b.getBoundingClientRect().top))
       return { out, clipped: code.scrollWidth > code.clientWidth, lines: new Set(tops).size }
     })
-    expect(fit, name).toEqual({ out: [], clipped: false, lines: 1 })
+    // Swiss sets three or more choices as a list of cells, one under another
+    expect(fit, name).toEqual({ out: [], clipped: false, lines: name === 'swiss' ? 3 : 1 })
   }
 })
 
@@ -465,7 +466,7 @@ test('saved colormaps retain Auto or custom accents across reload and migrate al
 })
 
 test('every theme accepts every colormap and classic labels retain readable contrast', async ({ page }) => {
-  test.slow()  // remounts the live preview once per theme × colormap, so it grows with every theme added
+  test.setTimeout(240000)  // remounts the live preview once per theme × colormap (1.3 min alone), so it grows with every theme added
   const issues = await page.evaluate(async () => {
     // 'native' resolves per-theme, not to one fixed color scheme – covered separately.
     const maps = [...document.querySelectorAll('input[name="light"]')].map(el => el.value).filter(m => m !== 'native')

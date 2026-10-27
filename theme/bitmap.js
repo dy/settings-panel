@@ -12,9 +12,10 @@
  * Reference: the Easy Access control panel, System 7.0 on a Mac Plus (test/calibration/macintosh-*.png).
  * The panel is a document window: a 1px frame and drop shadow, a striped title bar with the
  * close box (the fold toggle, collapsing the window to its title bar as WindowShade did).
- * Section headings and push buttons are in Chicago 12, everything else in Geneva 9, both as
- * pixel clones by Giles Booth: ChiKareGo2 and FindersKeepers (CC BY, BitFontMaker2 gallery
- * ids 3780 and 3809), embedded as WOFF2 converted from the author's TTF. A clone's word space
+ * Section headings are in Chicago 12, everything else in Geneva 9: the reference's check boxes and radio
+ * buttons are titled in the window's font (the Control Manager's useWFont), so its push buttons and pop-ups
+ * are too. Both faces are pixel clones by Giles Booth: ChiKareGo2 and FindersKeepers (CC BY, BitFontMaker2
+ * gallery ids 3780 and 3809), embedded as WOFF2 converted from the author's TTF. A clone's word space
  * is wider than the original's (5px against Chicago's 4 and Geneva's 3); word-spacing gives it back.
  *
  * Structure from the reference: labels right-aligned in a fixed column, hanging from the row
@@ -108,7 +109,7 @@ export default function bitmap({
     return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' shape-rendering='crispEdges'>${paths}</svg>`)}")`
   }
 
-  // Body: labels and field values are Geneva 9 (Chicago 12 is for headings, buttons and pop-ups); a
+  // Body: labels, controls and field values are Geneva 9 (Chicago 12 is for headings); a
   // replacement font is set at 12px. Geneva's CSS size is its design size: size-adjust draws its em.
   const body = font ? 12 : 9
   const px = n => `calc(${n} * var(--length))`
@@ -230,7 +231,7 @@ export default function bitmap({
     .s-label-group { width: round(down, min(var(--label-w), var(--label-max)) - var(--indent), var(--length)); }
     .s-folder .s-label-group { width: round(down, min(var(--label-w), var(--label-max)) - 2 * var(--indent), var(--length)); }
     /* a section's unlabeled first control is its master switch: it rides on the heading line */
-    > .s-content > .s-control:first-child:has(> .s-label-group[hidden]) {
+    > .s-content > .s-control:not(.s-button):first-child:has(> .s-label-group[hidden]) {
       position: relative; z-index: 1;
       margin-top: calc(-1 * (${px(12)} + var(--row-gap)));
       margin-left: calc(round(down, min(var(--label-w), var(--label-max)) - var(--indent), var(--length)) + var(--column-gap));
@@ -287,15 +288,15 @@ export default function bitmap({
     &:has(input:focus-visible) .s-track { outline: var(--ring); outline-offset: ${px(1)}; }
   }
 
-  /* ── Push buttons: Chicago in a 4px-cornered frame; pressed inverts; Return's button wears the ring ── */
+  /* ── Push buttons: the window's Geneva in a 4px-cornered frame; pressed inverts; Return's button wears the ring ── */
   .s-button, .s-boolean.s-toggle, .s-select.s-segmented { --label-y: ${px(4)}; }
-  .s-button .s-input { gap: ${px(12)}; flex-wrap: wrap; }
+  .s-button .s-input { gap: ${px(12)}; flex-wrap: wrap; align-items: center; }   /* the default button's ring around it, its key level with the others */
   .s-button button, .s-boolean.s-toggle .s-track {
-    position: relative; flex: 1; min-width: ${px(58)}; height: ${px(20)};
+    position: relative; flex: 1; min-width: min(${px(58)}, calc(50% - ${px(12)})); height: ${px(20)};   /* a pair shares a line */
     padding: 0 ${px(6)}; margin: 0;
     border: ${px(4)} solid transparent; border-image: var(--button);
     background: none; color: var(--ink);
-    font-family: var(--chicago); font-size: ${px(12)}; line-height: ${px(12)}; word-spacing: var(--chicago-ws);
+    font: inherit; line-height: ${px(12)}; word-spacing: inherit;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     cursor: pointer;
   }
@@ -340,9 +341,9 @@ export default function bitmap({
     position: relative; gap: 0; padding: var(--length); height: ${px(20)};
     &::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; border: ${px(4)} solid transparent; border-image: ${bits(BUTTON)} 4 / ${px(4)} stretch; }
     button {
-      flex: 1; min-width: 0; height: 100%; padding: 0 ${px(4)}; margin: 0;
+      flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 ${px(4)}; margin: 0;
       background: none; border: 0; border-left: var(--length) solid var(--ink); border-radius: 0; color: var(--ink);
-      font-family: var(--chicago); font-size: ${px(12)}; line-height: ${px(12)}; word-spacing: var(--chicago-ws);
+      font: inherit; line-height: ${px(12)};
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       &:first-child { border-left: 0; }
       &.s-selected { background: var(--ink); color: var(--paper); }
@@ -363,7 +364,7 @@ export default function bitmap({
   .s-text, .s-color, .s-vector { --label-y: ${px(2)}; }
   .s-info { --label-y: 0px; }
   .s-text input[type="text"] { flex: 1; }
-  textarea { flex: 1; height: auto; padding: ${px(2)} ${px(3)}; resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height) + ${px(6)}); max-height: 50vh; }
+  textarea { flex: 1; height: auto; padding: ${px(2)} ${px(3)}; resize: none; field-sizing: content; min-height: calc(3 * var(--line-height) + ${px(6)}); max-height: 50vh; }
   .s-textarea { --label-y: ${px(3)}; }
   .s-textarea.s-code textarea { font-family: Monaco, ui-monospace, Menlo, monospace; font-size: ${px(9)}; word-spacing: normal; }
 
@@ -371,7 +372,7 @@ export default function bitmap({
   .s-number {
     --label-y: ${px(6)};
     .s-input { gap: ${px(9)}; }
-    input[type="number"] { flex: 1; margin-top: ${px(4)}; text-align: right; appearance: textfield; -moz-appearance: textfield; cursor: ew-resize;
+    input[type="number"] { flex: 1; margin-top: ${px(4)}; text-align: right; appearance: textfield; -moz-appearance: textfield; &.s-scrub { cursor: ew-resize; }
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } }
     .s-step {
@@ -386,7 +387,7 @@ export default function bitmap({
     }
   }
 
-  /* ── Pop-up menu: Chicago in a box with the drop shadow and the down arrow ── */
+  /* ── Pop-up menu: the window's Geneva in a box with the drop shadow and the down arrow ── */
   .s-select.s-dropdown {
     .s-input { position: relative; flex: 0 1 auto; margin-right: var(--length); }
     .s-input::after {
@@ -400,7 +401,7 @@ export default function bitmap({
       border: var(--length) solid var(--ink);
       background: ${bits(POPUP)} right ${px(6)} center / ${px(11)} ${px(6)} no-repeat, var(--paper);
       color: var(--ink);
-      font-family: var(--chicago); font-size: ${px(12)}; line-height: ${px(16)}; word-spacing: var(--chicago-ws);
+      font: inherit; line-height: ${px(16)}; word-spacing: inherit;
       &:focus { outline: none; }
       &:focus-visible { outline: var(--ring); outline-offset: ${px(1)}; }
       option { background: var(--paper); color: var(--ink); }
@@ -511,7 +512,7 @@ export default function bitmap({
   }
   .s-knob-dial {
     width: ${px(32)}; height: ${px(32)}; background: none; border: 0;
-    i { top: ${px(3)}; width: ${px(2)}; height: ${px(11)}; border-radius: 0; background: var(--ink); }
+    i { top: ${px(3)}; width: ${px(2)}; height: ${px(11)}; border-radius: 0; background: var(--ink); --pivot: 118.182%; }   /* (16 - 3) / 11 */
   }
   .s-knob-val { opacity: 1; font-size: inherit; }
 

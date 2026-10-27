@@ -238,7 +238,7 @@ export default function dat({
       @supports (field-sizing: content) { field-sizing: content; width: auto; min-width: max(27%, calc(45 * var(--length))); } }
     &.s-picker input[type="color"] { flex: 1; min-width: 0; }
     /* rgba: fixed swatch, the alpha slider takes what the hex field leaves */
-    &.s-rgba { input[type="color"] { flex: none; width: calc(28 * var(--length)); } .s-alpha { min-width: 0; } }
+    &.s-rgba { input[type="color"] { flex: none; width: calc(28 * var(--length)); } .s-alpha { min-width: 0; } input[type="text"] { flex: 0 0 auto; width: auto; min-width: 0; field-sizing: content; } }   /* the whole code; the alpha gives way */
     &.s-swatches { .s-input { flex-wrap: wrap; } button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); border-radius: var(--r); border: 1px solid var(--ink); &.s-selected { outline: 1px solid var(--accent); } } }
   }
 
@@ -251,7 +251,7 @@ export default function dat({
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; background: var(--widget); border: none; border-radius: var(--r); resize: vertical; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)) calc(5 * var(--space)); &::placeholder { color: ${placeholder}; } } &.s-code textarea { font-family: var(--mono); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; background: var(--widget); border: none; border-radius: var(--r); resize: none; field-sizing: content; min-height: calc(40 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)) calc(5 * var(--space)); &::placeholder { color: ${placeholder}; } } &.s-code textarea { font-family: var(--mono); } }
 
   /* ── Folder (lil-gui: 1px widget rules above and below the title, the lower one fades out when closed) ── */
   .s-folder {

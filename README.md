@@ -68,6 +68,7 @@ Sixteen original themes, all functions: `theme(axes?) → CSS string`. The galle
 | `settings-panel/theme/editorial` | **editorial** | A reader's settings sheet: ink frame, rules under the values, typographic choices. |
 | `settings-panel/theme/studio` | **studio** | The row is the instrument: labels ride the slider fill, values edit in place. |
 | `settings-panel/theme/skeu` | **skeu** | Keycaps with a lip and a rim, engraved wells. |
+| `settings-panel/theme/matte` | **matte** | One matte plate: low domed keys, shallow wells. |
 | `settings-panel/theme/brutal` | **brutal** | Hard offset shadows, thick borders, zero radius. |
 | `settings-panel/theme/terminal` | **terminal** | Monospace on a character-cell grid, inverse video, no depth. |
 | `settings-panel/theme/neu` | **neu** | One material, raised and pressed by light from above. |

@@ -9,6 +9,7 @@ import neu from '../theme/neu.js'
 import brutal from '../theme/brutal.js'
 import swiss from '../theme/swiss.js'
 import skeu from '../theme/skeu.js'
+import matte from '../theme/matte.js'
 import lab01 from '../theme/lab01.js'
 import porcelain from '../theme/porcelain.js'
 import terminal from '../theme/terminal.js'
@@ -27,6 +28,7 @@ import synth from '../theme/synth.js'
 import imgui from '../theme/imgui.js'
 import retro from '../theme/retro.js'
 import bitmap from '../theme/bitmap.js'
+import json from '../theme/json.js'
 import industrial from '../theme/industrial.js'
 import dialkit from '../theme/dialkit.js'
 
@@ -50,7 +52,9 @@ export const themes = [
     extras: [weight(500), { key: 'bevel', label: 'Border', min: 1, max: 6, step: 1, default: 2, unit: 'px' }, { key: 'offset', label: 'Shadow offset', min: 0, max: 12, step: 1, default: 4, unit: 'px' }, { key: 'grain', label: 'Halftone', min: 0, max: 1, step: .05, default: 0 }] },
   { id: 'swiss', name: 'Swiss', fn: swiss, ground: '#4a4a4a', axes: 'accent spacing size', description: 'Transparent fields, fine rules, and contrasting type.',
     extras: [weight(500), { key: 'hairline', label: 'Rule weight', min: .5, max: 3, step: .5, default: 1, unit: 'px' }, { key: 'scale', label: 'Type scale', min: .8, max: 1.4, step: .05, default: 1 }] },
-  { id: 'skeu', name: 'Skeu', fn: skeu, axes: 'accent spacing roundness size', description: 'Beveled edges and controls with physical weight.',
+  { id: 'skeu', name: 'Skeu', fn: skeu, axes: 'accent spacing roundness size texture ink', description: 'Keycaps cut from one material, engraved wells.',
+    extras: [weight(400), { key: 'depth', label: 'Depth', min: 0, max: 2, step: .1, default: 1 }, { key: 'bevel', label: 'Edge crispness', min: 0, max: 2, step: .1, default: 1 }, { key: 'grid', label: 'Grid', type: 'select', options: ['none', 'dots', 'lines', 'crosses'], default: 'none' }] },
+  { id: 'matte', name: 'Matte', fn: matte, axes: 'accent spacing roundness size', description: 'One matte plate: low domed keys, shallow wells.',
     extras: [weight(400), { key: 'depth', label: 'Depth', min: 0, max: 2, step: .1, default: 1 }, { key: 'bevel', label: 'Edge crispness', min: 0, max: 2, step: .1, default: 1 }, { key: 'grid', label: 'Grid', type: 'select', options: ['none', 'dots', 'lines', 'crosses'], default: 'none' }] },
   { id: 'porcelain', name: 'Porcelain', fn: porcelain, surface: 'porcelain', axes: 'accent spacing roundness size', description: 'A glazed ceramic face, set into a pale mineral frame.',
     extras: [weight(500), { key: 'bevel', label: 'Lip', min: 0, max: 2, step: .1, default: 1 }, { key: 'grain', label: 'Relief', min: 0, max: 2, step: .1, default: 1 }] },
@@ -64,6 +68,7 @@ export const themes = [
     extras: [weight(400)] },
   { id: 'terminal', name: 'Terminal', fn: terminal, axes: 'accent spacing size', description: 'A character grid, crisp rules, and luminous type.',
     extras: [weight(400), { key: 'leading', label: 'Line height', min: 1.2, max: 2.4, step: .1, default: 1.6 }] },
+  { id: 'json', name: 'JSON', fn: json, axes: 'accent spacing size', description: 'The state as the JSON it is: keys, literals and braces, every value editable in place.', extras: [] },
   { id: 'devtools', name: 'DevTools', fn: devtools, classic: true, axes: 'accent spacing size', description: 'Editable declarations, syntax-colored values, and a compact code rhythm.', extras: [] },
   { id: 'dat', name: 'dat.gui', fn: dat, classic: true, axes: 'accent spacing size', description: 'The compact controller for creative coding.', extras: [] },
   { id: 'imgui', name: 'Dear ImGui', fn: imgui, classic: true, axes: 'accent spacing size', description: 'The immediate-mode tool window: filled frames, a pixel font, labels on the right.', extras: [] },

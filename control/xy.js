@@ -11,7 +11,7 @@
  */
 
 import control from './control.js'
-import { clamp, axis } from './util.js'
+import { clamp, axis, drag, follow } from './util.js'
 import { computed } from '../signals.js'
 
 export const padTemplate = (attrs = '') => `
@@ -42,7 +42,7 @@ export const padState = (sig, opts = {}) => {
     return `--x:${px}%; --y:${py}%; --angle:${angle}rad; --dist:${dist}%`
   })
 
-  let rect
+  let rect, held, stop = () => {}
   const fromEvent = e => {
     const fx = clamp((e.clientX - rect.left) / rect.width, 0, 1)
     const fy = clamp((e.clientY - rect.top) / rect.height, 0, 1)
@@ -51,13 +51,12 @@ export const padState = (sig, opts = {}) => {
       clean(snap(minY + (1 - fy) * (maxY - minY), stepY)),
     ]
   }
-  const move = e => fromEvent(e)
-  const stop = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', stop) }
+  const move = e => { if (!held?.classList.contains('s-dragging')) drag(held, true); fromEvent(e) }
   const grab = e => {
     rect = e.currentTarget.getBoundingClientRect()
+    held = e.currentTarget.closest('.s-control')
     fromEvent(e)
-    addEventListener('pointermove', move)
-    addEventListener('pointerup', stop)
+    stop = follow(move, () => drag(held, false))
     e.currentTarget.focus()
     e.preventDefault()
   }
@@ -76,7 +75,7 @@ export const padState = (sig, opts = {}) => {
     ]
   }
 
-  return { vars, grab, key, stop }
+  return { vars, grab, key, stop: () => stop() }
 }
 
 export default (sig, opts = {}) => {
@@ -84,6 +83,7 @@ export default (sig, opts = {}) => {
   const { vars, grab, key, stop } = padState(sig, opts)
   const readoutText = typeof readout === 'function' ? readout : format
   const display = computed(() => readoutText(sig.value || [0, 0]))
-  const template = padTemplate() + (readout ? `<span class="s-pad-val" :text="display"></span>` : '')
+  // the pad carries its value as data-value, for themes that print it in place of the pad
+  const template = padTemplate(' :data-value="display"') + (readout ? `<span class="s-pad-val" :text="display"></span>` : '')
   return control(sig, { ...rest, type: 'xy', template, vars, grab, key, display, dispose: () => { stop(); dispose?.() } })
 }

@@ -5,7 +5,7 @@
  */
 import metrics, { scale } from './metrics.js'
 import baseCSS from './base.js'
-import { resolveRoles, ink, mix } from './color.js'
+import { resolveRoles, ink, mix, parseColor } from './color.js'
 
 export default function porcelain({
   shade = '#f4f6f5', accent = '#526e73', spacing = 1.2,
@@ -44,6 +44,15 @@ export default function porcelain({
   const painted = '#' + [1, 3, 5].map(i => { const v = parseInt(band.slice(i, i + 2), 16); return (v + Math.sign(parseInt(lettering.slice(i, i + 2), 16) - v)).toString(16).padStart(2, '0') }).join('')
   const ruleLabel = ink(painted, 4.5, mix(band, lettering, .6))
 
+  // The mineral frame: a pale stone (#cbd8d3, #eef2e6, #b7cac8, #d5ddd0, OKLab L .87 .95 .82 .89 against the
+  // default body's .97) on a near-neutral body. A coloured light body sets the stone in its own hue, as saturated as
+  // the body, its veins at the same lightness steps under a base a little lighter than the body: gold sits in a pale
+  // gold frame, not a white one
+  const { L: sL, C: sC, H: sH } = parseColor(shade)
+  const stones = [['#cbd8d3', .871, ''], ['#eef2e6', .955, ' 38%'], ['#b7cac8', .824, ' 70%'], ['#d5ddd0', .888, '']]
+  const tint = dark ? 0 : Math.min(1, Math.max(0, (sC - .01) / .04)), top = Math.min(.97, sL + .15)
+  const frame = stones.map(([hex, l, at]) => (tint ? `color-mix(in oklab, ${hex}, oklch(${(top + l - .97).toFixed(3)} ${sC.toFixed(3)} ${sH.toFixed(1)}) ${Math.round(tint * 100)}%)` : hex) + at)
+
   return baseCSS + `
 .s-panel {
   ${metrics({ size, spacing, font }, { body, controlHeight: 34, rowGap: 20, sectionGap: 20, panelPadding: 24, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
@@ -54,7 +63,8 @@ export default function porcelain({
   --r: calc(var(--u) * var(--roundness) * 1.5);
   --r-panel: calc(var(--u) * var(--roundness) * 5);
   --h: var(--control-height);
-  --glaze: ${dark ? 'oklch(from var(--bg) calc(l + .09) c h)' : '#fff'};
+  /* the glaze catching the light: the body's own colour lightened, white on a white body, pale gold on a gold one */
+  --glaze: oklch(from var(--bg) calc(l + ${dark ? .09 : .14}) c h);
   --well: color-mix(in oklab, var(--bg), var(--fg) 4%);
   --placeholder: ${placeholder};
   --font: var(--font-family);
@@ -66,7 +76,7 @@ export default function porcelain({
   border: calc(var(--u) * 2.25) solid transparent;
   border-radius: var(--r-panel);
   background: ${relief} padding-box, linear-gradient(var(--bg), var(--bg)) padding-box,
-    ${mineral} border-box, linear-gradient(135deg, #cbd8d3, #eef2e6 38%, #b7cac8 70%, #d5ddd0) border-box;
+    ${mineral} border-box, linear-gradient(135deg, ${frame.join(', ')}) border-box;
   box-shadow: inset 0 0 0 1px var(--glaze), 0 1px 1px #fff, 0 -1px calc(2 * var(--length)) #6f888a66, 0 calc(4 * var(--length)) calc(10 * var(--length)) #617f8314;
   font-family: var(--font-family);
   font-size: var(--font-size);
@@ -75,7 +85,7 @@ export default function porcelain({
   &::before { content: ''; position: absolute; inset: 0; pointer-events: none;
     border: ${lip} solid var(--glaze); border-right-color: var(--well); border-bottom-color: var(--well);
     border-radius: max(0px, calc(var(--r-panel) - var(--u) * 2.25));
-    box-shadow: 0 0 0 1px #ffffff90;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--glaze), transparent 45%);
   }
   > summary, > .s-panel-title { min-height: var(--h); gap: calc(var(--u) * 2); font: 600 1.4em/1.2 Georgia, serif; letter-spacing: -.025em; color: var(--label-ink); text-shadow: 0 1px var(--glaze); }
   > summary { flex-wrap: wrap; }
@@ -96,7 +106,7 @@ export default function porcelain({
   input[type=text], input[type=number], select { height: var(--h); padding: 0 calc(var(--u) * 2.5); }
   :is(input, textarea)::placeholder { color: var(--placeholder); }
   :is(.s-number, .s-vector) input[type=number] { appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { appearance: none; margin: 0; } }
-  textarea { resize: vertical; min-height: calc(var(--h) * 2); padding: calc(var(--u) * 2); }
+  textarea { resize: none; min-height: calc(var(--h) * 2); padding: calc(var(--u) * 2); }
   select { appearance: none; background-image: ${arrow}; background-position: right calc(8 * var(--length)) center; background-size: calc(12 * var(--length)); background-repeat: no-repeat; padding-right: calc(26 * var(--length)); }
   select option { background: var(--bg); }
   button { color: var(--fg); background: linear-gradient(var(--glaze), var(--bg)); border: 1px solid color-mix(in oklab, var(--fg), transparent 83%); border-radius: var(--r); box-shadow: ${raised}; }
@@ -160,6 +170,8 @@ export default function porcelain({
   .s-color.s-swatches .s-input { flex-wrap: wrap; }
   .s-color.s-swatches button { width: calc(26 * var(--length)); height: calc(26 * var(--length)); padding: 0; &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } }
   .s-pad { background: var(--well); box-shadow: ${well}; }
+  .s-color.s-rgba .s-color-input input[type="text"] { flex: 0 0 auto; width: auto; min-width: 0; field-sizing: content; }   /* the whole code; the alpha gives way */
+  .s-vec-expand { background: var(--fg-muted); border: 0; box-shadow: none; &:hover, &.s-open { background: var(--label-ink); } }   /* a glyph, not a key: the buttons' glazed face masked to it vanished */
   .s-knob-dial { background: linear-gradient(var(--glaze), var(--bg)); box-shadow: ${raised}; }
   .s-info .s-monitor { color: var(--fg-muted); opacity: 1; }
   .s-separator { opacity: 1; &:not(.s-separator-labeled) { background: color-mix(in oklab, var(--fg), transparent 90%); box-shadow: 0 1px var(--glaze); } }

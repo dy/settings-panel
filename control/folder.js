@@ -8,20 +8,20 @@ import { signal } from '../signals.js'
 import { resolveEl } from './util.js'
 
 const tmplManaged = `
-  <details class="s-control s-folder" :class="variantCls || null" :open="_open">
-    <summary class="s-label" :onclick="toggle" :text="label"></summary>
+  <details class="s-control s-folder" :class="variantCls || null" :data-key="key" :open="_open">
+    <summary class="s-label" :data-key="key" :onclick="toggle" :text="label"></summary>
     <div class="s-content"></div>
   </details>
 `
 
 const tmplNative = `
-  <details class="s-control s-folder" :class="variantCls || null" :name="name">
-    <summary class="s-label" :text="label"></summary>
+  <details class="s-control s-folder" :class="variantCls || null" :data-key="key" :name="name">
+    <summary class="s-label" :data-key="key" :text="label"></summary>
     <div class="s-content"></div>
   </details>
 `
 
-export default ({ label, collapsed = false, name, variant, style, container }) => {
+export default ({ key = null, label, collapsed = false, name, variant, style, container }) => {
   const wrapper = document.createElement('div')
   const native = !!name
 
@@ -29,10 +29,10 @@ export default ({ label, collapsed = false, name, variant, style, container }) =
 
   const variantCls = variant ? `s-${variant}` : null
   const state = native
-    ? { label, name, variantCls }
+    ? { key, label, name, variantCls }
     : (() => {
       const _open = signal(!collapsed)
-      return { label, variantCls, _open, toggle: (e) => { e.preventDefault(); _open.value = !_open.value } }
+      return { key, label, variantCls, _open, toggle: (e) => { e.preventDefault(); _open.value = !_open.value } }
     })()
 
   sprae(wrapper, state)

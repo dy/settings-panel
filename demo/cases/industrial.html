@@ -13,9 +13,11 @@
     * { box-sizing: border-box; margin: 0; }
     html { scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
-    body { min-height: 100vh; padding: 20px 16px; background: #f2f3f5; }
+    body { min-height: 100vh; padding: 0 16px; background: #f2f3f5; }
     body.dark { background: #161617; }
     #device { width: min(928px, 100%); margin: 0 auto; }
+    /* the desk spaces its rows 22px apart, wider than the theme's 16 */
+    #device .s-panel { --row-gap: calc(22 * var(--space)); }
   </style>
 </head>
 <body>
@@ -23,6 +25,8 @@
   <script type="module">
     import settings from '../../index.js'
     import industrial from '../../theme/industrial.js'
+    import { caseBar, appearance, centre } from './case-bar.js'
+    const dark = appearance('light') === 'dark'
 
     const press = () => {}
     const fader = (label, value) => ({ type: 'slider', label, value, min: 0, max: 1, step: .01 })
@@ -52,9 +56,11 @@
       'mixer.on5': led(false), 'mixer.on6': led(false), 'mixer.on7': led(false), 'mixer.onMain': led(true),
     }, {
       container: '#device',
-      theme: () => industrial({ size: 10 / 13, ...(location.hash === '#dark' && { shade: '#2a2a2c' }) }),
+      theme: () => industrial({ size: 10 / 13, ...(dark && { shade: '#2a2a2c' }) }),
     })
-    document.body.classList.toggle('dark', location.hash === '#dark')
+    document.body.classList.toggle('dark', dark)
+    caseBar({ appearance: 'light' })
+    centre(document.querySelector('#device'), 20)
   </script>
 </body>
 </html>

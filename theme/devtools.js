@@ -109,7 +109,7 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
     &::-webkit-slider-runnable-track { background: var(--ramp); }
     &::-moz-range-track { background: var(--ramp); } }
   .s-slider .s-readout { flex: none; }
-  .s-slider .s-tooltip { position: static; transform: none; }
+  .s-slider .s-tooltip { position: static; transform: none; visibility: visible; }   /* printed inline, as a CSS value */
   .s-boolean .s-input { justify-content: flex-start; }
   .s-boolean input { position: relative; display: flex; align-items: center; justify-content: center; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; outline: none;
     &:hover::after, &:active::before { content: ''; position: absolute; width: calc(24 * var(--length)); height: calc(24 * var(--length)); border-radius: 50%; }
@@ -154,7 +154,7 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
   }
   .s-select.s-segmented .s-input { flex-wrap: wrap; }
   .s-select.s-segmented button { flex: 1; }
-  textarea { min-height: calc(var(--line-height) * 3); resize: vertical; }
+  textarea { min-height: calc(var(--line-height) * 3); resize: none; }
   .s-folder > summary { color: var(--property); gap: calc(2 * var(--length)); min-height: var(--line-height); padding: 0 0 calc(var(--control-height) - var(--line-height)); }
   .s-folder > summary::before { content: ''; flex: none; width: calc(14 * var(--length)); height: var(--line-height); margin-left: calc(-16 * var(--length)); background: var(--icon); mask: ${right} center / calc(14 * var(--length)) no-repeat; }
   .s-folder[open] > summary::before { mask-image: ${down}; }

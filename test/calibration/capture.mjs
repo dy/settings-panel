@@ -47,10 +47,10 @@ const CASES = {
   'imgui-light': { ...imgui('light'), rect: [650, 68, 550, 868], at: [0, 44] },
   // DialKit's popover over a toolbar (its version menu and copy key) our panel has no element for: the
   // title, then everything from the header's hairline down, each part against ours where it sits.
-  'dialkit-title': dialkit('', [804, 16, 280, 37], [0, 0], 'title and close cross'),
-  dialkit: dialkit('', [804, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot'),
-  'dialkit-light-title': dialkit('#light', [804, 16, 280, 37], [0, 0], 'title and close cross, light'),
-  'dialkit-light': dialkit('#light', [804, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot, light'),
+  'dialkit-title': dialkit('', [410, 16, 280, 37], [0, 0], 'title and close cross'),
+  dialkit: dialkit('', [410, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot'),
+  'dialkit-light-title': dialkit('#light', [410, 16, 280, 37], [0, 0], 'title and close cross, light'),
+  'dialkit-light': dialkit('#light', [410, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot, light'),
   // Learning Synths without its graphs and modulation dots (the panel has no graph), restacked by the
   // page's own rule; the six columns against our six panels.
   ableton: synth('light'),
@@ -87,6 +87,20 @@ const CASES = {
   'industrial-master': industrial([1741, 70, 1861, 230], [613, 60], 'MASTER encoder'),
   'industrial-faders': industrial([601, 470, 1939, 1000], [283, 211], 'faders 01-07 and master with their keys, the chassis\' right edge'),
   'industrial-bottom': industrial([1, 1000, 1939, 1060], [-17, 477], 'chassis bottom edge and shadow'),
+  // The material study's four rows of keys (Search neu, Think glass, Upgrade soft, Customize skeu) in each finish:
+  // the owner's pictures, each scaled and cropped to fit our rows by least squares (scale and the crop's origin, in
+  // the picture's own pixels, recorded).
+  'study-graphite': study('graphite', .519, [155, 92]),
+  'study-bronze': study('bronze', .59, [157, 95]),
+  'study-chalk': study('chalk', .499, [12, 21]),
+  // Studio is an original, held to the owner's shot of the reference it was drawn from (rows, gaps, insets)
+  studio: { mode: 'image', page: 'demo/cases/studio.html', viewport: [900, 1000], at: [0, 0], source: "the owner's shot of the light reference (Text / Layout / Path), its sheet cropped at 66, 114 and scaled ×0.5372: the sheet down to its last row" },
+  // Pictures of designs the owner supplied, each drawn by the closest theme; scaled and cropped to our render
+  dashboard: { mode: 'image', page: 'demo/cases/dashboard.html', viewport: [1000, 800], at: [0, -30], source: "Demo Dashboard (owner's image ×1.008, cropped at 4, 2): the window, its title bar and tiles" },
+  send: { mode: 'image', page: 'demo/cases/send.html', viewport: [900, 900], at: [-12, -12], source: "Send Money dialog (owner's image ×0.998, cropped at 2, 71): the dialog" },
+  push: { mode: 'image', page: 'demo/cases/push.html', viewport: [800, 800], at: [-15, -40], source: "push the button in figma, yodiz × zaykina (owner's image ×0.955, cropped at 355, 341): the round key" },
+  workflow: { mode: 'image', page: 'demo/cases/workflow.html', viewport: [900, 1100], at: [0, 0], source: "automation builder's Actions palette (owner's image, cropped at 240, 378): the palette" },
+  inspector: { mode: 'image', page: 'demo/cases/inspector.html', viewport: [900, 1000], at: [0, 0], source: "visual CSS editor's Edit element panel (owner's image cropped at 2493, 1136, ×0.523): the panel's top, as far as the picture shows it" },
 }
 
 function imgui(scheme) {
@@ -165,6 +179,11 @@ function industrial(rect, at, part) {
   return { mode: 'image', page: 'demo/cases/industrial.html', at, source: `DMX-FIELD mockup (owner's image, 2x) cropped at ${rect.join(', ')}: ${part}` }
 }
 
+// the study strip sits 222px right of and 40px above the case's panels' union (its rows, padded 40px)
+function study(finish, scale, [x, y]) {
+  return { mode: 'image', page: 'demo/cases/materials.html#' + finish, viewport: [1100, 1000], at: [222, -40], source: `material study, ${finish} (owner's image ×${scale}, cropped at ${x}, ${y}): the four rows of keys` }
+}
+
 const manifestUrl = new URL('manifest.json', DIR)
 const manifest = existsSync(manifestUrl) ? JSON.parse(readFileSync(manifestUrl, 'utf8')) : { cases: {} }
 const args = process.argv.slice(2)
@@ -189,7 +208,7 @@ const open = async (url, [width, height], { scheme = 'light', until = 'networkid
   await page.waitForTimeout(700)
   return page
 }
-const hideSwitch = page => page.evaluate(() => { const s = document.querySelector('.case-render-switch'); if (s) s.style.visibility = 'hidden' })
+const hideSwitch = page => page.evaluate(() => { const s = document.querySelector('.case-bar'); if (s) s.style.visibility = 'hidden' })
 const union = (page, selector) => page.evaluate(selector => {
   const r = [...document.querySelectorAll(selector)].map(e => e.getBoundingClientRect()), x = Math.min(...r.map(q => q.left)), y = Math.min(...r.map(q => q.top))
   return [x, y, Math.max(...r.map(q => q.right)) - x, Math.max(...r.map(q => q.bottom)) - y]

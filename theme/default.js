@@ -360,7 +360,7 @@ const softCSS = (t) => `@layer s-soft {
     align-items: flex-start;
     textarea {
       flex: 1;
-      resize: both;
+      resize: none;
       field-sizing: content;
       white-space: nowrap;
       overflow: auto;
@@ -449,7 +449,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   // Fitted on the study's three finishes (chalk, bronze, graphite), each within 3 ΔE.
   // Raised faces, top to bottom: the Upgrade key, and the flatter face of a secondary one.
   const face = [lit(.36, .75), lit(-.18)], plain = [lit(.16, .85), lit(-.1)]
-  const rim = lit(1.15, .3, 1.5), rimLo = lit(.06, .65)
+  const rim = lit(1.15, .3, 1.5), rimLo = lit(.25, .65)   /* the lower rim catches the floor's light (the new study's crisper bottom edge) */
   const wall = bounce(3.25, .125), floor = bounce(2.25, .25), deep = bounce(7, .275), floorLo = bounce(4.25, .425)
   // The lip catches light; the piece's cast lies over it, as strong as the light it has to take.
   const lip = lit(.42, .5), cast = alpha(bounce(2), Math.min(.6, 1.6 * luminance(shade)))
@@ -524,7 +524,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   --fg: ${fg};
   --fg-muted: ${fgMuted};
   --hair: var(--length);
-  --g: calc(3 * var(--length));             /* groove: the gap between a piece and its socket */
+  --g: calc(4 * var(--length));             /* groove: the gap between a piece and its socket */
   --face-hi: ${face[0]};
   --face-lo: ${face[1]};
   --well: ${well};
@@ -532,8 +532,11 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   --channel: ${channel};
   --r-panel: calc(var(--u) * var(--roundness) * 3);
   --r-pill: calc(var(--control-height) / 2 * var(--roundness));
-  --control-height: calc(var(--line-height) + 16 * var(--space));
-  --row-gap: max(calc(10 * var(--space)), calc(2 * var(--g) + 3 * var(--length)));   /* sockets never touch */
+  /* the material family's one measure (soft, skeu, glass, neu): 34px keys and fields, 14 between rows, 22 round
+     the panel, at the 14px body */
+  --control-height: calc(var(--line-height) + 18 * var(--space));
+  --row-gap: max(calc(14 * var(--space)), calc(2 * var(--g) + 3 * var(--length)));   /* sockets never touch */
+  --panel-padding: calc(22 * var(--space));
   /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
   --font-size-small: calc(12 * var(--length));
 
@@ -596,7 +599,11 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     &:hover { --face-hi: ${hover[0]}; --face-lo: ${hover[1]}; }
     &:focus-visible { outline: ${ring}; outline-offset: calc(var(--g) + 2px); }
   }
-  .s-number .s-step button { color: var(--fg-muted); opacity: 1; font-size: 0; &:hover { color: var(--fg); }
+  /* the steppers sit inside the field, where a select's chevron sits: one glyph's width at its end */
+  .s-number .s-input { position: relative; }
+  .s-number input[type="number"] { padding-right: calc(30 * var(--length)); }
+  .s-number .s-step { position: absolute; right: calc(10 * var(--length)); top: 0; bottom: 0; justify-content: center; gap: 0; }
+  .s-number .s-step button { width: calc(12 * var(--length)); height: calc(11 * var(--length)); padding: 0; color: var(--fg-muted); opacity: 1; font-size: 0; &:hover { color: var(--fg); }
     &::before { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); background: currentColor; -webkit-mask: ${glyph(chevron, '#000', 1.92)} center / contain no-repeat; mask: ${glyph(chevron, '#000', 1.92)} center / contain no-repeat; }
     &.s-step-up::before { rotate: 180deg; } }
 
@@ -705,9 +712,13 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   }
 
   /* ── Structure: engraved rules ── */
-  .s-folder > summary { min-height: var(--control-height); padding: 0; opacity: 1; color: var(--fg); font-weight: ${w(200)}; border-bottom-color: ${alpha(wall, .45)};
+  /* a folder's title sits midway between its rule and the one above: the row gap above it is matched below */
+  .s-folder > summary { min-height: var(--control-height); padding: 0 0 var(--row-gap); opacity: 1; color: var(--fg); font-weight: ${w(200)}; border-bottom-color: ${alpha(wall, .45)};
     &::after { width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--fg-muted); -webkit-mask: ${glyph(chevron, '#000')} center / contain no-repeat; mask: ${glyph(chevron, '#000')} center / contain no-repeat; } }
-  .s-folder > .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }   /* contents keep the rows' pitch */
+  /* an open folder's rows follow its title at the row gap and close on the same engraved rule a shut folder's title
+     stands on, a row gap under the last row: every group reads title, rows, rule */
+  .s-folder > .s-content { gap: var(--row-gap); padding: 0; }
+  .s-folder[open]:not(.s-section) > .s-content { padding-bottom: var(--row-gap); border-bottom: 1px solid ${alpha(wall, .45)}; box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-folder:not([open], .s-section) > summary { box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator-labeled { background: none; box-shadow: none; &::before, &::after { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; } }

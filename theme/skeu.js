@@ -1,30 +1,34 @@
 /**
- * Skeu theme — monotone, diffuse, tactile
+ * Skeu: one material, cut into keys and wells
  *
- * Quiet skeuomorphism: one matte material lit softly from above. Nothing
- * shouts — relief does the talking. The panel is a molded plate with a faint
- * top-to-bottom light falloff and a fine matte grain; fields are cut into it
- * (a shallow well: shaded lip on top, a catch-light on the lower edge);
- * anything pressable is a low dome (lighter top, darker bottom, crisp 1px
- * rim, a soft contact shadow); the slider knob is a proper domed cap. States
- * move in the material: a pressed key sinks, a checked switch fills its
- * channel, a selected segment latches down. Labels are engraved.
+ * The panel is a plate of one material lit from above. Anything pressable is a keycap
+ * cut from it: a dark silhouette edge, a lit top rim, a face lighter than the plate, the
+ * key's front wall along its bottom, the dark line it stands on and a short shadow below.
+ * Anything dragged (slider thumbs, the switch knob) is a cap of the same material, domed. Shadows
+ * are light taken away: laid translucent, they darken whatever lies under them, an accent fill too.
+ * Anything that holds a value is engraved: a well whose upper wall is in shadow and whose
+ * lower lip catches the light. Lettering is printed in the ink and engraved with it (a lit
+ * lower edge under dark ink, a shaded upper edge over light ink). On-states use the accent.
  *
- * Axes: shade (material color; a function `$(L, C, H, alpha)` may be passed to
- * supply the whole ramp), accent (fill for on/selected/primary; defaults to a
- * deeper tone of the shade so the theme stays monotone), depth (elevation:
- * shadow throw + dome relief), bevel (edge crispness: rim/lip contrast, and
- * width beyond 1), roundness (corner + knob shape, square → circle), weight,
- * spacing, grid (dots / lines / crosses texture overlay).
+ * Calibration: the "Customize" key of a material study, measured in its three finishes
+ * (graphite, bronze, chalk). Any other surface reads between them by its lightness.
+ *
+ * Axes: shade (the material; a function `$(L, C, H, alpha)` may supply the whole ramp),
+ * accent (on-states: switch, fill, check, focus; defaults to a deeper tone of the shade),
+ * ink (lettering; derived from the shade when absent), texture ('grain' matte speckle,
+ * 'wood' a board with planed key faces), depth (key height: wall, relief, shadow), bevel
+ * (edge contrast, and rim width beyond 1), roundness (square → capsule for keys and wells,
+ * the plate keeps rounding to 2), weight, spacing, size, grid (dots / lines / crosses).
  *
  * skeu(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
-import { form as defaultCSS } from './default.js'
-import { parseColor, resolveAccent, lerp, clamp } from './color.js'
+import { form } from './default.js'
+import { parseColor, resolveAccent, toHex, lerp, clamp, luminance, ink as legible } from './color.js'
+import { surface, woodFigure, woodGrain } from './texture.js'
 
-const { min, max } = Math
+const { min, max, cos, sin, atan2, hypot, PI } = Math
 
 // Grid patterns: dots 2u (secondary), lines 4u (medium), crosses 8u (primary)
 const GRID = {
@@ -33,500 +37,690 @@ const GRID = {
   crosses: (c, a, u) => { const s = 8 * u, h = s / 2, arm = u; return { url: `url("data:image/svg+xml,%3Csvg width='${s}' height='${s}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${h} ${h - arm}v${arm * 2}M${h - arm} ${h}h${arm * 2}' stroke='rgba(${c},${a})' stroke-width='${u * .15}'/%3E%3C/svg%3E")`, off: -h } },
 }
 
-// Fine matte grain — alpha derived from the turbulence luminance so it reads as
-// texture, not as a flat tint. Multiplied over the surface at very low strength.
-const grain = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0.04 0.04 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`
+// The study's finishes, by lightness: a tone measured in each reads between them for any
+// other surface (clamped past the ends).
+const FINISH = ['#1e1e1e', '#ca9d63', '#f1f2f4'].map(c => parseColor(c).L)
+const study = L => ([g, b, c]) => {
+  const [lg, lb, lc] = FINISH
+  return L <= lg ? g : L >= lc ? c : L < lb ? lerp(g, b, (L - lg) / (lb - lg)) : lerp(b, c, (L - lb) / (lc - lb))
+}
+
+// The Customize key, measured as lightness offsets from the surface in each finish
+// (graphite, bronze, chalk): silhouette edge, lit top rim, the face from under the rim to its
+// lower edge, the front wall, the dark line it stands on; then its shadow's two layers (tight
+// contact, long falloff) fitted to the profile of the plate below it, laid as translucent shade
+// (where they overlap they deepen each other, as two occlusions do).
+const KEY = {
+  outline: [-.048, -.13, -.035],
+  rim: [.204, .168, .03],
+  top: [.117, .111, .015],
+  mid: [.103, .033, .02],
+  low: [.09, -.02, .024],
+  wall: [.067, -.088, -.011],
+  base: [-.067, -.208, -.194],
+  contact: [-.028, -.035, -.05],
+  falloff: [-.016, -.156, -.048],
+}
+// Engraved wells in the same light: the floor a little below the plate, the upper wall in
+// shadow, the lower lip catching the light.
+const WELL = {
+  floor: [-.035, -.03, -.022],
+  wall: [-.1, -.17, -.12],
+  shade: [-.12, -.2, -.14],
+  lip: [.07, .1, .03],
+}
+
+// A colour squared in sRGB: the material multiplied into itself, the tint light takes after
+// bouncing twice inside it. Its shadows borrow this hue and chroma.
+const squared = tone => parseColor('#' + toHex(tone).slice(1).match(/../g)
+  .map(h => Math.round(parseInt(h, 16) ** 2 / 255).toString(16).padStart(2, '0')).join(''))
 
 export default function skeu({
   shade = '#f5f4f2',
   accent,
+  ink,
+  texture = 'grain',
   grid = [],
   spacing = 1,
   weight = 400,
   depth = 1,
   roundness = 1,
-  bevel: bevelOpt = 1,
+  bevel = 1,
   size = 1,
   font,
 } = {}) {
 
   const isFunc = typeof shade === 'function'
-  const { L: sL, C: sC, H: sH } = isFunc ? { L: 0.97, C: 0.01, H: 60 } : parseColor(shade)
+  const S = isFunc ? { L: .97, C: .01, H: 60 } : parseColor(shade)
+  const { L: sL, C: sC, H: sH } = S
   const dark = sL < .6
-  const $ = isFunc ? (L = sL, C = sC, H = sH, alpha) => shade(L, C, H, alpha) : (L = sL, C = sC, H = sH, alpha) => {
-    L = clamp(L, 0, 1)
-    const l = +L.toFixed(3), c = +C.toFixed(4), h = +H.toFixed(1)
-    return alpha != null
-      ? `oklch(${l} ${c} ${h} / ${+clamp(alpha, 0, 1).toFixed(3)})`
-      : `oklch(${l} ${c} ${h})`
+  const $ = isFunc ? (L, C, H, alpha) => shade(L, C, H, alpha) : (L, C, H, alpha) => {
+    const lch = `${+clamp(L, 0, 1).toFixed(3)} ${+max(0, C).toFixed(4)} ${+H.toFixed(1)}`
+    return alpha != null ? `oklch(${lch} / ${+clamp(alpha, 0, 1).toFixed(3)})` : `oklch(${lch})`
   }
 
-  // ── Accent: explicit, or a deeper tone of the shade (monotone by default) ──
-  const resolvedAccent = resolveAccent(accent, shade)
-  const { L: aL, C: aC, H: aH } = resolvedAccent ? parseColor(resolvedAccent) : { L: dark ? .78 : .42, C: min(sC * 1.2, 0.05), H: sH }
-  const accentDark = aL < .6
+  // ── One material, one light ──
+  // tone(d): the material d lighter or darker. Lighter mixes toward white (chroma thins);
+  // darker takes the hue and chroma of the material squared, as shadow inside it does.
+  const deep = squared(S)
+  const ab = ({ C, H }) => [C * cos(H * PI / 180), C * sin(H * PI / 180)]
+  const [a0, b0] = ab(S), [a1, b1] = ab(deep)
+  const toneOf = d => {
+    const L = clamp(sL + d, 0, 1)
+    if (d >= 0) return { L, C: sC * (1 - clamp(d / max(1 - sL, .001), 0, 1)), H: sH }
+    const t = clamp(-d / max(sL - deep.L, .02), 0, 2), a = lerp(a0, a1, t), b = lerp(b0, b1, t)
+    return { L, C: hypot(a, b), H: (atan2(b, a) * 180 / PI + 360) % 360 }
+  }
+  const tone = (d, alpha) => { const { L, C, H } = toneOf(d); return $(L, C, H, alpha) }
+  // A shadow is light taken away: the colour and opacity that give tone(d) (at alpha) exactly over
+  // the plate, and over anything darker (an accent fill, a groove) darken it rather than paint the
+  // plate's lighter tone there as a glow. The least opacity keeps the colour as dark as the hue allows.
+  const srgb = c => toHex(c).slice(1).match(/../g).map(h => parseInt(h, 16) / 255)
+  const P = isFunc ? null : srgb(S)
+  const shadow = (d, alpha = 1) => {
+    if (!P) return tone(d, alpha)
+    const T = srgb(toneOf(d)), t = P.map((p, i) => p + alpha * (T[i] - p))
+    const k = min(1, max(.001, ...P.map((p, i) => p > 0 ? (p - t[i]) / p : 0)))
+    return `rgb(${P.map((p, i) => Math.round(clamp(p + (t[i] - p) / k, 0, 1) * 255)).join(' ')} / ${+k.toFixed(3)})`
+  }
+  const at = study(sL)
+  const K = Object.fromEntries(Object.entries(KEY).map(([n, v]) => [n, at(v)]))
+  const W = Object.fromEntries(Object.entries(WELL).map(([n, v]) => [n, at(v)]))
 
   // ── Axes → physics ──
-  // bevel: 0..1 fades edge contrast (rim stays 1px); 1..2 widens the rim to 2px.
-  const edge = bevelOpt <= 1 ? lerp(.3, 1, clamp(bevelOpt, 0, 1)) : lerp(1, 1.25, clamp(bevelOpt - 1, 0, 1))
-  const bevelPx = +(bevelOpt <= 1 ? 1 : lerp(1, 2, clamp(bevelOpt - 1, 0, 1))).toFixed(2)
-  // depth: elevation (cast-shadow throw) + relief (dome/well gradient span)
-  const D = clamp(depth, 0, 3)
-  const relief = .5 + D * .5
+  // depth: key height (front wall, face relief, shadow throw); bevel: edge contrast, then rim width
+  const D = clamp(depth, 0, 3), relief = min(D, 2)
+  const E = bevel <= 1 ? lerp(.3, 1, clamp(bevel, 0, 1)) : lerp(1, 1.25, clamp(bevel - 1, 0, 1))
+  const rimW = +(bevel <= 1 ? 1 : lerp(1, 2, clamp(bevel - 1, 0, 1))).toFixed(2)
+  const wallH = +(2.5 * relief).toFixed(2)
+  const len = n => `calc(${+n.toFixed(3)} * var(--length))`
 
-  // ── One overhead light: every rim, lip and shadow derives from these ──
-  const hi = a => $(1, sC * .3, sH, a * edge)                          // catch-light (near-white)
-  const lo = a => $(.12, min(sC * 1.5, .04), sH, a * edge)              // shade (near-black, faint tint)
-  const sh = a => $(.1, min(sC * 1.2, .04), sH, a * (.6 + D * .4))      // cast shadow (elevation-driven)
-
-  // Two-layer cast shadow (contact + ambient), scaled by depth. `e` = relative elevation.
-  const cast = e => !e ? '' : `, 0 ${(e * .6 * D).toFixed(2)}px ${(e * 1.2 * D).toFixed(2)}px ${sh(.14)}, 0 ${(e * 2 * D).toFixed(2)}px ${(e * 5 * D).toFixed(2)}px ${sh(.1)}`
-
-  // ── Form shading (always top-lit) ──
-  const dome = (L, C, H, span = .05) => `linear-gradient(180deg, ${$(min(1, L + span * relief), C, H)} 0%, ${$(L, C, H)} 55%, ${$(max(0, L - span * .8 * relief), C, H)} 100%)`
-  const wellL = max(.08, sL - (dark ? .035 : .045))
-  const well = `linear-gradient(180deg, ${$(max(0, wellL - .025 * relief), sC, sH)} 0%, ${$(wellL, sC, sH)} 35%, ${$(min(1, wellL + .012 * relief), sC, sH)} 100%)`
-  const knob = `radial-gradient(circle at 50% 30%, ${$(min(1, sL + .05), sC * .5, sH)} 0%, ${$(min(1, sL + .02), sC, sH)} 45%, ${$(max(0, sL - .05), sC, sH)} 100%)`
-
-  // ── Surface mixins ──
-  // Rim of a dome (light top edge, dark bottom edge, thin dark ring) and the
-  // lip of a well (shaded top, catch-light below) — tokens, so every raised or
-  // sunken part shares one definition and either can be overridden.
-  const rimShadow = `inset 0 ${bevelPx}px 0 ${hi(.7)}, inset 0 -${bevelPx}px 0 ${lo(.12)}, 0 0 0 ${bevelPx}px ${lo(.16)}`
-  const lipShadow = `inset 0 ${bevelPx}px ${(bevelPx * 2.5).toFixed(2)}px ${lo(.22)}, inset 0 0 0 ${bevelPx}px ${lo(.1)}, 0 ${bevelPx}px 0 ${hi(.55)}`
-  // raised(e): dome + rim + cast shadow
-  const raised = (grad, e = 1) => `
-    border: none;
-    background-color: var(--bg);
-    background-image: ${grad};
-    box-shadow: var(--rim)${cast(e)};`
-  // sunken(): well cut into the plate
-  const sunken = (grad = 'var(--well)') => `
-    border: none;
-    background-color: var(--sunken);
-    background-image: ${grad};
-    box-shadow: var(--lip);`
-
-  // key(): pressable raised surface with real press travel + latched (selected) state
-  const key = (L = aL, C = aC, H = aH, bg) => {
-    const isDark = L < .6
-    const grad = dome(L, C, H)
-    return `
-    ${raised(bg ? `linear-gradient(180deg, ${$(min(1, L + .06 * relief), C, H)} 0%, ${bg} 50%, ${$(max(0, L - .04 * relief), C, H)} 100%)` : grad, 1.2)}
-    border-radius: var(--ri);
-    color: var(${isDark ? '--text-dark' : '--text-light'});
-    text-shadow: 0 ${isDark ? -1 : 1}px 0 ${isDark ? lo(.35) : hi(.7)};
-    cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    font: inherit; line-height: 1;
-    padding: var(--pad) calc(var(--pad) * 2);
-    transition: filter 120ms, box-shadow 120ms, transform 120ms;
-    &:hover { filter: brightness(${isDark ? 1.12 : 1.03}); }
-    &:active { transform: translateY(${bevelPx}px); filter: brightness(${isDark ? .95 : .98}); box-shadow: var(--rim); }
-    &:disabled { opacity: .45; cursor: not-allowed; filter: none; transform: none; }
-    &.s-selected, &[aria-pressed="true"] {
-      ${sunken(`linear-gradient(180deg, ${$(max(0, aL - .05 * relief), aC, aH)} 0%, ${$(aL, aC, aH)} 40%, ${$(min(1, aL + .04 * relief), aC, aH)} 100%)`)}
-      background-color: var(--accent);
-      color: var(${accentDark ? '--text-dark' : '--text-light'});
-      text-shadow: 0 ${accentDark ? -1 : 1}px 0 ${accentDark ? lo(.35) : hi(.7)};
-      transform: none; filter: none;
+  // A key's tones: its face (lift 1 = the study's lifted face, 0 = flush with the plate),
+  // edges set against the face they bound.
+  const keyTones = lift => {
+    const mid = K.mid * lift, top = mid + (K.top - K.mid) * relief, low = mid + (K.low - K.mid) * relief
+    return {
+      top, mid, low,
+      rim: top + (K.rim - K.top) * E,
+      wall: low + (K.wall - K.low) * E,
+      outline: K.outline * E,
+      base: K.base * E,
     }
-    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; z-index: 1; }`
+  }
+  const lifted = keyTones(1), flush = keyTones(0)
+  // The face falls off quickly under the rim, then slowly to its lower edge
+  const faceOf = t => `linear-gradient(180deg, ${tone(t.top)} 6%, 20%, ${tone(t.mid)} 50%, ${tone(t.low)} 90%)`
+  // A round cap (slider thumbs, the switch knob, the pad's dot, the knob) is the key's material on a
+  // dome: its crown faces the light and takes the face's top, its lower side turns away to the tone of
+  // the key's front wall. It keeps the key's rim, silhouette, base line and shadow; a dome has no wall.
+  const domeOf = t => `radial-gradient(circle farthest-corner at 50% 30%, ${tone(t.top)}, ${tone(t.mid)} 40%, ${tone(t.low)} 62%, ${tone(t.wall)} 88%)`
+  // Its shadow at elevation e (1 at rest, higher under a hovering finger)
+  const drop = (e = 1) => D ? [
+    `0 ${len(.5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
+    `0 ${len(2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
+  ] : []
+  // All inside the key's box, in proportion at every size: the dark line along its bottom, the
+  // front wall over the silhouette edge (1 unit at the sides, 3/4 at top and bottom), the lit rim.
+  const edges = (c, wall = true) => [
+    `inset 0 ${len(-.75)} 0 ${c.base}`,                                       // the line it stands on
+    wall && wallH ? `inset 0 ${len(-.75 - wallH)} 0 ${c.wall}` : '',          // front wall
+    `inset 0 ${len(-.25)} 0 ${len(1)} ${c.outline}`,                          // silhouette edge
+    `inset 0 ${len(.75 + rimW)} 0 ${c.rim}`,                                  // lit rim
+  ].filter(Boolean)
+  const colors = t => ({ base: tone(t.base), wall: tone(t.wall), outline: tone(t.outline), rim: tone(t.rim) })
+  const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e) : [])].join(', ')
+  const capShadow = (c, e = 1) => [...edges(c, false), ...drop(e)].join(', ')
+  // The same key over a face of any colour (swatches): its edges as light and shade
+  const glaze = {
+    base: tone(K.base * E, .55), outline: tone(K.outline * E, .5),
+    rim: `oklch(1 0 0 / ${+(.45 * E).toFixed(3)})`, wall: `oklch(0 0 0 / ${+(.16 * E).toFixed(3)})`,
   }
 
-  // Thumb: equal-area square (2√π u) → circle (4u dia) as roundness 0→1
-  const THUMB_CIRCLE = 4
-  const THUMB_SQUARE = 2 * Math.sqrt(Math.PI)
-  const thumbT = clamp(roundness, 0, 1)
-  const thumbU = roundness >= 1 ? THUMB_CIRCLE : lerp(THUMB_SQUARE, THUMB_CIRCLE, thumbT)
-  const thumbR = roundness <= 0 ? '0'
-    : roundness >= 1 ? '999px'
-    : `calc(var(--u) * ${+(thumbU * thumbT / 2).toFixed(4)})`
-  const thumb = `
-  width: var(--thumb); height: var(--thumb);
-  border: none; border-radius: ${thumbR};
-  background-color: var(--bg);
-  background-image: ${knob};
-  box-shadow: inset 0 ${bevelPx}px 0 ${hi(.85)}, inset 0 -${bevelPx}px 0 ${lo(.1)}, 0 0 0 ${bevelPx}px ${lo(.2)}${cast(1.4)};
-  cursor: grab; z-index: 1; position: relative;
-  transition: filter 120ms;`
+  // ── Wells ── the inner shades are shadows too: over an accent fill they deepen it
+  const floor = tone(W.floor)
+  const well = [
+    `inset 0 1px 0 ${shadow(W.floor + (W.wall - W.floor) * E)}`,             // upper wall, in shadow
+    `inset 0 ${len(1.5)} ${len(3)} ${shadow(W.shade, .45 * E)}`,                // its shade on the floor
+    `inset 0 0 0 1px ${shadow(K.outline * E, .7)}`,                           // the cut
+    `0 1px 0 ${tone(W.lip * E)}`,                                             // lower lip, lit
+  ].join(', ')
 
-  // Grid layers (combinable background-image stack) over the plate's own light + grain
+  // ── Textures: the plate (and keys flush with it) by the shared calibration; a lifted face is a
+  // lighter planed board with its figure, or the same grain at its own lightness ──
+  const plateTex = surface(texture, shade)
+  const faceTex = texture === 'wood'
+    ? { image: `${woodFigure(1.1)} ${len(-30)} 0 / ${len(120)} ${len(60)}, ${woodGrain(.12)} 0 0 / ${len(240)} ${len(120)}`, blend: 'soft-light, soft-light' }
+    : surface(texture, tone(lifted.mid))
+  // A cap is turned, not planed: it shows the material's grain at its own lightness, no figure
+  const capTex = surface(texture, tone(lifted.mid))
+  const layer = (tex, grad) => tex ? `${tex.image}, ${grad}` : grad
+  const blend = tex => tex ? `${tex.blend}, normal` : 'normal'
+
+  // ── Colour: accent for on-states, ink for lettering, each legible where it is printed ──
+  const plate = $(sL, sC, sH)
+  const resolved = resolveAccent(accent, shade)
+  const A = resolved ? parseColor(resolved, null) : { L: dark ? .78 : .42, C: min(sC * 1.2, .05), H: sH }
+  const accentCSS = A ? $(A.L, A.C, A.H) : resolved
+  const accentDark = (luminance(accentCSS) ?? 0) <= .179
+  const onAccent = legible(accentCSS, 4.5, accentDark ? tone(lifted.top) : plate)
+  const inkTone = ink ?? $(dark ? .96 : .2, sC * (dark ? .3 : .5), sH)
+  const I = parseColor(inkTone, null)
+  const inkL = I ? I.L : dark ? 1 : 0
+  // Each ink is kept legible on every surface it may land on, judged by the one nearest to it
+  // in lightness; on a key, the band of its face the lettering covers.
+  const legibleOn = (tint, ...ds) => legible(tone(inkL < sL ? min(...ds) : max(...ds)), 4.5, tint)
+  const lettered = t => [t.mid + (t.top - t.mid) * .4, t.mid + (t.low - t.mid) * .4]
+  const onPlate = legibleOn(inkTone, 0, ...lettered(flush))
+  const onKey = legibleOn(inkTone, ...lettered(lifted))
+  const onWell = legibleOn(inkTone, W.floor)
+  const dim = I ? legibleOn({ L: lerp(I.L, sL, .4), C: I.C, H: I.H }, 0, W.floor, ...lettered(flush)) : `color-mix(in oklab, ${inkTone} 65%, ${plate})`
+  // A placeholder is the dim ink at 80% on a well's floor (3.4:1), held to 4.5:1 there
+  const placeholder = I ? legibleOn({ L: lerp(lerp(I.L, sL, .4), sL + W.floor, .2), C: I.C, H: I.H }, W.floor) : dim
+  // Engraved lettering: under dark ink its lower edge is lit, over light ink its upper edge is shaded
+  const engrave = (surfaceL, lit, shaded) => inkL < surfaceL ? { dy: 1, color: lit } : { dy: -1, color: shaded }
+  const onPlateEdge = engrave(sL, tone(K.rim * .7 * E, .75), tone(K.base * E, .85))
+  const onKeyEdge = engrave(sL + lifted.mid, tone(lifted.rim), tone(lifted.base))
+  const shadowOf = e => `0 ${e.dy}px 0 ${e.color}`
+
+  // Slider thumb: equal-area square (4u) → circle (4.5u across) as roundness 0 → 1
+  const thumbT = clamp(roundness, 0, 1)
+  const thumbU = lerp(4.5 * Math.sqrt(PI) / 2, 4.5, thumbT)
+  const thumbR = `calc(var(--u) * ${+(thumbU * thumbT / 2).toFixed(4)})`
+
+  // Grid layers over the plate's texture
   const gridList = Array.isArray(grid) ? grid : (grid && grid !== 'none' ? [grid] : [])
   const gc = dark ? '255,255,255' : '0,0,0', ga = dark ? '.05' : '.06'
   const gridLayers = gridList.map(g => GRID[g]?.(gc, ga, 4)).filter(Boolean)
-  const plate = `linear-gradient(180deg, ${$(min(1, sL + .025 * relief), sC, sH)} 0%, ${$(sL, sC, sH)} 30%, ${$(max(0, sL - .02 * relief), sC, sH)} 100%)`
-  const bgImgs = [grain, ...gridLayers.map(l => l.url), plate]
-  const bgBlends = ['multiply', ...gridLayers.map(() => 'normal'), 'normal']
-  const bgPos = ['0 0', ...gridLayers.map(l => `${l.off}px ${l.off}px`), '0 0']
+  const plateLayers = [...gridLayers.map(l => `${l.url} ${l.off}px ${l.off}px`), ...(plateTex ? [plateTex.image] : [])]
+  const plateBlend = [...gridLayers.map(() => 'normal'), ...(plateTex ? [plateTex.blend] : []), 'normal']
 
-  const stroke = max(1, weight / 400)
-  const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='${stroke}' stroke-linejoin='round'/%3E%3C/svg%3E")`
-  const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,6 5,9 9.5,3' fill='none' stroke='%23000' stroke-width='${max(1.6, stroke * 1.6)}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
-  const engrave = dark ? `0 -1px 0 ${lo(.5)}` : `0 1px 0 ${hi(.8)}`
+  // Glyphs: one stroke weight and one optical size (a 3.5u box) for chevrons and checks; the
+  // stepper's smaller chevron keeps the same stroke in px
+  const stroke = max(1.2, weight / 330) * 1.2
+  const svg = body => `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E${body}%3C/svg%3E")`
+  const chevronOf = w => svg(`%3Cpolyline points='3,4.5 6,7.5 9,4.5' fill='none' stroke='%23000' stroke-width='${+w.toFixed(3)}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
+  const chevron = chevronOf(stroke), chevronSm = chevronOf(stroke * 3.5 / 2.5)
+  const check = svg(`%3Cpolyline points='2.5,6.2 5,8.6 9.5,3.6' fill='none' stroke='%23000' stroke-width='${+stroke.toFixed(3)}' stroke-linecap='round' stroke-linejoin='round'/%3E`)
 
+  // Shared surfaces, as declaration blocks
+  const key = (kind = 'key', shadow = `var(--${kind})`) => `
+    border: none;
+    background: var(--${kind}-image);
+    background-blend-mode: var(--${kind}-blend);
+    box-shadow: ${shadow};`
+  const sunk = `
+    border: none;
+    background: var(--floor);
+    box-shadow: var(--well);`
+  // A key rises a little under the pointer and travels its wall's height when pressed
+  const press = (kind = 'key') => `
+    transition: transform 90ms, box-shadow 140ms, filter 140ms;
+    &:not(:disabled):hover { box-shadow: var(--${kind}-up); filter: var(--hover); }
+    &:not(:disabled):active { transform: translateY(var(--travel)); box-shadow: var(--${kind}-down); filter: none; }`
+  const glyph = (mask, color) => `
+    background: ${color};
+    -webkit-mask: ${mask} center / contain no-repeat;
+    mask: ${mask} center / contain no-repeat;`
+  // One thumb for every range input (slider, interval, the colour's alpha): a cap, in its states
+  const thumb = `
+      &::-webkit-slider-thumb { -webkit-appearance: none; ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; transition: filter 140ms, box-shadow 90ms; }
+      &::-moz-range-thumb { ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: ${thumbR}; cursor: grab; }
+      &:hover::-webkit-slider-thumb { box-shadow: var(--cap-up); filter: var(--hover); }
+      &:hover::-moz-range-thumb { box-shadow: var(--cap-up); filter: var(--hover); }
+      &:active::-webkit-slider-thumb { box-shadow: var(--cap-down); cursor: grabbing; }
+      &:active::-moz-range-thumb { box-shadow: var(--cap-down); cursor: grabbing; }
+      &:focus-visible { outline: none; }
+      &:focus-visible::-webkit-slider-thumb { box-shadow: var(--cap), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }
+      &:focus-visible::-moz-range-thumb { box-shadow: var(--cap), 0 0 0 2px var(--bg), 0 0 0 4px var(--focus); }`
+
+  // Body 14px: skeu sets its labels and values at 14px.
+  const body = 14
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, {panelPadding: 20, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif"})}
+  ${metrics({ size, spacing, font }, { body, controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif" })}
 
-  --bg: ${$(sL)};
-  --accent: ${$(aL, aC, aH)};
-
+  --bg: ${plate};
+  --accent: ${accentCSS};
+  --on-accent: ${onAccent};
+  --focus: var(--accent);
   --roundness: ${roundness};
   --weight: ${weight};
   color-scheme: ${dark ? 'dark' : 'light'};
-  --sunken: ${$(wellL, sC, sH)};
-  --raised: ${$(min(1, sL + .04), sC, sH)};
-  --focus: ${$(aL, max(aC, .1), aH, .55)};
-  --hi: ${hi(.8)};
-  --lo: ${lo(.14)};
-  --rim: ${rimShadow};
-  --lip: ${lipShadow};
+
+  --ink: ${onPlate};
+  --ink-key: ${onKey};
+  --ink-well: ${onWell};
+  --ink-dim: ${dim};
+  --ink-placeholder: ${placeholder};
+  --engrave: ${shadowOf(onPlateEdge)};
+  --engrave-key: ${shadowOf(onKeyEdge)};
+
+  --key-image: ${layer(faceTex, faceOf(lifted))};
+  --key-blend: ${blend(faceTex)};
+  --flush-image: ${layer(plateTex, faceOf(flush))};
+  --flush-blend: ${blend(plateTex)};
+  --key: ${keyShadow(colors(lifted))};
+  --key-up: ${keyShadow(colors(lifted), 1.5)};
+  --key-down: ${keyShadow(colors(lifted), 0, false)};
+  --cap-image: ${layer(capTex, domeOf(lifted))};
+  --cap-blend: ${blend(capTex)};
+  --cap: ${capShadow(colors(lifted))};
+  --cap-up: ${capShadow(colors(lifted), 1.5)};
+  --cap-down: ${capShadow(colors(lifted), 0)};
+  --flush: ${keyShadow(colors(flush))};
+  --flush-up: ${keyShadow(colors(flush), 1.5)};
+  --flush-down: ${keyShadow(colors(flush), 0, false)};
+  --glaze: ${keyShadow(glaze)};
+  --glaze-up: ${keyShadow(glaze, 1.5)};
+  --floor: ${floor};
   --well: ${well};
-  --text-light: ${$(.2, sC * .5, sH)};
-  --text-dark: ${$(.96, sC * .3, sH)};
-  --text: ${dark ? 'var(--text-dark)' : 'var(--text-light)'};
-  --text-dim: ${$(dark ? .7 : .46, sC * .6, sH)};
-  --fg-muted: var(--text-dim);
-  --bevel: ${bevelPx}px;
-  --r: calc(var(--u) * var(--roundness) * 3);
-  --ri: calc(var(--u) * max(var(--roundness), -1.5 + var(--roundness) * 3));
-  --thumb: calc(var(--u) * ${thumbU});
+  --edge: ${tone(W.wall * E)};
+  --catch: ${tone(W.lip * E)};
+  --travel: ${len(wallH)};
+  --hover: brightness(${+(1 + .12 * (1 - clamp(sL + lifted.mid, 0, 1))).toFixed(3)});
+
+  /* Keys and wells are capsules at roundness 1; the plate keeps rounding past it */
+  --round: min(var(--roundness), 1);
   --h: var(--control-height);
+  --rk: calc(var(--h) / 2 * var(--round));
+  --r: calc((var(--h) / 2 + var(--panel-padding) / 2) * var(--roundness));
+  --thumb: calc(var(--u) * ${+thumbU.toFixed(4)});
+  --gap: ${len(3)};
+  /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
+  --font-size-small: calc(12 * var(--length));
 
-  color: var(--text);
-  ${raised(plate, 3)}
-  background-image: ${bgImgs.join(', ')};
-  background-blend-mode: ${bgBlends.join(', ')};
-  background-position: ${bgPos.join(', ')};
-  text-shadow: ${engrave};
-  position: relative;
+  color: var(--ink);
+  background: ${[...plateLayers, 'var(--bg)'].join(', ')};
+  background-blend-mode: ${plateBlend.join(', ')};
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 1px ${tone(K.outline * E * .8)}, inset 0 ${rimW}px 0 ${tone(K.rim * .6 * E)}, 0 ${len(D)} ${len(2 * D)} ${shadow(K.contact, .8)}, 0 ${len(10 * D)} ${len(28 * D)} ${len(-6)} ${shadow(K.falloff * 1.5, .6)};
+  text-shadow: var(--engrave);
   isolation: isolate;
-
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: var(--line-height);
 
-  &, *, *::before, *::after { background-origin: border-box; }
-
   /* ── Rows ── */
   .s-control { align-items: center; }
   .s-input { align-items: center; }
-  .s-select.s-radio, .s-select.s-checkboxes, .s-textarea, .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 1); } }
+  .s-select.s-radio, .s-select.s-checkboxes, .s-textarea, .s-xy { align-items: flex-start; .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-select.s-radio .s-input, .s-select.s-checkboxes .s-input { align-items: stretch; }
-  .s-label { color: var(--text); font-weight: calc(var(--weight) + 100); }
-  .s-hint { color: var(--text-dim); opacity: 1; }
-  .s-title { border-color: var(--text-dim); color: var(--text-dim); text-shadow: none; }
+  .s-label { color: var(--ink); font-weight: calc(var(--weight) + 100); }
+  .s-hint { color: var(--ink-dim); opacity: 1; }
+  :is(.s-hint, span.s-readout, .s-mark-label, .s-tooltip, .s-separator-label, .s-knob-val, .s-pad-val, .s-vec-label, .s-title-text) { font-size: var(--font-size-small); }
+  .s-title { border: none; color: var(--ink-dim); box-shadow: inset 0 0 0 1px var(--edge); text-shadow: none; }
+  .s-title-text { ${key('flush', 'var(--glaze)')} color: var(--ink); text-shadow: var(--engrave-key); border-radius: calc(var(--u) * 2 * var(--round)); }
 
-  /* ── Panel title — engraved ── */
+  /* ── Title, with the fold key ── */
   > summary, > .s-panel-title {
-    color: var(--text);
+    color: var(--ink);
     font-size: 1.125em;
     font-weight: calc(var(--weight) + 200);
     letter-spacing: .01em;
+    min-height: var(--h);
+    gap: calc(var(--u) * 2);
   }
-  > summary::after {
-    background: var(--text-dim);
-    -webkit-mask: ${chevron} center / contain no-repeat;
-    mask: ${chevron} center / contain no-repeat;
-    transition: transform 140ms;
+  > summary::after { display: none; }
+  > summary:focus-visible { outline: none; .s-fold-icon { outline: 2px solid var(--focus); outline-offset: 2px; } }
+  .s-fold-icon, .s-search-btn {
+    ${key()}
+    display: inline-grid; place-items: center; flex: none;
+    width: var(--h); height: var(--h); padding: 0;
+    border-radius: calc(var(--h) / 2 * var(--round));
+    -webkit-mask: none; mask: none;
+    cursor: pointer;
+    ${press()}
   }
-  &[open] > summary::after { transform: rotate(-180deg); }
+  .s-fold-icon {
+    margin-left: auto; order: 2;
+    .s-search ~ &, :has(> .s-search) > & { margin-left: 0; }
+    i { position: relative; width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); translate: 0 calc(var(--travel) / -2); }  /* centred on the face, above the wall */
+    i::before, i::after { content: ''; position: absolute; inset: 0; transition: transform 200ms; }
+    i::before { ${glyph(chevron, onKeyEdge.color)} transform: translateY(${onKeyEdge.dy}px); }
+    i::after { ${glyph(chevron, 'var(--ink-key)')} }
+  }
+  &[open] .s-fold-icon i::after { transform: rotate(180deg); }
+  &[open] .s-fold-icon i::before { transform: translateY(${onKeyEdge.dy}px) rotate(180deg); }
+  > summary:hover .s-fold-icon { box-shadow: var(--key-up); filter: var(--hover); }
+  > summary:active .s-fold-icon { transform: translateY(var(--travel)); box-shadow: var(--key-down); filter: none; }
 
-  /* ── Fields — cut into the plate ── */
+  /* ── Search: a round key that opens into a well ── */
+  .s-search { order: 1; margin-left: auto; gap: var(--gap); }
+  .s-search-btn::after { content: ''; width: 45%; height: 45%; ${glyph('var(--s-search-icon)', 'var(--ink-key)')} }
+  .s-search-input { ${sunk} height: var(--h); border-radius: var(--rk); padding: 0 calc(var(--u) * 3); color: var(--ink-well); text-shadow: none; &::placeholder { color: var(--ink-placeholder); opacity: 1; } }
+
+  /* ── Fields: engraved ── */
   input[type="text"], input[type="number"], textarea {
-    ${sunken()}
-    border-radius: var(--ri);
-    color: var(--text);
-    text-shadow: none;
-    transition: box-shadow 140ms;
-    &::placeholder { color: var(--text-dim); opacity: 1; }
-    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--ri); }
-  }
-  input.s-scrubbing { color: var(--text); }
-  .s-search-input::placeholder { color: var(--text-dim); opacity: 1; }
-
-  /* ── Select — a raised key with an engraved chevron ── */
-  .s-select select {
-    ${key(sL, sC, sH, 'var(--raised)')}
-    appearance: none; -webkit-appearance: none;
-    justify-content: flex-start;
-    padding: 0 calc(var(--u) * 7) 0 var(--pad-i);
+    ${sunk}
     height: var(--h);
-    color: var(--text);
+    border-radius: var(--rk);
+    padding: 0 max(var(--pad), var(--rk) * .75);
+    color: var(--ink-well);
+    text-shadow: none;
+    &::placeholder { color: var(--ink-placeholder); opacity: 1; }
     &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-    option { background: var(--bg); color: var(--text); font-weight: 400; }
+  }
+  textarea { height: auto; padding: var(--pad) max(var(--pad), var(--rk) * .75); border-radius: calc(var(--u) * 2.5 * var(--round)); background-color: var(--floor); }
+  input.s-scrubbing { color: var(--ink-well); }
+
+  /* ── Select: a flush key with an engraved chevron ── */
+  .s-select select {
+    ${key('flush')}
+    appearance: none; -webkit-appearance: none;
+    height: var(--h);
+    border-radius: var(--rk);
+    padding: 0 calc(var(--u) * 8) 0 max(var(--pad), var(--rk) * .75);
+    color: var(--ink);
+    text-shadow: var(--engrave);
+    ${press('flush')}
+    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    option { background: var(--bg); color: var(--ink); text-shadow: none; font-weight: 400; }
   }
   .s-select.s-dropdown .s-input {
     position: relative;
-    &::after {
-      content: ''; position: absolute; right: var(--pad); top: 50%;
-      width: calc(var(--u) * 4); height: calc(var(--u) * 4);
-      background: var(--text-dim);
-      -webkit-mask: ${chevron} center / contain no-repeat;
-      mask: ${chevron} center / contain no-repeat;
-      transform: translateY(-50%); pointer-events: none;
+    &::before, &::after {
+      content: ''; position: absolute; top: 50%; right: max(var(--pad), var(--rk) * .6);
+      width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5);
+      margin-top: calc(var(--u) * -1.75 - var(--travel) / 2); pointer-events: none;
     }
+    &::before { ${glyph(chevron, onPlateEdge.color)} transform: translateY(${onPlateEdge.dy}px); }
+    &::after { ${glyph(chevron, 'var(--ink)')} }
+    &:has(select:active)::before, &:has(select:active)::after { translate: 0 var(--travel); }
   }
 
   /* ── Boolean ── */
   .s-boolean {
     label { display: flex; cursor: pointer; }
+    .s-input { min-height: var(--h); }   /* switch, checkbox and toggle rows keep the fields' pitch */
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     &:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
     &.s-switch {
       .s-track {
-        ${sunken()}
-        width: calc(var(--u) * (8 + var(--spacing) * 2)); height: calc(var(--u) * 4 + var(--pad));
-        border-radius: 999px; position: relative; cursor: pointer;
-        transition: background-color 140ms, box-shadow 140ms;
+        ${sunk}
+        --sw: calc(var(--h) - var(--pad));
+        width: calc(var(--sw) * 1.8); height: var(--sw);
+        margin: 0;
+        border-radius: calc(var(--sw) / 2 * var(--round));
+        position: relative; cursor: pointer;
+        transition: background-color 160ms;
         &::after {
           content: '';
-          ${thumb}
-          position: absolute; inset: 0; margin: auto calc(var(--pad) / 2);
-          width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; cursor: pointer;
-          transition: transform 140ms, box-shadow 140ms;
-          transform: translateX(0);
+          ${key('cap')}
+          position: absolute; top: ${len(2)}; left: ${len(2)};
+          width: calc(var(--sw) - ${len(4)}); height: calc(var(--sw) - ${len(4)});
+          margin: 0;
+          border-radius: calc((var(--sw) - ${len(4)}) / 2 * var(--round));
+          transition: transform 180ms cubic-bezier(.3, .7, .4, 1), box-shadow 90ms;
         }
       }
-      &:has(input:checked) .s-track { background-color: var(--accent); background-image: linear-gradient(180deg, ${lo(.2)}, transparent 60%);
-        &::after { transform: translateX(calc(var(--u) * (4 + var(--spacing) * 2) - var(--pad))); } }
+      .s-input:hover .s-track::after { box-shadow: var(--cap-up); filter: var(--hover); }
+      .s-input:active .s-track::after { box-shadow: var(--cap-down); }
+      &:has(input:checked) .s-track { background-color: var(--accent);
+        &::after { transform: translateX(calc(var(--sw) * .8)); } }
     }
     &.s-toggle {
       .s-track {
-        ${key(sL, sC, sH, 'var(--raised)')}
-        height: var(--h);
-        &::after { content: 'Off'; }
+        ${key('flush')}
+        height: var(--h); padding: 0 calc(var(--u) * 4);
+        border-radius: var(--rk);
+        color: var(--ink); text-shadow: var(--engrave);
+        font-size: inherit; font-weight: calc(var(--weight) + 100);
+        overflow: visible;
+        transition: transform 90ms, box-shadow 140ms, filter 140ms;
+        &::before { display: none; }
+        &::after { content: 'Off'; color: inherit; }
       }
-      .s-input:active .s-track { transform: translateY(var(--bevel)); }
+      &:not(:has(input:checked)) .s-input:hover .s-track { box-shadow: var(--flush-up); filter: var(--hover); }
+      &:not(:has(input:checked)) .s-input:active .s-track { transform: translateY(var(--travel)); box-shadow: var(--flush-down); filter: none; }
       &:has(input:checked) .s-track {
-        ${sunken(`linear-gradient(180deg, ${$(max(0, aL - .05 * relief), aC, aH)} 0%, ${$(aL, aC, aH)} 40%, ${$(min(1, aL + .04 * relief), aC, aH)} 100%)`)}
-        background-color: var(--accent);
-        color: var(${accentDark ? '--text-dark' : '--text-light'});
-        text-shadow: 0 ${accentDark ? -1 : 1}px 0 ${accentDark ? lo(.35) : hi(.7)};
-        &::after { content: 'On'; }
+        ${sunk}
+        background: var(--accent);
+        color: var(--on-accent); text-shadow: none;
+        &::after { content: 'On'; color: inherit; }
       }
     }
     &.s-checkbox {
       .s-track {
-        ${sunken()}
+        ${sunk}
         display: grid; place-items: center; position: relative;
-        border-radius: var(--ri);
-        width: calc(var(--u) * 4 + var(--pad)); height: calc(var(--u) * 4 + var(--pad));
-        transition: background-color 140ms, box-shadow 140ms;
+        width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5);
+        border-radius: calc(var(--u) * 1.25 * var(--round));
+        transition: background-color 140ms;
         &::after {
-          content: ''; position: absolute; inset: 18%;
-          background: var(${accentDark ? '--text-dark' : '--text-light'});
-          -webkit-mask: ${check} center / contain no-repeat;
-          mask: ${check} center / contain no-repeat;
-          opacity: 0; transform: scale(.4); transition: opacity 140ms, transform 140ms;
+          content: ''; position: absolute; inset: calc(var(--u) * .5);
+          ${glyph(check, 'var(--on-accent)')}
+          opacity: 0; transform: scale(.5); transition: opacity 140ms, transform 140ms;
         }
       }
-      &:has(input:checked) .s-track { background-color: var(--accent); background-image: linear-gradient(180deg, ${lo(.18)}, transparent 60%);
-        &::after { opacity: 1; transform: scale(1); } }
+      &:has(input:checked) .s-track { background-color: var(--accent); &::after { opacity: 1; transform: none; } }
     }
   }
 
-  /* ── Number ── */
-  input[type="number"] { font-variant-numeric: tabular-nums; }
-  .s-number input[type="number"] {
-    &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; }
-  }
-  .s-step {
-    button { ${key(sL, sC, sH, 'var(--raised)')} padding: 0 calc(var(--u) * 1.5); font-size: .6em; line-height: 1.6; color: var(--text-dim); opacity: 1;
-      &:hover { color: var(--text); opacity: 1; } }
+  /* ── Number: a well with two small keys ── */
+  .s-number input[type="number"] { -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; } }
+  .s-number .s-step {
+    gap: ${len(3)};
+    button {
+      ${key('flush')}
+      width: calc(var(--u) * 5); height: calc((var(--h) - ${len(3)}) / 2);
+      padding: 0 0 ${len(wallH / 2)};
+      border-radius: calc(var(--u) * 1.25 * var(--round));
+      font-size: 0; opacity: 1;
+      ${press('flush')}
+      &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); ${glyph(chevronSm, 'var(--ink)')} }
+    }
+    .s-step-up::before { rotate: 180deg; }
   }
 
-  /* ── Slider — groove + domed knob ── */
+  /* ── Slider: an engraved groove, the accent inside it, a round key to drag ── */
   .s-slider {
+    .s-track { height: var(--h); margin: 0; }
+    &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }
     input[type="range"] {
-      ${sunken()}
-      --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p, 0%) / 100%);
-      background-image: linear-gradient(180deg, ${lo(.16)}, transparent 70%), var(--track, linear-gradient(to right, var(--accent) var(--fill), transparent var(--fill)));
-      border-radius: 999px;
+      ${sunk}
+      --fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--t, 0));
+      background-image: var(--track, linear-gradient(to right, var(--accent) var(--fill), transparent var(--fill)));
       height: calc(var(--u) * 2);
+      border-radius: calc(var(--u) * var(--round));
       overflow: visible;
       appearance: none; -webkit-appearance: none;
-      &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
-      &::-moz-range-thumb { ${thumb} }
-      &:hover::-webkit-slider-thumb { filter: brightness(1.04); }
-      &:hover::-moz-range-thumb { filter: brightness(1.04); }
-      &:active::-webkit-slider-thumb { filter: brightness(.97); cursor: grabbing; }
-      &:active::-moz-range-thumb { filter: brightness(.97); cursor: grabbing; }
-      &:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-      &::-webkit-slider-container { appearance: none; }
+      ${thumb}
     }
     datalist { display: none; }
     .s-marks, .s-mark-labels { left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2); }
     .s-marks { display: flex; }
     .s-mark {
-      position: absolute; width: 2px; height: calc(var(--u) * 1.5); top: 50%;
-      background: var(--lo); box-shadow: 1px 0 0 var(--hi);
-      transform: translate(-50%, -50%);
+      position: absolute; top: calc(50% + var(--u) * 2); width: 1px; height: calc(var(--u) * 1.25);
+      background: var(--edge); box-shadow: 1px 0 0 var(--catch);
+      transform: translateX(-50%);
     }
-    .s-mark-label { color: var(--text-dim); opacity: 1; &.s-active { color: var(--text); } }
-    .s-readout { color: var(--text-dim); opacity: 1; font-size: smaller; font-variant-numeric: tabular-nums; text-shadow: none; }
-    input[type="text"].s-readout { padding: var(--pad); color: var(--text); min-width: calc(6ch + var(--pad) * 2); }
-    .s-tooltip { ${raised(dome(sL, sC, sH, .03), 1)} border-radius: var(--ri); color: var(--text); text-shadow: ${engrave}; }
+    .s-mark-label { color: var(--ink-dim); opacity: 1; &.s-active { color: var(--ink); } }
+    .s-readout { color: var(--ink-dim); opacity: 1; font-variant-numeric: tabular-nums; text-shadow: none; }
+    /* An editable readout is a field: body type, the field's inset, as wide as its value (at least three
+       figures, so the track holds still while a short value is dragged) */
+    input[type="text"].s-readout { flex: none; font-size: inherit; padding: 0 max(var(--pad), var(--rk) * .75); color: var(--ink-well); text-align: center;
+      width: calc(7ch + 2 * max(var(--pad), var(--rk) * .75)); min-width: calc(3ch + 2 * max(var(--pad), var(--rk) * .75));
+      @supports (field-sizing: content) { field-sizing: content; width: auto; } }
+    .s-tooltip { ${key('flush', 'var(--glaze)')} bottom: calc(50% + var(--thumb) / 2); border-radius: calc(var(--u) * 1.5 * var(--round)); color: var(--ink); text-shadow: var(--engrave-key); }
     &.s-multiple .s-interval-track {
-      height: calc(var(--u) * 4);
+      height: var(--h); margin: 0;
       background: none;
       input[type="range"] {
         --low-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--low, 0%) / 100%);
         --high-fill: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--high, 100%) / 100%);
-        background-image: linear-gradient(180deg, ${lo(.16)}, transparent 70%), linear-gradient(to right,
-          transparent var(--low-fill), var(--accent) var(--low-fill),
-          var(--accent) var(--high-fill), transparent var(--high-fill));
-        height: calc(var(--u) * 2);
-        &::-webkit-slider-thumb { -webkit-appearance: none; ${thumb} }
-        &::-moz-range-thumb { ${thumb} }
-        &:hover::-webkit-slider-thumb { filter: brightness(1.04); }
-        &:hover::-moz-range-thumb { filter: brightness(1.04); }
+        top: 50%; height: calc(var(--u) * 2); translate: 0 -50%;
+        &.s-interval-lo { ${sunk} background-image: linear-gradient(to right, transparent var(--low-fill), var(--accent) var(--low-fill), var(--accent) var(--high-fill), transparent var(--high-fill)); }
+        &.s-interval-hi { background: none; box-shadow: none; }
       }
     }
   }
 
-  /* ── Segmented — a bank of keys ── */
+  /* ── Segmented: one engraved track, the chosen option a key inside it ── */
   .s-select.s-segmented {
-    .s-input { gap: var(--bevel); }
+    .s-input {
+      ${sunk}
+      gap: 0; padding: var(--gap);
+      min-height: var(--h);
+      border-radius: var(--rk);
+    }
     button {
-      ${key(sL, sC, sH, 'var(--raised)')}
-      flex: 1; min-width: 0;
-      margin-left: 0;
-      border-radius: 0;
-      height: var(--h); padding: 0 var(--pad);
-      &:first-child { border-top-left-radius: var(--ri); border-bottom-left-radius: var(--ri); }
-      &:last-child { border-top-right-radius: var(--ri); border-bottom-right-radius: var(--ri); }
+      flex: 1 1 auto; min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share: one inset for all */
+      height: calc(var(--h) - var(--gap) * 2); padding: 0 max(var(--pad), (var(--rk) - var(--gap)) * .75);
+      border: none; border-radius: calc(var(--rk) - var(--gap) * var(--round));
+      background: none; box-shadow: none;
+      color: var(--ink-dim); font-size: inherit; text-shadow: none;
+      transition: color 140ms, box-shadow 140ms, transform 90ms;
+      &:hover { filter: none; color: var(--ink-well); }
+      &:active { filter: none; }
+      &.s-selected {
+        ${key()}
+        color: var(--ink-key); text-shadow: var(--engrave-key);
+        font-weight: calc(var(--weight) + 100);
+        &:hover { box-shadow: var(--key-up); filter: var(--hover); }
+        &:active { transform: translateY(var(--travel)); box-shadow: var(--key-down); filter: none; }
+      }
+      &:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
     }
   }
+
+  /* ── Radio and checkbox lists: engraved, filled with the accent when on ── */
   .s-select.s-radio {
-    .s-input label { color: var(--text-dim); opacity: 1; &.s-selected { color: var(--text); opacity: 1; } }
+    .s-input label { color: var(--ink-dim); &.s-selected { color: var(--ink); } }
+    input[type="radio"] {
+      ${sunk}
+      appearance: none; -webkit-appearance: none; flex: none; margin: 0;
+      width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border-radius: 50%;
+      cursor: pointer; transition: background 140ms;
+      &:checked { background: radial-gradient(circle, var(--on-accent) 0 28%, var(--accent) 33%); }
+      &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    }
   }
   .s-select.s-checkboxes {
     input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .s-input label { display: flex; align-items: center; gap: calc(var(--u) * 2); cursor: pointer; }
     .s-track {
-      ${sunken()}
+      ${sunk}
       display: grid; place-items: center; position: relative; flex-shrink: 0;
-      border-radius: var(--ri);
-      width: calc(var(--u) * 4 + var(--pad)); height: calc(var(--u) * 4 + var(--pad));
-      transition: background-color 140ms, box-shadow 140ms;
+      width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5);
+      border-radius: calc(var(--u) * 1.25 * var(--round));
+      transition: background-color 140ms;
       &::after {
-        content: ''; position: absolute; inset: 18%;
-        background: var(${accentDark ? '--text-dark' : '--text-light'});
-        -webkit-mask: ${check} center / contain no-repeat;
-        mask: ${check} center / contain no-repeat;
-        opacity: 0; transform: scale(.4); transition: opacity 140ms, transform 140ms;
+        content: ''; position: absolute; inset: calc(var(--u) * .5);
+        ${glyph(check, 'var(--on-accent)')}
+        opacity: 0; transform: scale(.5); transition: opacity 140ms, transform 140ms;
       }
     }
-    .s-input label:has(input:checked) .s-track { background-color: var(--s-color, var(--accent)); background-image: linear-gradient(180deg, ${lo(.18)}, transparent 60%);
-      &::after { opacity: 1; transform: scale(1); } }
+    .s-input label:has(input:checked) .s-track { background-color: var(--s-color, var(--accent)); &::after { opacity: 1; transform: none; } }
     .s-input label:has(input:focus-visible) .s-track { outline: 2px solid var(--focus); outline-offset: 2px; }
   }
 
-  /* ── Color — swatch strip set into a well ── */
+  /* ── Color: a swatch key set into a well ── */
   .s-color.s-picker .s-color-input {
-    --color-strip: calc(var(--u) * 4 + var(--pad) * 2);
-    position: relative; flex: 1; min-width: 0;
+    ${sunk}
+    --chip: calc(var(--h) - var(--gap) * 2);
     min-height: var(--h);
-    border-radius: var(--ri);
-    overflow: hidden;
-    ${sunken()}
+    border-radius: var(--rk);
     &:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
     input[type="color"] {
-      position: absolute; inset: 0 auto 0 0; z-index: 0;
-      width: var(--color-strip); height: 100%; min-height: 100%;
-      padding: 0; margin: 0; border: none; border-radius: 0;
-      background: none; box-shadow: none; outline: none; cursor: pointer;
+      left: var(--gap); top: var(--gap);
+      width: calc(var(--chip) * 1.4); height: var(--chip);
+      padding: 0; border: none; background: none; box-shadow: none;
+      border-radius: calc(var(--chip) / 2 * var(--round));
       -webkit-appearance: none; appearance: none;
       &:focus-visible { outline: none; }
-      &::-webkit-color-swatch-wrapper { padding: 0; height: 100%; }
-      &::-webkit-color-swatch { border: none; border-radius: 0; height: 100%; }
-      &::-moz-color-swatch { border: none; border-radius: 0; height: 100%; }
-    }
-    &::after {
-      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      border-radius: inherit;
-      box-shadow: var(--lip);
+      &::-webkit-color-swatch-wrapper { padding: 0; }
+      &::-webkit-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
+      &::-moz-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
     }
     input[type="text"] {
-      position: relative; z-index: 2; display: block;
-      width: calc(100% - var(--color-strip)); margin-left: var(--color-strip);
-      min-height: var(--h); padding: var(--pad) var(--pad-i);
-      border: none; border-radius: 0; background: transparent; background-image: none; box-shadow: none; outline: none;
+      height: var(--h);
+      padding-left: calc(var(--gap) + var(--chip) * 1.4 + var(--pad));
+      background: transparent; box-shadow: none;
       &:focus-visible { outline: none; }
     }
   }
   .s-color.s-rgba .s-color-input {
-    input[type="color"] { ${raised(knob, 1)} border-radius: var(--ri); overflow: hidden; width: var(--h); height: var(--h);
-      &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--ri); box-shadow: inset 0 var(--bevel) 0 ${hi(.4)}, inset 0 calc(var(--bevel) * -1) 0 ${lo(.15)}; } }
-    .s-alpha { ${sunken()} height: calc(var(--u) * 2); border-radius: 999px;
-      &::-webkit-slider-thumb { ${thumb} width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); border-radius: 50%; }
-      &::-moz-range-thumb { ${thumb} width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); border-radius: 50%; } }
+    input[type="color"] {
+      width: var(--h); height: var(--h); padding: 0; border: none; background: none;
+      border-radius: calc(var(--h) / 2 * var(--round));
+      -webkit-appearance: none; appearance: none;
+      &::-webkit-color-swatch-wrapper { padding: 0; }
+      &::-webkit-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
+      &::-moz-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
+    }
+    .s-alpha {
+      box-shadow: var(--well); height: calc(var(--u) * 2); border-radius: calc(var(--u) * var(--round));
+      ${thumb}
+    }
   }
-  .s-swatches button {
-    ${raised('none', 1)}
-    border-radius: var(--ri);
-    background-image: linear-gradient(180deg, ${hi(.25)}, transparent 50%, ${lo(.12)});
-    transition: filter 120ms;
-    &:hover { filter: brightness(1.06); }
-    &.s-selected { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
-    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .s-color.s-swatches .s-input { gap: calc(var(--u) * 1.5); }
+  .s-color.s-swatches button {
+    width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5);
+    border: none; box-shadow: var(--glaze);
+    border-radius: calc(var(--u) * 1.5 * var(--round));
+    transition: transform 90ms, box-shadow 140ms;
+    &:hover { box-shadow: var(--glaze-up); }
+    &:active { transform: translateY(var(--travel)); }
+    &.s-selected { box-shadow: var(--glaze), 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
   }
 
-  /* ── Buttons — domed keys ── */
+  /* ── Buttons, keys: the primary lifted from the plate, the secondary flush with it ── */
   .s-button button {
-    ${key(aL, aC, aH, 'var(--accent)')}
+    ${key()}
     flex: 1; min-width: 0;
+    height: var(--h); padding: 0 max(var(--pad) * 2, var(--rk) * .8);
+    border-radius: var(--rk);
+    color: var(--ink-key); text-shadow: var(--engrave-key);
     font-weight: calc(var(--weight) + 100);
-    height: var(--h); padding: 0 calc(var(--pad) * 2) calc(var(--bevel) * 2);
+    ${press()}
+    &:disabled { opacity: .45; cursor: not-allowed; filter: none; transform: none; }
+    &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   }
   .s-button.s-secondary button, .s-button button.s-secondary {
-    ${key(sL, sC, sH, 'var(--raised)')}
-    flex: 1; min-width: 0;
-    height: var(--h); padding: 0 calc(var(--pad) * 2) calc(var(--bevel) * 2);
+    ${key('flush')}
+    ${press('flush')}
+    color: var(--ink-dim); text-shadow: var(--engrave);
+    font-weight: var(--weight);
+    &:hover { color: var(--ink); }
   }
 
   /* ── Vector ── */
   .s-vector {
-    .s-vec-axis { ${sunken()} border-radius: var(--ri); height: var(--h); padding: 0 var(--pad-i); gap: var(--u); min-width: calc(var(--u) * 16);
+    .s-vec-axis { ${sunk} border-radius: var(--rk); height: var(--h); padding: 0 max(var(--pad), var(--rk) * .5); gap: var(--u); min-width: calc(var(--u) * 16);
       &:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; } }
-    .s-vec-label { color: var(--text-dim); opacity: 1; text-shadow: none; }
-    input[type="number"] { background: transparent; background-image: none; box-shadow: none; height: auto; padding: 0; &:focus-visible { outline: none; } }
+    .s-vec-label { color: var(--ink-dim); opacity: 1; text-shadow: none; }
+    input[type="number"] { background: transparent; box-shadow: none; height: auto; padding: 0; &:focus-visible { outline: none; } }
   }
 
   /* ── Info / separator ── */
-  .s-info .s-monitor { color: var(--text-dim); opacity: 1; }
-  .s-separator { height: var(--bevel); background: var(--lo); opacity: 1; box-shadow: 0 var(--bevel) 0 var(--hi); }
+  .s-info .s-input { min-height: var(--h); }
+  .s-info .s-monitor { color: var(--ink-dim); opacity: 1; }
+  .s-separator { height: 1px; background: var(--edge); opacity: 1; box-shadow: 0 1px 0 var(--catch); }
   .s-separator-labeled { height: auto; background: none; box-shadow: none;
-    &::before, &::after { height: var(--bevel); background: var(--lo); opacity: 1; box-shadow: 0 var(--bevel) 0 var(--hi); } }
-  .s-separator-label { color: var(--text-dim); opacity: 1; }
+    &::before, &::after { height: 1px; background: var(--edge); opacity: 1; box-shadow: 0 1px 0 var(--catch); } }
+  .s-separator-label { color: var(--ink-dim); opacity: 1; }
 
   /* ── XY pad / knob ── */
-  .s-pad { ${sunken()} border-radius: var(--ri);
-    .s-pad-x, .s-pad-y { background: var(--lo); }
-    .s-pad-dot { ${thumb} width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); border-radius: 50%; position: absolute; cursor: inherit; } }
-  .s-knob-dial { ${thumb} width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%; cursor: inherit;
-    i { background: var(--accent); width: 2px; box-shadow: 0 0 0 1px ${hi(.4)}; } }
-  .s-knob-val { color: var(--text-dim); opacity: 1; }
+  .s-pad { ${sunk} border-radius: calc(var(--u) * 2.5 * var(--round));
+    .s-pad-x, .s-pad-y { background: var(--edge); }
+    .s-pad-dot { ${key('cap')} width: var(--thumb); height: var(--thumb); border-radius: 50%; position: absolute; } }
+  .s-knob-dial { ${key('cap')} width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%;
+    i { background: var(--accent); width: calc(2 * var(--length)); } }
+  .s-knob-val { color: var(--ink-dim); opacity: 1; }
 
-  /* ── Folder — engraved rule ── */
+  /* ── Folder: an engraved rule ── */
+  /* A folder title is a row on the rows' pitch, its rule along the row's foot; its contents keep the
+     pitch, a row gap below the rule, and the next row follows one row gap after them */
   .s-folder > summary {
-    color: var(--text);
+    min-height: var(--h); padding: 0;
+    color: var(--ink);
     font-weight: calc(var(--weight) + 100);
-    border-bottom: var(--bevel) solid var(--lo); box-shadow: 0 var(--bevel) 0 var(--hi);
+    border: none; background: linear-gradient(to top, var(--catch) 0 1px, var(--edge) 1px 2px, transparent 2px);
     opacity: 1;
-    &::after {
-      background: var(--text-dim);
-      -webkit-mask: ${chevron} center / contain no-repeat;
-      mask: ${chevron} center / contain no-repeat;
-      transition: transform 140ms;
-    }
+    &::after { width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); ${glyph(chevron, 'var(--ink-dim)')} }
   }
-  .s-folder[open] > summary {
-    box-shadow: none;
-    &::after { transform: rotate(-180deg); }
-  }
+  .s-folder > .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }
 }`
 
-  return defaultCSS({ size, spacing, font }) + '\n' + overrides
+  return form({ size, spacing, font }) + '\n' + overrides
 }

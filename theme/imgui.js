@@ -340,9 +340,8 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
     input[type="range"] {
       -webkit-appearance: none; appearance: none; width: 100%; height: var(--fh); margin: 0; padding: 0 var(--grab-pad);
       background: var(--frame); cursor: pointer;
-      /* integer sliders: grab = max(GrabMinSize, usable width / value count) */
-      --steps: calc((attr(max type(<number>), 1) - attr(min type(<number>), 0)) / attr(step type(<number>), 1e-6) + 1);
-      --grab-w: max(var(--grab-min), (100cqw - 2 * var(--grab-pad)) / var(--steps));
+      /* integer sliders: grab = max(GrabMinSize, usable width / value count); the track carries the step count */
+      --grab-w: max(var(--grab-min), (100cqw - 2 * var(--grab-pad)) / (var(--steps, 1e6) + 1));
       &::-webkit-slider-runnable-track { height: var(--fh); background: none; }
       &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--grab-w); height: calc(var(--fh) - 2 * var(--grab-pad)); margin-top: var(--grab-pad); border: 0; border-radius: 0; background: var(--grab); }
       &::-moz-range-thumb { width: var(--grab-w); height: calc(var(--fh) - 2 * var(--grab-pad)); border: 0; border-radius: 0; background: var(--grab); }
@@ -454,7 +453,7 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
   }
 
   /* ── Textarea: InputTextMultiline() ── */
-  .s-textarea textarea { flex: 1; height: auto; min-height: calc(4 * var(--line-height) + 2 * var(--fpy)); padding: var(--fpy) var(--fpx); resize: vertical; field-sizing: content; max-height: 50vh; }
+  .s-textarea textarea { flex: 1; height: auto; min-height: calc(4 * var(--line-height) + 2 * var(--fpy)); padding: var(--fpy) var(--fpx); resize: none; field-sizing: content; max-height: 50vh; }
 
   /* ── Info: Text() without a label, LabelText() with one (the value FramePadding in, frame height) ── */
   .s-info .s-monitor { flex: 1; min-width: 0; padding: var(--fpy) var(--fpx); opacity: 1; color: var(--text); white-space: nowrap; overflow: clip; overflow-clip-margin: ${clipMargin}px; }
@@ -464,10 +463,10 @@ export default function imgui({ shade, accent, size = 1, spacing = 1, font } = {
   .s-separator { min-height: 0; height: var(--wb); margin: 0; background: var(--separator); opacity: 1; }
   .s-separator-labeled {
     height: var(--fh); background: none; gap: var(--isx); align-items: flex-start; flex-direction: row;
-    &::before, &::after { height: calc(3 * var(--length)); margin-top: calc(var(--fpy) + var(--fs) / 2 - var(--length) / 2); background: var(--separator); opacity: 1; }
+    &::before, &::after { align-self: flex-start; height: calc(3 * var(--length)); margin-top: calc(var(--fpy) + var(--fs) / 2 - var(--length) / 2); background: var(--separator); opacity: 1; }
     &::before { flex: 0 0 calc(20 * var(--space) - var(--isx)); }
   }
-  .s-separator-label { padding-top: var(--fpy); font-size: inherit; opacity: 1; line-height: var(--line-height); }
+  .s-separator-label { align-self: flex-start; padding-top: var(--fpy); font-size: inherit; opacity: 1; line-height: var(--line-height); }
 
   /* ── Folders: CollapsingHeader(), a Header bar half the window padding out, triangle and text ── */
   .s-folder {

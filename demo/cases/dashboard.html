@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard – settings-panel</title>
+  <!-- After "Demo Dashboard", a macOS window of tiles the owner supplied (test/calibration/dashboard.png): two
+       dark feed tiles, eight keys with their lamps, eight knobs, each tile a card of the synth theme on a
+       hairline tray. The panel has no element for the feed's curve and histogram. -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: #d9d8d6; }
+    /* the window: its title bar, then the tiles */
+    .window { width: 812px; max-width: 100%; border-radius: 10px; overflow: hidden; background: #222; box-shadow: 0 20px 50px rgb(0 0 0 / .25); }
+    .titlebar { position: relative; height: 30px; display: flex; align-items: center; justify-content: center; background: #2e2e2e; color: #e6e6e6; font: 600 13px system-ui, -apple-system, sans-serif; }
+    .titlebar i { position: absolute; top: 9px; width: 12px; height: 12px; border-radius: 50%; }
+    .titlebar i:nth-child(1) { left: 10px; background: #ff5f57; } .titlebar i:nth-child(2) { left: 30px; background: #febc2e; } .titlebar i:nth-child(3) { left: 50px; background: #28c840; }
+    /* the tiles: eight columns, each card one or two of them wide and tall */
+    #panel .s-panel { padding: 0; }
+    #panel .s-panel-content { display: grid; grid-template-columns: repeat(8, 1fr); grid-auto-rows: 105px; gap: 2px; padding: 0; background: #222; }
+    #panel .s-folder { grid-column: span var(--span, 2); grid-row: span var(--span, 2); margin: 0; border-top: 0; background: var(--tile, #e7e6e4); color: var(--tile-ink, inherit); }
+    /* a tile's title at its top left, its control centred under it */
+    #panel .s-folder { display: grid; grid-template-rows: auto 1fr; }
+    #panel .s-folder > .s-content { display: grid; place-items: center; padding-bottom: 24px; }
+    /* the feeds are dark tiles */
+    #panel .s-folder:nth-child(-n + 2) { --tile: #333; --tile-ink: #fff; > summary { color: #fff; } }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar"><i></i><i></i><i></i>Demo Dashboard</div>
+    <div id="panel"></div>
+  </div>
+  <script type="module">
+    import settings from '../../index.js'
+    import synth from '../../theme/synth.js'
+
+    const glyph = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+    const icons = {
+      A1: glyph('<path d="M5 8l4 9 3-9"/><circle cx="17" cy="8" r="2.5"/>'),
+      A2: glyph('<circle cx="12" cy="9" r="2.5"/><path d="M12 11.5V20M7.5 4.5a6.5 6.5 0 0 0 0 9M16.5 4.5a6.5 6.5 0 0 1 0 9"/>'),
+      A3: glyph('<path d="M8 15H5V7h14v8h-7M10 12l-3 3 3 3"/>'),
+      X: glyph('<circle cx="12" cy="12" r="7"/>'),
+      B1: glyph('<circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><path d="M4 11l16-1M9 19l3-5 3 5Z"/>'),
+      B2: glyph('<rect x="5" y="5" width="14" height="14" rx="2"/><path d="M5 15h5v-4h4V7h5"/>'),
+      B3: glyph('<path d="M3 15c2 0 2-8 4-8s2 8 4 8 2-8 4-8 2 8 4 8"/>'),
+      Bkp: glyph('<ellipse cx="12" cy="7" rx="6" ry="2"/><path d="M6 7v9c0 1 3 2 6 2s6-1 6-2V7"/>'),
+    }
+    const tile = label => ({ type: 'folder', variant: 'section', label, style: '--span: 1' })
+    const key = label => ({ type: 'button', label: false, buttons: [{ icon: icons[label], name: label, onClick() {} }] })
+    const knob = () => ({ type: 'knob', label: false, value: 3, min: 0, max: 10, step: 1, style: '--h: 60px' })
+    const schema = {
+      feedB: { type: 'folder', variant: 'section', label: 'Feed B' }, 'feedB.curve': { type: 'info', label: false, value: '' },
+      feedA: { type: 'folder', variant: 'section', label: 'Feed A' }, 'feedA.count': { type: 'info', label: false, value: '24' },
+    }
+    // the X key is the lit one: its tile in the accent
+    for (const k of ['A1', 'A2', 'A3', 'X', 'B1', 'B2', 'B3', 'Bkp']) Object.assign(schema, { [k]: { ...tile(k), ...(k === 'X' && { style: '--span: 1; --tile: #f45014; --tile-ink: #fff' }) }, [`${k}.${k}key`]: key(k) })
+    for (const [i, k] of ['Starting Point', 'Entry Level', 'Limit Line', 'Threshold', 'Cutoff Point', 'Base Level', 'Starting Line', 'Initial Mark'].entries())
+      Object.assign(schema, { ['k' + i]: { type: 'folder', variant: 'section', label: k }, [`k${i}.knob${i}`]: knob() })
+    settings(schema, { container: '#panel', theme: () => synth({ shade: '#e7e6e4', accent: '#404040', hues: [], size: 8 / 13, spacing: .5 }) })
+  </script>
+</body>
+</html>

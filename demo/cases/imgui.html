@@ -29,6 +29,7 @@
   <script type="module">
     import settings from '../../index.js'
     import imgui from '../../theme/imgui.js'
+    import { caseBar, appearance } from './case-bar.js'
 
     const help = 'Ctrl+Click to input value.'
     settings({
@@ -91,8 +92,9 @@
       container: '#panel',
       title: 'Dear ImGui Demo',
       collapsed: false,
-      theme: () => imgui(location.hash === '#light' ? { shade: '#f0f0f0' } : {}),
+      theme: () => imgui(appearance('dark') === 'light' ? { shade: '#f0f0f0' } : {}),
     })
+    caseBar({ appearance: 'dark' })
   </script>
 </body>
 </html>

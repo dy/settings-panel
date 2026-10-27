@@ -33,15 +33,15 @@ const cleanup = (ctrl, container) => {
 // LABEL ASSOCIATION
 // ─────────────────────────────────────────────────────────────────────────────
 
-test('label: for attribute links to input id', () => {
+test('label: for attribute links to its own input, unique per control', () => {
   const c = mount()
-  const s = signal(50)
-  const ctrl = slider(s, { min: 0, max: 100, label: 'volume', container: c })
-  const label = ctrl.el.querySelector('.s-label-group')
-  const input = ctrl.el.querySelector('input')
-  is(label.getAttribute('for'), 'volume')
-  is(input.id, 'volume')
-  cleanup(ctrl, c)
+  const a = slider(signal(50), { min: 0, max: 100, label: 'volume', container: c })
+  const b = slider(signal(50), { min: 0, max: 100, label: 'volume', container: c })
+  const [la, lb] = [a, b].map(x => x.el.querySelector('.s-label-group'))
+  is(la.getAttribute('for'), a.el.querySelector('input').id)
+  is(lb.getAttribute('for'), b.el.querySelector('input').id)
+  ok(la.getAttribute('for') !== lb.getAttribute('for'), 'same label, distinct ids')
+  cleanup(a, c); b[Symbol.dispose]()
 })
 
 test('label: no for attribute when label is empty', () => {

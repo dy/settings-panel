@@ -35,7 +35,7 @@
   <script type="module">
     import settings from '../../index.js'
     import controlPanel from '../../theme/control-panel.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar } from './case-bar.js'
 
     // Read hash params: #shade=ebebeb&accent=5b99f5
     const params = Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(s => s.split('=')))
@@ -47,7 +47,7 @@
       const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16))
       return (r + g + b) / 3 > 128
     }
-    const initialDark = params.shade ? !isLight('#' + params.shade) : true
+    const initialDark = location.hash === '#light' ? false : params.shade ? !isLight('#' + params.shade) : true
 
     const DARK_BG = 'radial-gradient(120% 90% at 50% -10%, #2e2e2e 0%, #1a1a1a 55%, #0f0f0f 100%)'
     const LIGHT_BG = 'radial-gradient(120% 90% at 50% -10%, #c4c4c4 0%, #999999 55%, #7a7a7a 100%)'
@@ -88,7 +88,7 @@
       onchange(s) { setBodyBg(s.dark) },
     })
 
-    nativeToggle({ ref: '../_ref/cp-ref.html' + location.hash })
+    caseBar({ ref: '../_ref/cp-ref.html', appearance: initialDark ? 'dark' : 'light' })
   </script>
 </body>
 </html>

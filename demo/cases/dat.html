@@ -34,7 +34,7 @@
   <script type="module">
     import settings from '../../index.js'
     import dat from '../../theme/dat.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar } from './case-bar.js'
 
     settings({
       Boolean: { type: 'boolean', variant: 'checkbox', value: true },
@@ -64,7 +64,7 @@
       theme: () => dat({ size: 11 / 13 }),
     })
 
-    nativeToggle({ ref: '../_ref/lil.html' })
+    caseBar({ ref: '../_ref/lil.html' })
   </script>
 </body>
 </html>

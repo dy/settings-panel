@@ -8,8 +8,8 @@
     <script type="importmap">
     {
       "imports": {
-        "sprae": "https://esm.sh/sprae@13",
-        "sprae/store": "https://esm.sh/sprae@13/store"
+        "sprae": "https://esm.sh/sprae@13.9.2",
+        "sprae/store": "https://esm.sh/sprae@13.9.2/store"
       }
     }
     </script>
@@ -47,16 +47,11 @@
 
     <script type="module">
       import settings from '../index.js'
-      import base from '../theme/default.js'
-      import skeu from '../theme/skeu.js'
-      import control from '../theme/control-panel.js'
-      import lab01 from '../theme/lab01.js'
+      import { themes as registry } from './themes.js'
 
-      const themes = { default: base, skeu, control, lab01 }
-      const axes = {
-        default: ['shade', 'accent', 'spacing', 'weight', 'roundness'],
-        skeu: ['shade', 'accent', 'spacing', 'weight', 'roundness', 'bevel', 'depth', 'grid'],
-      }
+      // every theme of the gallery, each with the axes it reads (the shade, its declared axes, its extras)
+      const themes = Object.fromEntries(registry.map(t => [t.id, t.fn]))
+      const axes = Object.fromEntries(registry.map(t => [t.id, ['shade', ...t.axes.split(' '), ...t.extras.map(e => e.key)]]))
 
       const paramKeys = ['shade', 'accent', 'weight', 'depth', 'roundness', 'spacing', 'bevel', 'grid']
       const getParams = (s) => Object.fromEntries(paramKeys.map(k => [k, s[k]]))
@@ -69,7 +64,7 @@
 
       const schema = {
         foldable: false,
-        theme: { type: 'select', options: Object.keys(themes), value: 'skeu' },
+        theme: { type: 'select', options: Object.keys(themes), value: 'matte' },
 
         'params.shade': '#f7f7f7',
         'params.accent': '#2967fa',

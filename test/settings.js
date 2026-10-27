@@ -139,6 +139,23 @@ test('persist: restores falsy values (false, 0)', async () => {
   localStorage.clear()
 })
 
+test('persist: a saved value the schema no longer admits falls back to the default', () => {
+  localStorage.clear()
+  // saved under an older schema: an option since renamed, a number where a string now stands, a stray option in a list
+  localStorage.setItem('test-stale', JSON.stringify({ theme: 'skeu', name: 5, grid: ['dots', 'gone'], level: 3 }))
+  const c = document.createElement('div')
+  document.body.appendChild(c)
+  const s = settings({ theme: { options: ['matte', 'soft'], value: 'matte' }, name: 'x', grid: { type: 'select', variant: 'segmented', multiple: true, options: ['dots', 'lines'], value: [] }, level: 5 },
+    { container: c, persist: 'test-stale' })
+  is(s.theme, 'matte')
+  is(s.name, 'x')
+  is([...s.grid], [])
+  is(s.level, 3)
+  s[Symbol.dispose]()
+  c.remove()
+  localStorage.clear()
+})
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SEPARATOR (structural)
 // ─────────────────────────────────────────────────────────────────────────────

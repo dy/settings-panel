@@ -127,11 +127,15 @@ export default function glass({
   // the upper edge of light ink.
   const emboss = tone.L < L ? `0 ${len(1)} 0 ${rimC}` : `0 ${len(-1)} 0 ${deep(.6)}`
 
+  // The light the pane's rim catches is the glass's own colour lifted, in OKLCH: white on a clear pane, a saturated
+  // pale gold on a yellow one, never a white stroke laid over colour. (A control's lens keeps white light on its
+  // edges: the material study holds them to it.)
+  const glint = a => ok(Math.min(1, L + .14), C * 1.15, op(a))
   // Pane rim: light from above catches the top edge; the sides all but vanish and the bottom keeps a
   // faint reflection, so the edge reads as glass, not a stroke.
-  const rim = `linear-gradient(180deg, ${lite(op((dark ? 0.32 : 0.9) * d))} 0%, ${lite(op((dark ? 0.05 : 0.3) * d))} 22%, ${lite(op((dark ? 0.03 : 0.2) * d))} 70%, ${lite(op((dark ? 0.1 : 0.45) * d))} 100%)`
-  // One specular: a wide soft light hugging the top edge.
-  const specular = `radial-gradient(90% 40% at 50% -8%, ${lite(op((dark ? 0.16 : 0.5) * d))} 0%, transparent 70%)`
+  const rim = `linear-gradient(180deg, ${glint((dark ? 0.32 : 0.9) * d)} 0%, ${glint((dark ? 0.05 : 0.3) * d)} 22%, ${glint((dark ? 0.03 : 0.2) * d)} 70%, ${glint((dark ? 0.1 : 0.45) * d)} 100%)`
+  // One specular: a wide soft light hugging the top edge, in the same light.
+  const specular = `radial-gradient(90% 40% at 50% -8%, ${glint((dark ? 0.16 : 0.5) * d)} 0%, transparent 70%)`
   const contactShadow = `0 calc(30 * var(--length)) calc(70 * var(--length)) calc(-20 * var(--length)) ${deep(dark ? 0.6 : 0.35)}, 0 calc(8 * var(--length)) calc(20 * var(--length)) calc(-10 * var(--length)) ${deep(dark ? 0.5 : 0.25)}`
   const focus = `0 0 0 ${len(3)} color-mix(in oklab, var(--accent), transparent 55%)`
 
@@ -437,7 +441,7 @@ export default function glass({
   .s-text input[type="text"] { flex: 1; }
   .s-textarea { align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2); }
-    textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
+    textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
     &.s-code textarea { font-family: ui-monospace, monospace; } }
 
   /* ── Separator: a line cut into the glass ── */
@@ -461,6 +465,8 @@ export default function glass({
       &::after { content: ''; width: var(--glyph); height: var(--glyph); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
       &:focus-visible { outline: none; color: var(--fg); } }
     &[open] > summary { color: var(--fg); text-shadow: var(--emboss); &::after { transform: rotate(-180deg); } }
+    /* a folded folder ends in the separator's cut line, so a stack of them reads as rows, not loose words */
+    &:not([open], .s-section) > summary { box-shadow: inset 0 -1px 0 ${edgeC}, 0 1px 0 ${rimC}; }
     /* a shallow flush well: the lens edge without its body, concentric with the lenses it holds */
     .s-content { gap: var(--row-gap); padding: var(--well-pad); border-radius: calc(var(--r-lens) + var(--well-pad) * var(--round)); background: ${faceClear}; box-shadow: var(--lens-edge); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }

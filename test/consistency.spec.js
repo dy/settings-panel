@@ -9,8 +9,8 @@ const files = registry.map(t => [t.id, t.file || t.id])
 // roles whose size differs from body by design, per theme
 const typeExceptions = {
   swiss: ['label', 'folder', 'button'],           // DM Sans caps labels and section heads, display-size actions
-  bitmap: ['select', 'segment', 'button', 'folder'], // Chicago 12 controls and headings over Geneva 9 text
-  industrial: ['select', 'segment', 'button'],     // keys lettered in system-ui over printed Courier labels
+  bitmap: ['folder'],                              // Chicago 12 headings over Geneva 9 text and controls
+  industrial: ['segment', 'button'],               // keys lettered in system-ui over printed Courier labels
   synth: ['folder'],                               // card titles at 1.4em
   controlkit: ['button', 'folder'],                // chrome buttons 10px caps, group titles 12px
   devtools: ['segment', 'button'],                 // Chrome's 12px action pills
@@ -21,9 +21,9 @@ const sideInsetExceptions = { controlkit: 'the label grid sets the side inset' }
 // sliders whose fill is the value, without a thumb to match
 const fillSliders = ['oui', 'dialkit']
 // themes whose colour alpha slider keeps its own thumb by design
-const alphaExceptions = { studio: 'the row is the slider, its handle a hairline at the fill edge; the alpha keeps a knob over its ramp' }
+const alphaExceptions = { json: 'values printed as literals: no thumbs', swiss: 'the slider is its value cell, a hairline at the fill; the alpha shares the colour\'s row as a ramp under a rule', studio: 'the row is the slider, its handle a hairline at the fill edge; the alpha keeps a knob over its ramp' }
 // themes whose boxed controls keep more than one height by design
-const boxExceptions = { studio: 'boxes nest inside its 36px rows', apple: 'borderless fields', devtools: 'inline declarations', oui: "native's 25px buttons", bitmap: "System 7's control heights", synth: "the original's 25.5px chips", swiss: 'typographic rows', editorial: 'reader rows' }
+const boxExceptions = { studio: 'boxes nest inside its 36px rows', apple: 'borderless fields', devtools: 'inline declarations', oui: "native's 25px buttons", bitmap: "System 7's control heights", industrial: 'screens a line of print, lower than a key', synth: "the original's 25.5px chips", swiss: 'typographic rows', editorial: 'reader rows' }
 
 const mount = (page, file, schema) => page.evaluate(async ([file, schema]) => {
   const { default: settings } = await import('/index.js')
@@ -105,8 +105,8 @@ for (const [id, file] of files) test.describe(id, () => {
       const fs = s => q(s) && Math.round(parseFloat(getComputedStyle(q(s)).fontSize) * 10) / 10
       const h = s => q(s) && Math.round(q(s).getBoundingClientRect().height)
       return {
-        type: { label: fs('[data-key=name] .s-label'), field: fs('[data-key=name] input'), select: fs('[data-key=blend] select'), segment: fs('[data-key=mode] button'), button: fs('[data-key=run] button'), number: fs('[data-key=count] input'), hex: fs('[data-key=tint] input[type=text]'), folder: fs('.s-folder > summary') },
-        box: { field: h('[data-key=name] input'), select: h('[data-key=blend] select'), button: h('[data-key=run] button'), number: h('[data-key=count] input') },
+        type: { label: fs('[data-key=name] .s-label'), field: fs('[data-key=name] :is(input, textarea)'), select: fs('[data-key=blend] select'), segment: fs('[data-key=mode] button'), button: fs('[data-key=run] button'), number: fs('[data-key=count] input'), hex: fs('[data-key=tint] input[type=text]'), folder: fs('.s-folder > summary') },
+        box: { field: h('[data-key=name] :is(input, textarea)'), select: h('[data-key=blend] select'), button: h('[data-key=run] button'), number: h('[data-key=count] input') },
       }
     })
     const skip = typeExceptions[id] || [], body = m.type.field

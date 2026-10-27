@@ -21,33 +21,25 @@
       filter: blur(0px);
     }
     .backdrop-blur { position: fixed; inset: 0; z-index: 0; backdrop-filter: blur(38px) saturate(1.15); -webkit-backdrop-filter: blur(38px) saturate(1.15); }
-    .bar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
-      padding: 10px 16px; font: 12px system-ui; color: #ddd; background: rgba(0,0,0,.35); backdrop-filter: blur(6px);
-    }
-    .bar select { font: inherit; padding: 3px 8px; }
-    #panel { position: relative; z-index: 1; width: min(380px, calc(100vw - 32px)); }
+    #panel { position: relative; z-index: 1; width: min(380px, calc(100vw - 32px)); display: flex; justify-content: center; }
   </style>
 </head>
 <body>
   <div class="backdrop-blur"></div>
-  <div class="bar">
-    <label>Appearance <select id="appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
-  </div>
   <div id="panel"></div>
 
   <script type="module">
     import settings from '../../index.js'
     import studio from '../../theme/studio.js'
+    import { caseBar, appearance } from './case-bar.js'
 
-    const appearance = document.querySelector('#appearance')
-    appearance.value = location.hash === '#dark' ? 'dark' : 'light'
+    let mode = appearance('light')
 
     // Light – image 1: Text / Layout / Path, static uppercase group titles
     const lightSchema = () => ({
       text: { type: 'separator', label: 'Text' },
       content: { type: 'text', value: 'Curve Text', label: 'Content' },
-      size: { type: 'slider', value: 48, min: 8, max: 120, step: 1, label: 'Size' },
+      size: { type: 'slider', value: 48, min: 0, max: 144, step: 1, label: 'Size' },
       textColor: { type: 'color', value: '#7ac37f', label: 'Color' },
 
       layout: { type: 'separator', label: 'Layout' },
@@ -57,9 +49,9 @@
 
       path: { type: 'separator', label: 'Path' },
       shape: { type: 'select', variant: 'dropdown', options: ['Circle', 'Square', 'Triangle'], value: 'Circle', label: 'Shape' },
-      width: { type: 'slider', value: 3, min: 1, max: 10, step: 1, marks: true, label: 'Width' },
+      width: { type: 'slider', value: 3, min: 0, max: 10, step: 1, marks: true, label: 'Width' },
       pathColor: { type: 'color', value: '#f2c14e', label: 'Color' },
-      radius: { type: 'slider', value: 324, min: 0, max: 400, step: 1, label: 'Radius' },
+      radius: { type: 'slider', value: 324, min: 0, max: 540, step: 1, label: 'Radius' },
     })
 
     // Dark – image 2: top-level timing sliders, Enter / Exit / Dividers folders
@@ -87,16 +79,16 @@
     function mount() {
       panel?.[Symbol.dispose]?.()
       document.querySelector('#panel').innerHTML = ''
-      const dark = appearance.value === 'dark'
+      const dark = mode === 'dark'
       document.body.classList.toggle('light', !dark)
       document.querySelector('.backdrop-blur').style.display = dark ? 'none' : ''
       panel = settings(dark ? darkSchema() : lightSchema(), {
         container: '#panel',
-        theme: () => studio({ shade: dark ? '#212121' : '#fafafa', roundness: 1.5 }),
+        theme: () => studio({ shade: dark ? '#212121' : '#ffffff', roundness: 1.5 }),
       })
     }
     mount()
-    appearance.addEventListener('change', () => { mount(); history.replaceState(null, '', '#' + appearance.value) })
+    caseBar({ appearance: 'light', onAppearance: m => { mode = m; mount() } })
   </script>
 </body>
 </html>

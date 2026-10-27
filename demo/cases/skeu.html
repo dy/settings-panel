@@ -49,7 +49,7 @@
       document.body.style.background = t ? `${t.image}, ${shade}` : shade
       document.body.style.backgroundBlendMode = t ? `${t.blend}, normal` : ''
     }
-    ground('Bronze')
+    ground('Chalk')
 
     settings({
       name: { type: 'text', value: 'Walnut desk', label: 'Name' },
@@ -63,7 +63,7 @@
       'more.copies': { type: 'number', value: 2, min: 1, max: 9, label: 'Copies' },
       'more.format': { type: 'select', variant: 'radio', value: 'PNG', options: ['PNG', 'JPEG'], label: 'Format' },
       material: { type: 'folder', label: 'Material', collapsed: false },
-      'material.finish': { type: 'select', variant: 'segmented', value: 'Bronze', options: Object.keys(finishes), label: 'Finish' },
+      'material.finish': { type: 'select', variant: 'segmented', value: 'Chalk', options: Object.keys(finishes), label: 'Finish' },
       'material.depth': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Depth' },
       'material.bevel': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Edges' },
       actions: { type: 'button', label: false, buttons: { Reset: { variant: 'secondary', onClick() {} }, Render: { onClick() {} } } },

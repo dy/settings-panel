@@ -129,7 +129,7 @@ export default function retro({
   const overrides = `${FONT(400, REGULAR)}
 ${FONT(700, BOLD)}
 .s-panel {
-  ${metrics({ size, spacing, font }, { body, fontSize: 11, lineHeight: 13, controlHeight: 23, inset: 4, rowGap: 23, columnGap: 6, sectionGap: 8, panelPadding: 21, fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Arial, sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 11, lineHeight: 13, controlHeight: 23, inset: 4, rowGap: 12, columnGap: 6, sectionGap: 8, panelPadding: 21, fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Arial, sans-serif" })}
 
   --face: ${face};
   --light: ${face};
@@ -217,9 +217,10 @@ ${FONT(700, BOLD)}
   }
   .s-title-text { margin-top: ${len(2)}; padding-left: ${len(4)}; white-space: normal; text-indent: 0; }
 
-  /* ── Fields: sunken window, 23px tall; the text sits at the top, 4px down and 4px in (win98-typed.png) ── */
+  /* ── Fields: sunken window, 23px tall, the text centred on it and 4px in (the owner's call: the Speed tab's test
+     field sets it 4px down, 1px above centre, win98-typed.png) ── */
   input[type="text"], input[type="number"], textarea, select {
-    height: var(--control-height); padding: ${len(3)} var(--inset) calc(var(--control-height) - ${len(16)}); border: 0; border-radius: 0;
+    height: var(--control-height); padding: calc((var(--control-height) - ${len(13)}) / 2) var(--inset); line-height: ${len(13)}; border: 0; border-radius: 0;
     background: var(--win); color: var(--win-text); box-shadow: ${sunken};
     font: inherit; word-spacing: inherit; text-indent: 0; outline: none;
     &::placeholder { color: var(--placeholder); opacity: 1; }
@@ -241,7 +242,7 @@ ${FONT(700, BOLD)}
   textarea::-webkit-scrollbar-corner { background: var(--face); }
 
   /* ── Textarea ── */
-  .s-textarea textarea { height: auto; min-height: calc(3 * var(--line-height) + ${len(8)}); padding: ${len(4)} var(--inset); resize: vertical; field-sizing: content; max-height: 50vh; }
+  .s-textarea textarea { height: auto; min-height: calc(3 * var(--line-height) + ${len(8)}); padding: ${len(4)} var(--inset); resize: none; field-sizing: content; max-height: 50vh; }
   .s-textarea.s-code textarea { font-family: ui-monospace, 'Courier New', monospace; word-spacing: 0; }
 
   /* ── Buttons: 75×23; the primary is the default button (dark frame), pressed sinks and shifts the text ── */
@@ -357,6 +358,11 @@ ${FONT(700, BOLD)}
     }
     .s-marks { grid-area: 2 / 2; position: relative; height: ${len(4)}; margin: ${len(1)} ${len(14)} ${len(1)} ${len(13)}; pointer-events: none; }
     .s-mark { position: absolute; top: 0; width: var(--px); height: ${len(3)}; background: var(--text); &:is(.s-first, .s-last) { height: ${len(4)}; } }
+    /* without end captions the trackbar lines up with the fields above and below it: no inset, the ticks under the thumb's centre */
+    .s-track:not(:has(.s-mark-label.s-first:not(:empty))) {
+      &::before, input[type="range"] { margin-inline: 0; }
+      .s-marks { margin-inline: ${len(5)} ${len(6)}; }
+    }
     /* end captions beside the channel; any inner caption puts them all under their ticks */
     .s-mark-labels { display: contents; }
     .s-mark-label { display: none; grid-row: 1; margin-top: ${len(1)}; line-height: ${len(13)}; white-space: nowrap;
@@ -427,7 +433,7 @@ ${FONT(700, BOLD)}
     &:focus-visible:not(:active) .s-knob-dial { outline: none; }
     &:focus-visible:not(:active) { outline: ${focus}; outline-offset: calc(2 * var(--px)); } }
   .s-knob-dial { width: ${len(32)}; height: ${len(32)}; background: none; border: 0;
-    i { top: 12%; width: calc(2 * var(--px)); height: 32%; border-radius: 0; background: var(--text); } }
+    i { top: 12%; width: calc(2 * var(--px)); height: 32%; --pivot: 118.75%; border-radius: 0; background: var(--text); } }
   .s-knob-val { font-size: inherit; opacity: 1; }
 
   /* ── Info: caption and value on one line ── */

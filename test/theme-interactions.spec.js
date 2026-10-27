@@ -513,3 +513,342 @@ test.describe('ink in a groove', () => {
     for (const fy of [.65, .75, .85]) expect(at(fill, .5, fy), `fill at ${fy} of its height`).toBeGreaterThanOrEqual(at(fill, .5, .5) - .015)
   })
 })
+
+// Labels as handles: a number's label and a vector's axis letters drag their value (Figma, Blender);
+// a click without a drag focuses the field, as a label's click does
+test('figma: dragging a number label or an axis letter scrubs its value, a click focuses the field', async ({ page }) => {
+  await page.goto('/demo/cases/figma')
+  const rotation = page.locator('[data-key="rotation"]'), field = rotation.locator('input')
+  const label = await rotation.locator('.s-label').boundingBox()
+  await page.mouse.move(label.x + 4, label.y + label.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(label.x + 34, label.y + label.height / 2, { steps: 6 })
+  await page.mouse.up()
+  await expect(field).toHaveValue('30')
+  await expect(field).not.toBeFocused()
+  await rotation.locator('.s-label').click()
+  await expect(field).toBeFocused()
+  const xy = page.locator('[data-key="xy"]'), x = xy.locator('input').first()
+  const letter = await xy.locator('.s-vec-label').first().boundingBox()
+  await page.mouse.move(letter.x + letter.width / 2, letter.y + letter.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(letter.x + letter.width / 2 - 20, letter.y + letter.height / 2, { steps: 4 })
+  await page.mouse.up()
+  await expect(x).toHaveValue('100')
+})
+
+// The row is the hit target: a dropdown's label opens its menu, in themes that draw the menu and those that don't
+for (const name of ['dialkit', 'studio', 'figma']) test(`${name}: a click on a dropdown's label opens its menu`, async ({ page }) => {
+  await page.goto(`/demo/cases/${name}`)
+  const row = page.locator('.s-select.s-dropdown').first()
+  await row.locator('.s-label').click()
+  expect(await row.locator('select').evaluate(s => s.matches(':open'))).toBe(true)
+})
+
+// DialKit's text wraps a long value and grows its row, up to five lines; Enter starts a new line, as native's does
+test('dialkit: text wraps a long value and grows its row; Enter breaks the line', async ({ page }) => {
+  await page.goto('/demo/cases/dialkit')
+  const row = page.locator('.s-text'), field = row.locator('textarea')
+  const rest = (await row.boundingBox()).height
+  expect(rest).toBe(36)
+  await field.click()
+  await field.evaluate(e => e.setSelectionRange(e.value.length, e.value.length))
+  await page.keyboard.type(' and a title long enough to wrap')
+  const wrapped = (await row.boundingBox()).height
+  expect(wrapped).toBeGreaterThan(rest + 17)
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('second')
+  await expect(field).toBeFocused()
+  expect(await field.inputValue()).toMatch(/wrap\nsecond$/)
+  expect((await row.boundingBox()).height).toBeGreaterThan(wrapped + 17)
+  await field.fill('')
+  expect((await row.boundingBox()).height).toBe(rest)
+})
+
+// A theme that doesn't ask for wrapping keeps the single-line input
+test('glass: text stays a single-line input', async ({ page }) => {
+  await page.goto('/demo/cases/glass')
+  await expect(page.locator('.s-text input[type=text]').first()).toBeVisible()
+  await expect(page.locator('.s-text textarea')).toHaveCount(0)
+})
+
+// DialKit's Off / On pill slides from one word to the other rather than jumping
+test('dialkit: the boolean pill slides to the chosen word', async ({ page }) => {
+  await page.goto('/demo/cases/dialkit')
+  const input = page.locator('.s-boolean .s-input')
+  const pill = () => input.evaluate(el => { const s = getComputedStyle(el, '::before'); return { at: s.translate, width: s.width, moves: s.transitionProperty } })
+  const on = await pill()
+  expect(on.moves).toContain('translate')
+  await input.click()
+  await expect(page.locator('.s-boolean input')).not.toBeChecked()
+  await page.waitForTimeout(300)
+  const off = await pill()
+  expect(off.at).toBe('none')
+  expect(on.at).toBe(off.width) // on sits one Off-word along
+})
+
+// DialKit's number is part of the slider until the pointer rests on it: a click there sets the slider (springing
+// to it, as every click does), and only after 0.8s on it does a click edit the number
+test('dialkit: a click on the number sets the slider; resting on it first, the click edits', async ({ page }) => {
+  await page.goto('/demo/cases/dialkit')
+  const row = page.locator('.s-slider').first(), number = row.locator('.s-readout'), range = row.locator('input[type=range]')
+  expect(await row.locator('.s-track').evaluate(t => getComputedStyle(t).transitionProperty)).toBe('--p')
+  const box = await number.boundingBox(), at = [box.x + box.width / 2, box.y + box.height / 2]
+  await page.mouse.click(...at)
+  await expect(number).not.toBeFocused()
+  expect(+await range.inputValue()).toBeGreaterThan(55)
+  await page.mouse.move(at[0] - 20, at[1])
+  await page.mouse.move(...at)
+  await expect(number).toHaveClass(/s-editable/, { timeout: 2000 })
+  await page.mouse.click(...at)
+  await expect(number).toBeFocused()
+})
+
+// A drag holds its control still: transitions off while it moves, the pointer hidden where the value is not under it
+test('a scrub hides the pointer and a slider drag turns its transitions off, both only while they last', async ({ page }) => {
+  await page.goto('/demo/cases/dialkit')
+  const row = page.locator('.s-slider').first(), track = row.locator('.s-track')
+  const box = await row.boundingBox(), y = box.y + box.height / 2
+  await page.mouse.move(box.x + 40, y)
+  await page.mouse.down()
+  await page.mouse.move(box.x + 120, y, { steps: 4 })
+  expect(await track.evaluate(t => getComputedStyle(t).transitionDuration)).toBe('0s')
+  await page.mouse.up()
+  expect(await track.evaluate(t => getComputedStyle(t).transitionDuration)).not.toBe('0s')
+
+  await page.goto('/demo/cases/figma')
+  const label = await page.locator('[data-key="rotation"] .s-label').boundingBox()
+  await page.mouse.move(label.x + 4, label.y + 4)
+  await page.mouse.down()
+  await page.mouse.move(label.x + 30, label.y + 4, { steps: 4 })
+  await expect(page.locator('html')).toHaveClass(/s-cursorless/)
+  expect(await page.locator('[data-key="rotation"] .s-label').evaluate(e => getComputedStyle(e).cursor)).toBe('none')
+  await page.mouse.up()
+  await expect(page.locator('html')).not.toHaveClass(/s-cursorless/)
+})
+
+// An icon alone makes a square key named for assistive tech; with text, the icon leads it
+test('a button takes an icon: alone it is a square key with a name, with text it leads', async ({ page }) => {
+  await page.goto('/demo/cases/materials#graphite')
+  const [icon, pill] = await page.locator('#study [data-key=keys]').first().locator('button').all()
+  await expect(icon).toHaveAttribute('aria-label', 'Search')
+  await expect(icon).toHaveClass(/s-icon-only/)
+  const b = await icon.boundingBox()
+  expect(Math.abs(b.width - b.height)).toBeLessThan(.5)
+  await expect(pill.locator('.s-icon')).toHaveCount(0)
+  await expect(pill).toHaveText('Search')
+})
+
+// A drag that loses its release (the window blurs, the pointer is cancelled) still ends: the pointer comes back
+test('a slider drag hides the pointer and gives it back when the window loses focus mid-drag', async ({ page }) => {
+  await page.goto('/demo/cases/dialkit')
+  const box = await page.locator('.s-slider').first().boundingBox(), y = box.y + box.height / 2
+  await page.mouse.move(box.x + 40, y)
+  await page.mouse.down()
+  await page.mouse.move(box.x + 120, y, { steps: 4 })
+  await expect(page.locator('html')).toHaveClass(/s-cursorless/)
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')))
+  await expect(page.locator('html')).not.toHaveClass(/s-cursorless/)
+  await expect(page.locator('.s-dragging')).toHaveCount(0)
+  await page.mouse.up()
+})
+
+// Leva's vector holds string values ('3.0'): a scrub moves the number, it does not append to the string
+test('leva: dragging a vector axis letter moves its number', async ({ page }) => {
+  await page.goto('/demo/cases/leva')
+  const row = page.locator('[data-key="vector2"]'), x = row.locator('input').first()
+  const label = await row.locator('.s-vec-label').first().boundingBox()
+  await page.mouse.move(label.x + label.width / 2, label.y + label.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(label.x + label.width / 2 + 20, label.y + label.height / 2, { steps: 4 })
+  await page.mouse.up()
+  const v = +(await x.inputValue())
+  expect(Number.isFinite(v)).toBe(true)
+  expect(v).toBeGreaterThan(3)
+})
+
+// Tweakpane's numeric fields scrub from the field itself (`scrub: true`)
+test('tweakpane: dragging a vector field scrubs its value; a click still edits', async ({ page }) => {
+  await page.goto('/demo/cases/tweakpane')
+  const x = page.locator('[data-key="position"] input').first(), before = +(await x.inputValue())
+  const b = await x.boundingBox()
+  await page.mouse.move(b.x + 6, b.y + b.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(b.x + 36, b.y + b.height / 2, { steps: 4 })
+  await page.mouse.up()
+  expect(+(await x.inputValue())).toBeGreaterThan(before)
+  await x.click()
+  await expect(x).toBeFocused()
+})
+
+// Studio: hovering a section heading or folder changes nothing in the layout
+test('studio: hover leaves every row where it was', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const tops = () => page.locator('.s-panel .s-control').evaluateAll(els => els.map(e => Math.round(e.getBoundingClientRect().top)))
+  const before = await tops()
+  for (const el of await page.locator('.s-panel :is(.s-separator, .s-folder > summary, .s-button)').all()) {
+    await el.hover()
+    expect(await tops()).toEqual(before)
+  }
+})
+
+// slider:range: two thumbs on one track, value [low, high], low never above high; a [low, high] value infers it
+test('slider:range keeps [low, high] in order and is inferred from a [low, high] value with bounds', async ({ page }) => {
+  await page.goto('/test/calibration/row.html')
+  const state = await page.evaluate(async () => {
+    document.body.innerHTML = '<div id="c"></div>'
+    const { default: settings } = await import('/index.js')
+    const s = settings({ wall: { type: 'slider:range', value: [1, 4], min: 0, max: 5, step: .1 }, gap: { value: [0, 5], min: 0, max: 5 } }, { container: '#c' })
+    const hi = document.querySelector('[data-key="wall"] .s-readout-hi')
+    hi.value = '.5'; hi.dispatchEvent(new Event('change'))
+    return { wall: [...s.wall], gap: document.querySelectorAll('[data-key="gap"] input[type=range]').length }
+  })
+  expect(state.wall).toEqual([1, 1])
+  expect(state.gap).toBe(2)
+})
+
+
+// json: the panel reads as the object it edits, and every value stays editable in place
+test('json: entries read as JSON and edit in place', async ({ page }) => {
+  await page.goto('/test/calibration/row.html')
+  await page.evaluate(async () => {
+    document.body.innerHTML = '<div id="c"></div>'
+    const { default: settings } = await import('/index.js')
+    const { default: json } = await import('/theme/json.js')
+    window.s = settings({ name: 'Aurora', on: true, room: { type: 'folder' }, 'room.wall': { type: 'slider:range', value: [0, 5], min: 0, max: 5, step: .1 }, at: { type: 'vector', value: [1, 2], pad: 'open' }, blend: { options: ['screen', 'multiply'], value: 'screen' }, go() {} },
+      { container: '#c', title: 'State', theme: json() })
+  })
+  const text = await page.locator('.s-panel').evaluate(p => {
+    const pseudo = (el, at) => { const c = getComputedStyle(el, at).content; return c === 'none' || c === 'normal' ? '' : c.replace(/^"|"$/g, '').replace(/\\"/g, '"') }
+    const walk = el => {
+      if (el.checkVisibility && !el.checkVisibility() || el.type === 'checkbox') return ''
+      const own = ['INPUT', 'SELECT'].includes(el.tagName) ? (el.tagName === 'SELECT' ? el.selectedOptions[0].text : el.value)
+        : [...el.childNodes].map(n => n.nodeType === 3 ? (getComputedStyle(el).fontSize === '0px' ? '' : n.textContent.trim()) : walk(n)).join('')
+      return pseudo(el, '::before') + own + pseudo(el, '::after')
+    }
+    return walk(p)
+  })
+  expect(text).toBe('{"name": "Aurora","on": true,"room": {"wall": [0, 5]},"at": [1, 2],"blend": "screen"go()}')
+  await page.locator('[data-key="on"] .s-track').click()
+  expect(await page.evaluate(() => s.on)).toBe(false)
+  await page.locator('[data-key="at"] input').nth(1).fill('7')
+  await page.locator('[data-key="at"] input').nth(1).press('Enter')
+  expect(await page.evaluate(() => [...s.at])).toEqual([1, 7])
+  await expect(page.locator('[data-key="blend"] select')).toBeVisible()
+})
+
+test('json: a panel without a title still opens and closes its braces', async ({ page }) => {
+  await page.goto('/test/calibration/row.html')
+  const braces = await page.evaluate(async () => {
+    document.body.innerHTML = '<div id="c"></div>'
+    const { default: settings } = await import('/index.js')
+    const { default: json } = await import('/theme/json.js')
+    settings({ n: 1 }, { container: '#c', theme: json() })
+    const c = document.querySelector('.s-panel-content')
+    return [getComputedStyle(c, '::before').content, getComputedStyle(c, '::after').content]
+  })
+  expect(braces).toEqual(['"{"', '"}"'])
+})
+
+// Studio: a slider under the pointer shows the steps ahead as dots, as DialKit's hashmarks; at rest it shows none
+test('studio: a slider shows its steps under the pointer and in hand', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const track = page.locator('[data-key="size"] .s-track'), input = track.locator('input')
+  const dots = () => input.evaluate(i => getComputedStyle(i).backgroundImage)
+  await page.mouse.move(0, 0)
+  expect(await dots()).toBe('none')
+  const b = await track.boundingBox()
+  await page.mouse.move(b.x + b.width * .4, b.y + b.height / 2)
+  expect(await dots()).toContain('radial-gradient')
+  await page.mouse.down()
+  expect(await dots()).toContain('radial-gradient')
+  await page.mouse.up()
+  await page.mouse.move(0, 0)
+  expect(await dots()).toBe('none')
+})
+
+// json: a wrapped choice row never leaves its comma alone on a line (with Menlo it did at 244px)
+test('json: a choice row keeps its comma on its last choice at every width', async ({ page }) => {
+  await page.goto('/test/calibration/row.html')
+  const alone = await page.evaluate(async () => {
+    document.body.innerHTML = '<div id="g"></div>'
+    const { default: settings } = await import('/index.js'), { default: json } = await import('/theme/json.js')
+    const out = []
+    for (let w = 220; w <= 330; w += 2) {
+      const c = document.createElement('div'); c.style.width = w + 'px'; g.append(c)
+      settings({ left: { type: 'select:segmented', options: ['mirror', 'wall', 'open'], value: 'wall' }, n: 1 }, { container: c, theme: json({ font: 'Menlo, monospace' }) })
+      const row = c.querySelector('[data-key=left]').getBoundingClientRect(), last = c.querySelector('[data-key=left] button:last-child').getBoundingClientRect()
+      if (row.bottom - last.bottom > 9) out.push(w)
+    }
+    return out
+  })
+  expect(alone).toEqual([])
+})
+
+// Studio: a slider's number is as wide as its text, so the caret's area is the value and nothing beside it
+test('studio: a slider readout hugs its value', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const over = await page.locator('.s-slider .s-readout').evaluateAll(rs => rs.map(r => {
+    const ctx = document.createElement('canvas').getContext('2d'), cs = getComputedStyle(r)
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`
+    return r.getBoundingClientRect().width - ctx.measureText(r.value).width
+  }))
+  for (const d of over) expect(d).toBeLessThan(2)
+})
+
+// A scrub draws its change: a trail in the row from the press to the pointer, gone when the drag ends
+test('a scrub draws a trail from where it began to the pointer, and clears it', async ({ page }) => {
+  await page.goto('/demo/cases/figma')
+  const label = await page.locator('[data-key="rotation"] .s-label').boundingBox()
+  await page.mouse.move(label.x + 4, label.y + 4)
+  await page.mouse.down()
+  await page.mouse.move(label.x + 44, label.y + 4, { steps: 4 })
+  const trail = page.locator('[data-key="rotation"] .s-scrub-trail')
+  await expect(trail).toHaveCount(1)
+  expect(Math.round((await trail.boundingBox()).width)).toBe(40)
+  await page.mouse.up()
+  await expect(trail).toHaveCount(0)
+})
+
+// Studio: in hand, a slider's label steps aside only while the handle is over it
+test('studio: a dragged slider hides its label only while the handle passes over it', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const row = page.locator('[data-key="size"]'), b = await row.locator('.s-track').boundingBox(), label = await row.locator('.s-label').boundingBox()
+  await page.mouse.move(b.x + b.width * .8, b.y + b.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(b.x + b.width * .7, b.y + b.height / 2, { steps: 3 })
+  await expect(row).not.toHaveClass(/s-over-label/)
+  await page.mouse.move(label.x + label.width / 2, b.y + b.height / 2, { steps: 6 })
+  await expect(row).toHaveClass(/s-over-label/)
+  await page.mouse.up()
+  await expect(row).not.toHaveClass(/s-over-label/)
+})
+
+// Studio: a range takes a press anywhere on its row, and the nearer handle comes to it
+test('studio: a press anywhere on a range moves its nearer handle there', async ({ page }) => {
+  await page.goto('/test/calibration/row.html')
+  await page.evaluate(async () => {
+    document.body.innerHTML = '<div id="c" style="width:320px"></div>'
+    const { default: settings } = await import('/index.js'), { default: studio } = await import('/theme/studio.js')
+    window.s = settings({ span: { type: 'slider:range', value: [40, 60], min: 0, max: 100, step: 1 } }, { container: '#c', theme: studio() })
+  })
+  const b = await page.locator('[data-key=span] .s-interval-track').boundingBox(), y = b.y + b.height / 2
+  // (the row's end holds the values, which edit on a press)
+  await page.mouse.move(b.x + b.width * .72, y)
+  await page.mouse.down(); await page.mouse.up()
+  const [lo, hi] = await page.evaluate(() => [...s.span])
+  expect(lo).toBe(40)
+  expect(hi).toBeGreaterThan(65)
+  await page.mouse.move(b.x + b.width * .1, y)
+  await page.mouse.down(); await page.mouse.up()
+  const [lo2, hi2] = await page.evaluate(() => [...s.span])
+  expect(lo2).toBeLessThan(20)
+  expect(hi2).toBe(hi)
+  // and, dragged over the label, the label steps aside
+  const label = await page.locator('[data-key=span] .s-label').boundingBox(), row = page.locator('[data-key=span]')
+  await page.mouse.move(b.x + b.width * .5, y); await page.mouse.down()
+  await page.mouse.move(label.x + label.width / 2, y, { steps: 6 })
+  await expect(row).toHaveClass(/s-over-label/)
+  await page.mouse.up()
+  await expect(row).not.toHaveClass(/s-over-label/)
+})

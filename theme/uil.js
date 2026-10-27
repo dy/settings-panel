@@ -231,7 +231,9 @@ export default function uil({
       &:hover { background-color: var(--face-hover); color: var(--text-over); }
       &:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
       option { background: var(--option-bg); color: var(--text); } }
-    &.s-segmented { .s-input { gap: calc(4 * var(--space)); } button { flex: 1; } }
+    &.s-segmented { .s-input { gap: calc(4 * var(--space)); min-width: 0; } button { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }   /* segments share the row, never past it */
+    /* an option list stands a step clear of its neighbours, so two lists never read as one */
+    &:is(.s-radio, .s-checkboxes) > .s-input { padding-block: calc(4 * var(--space)); }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(3 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(6 * var(--space)); cursor: pointer; } }
   }
 
@@ -292,7 +294,7 @@ export default function uil({
   .s-button { &.s-secondary button, button.s-secondary { background: var(--well-1); } }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(44 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(44 * var(--length)); max-height: 50vh; padding: calc(4 * var(--space)); } }
 
   /* ── Folder (uil group): content-tone header, text colored, two-bar icon ending at the
      value column (horizontal closed, vertical open, swapped not animated) ── */
@@ -334,11 +336,11 @@ export default function uil({
     width: 100%; height: 100%; background: none; border: none;
     &::before { content: ''; position: absolute; inset: calc(1.375 * var(--length)); border-radius: 50%; background: var(--dial-face);
       box-shadow: inset 0 0 0 calc(1.25 * var(--length)) var(--well-3), 0 0 0 calc(1.25 * var(--length)) var(--well-3); }
-    i { inset: 0; width: auto; height: auto; transform: none; border-radius: 0; background: var(--needle);
+    i { inset: 0; width: auto; height: auto; translate: none; --pivot: 50%; border-radius: 0; background: var(--needle);
       -webkit-mask: ${needle} center / 100% 100%; mask: ${needle} center / 100% 100%; }
   }
   .s-knob-val, .s-pad-val { display: flex; align-items: center; height: calc(16 * var(--length)); font-size: var(--font-size); font-weight: 400; opacity: 1; color: var(--text); white-space: nowrap; }
-  .s-knob-val { position: absolute; top: calc(100% + 8 * var(--space)); left: 50%; transform: translateX(-50%); }
+  .s-knob-val { position: absolute; top: calc(100% + 8 * var(--space)); left: 50%; transform: translateX(-50%); justify-content: center; }   /* out of flow, centred under the dial */
   /* uil down state: face → select, needle and readout → textOver */
   .s-knob-wrap:active { .s-knob-dial { --dial-face: var(--accent); --needle: var(--text-over); } .s-knob-val { color: var(--text-over); } }
 
@@ -364,11 +366,16 @@ export default function uil({
     &:focus-visible:not(:active) { outline: 1px solid var(--accent); outline-offset: var(--frame); }
   }
   .s-pad-val { flex: none; }
+  /* a vector's pad stands where the XY pad does, centred on the gui width: the row is its container, so the pad's
+     line can step back over the label column (the label's own flex basis, in the row's width) */
+  .s-vector:has(.s-vec-pad) { container-type: inline-size; }
+  .s-vec-pad { padding-left: calc(50cqw + var(--gutter) - 35.15625 * var(--length) - ((100cqw + 4 * var(--length) + var(--gutter)) * .3 + 8 * var(--length))); }
   .s-xy:has(.s-pad:active) .s-pad-val { color: var(--text-select); }
 
   /* ── Info / separator ── */
   .s-info .s-monitor { color: var(--text); font-variant-numeric: tabular-nums; }
   .s-separator { background: var(--well-3); opacity: 1; }
+  .s-separator-labeled { background: none; &::before, &::after { background: var(--well-3); opacity: 1; } }
 
 }`
 

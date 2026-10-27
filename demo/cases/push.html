@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Push the button – settings-panel</title>
+  <!-- After "push the button in figma" (yodiz × zaykina), a picture the owner supplied (test/calibration/push.png):
+       one round key (soft, the graphite finish, its corners fully round) with a sun on it, at the picture's size. The panel has no
+       element for the picture's caption. -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; display: grid; place-items: center; background: radial-gradient(60% 50% at 50% 40%, #3a3a3a, #2b2b2b); }
+    /* the key at the picture's size: zoomed from the theme's 36px key to 300px, every edge in proportion; the sun
+       two fifths of it; the panel's plate stays out of the way */
+    #panel { zoom: calc(300 / 36); }
+    #panel, #panel .s-panel { width: max-content; min-width: 0; max-width: none; }
+    #panel .s-panel { background: none; box-shadow: none; border: 0; padding: 0; }
+    #panel .s-icon { width: 1.05em; height: 1.05em; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import { byId, colormaps, material } from '../themes.js'
+    const sun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".6"><circle cx="12" cy="12" r="2.6"/><path d="M12 4.6v1.6M12 17.8v1.6M4.6 12h1.6M17.8 12h1.6M6.8 6.8l1.1 1.1M16.1 16.1l1.1 1.1M6.8 17.2l1.1-1.1M16.1 7.9l1.1-1.1"/></svg>`
+    const theme = byId.soft, map = colormaps.graphite
+    settings({ push: { type: 'button', label: false, icon: sun, name: 'Brightness', onClick() {} } },
+      { container: '#panel', theme: theme.fn({ ...material(theme, map), accent: map.accent, size: 14 / 13, roundness: 40 }) })
+  </script>
+</body>
+</html>

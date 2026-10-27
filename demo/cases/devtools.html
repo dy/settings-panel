@@ -7,21 +7,17 @@
   <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
   <style>
     body { margin: 0; min-height: 100vh; display: grid; place-content: center; padding: 32px 16px; box-sizing: border-box; background: #e8eaed; font: 12px system-ui; gap: 12px; }
-    .appearance { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
-    .appearance select { font: inherit; padding: 4px 8px; }
-    #panel { width: min(380px, calc(100vw - 32px)); }
+    #panel { width: min(380px, calc(100vw - 32px)); display: flex; justify-content: center; }
   </style>
 </head>
 <body>
-  <label class="appearance">Appearance <select id="appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
   <div id="panel"></div>
   <script type="module">
     import settings from '../../index.js'
     import { signal } from '../../signals.js'
     import devtools from '../../theme/devtools.js'
-    const appearance = document.querySelector('#appearance')
-    appearance.value = location.hash === '#dark' ? 'dark' : 'light'
-    const mode = signal(appearance.value)
+    import { caseBar, appearance } from './case-bar.js'
+    const mode = signal(appearance('light'))
     const theme = () => devtools({ shade: mode.value === 'dark' ? '#282828' : '#ffffff', size: 11 / 13 })
     const defaults = { display: 'grid', 'font-size': 14, opacity: .85, color: '#1a73e8', visible: true, transform: 'translateY(0)', gap: 16, 'align-items': 'center' }
     const panel = settings({
@@ -36,10 +32,7 @@
       'layout.align-items': { options: ['center', 'start', 'end', 'stretch'], value: defaults['align-items'] },
       reset: { type: 'button', label: false, text: 'Reset declarations', onClick() { Object.assign(panel, defaults) } },
     }, { container: '#panel', title: 'element.style', collapsed: false, theme })
-    appearance.addEventListener('change', () => {
-      mode.value = appearance.value
-      history.replaceState(null, '', '#' + appearance.value)
-    })
+    caseBar({ appearance: 'light', onAppearance: m => { mode.value = m } })
   </script>
 </body>
 </html>

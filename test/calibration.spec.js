@@ -23,7 +23,7 @@ for (const [name, c] of Object.entries(cases)) {
     await page.evaluate(() => document.fonts.ready)
     await page.waitForTimeout(700)
     if (c.click) { await page.click(c.click); await page.waitForTimeout(800) }
-    await page.evaluate(() => { const s = document.querySelector('.case-render-switch'); if (s) s.style.visibility = 'hidden' })
+    await page.evaluate(() => { const s = document.querySelector('.case-bar'); if (s) s.style.visibility = 'hidden' })
     const shot = c.clip ? await page.screenshot({ clip: c.clip }) : await page.locator('.s-panel').first().screenshot()
     expect(await differing(page, shot, `/test/calibration/${name}.png`), `${name}: pixels differing from the original`).toBeLessThanOrEqual(c.budget)
   })

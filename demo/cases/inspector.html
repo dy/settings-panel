@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit element – settings-panel</title>
+  <!-- After a visual CSS editor's "Edit element" panel the owner supplied (test/calibration/inspector.png), drawn by
+       figma in a dark ink-blue shade: a Layout section of selects and sliders. The panel has no element for the
+       editor's per-row icon keys (fit, fill, sides). -->
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: #0b0b13; }
+    #panel { width: min(100%, 332px); }
+    #panel .s-panel { width: 100%; max-width: none; border: 1px solid #ffffff14; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import figma from '../../theme/figma.js'
+    const length = value => ({ type: 'slider', value, min: 0, max: 400, step: 1, format: v => v ? v + 'px' : 'auto' })
+    settings({
+      layout: { type: 'folder', label: 'Layout', collapsed: false },
+      'layout.display': { type: 'select', value: 'block', options: ['block', 'flex', 'grid', 'inline', 'none'], label: 'Display' },
+      'layout.position': { type: 'select', value: 'static', options: ['static', 'relative', 'absolute', 'fixed', 'sticky'], label: 'Position' },
+      'layout.width': { ...length(0), label: 'Width' },
+      'layout.height': { ...length(0), label: 'Height' },
+      'layout.padding': { type: 'slider', value: 0, min: 0, max: 64, step: 1, unit: 'px', label: 'Padding' },
+      'layout.margin': { type: 'slider', value: 0, min: 0, max: 64, step: 1, unit: 'px', label: 'Margin' },
+      'layout.sizing': { type: 'select', value: 'border-box', options: ['border-box', 'content-box'], label: 'Box Sizing' },
+    }, {
+      container: '#panel',
+      title: 'Edit element',
+      collapsed: false,
+      theme: () => figma({ shade: '#0f0f19', accent: '#ffffff', size: 1.2 }),
+    })
+  </script>
+</body>
+</html>

@@ -9,8 +9,11 @@
  * original at any width. Labels sit on native's `vertical-align: sub`; the
  * text field is a 20px strip like the rest (native's is 22px and 1px wider,
  * from UA padding it never reset); the slider thumb is 10×20, and the
- * colour's alpha slider is that slider over a checkerboard; checkboxes are an
- * 18px box with a 10px core. Native has one boolean widget, so switch/toggle render as that box.
+ * colour's alpha slider is that slider over a checkerboard; checkboxes fill the
+ * row's 20px line with a 10px core (native's 18px box sat 2px low), and radios are
+ * the same box round, in native multibox's row. Native has one boolean widget, so
+ * switch/toggle render as that box. What native lacks (pad, knob, swatches) is drawn
+ * in its own terms: background2 fields, square, the thumb colour for the mark.
  *
  * Colors: native ships two fixed palettes (themes.js). Each role keeps its
  * OKLCH lightness offset from background1, so shade #232323 (dark) or
@@ -141,13 +144,18 @@ export default function controlPanel({
     padding-top: var(--section-gap);
   }
 
-  /* ── Layout: native rows are min-height 25px, content pinned to the top ── */
+  /* ── Layout: native rows are 25px, content pinned to the top: a 20px line and the 5px gap under it. The gap is the
+     value's padding, so a value that outgrows the line (a textarea, a pad, a knob, wrapped boxes) keeps it too, and
+     the label's, so a label that wraps or carries a hint does (native's runs into the next row); the last row's
+     label needs no gap, the panel's padding follows it ── */
   .s-control {
     gap: 0;
     padding: 0;
     position: relative;
     align-items: flex-start;
     min-height: calc(var(--lh) + var(--row-gap));
+    > .s-input { padding-bottom: var(--row-gap); }
+    &:not(:last-child) > .s-label-group { padding-bottom: var(--row-gap); }
   }
   /* content-box like native's 36% div + 2% padding, so both round to the same layout units */
   .s-label-group {
@@ -162,7 +170,7 @@ export default function controlPanel({
     line-height: normal;
   }
   .s-label-row { display: block; }
-  .s-label { display: inline-block; vertical-align: sub; font-size: var(--fs); overflow-wrap: break-word; }
+  .s-label-group .s-label { display: inline-block; vertical-align: sub; font-size: var(--fs); overflow-wrap: break-word; }
   /* Row shares resolve inside .s-input, so they are declared there: a custom property
      substitutes var() where it is declared, and % resolves where it is used. */
   .s-input {
@@ -210,6 +218,8 @@ export default function controlPanel({
     padding: var(--line) calc(var(--line) * 2) var(--line) calc(var(--u) * 1.2);
     &::placeholder { color: var(--placeholder); }
   }
+  /* native's text box is 22px (20 of content in a 1px pad), 2px taller than every other box, so the gap under it
+     is 3px where it is 5 under the rest; here it is the others' 20px, and every row keeps the same 5px gap */
   .s-text input[type="text"] { flex: 1; height: var(--lh); padding-block: 0; padding-right: 0; }
   .s-number {
     input[type="number"] { flex: 1; min-width: 0; text-align: left; }
@@ -227,7 +237,7 @@ export default function controlPanel({
       field-sizing: content;
       white-space: nowrap;
       overflow: auto;
-      resize: both;
+      resize: none;
       &::-webkit-scrollbar { width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6); }
       &::-webkit-scrollbar-track { background: var(--bg2); }
       &::-webkit-scrollbar-thumb {
@@ -310,25 +320,25 @@ export default function controlPanel({
         -webkit-appearance: none;
         appearance: none;
         background: transparent;
-        pointer-events: none;
         cursor: ew-resize;
         &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; }
-        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: all; cursor: ew-resize; width: var(--thumb); height: var(--lh); background: transparent; border: none; box-shadow: none; }
-        &::-moz-range-thumb { pointer-events: all; cursor: ew-resize; width: var(--thumb); height: var(--lh); background: transparent; border: none; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; cursor: ew-resize; width: var(--thumb); height: var(--lh); background: transparent; border: none; box-shadow: none; }
+        &::-moz-range-thumb { cursor: ew-resize; width: var(--thumb); height: var(--lh); background: transparent; border: none; }
         &::-webkit-slider-runnable-track { -webkit-appearance: none; appearance: none; background: transparent; box-shadow: none; }
       }
     }
   }
 
-  /* ── Checkbox (native checkbox.css / multibox.css): an 18px box 2px below the row top;
-     checked shows a 10px core inside a 4px background2 frame ── */
+  /* ── Checkbox (native checkbox.css / multibox.css): native's is an 18px box 2px below the row top, which leaves 7px
+     over it where every other box has 5; here it fills the row's 20px line as the other boxes do, so the rhythm holds;
+     checked shows a 10px core inside a background2 frame ── */
   :is(.s-boolean, .s-checkboxes) .s-track {
     position: relative;
     flex: none;
     display: block;
-    width: var(--box);
-    height: var(--box);
-    margin: var(--pad-xs) 0 0;
+    width: var(--lh);
+    height: var(--lh);
+    margin: 0;
     padding: 0;
     border: none;
     border-radius: 0;
@@ -357,11 +367,16 @@ export default function controlPanel({
     &:has(input:focus-visible) .s-track { outline: var(--line) solid var(--accent); outline-offset: 0; }
   }
 
-  /* ── Radio: native has none; the checkbox's 18px box and 10px core, round ── */
+  /* ── Option lists (native multibox.js): boxes in a row, each followed by its name, a line apart when they wrap.
+     Radio is native's missing sibling: the same box and 10px core, round ── */
+  .s-select:is(.s-radio, .s-checkboxes) {
+    > .s-input { flex-direction: row; flex-wrap: wrap; gap: var(--pad-xs) var(--tick); padding-bottom: calc(var(--u) * 1.4); }
+    .s-input label { display: inline-flex; align-items: flex-start; gap: var(--tick); cursor: pointer; color: var(--field-ink);
+      /* the option's name, bare: native boxes it in the field fill, dropped at the owner's request */
+      > span:not(.s-track) { margin-top: var(--pad-xs); padding: var(--pad-xs); font-size: var(--fs); line-height: normal; } }
+  }
   .s-select.s-radio {
-    .s-input { gap: var(--pad-xs); }
-    .s-input label { display: inline-flex; align-items: center; gap: var(--tick); cursor: pointer; color: var(--field-ink); }
-    input[type="radio"] { -webkit-appearance: none; appearance: none; flex: none; display: grid; place-items: center; width: var(--box); height: var(--box); margin: 0; border-radius: 50%; background: var(--bg2); cursor: pointer;
+    input[type="radio"] { -webkit-appearance: none; appearance: none; flex: none; display: grid; place-items: center; width: var(--lh); height: var(--lh); margin: 0; border-radius: 50%; background: var(--bg2); cursor: pointer;
       &::after { content: ''; width: var(--thumb); height: var(--thumb); border-radius: 50%; }
       &:checked::after { background: var(--s-color, var(--accent)); }
       &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; } }
@@ -399,29 +414,7 @@ export default function controlPanel({
       &::after { top: calc(var(--u) * 2.2); border-top: var(--u) solid var(--dim); }
     }
     &.s-checkboxes {
-      min-height: auto;
-      .s-input {
-        gap: 0;
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding-bottom: calc(var(--u) * 1.4);
-        label {
-          display: inline-flex;
-          align-items: flex-start;
-          gap: var(--tick);
-          margin-right: var(--tick);
-          cursor: pointer;
-          .s-track { margin-bottom: var(--line); }
-          > span:not(.s-track) {
-            margin-top: var(--pad-xs);
-            padding: var(--pad-xs);
-            background: var(--bg2);
-            color: var(--field-ink);
-            font-size: var(--fs);
-            line-height: normal;
-          }
-        }
-      }
+      label .s-track { margin-bottom: var(--line); }   /* native's box sat 2px down in a 22px line: the line keeps its depth */
       label:has(input:checked) .s-track::after { background: var(--s-color, var(--accent)); }
       label:has(input:focus-visible) .s-track { outline: var(--line) solid var(--accent); outline-offset: 0; }
     }
@@ -443,13 +436,27 @@ export default function controlPanel({
     &::-webkit-color-swatch { border: none; border-radius: 0; }
     &::-moz-color-swatch { border: none; border-radius: 0; }
   }
-  .s-color.s-rgba .s-color-input { gap: var(--gap); .s-alpha { min-width: var(--cell); } }
-  .s-color.s-swatches button { width: var(--box); height: var(--box); padding: 0; }
+  .s-color.s-rgba .s-color-input { gap: var(--gap); .s-alpha { min-width: var(--cell); } input[type="text"] { flex: 0 0 auto; width: auto; min-width: 0; field-sizing: content; } }   /* the whole code; the alpha gives way */
+  /* swatches are the row's 20px boxes, packed a hairline apart so a palette reads as one block, rows a gap apart */
+  .s-color.s-swatches { .s-input { gap: var(--pad-xs); } button { width: var(--lh); height: var(--lh); padding: 0; } }
   .s-color.s-picker .s-color-input {
     gap: var(--gap);
     input[type="color"] { position: static; }
     input[type="text"] { flex: 1; min-width: 0; width: auto; }
   }
+
+  /* ── Vector: native value boxes, the number at the box's start ── */
+  .s-vector input[type="number"] { text-align: left; }
+
+  /* ── XY pad: native has none; a background2 field like its strips, the panel's colour for the cross, the
+     slider's thumb colour for the point, square as every box here ── */
+  .s-pad { background: var(--bg2); border: none; border-radius: 0;
+    .s-pad-x, .s-pad-y { background: var(--bg); }
+    .s-pad-dot { width: var(--thumb); height: var(--thumb); border-radius: 0; background: var(--accent); box-shadow: none; }
+    &:focus-visible:not(:active) { outline: var(--line) solid var(--accent); outline-offset: 0; } }
+
+  /* ── Knob: native has none; the dial a background2 disc, its mark the thumb colour ── */
+  .s-knob-dial { background: var(--bg2); border: none; i { background: var(--accent); } }
 
   /* ── Folder ── */
   .s-folder {
@@ -459,8 +466,11 @@ export default function controlPanel({
       color: var(--dim);
       padding: calc(var(--u) * var(--spacing) * 2) 0;
       opacity: 1;
-      &::after { display: none; }
+      /* the fold's caret, the select's 6×5 caret: down shut, up open */
+      &::after { content: ''; display: block; flex: none; margin-left: auto; margin-right: 2.5%; width: 0; height: 0; background: none; -webkit-mask: none; mask: none;
+        border-inline: calc(var(--u) * .6) solid transparent; border-top: var(--u) solid var(--dim); }
     }
+    &[open] > summary::after { border-top: 0; border-bottom: var(--u) solid var(--dim); transform: none; }
     .s-content { gap: 0; }
   }
 }`

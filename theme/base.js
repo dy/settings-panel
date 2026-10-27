@@ -53,8 +53,12 @@ export default `@layer s-base {
   .s-search-input { display: none; border: none; background: transparent; color: inherit; font: inherit; min-width: 0; }
   &.s-searching .s-search-input { display: inline-block; }
 
-  /* ── Numeric drag-scrub ── */
-  input.s-scrubbing { cursor: ew-resize; user-select: none; }
+  /* ── Numeric drag-scrub: a number's label and a vector's axis letters drag their value ── */
+  .s-number > .s-label-group, .s-vec-label { cursor: ew-resize; touch-action: none; }
+  .s-scrubbing { cursor: ew-resize; user-select: none; }
+
+  /* ── Scrollbars (a scrolling panel, a long textarea): thin, in the ink, over a clear track ── */
+  &, * { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, currentColor 28%, transparent) transparent; }
 
   /* ── Collapse (panel and folders alike) ── */
   &:is(details), .s-folder:is(details) {
@@ -146,6 +150,8 @@ export default `@layer s-base {
     color: inherit;
     padding: var(--pad) var(--pad-i);
   }
+  select { text-overflow: ellipsis; }   /* a value longer than its field ends in an ellipsis, not mid-letter */
+  textarea { resize: none; field-sizing: content; }   /* a text area grows with its text: there is nothing to drag */
   button { font: inherit; cursor: pointer; }
 
   /* ── Number stepper layout ── */
@@ -212,19 +218,27 @@ export default `@layer s-base {
   }
 
   /* ── Slider layout ── */
+  .s-slider input[type="range"] { cursor: pointer; }
   .s-slider .s-track {
     flex: 1;
     position: relative;
     display: flex;
     align-items: center;
   }
+  /* a mark label with no room beside its neighbours (the slider marks it) */
+  .s-slider .s-mark-label.s-crowded { visibility: hidden; }
+
+  /* a tooltip readout floats over the thumb while the slider is in use (hovered, focused, held): at rest it would
+     lie over the row above */
   .s-slider .s-tooltip {
     position: absolute;
     bottom: 100%;
     transform: translateX(-50%);
     white-space: nowrap;
     pointer-events: none;
+    visibility: hidden;
   }
+  .s-slider:is(:hover, :focus-within, :has(input:active)) .s-tooltip { visibility: visible; }
   .s-slider.s-multiple .s-interval-track {
     flex: 1;
     position: relative;
@@ -239,9 +253,8 @@ export default `@layer s-base {
       -webkit-appearance: none;
       appearance: none;
       background: transparent;
-      pointer-events: none;
-      &::-webkit-slider-thumb { pointer-events: all; }
-      &::-moz-range-thumb { pointer-events: all; }
+      /* the whole track takes a press: the input on top is the nearer thumb's (the slider keeps it there under the
+         pointer), so a press anywhere brings that thumb to it */
       &.s-top { z-index: 1; }
       &:focus-visible { z-index: 2; }
     }
@@ -290,7 +303,9 @@ export default `@layer s-base {
     display: flex;
     align-items: center;
     gap: calc(var(--u) * 2);
-    &::before, &::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: .15; }
+    /* the rules and the label centre on each other whatever a theme's rows align to */
+    &::before, &::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: .15; align-self: center; }
+    > .s-separator-label { align-self: center; }
   }
   .s-separator-label { font-size: smaller; opacity: .6; white-space: nowrap; }
 
@@ -319,7 +334,8 @@ export default `@layer s-base {
       mask: var(--s-expand-icon) center / contain no-repeat;
       &:hover, &.s-open { opacity: 1; }
     }
-    .s-pad { flex-basis: 100%; }
+    /* the pad keeps the XY pad's size and place, on a line of its own */
+    .s-vec-pad { flex-basis: 100%; display: flex; justify-content: inherit; }
   }
   --s-expand-icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' fill='%23000'%3E%3Ccircle cx='4' cy='4' r='1.6'/%3E%3Ccircle cx='12' cy='4' r='1.6'/%3E%3Ccircle cx='4' cy='12' r='1.6'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Ccircle cx='8' cy='8' r='1.6'/%3E%3C/svg%3E");
 
@@ -357,6 +373,8 @@ export default `@layer s-base {
   }
 
   /* ── Knob (rotary dial) ── */
+  /* a knob row centres its label on the dial: the value beside it would otherwise set the baseline */
+  .s-knob { align-items: center; }
   .s-knob-wrap {
     display: inline-flex; align-items: center; gap: calc(var(--u) * 2);
     cursor: ns-resize; touch-action: none;
@@ -371,8 +389,13 @@ export default `@layer s-base {
     border-radius: 50%;
     background: color-mix(in oklab, currentColor 10%, transparent);
     border: 1px solid color-mix(in oklab, currentColor 22%, transparent);
-    i { position: absolute; left: 50%; top: 9%; width: calc(2 * var(--length)); height: 30%; border-radius: 1px; background: var(--accent); transform: translateX(-50%); }
+    /* the needle turns about the dial's centre (--turn, from the control); the dial itself stays still, so its light
+       and shadow never turn with it. A theme that moves the needle sets --pivot: the centre's height in its box */
+    i { position: absolute; left: 50%; top: 9%; width: calc(2 * var(--length)); height: 30%; border-radius: 1px; background: var(--accent);
+      translate: -50% 0; rotate: var(--turn, 0deg); transform-origin: 50% var(--pivot, 136.667%); }
   }
+  /* the value keeps the room of its longest reading, eight characters at least (the control sets it), so dials stand
+     in one column down the panel and never move as they turn */
   .s-knob-val { font-size: smaller; opacity: .8; font-variant-numeric: tabular-nums; }
 
   /* ── Forced colours (Windows contrast themes): backgrounds, shadows and masks are replaced by system
@@ -392,6 +415,31 @@ export default `@layer s-base {
   }
 }
 }
+/* A button's icon: inked with its lettering, a gap before its text; an icon alone makes the button a square
+   (unlayered, so it outranks a theme's stretched or padded buttons) */
+/* a text area grows with its text (field-sizing) from its theme's minimum: the one-line field height a theme gives every
+   input would hold it at that minimum and hide the lines under it */
+.s-panel .s-textarea textarea { height: auto; }
+.s-panel .s-icon { display: inline-block; flex: none; width: 1.25em; height: 1.25em; vertical-align: -.27em; > svg { display: block; width: 100%; height: 100%; } }
+.s-panel .s-icon + .s-button-text { margin-left: .45em; }
+.s-panel button:has(> .s-icon) { white-space: nowrap; }   /* an icon and its word never part */
+.s-panel .s-button button.s-icon-only { flex: none !important; width: auto !important; min-width: 0 !important; aspect-ratio: 1; padding: 0 !important; }   /* a theme's full-width keys would stretch the square */
+/* A scrub's trail, as Tweakpane draws its drag: from where the press began toward the pointer, a light dashed line
+   in the ink with a dot at its start and an arrowhead at its end, drawn in the row while the value is dragged */
+.s-panel .s-control:has(> .s-scrub-trail) { position: relative; }
+.s-panel .s-scrub-trail { position: absolute; z-index: 5; height: 2px; translate: 0 -50%; pointer-events: none;
+  color: color-mix(in oklab, currentColor 45%, transparent);
+  background: radial-gradient(circle closest-side, currentColor 75%, transparent) 0 0 / 4px 2px repeat-x;
+  &::before, &::after { content: ''; position: absolute; top: 50%; background: currentColor; }
+  &::before { left: 0; width: 4px; height: 4px; border-radius: 50%; translate: -50% -50%; }
+  &::after { left: 100%; width: 6px; height: 7px; translate: -100% -50%; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+  &[data-dir="left"] { background-position: right; }
+  &[data-dir="left"]::before { left: 100%; }
+  &[data-dir="left"]::after { left: 0; translate: 0 -50%; clip-path: polygon(100% 0, 0 50%, 100% 100%); } }
+/* A drag under way (control/util.js drag): the dragged control follows the pointer at once, and a scrub, pad or
+   knob hides the pointer, its value not being under it */
+.s-panel .s-dragging, .s-panel .s-dragging :is(*, ::before, ::after), .s-panel .s-dragging::before, .s-panel .s-dragging::after { transition: none !important; }
+:root.s-cursorless, :root.s-cursorless * { cursor: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .s-panel, .s-panel *, .s-panel::details-content, .s-panel *::before, .s-panel *::after, .s-panel *::details-content {
     transition: none !important;

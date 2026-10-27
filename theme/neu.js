@@ -34,7 +34,7 @@ const tones = L => {
 // Layers of a control-height part, in px: offset along the light (+ toward it), blur, spread,
 // strength. Relief n scales a part's layers; depth, softness and size scale every part.
 const RIM = 1
-const HALO = [10.5, 13.5, -5]
+const HALO = [10.5, 13.5, -5, .6]   // a raised part's spill at .6 of the measured light: at full it read as a white edge round each part
 const CREASE = [-2, .5, 0, .12]
 const CONTACT = [-11.5, 5, -5.5, .38]
 const CAST = [-23.5, 24, -10.5, .9]
@@ -86,7 +86,7 @@ export default function neu({
   // composited over ink fogs it (spill light on paint brightens it by a share, no more than it does the ground).
   const raise = (n, spill = true) => [
     layer(n, [-RIM, 0], bright(rimK), 'inset '),
-    ...spill ? [layer(n, HALO, bright(lightK))] : [],
+    ...spill ? [layer(n, HALO, bright(lightK * HALO[3]))] : [],
     layer(n, CREASE, shadow(CREASE[3])),
     layer(n, CONTACT, shadow(CONTACT[3] * shadeK)),
     layer(n, CAST, shadow(CAST[3] * shadeK, penumbra)),
@@ -138,7 +138,7 @@ export default function neu({
   const selectArrow = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2.5,3.75 5,6.25 7.5,3.75' fill='none' stroke='${encodeURIComponent(fgMuted)}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { body, controlHeight: 36, rowGap: 16, sectionGap: 16, panelPadding: 24, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
+  ${metrics({ size, spacing, font }, { body, controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"})}
 
   --bg: ${shade};
   --accent: ${acc};
@@ -436,7 +436,7 @@ export default function neu({
   .s-text input[type="text"] { flex: 1; }
   .s-textarea { align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2.5); }
-    textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 5); max-height: 50vh; }
+    textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 5); max-height: 50vh; }
     &.s-code textarea { font-family: ui-monospace, monospace; } }
 
   /* ── Info / separator: an engraved line ── */

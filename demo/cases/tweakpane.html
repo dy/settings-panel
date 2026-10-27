@@ -32,7 +32,7 @@
   <script type="module">
     import settings from '../../index.js'
     import tweakpane from '../../theme/tweakpane.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar } from './case-bar.js'
 
     // Tweakpane's alpha color text: rgba(r, g, b, a) with alpha at 2 decimals (the value is kept as #rrggbbaa)
     const rgbaText = v => { const [r, g, b, a = 255] = v.slice(1).match(/../g).map(h => parseInt(h, 16)); return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(2)})` }
@@ -41,7 +41,7 @@
       wave: { type: 'select', value: 'sine', options: ['sine', 'triangle', 'sawtooth', 'square'], label: 'wave' },
       speed: { type: 'slider', value: 0.5, min: 0, max: 1, step: 0.01, format: v => v.toFixed(2), label: 'speed' },
       spread: { type: 'slider', value: 28, min: 0, max: 100, step: 1, label: 'spread' },
-      position: { type: 'vector', value: [0.2, -0.4], labels: false, min: [-1, 1], max: [1, -1], step: 0.01, pad: true, label: 'position' },
+      position: { type: 'vector', value: [0.2, -0.4], labels: false, min: [-1, 1], max: [1, -1], step: 0.01, pad: true, scrub: true, label: 'position' },
       background: { type: 'color', variant: 'rgba', value: 'rgba(28, 63, 110, 0.8)', label: 'background', formatText: rgbaText },
       name: { type: 'text', value: 'voice', label: 'name' },
       count: { type: 'slider', value: 4, min: 0, max: 12, step: 1, label: 'count' },
@@ -60,7 +60,7 @@
       theme: () => tweakpane({ size: 11 / 13 }),
     })
 
-    nativeToggle({ ref: '../_ref/tp.html' })
+    caseBar({ ref: '../_ref/tp.html' })
   </script>
 </body>
 </html>

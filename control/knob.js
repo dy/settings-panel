@@ -8,13 +8,13 @@
  */
 
 import control from './control.js'
-import { clamp, stepMul, decimals } from './util.js'
+import { clamp, stepMul, decimals, drag, follow } from './util.js'
 import { computed } from '../signals.js'
 
 const template = `
   <span class="s-knob-wrap" :onpointerdown="grab" tabindex="0" :onkeydown.arrow.prevent="key">
     <span class="s-knob-dial" :style="knobStyle"><i></i></span>
-    <span class="s-knob-val" :text="display"></span>
+    <span class="s-knob-val" :style="valWidth" :text="display"></span>
   </span>
 `
 
@@ -23,8 +23,13 @@ export default (sig, opts = {}) => {
   const prec = decimals(step, 2)
 
   const angle = computed(() => startAngle + clamp((sig.value - min) / (max - min), 0, 1) * (endAngle - startAngle))
-  const knobStyle = computed(() => `transform: rotate(${angle.value.toFixed(1)}deg)`)
-  const display = computed(() => (step ? sig.value.toFixed(prec) : +(+sig.value).toFixed(2)) + unit)
+  // the needle turns, not the dial: a dial's light and shadow stay where they fall
+  const knobStyle = computed(() => `--turn: ${angle.value.toFixed(1)}deg`)
+  const show = v => (step ? v.toFixed(prec) : +(+v).toFixed(2)) + unit
+  const display = computed(() => show(sig.value))
+  // the value keeps the room of its longest reading (either end of the range), so the dial never moves as it turns,
+  // and at least eight characters ('2000 Hz', '-12.5 dB'), so dials of different ranges stand in one column
+  const valWidth = `min-width: ${Math.max(8, show(min).length, show(max).length)}ch`
 
   const set = v => {
     let nv = clamp(v, min, max)
@@ -32,7 +37,7 @@ export default (sig, opts = {}) => {
     sig.value = +nv.toFixed(6)
   }
 
-  let startY, startV, cx, cy
+  let startY, startV, cx, cy, held
   // circular: value follows the pointer's angle around the dial center
   // (0° at top, clockwise); angles clamp to the arc, splitting at the bottom gap
   const moveC = e => {
@@ -40,21 +45,18 @@ export default (sig, opts = {}) => {
     set(min + (a - startAngle) / (endAngle - startAngle) * (max - min))
   }
   const move = e => set(startV + ((startY - e.clientY) / 150) * (max - min))
-  const stop = () => {
-    removeEventListener('pointermove', move); removeEventListener('pointermove', moveC)
-    removeEventListener('pointerup', stop)
-  }
+  let stop = () => {}
   const grab = e => {
+    held = e.currentTarget.closest('.s-control')
+    drag(held, true)
     if (mode === 'circular') {
       const r = e.currentTarget.getBoundingClientRect()
       cx = r.x + r.width / 2; cy = r.y + r.height / 2
       moveC(e)
-      addEventListener('pointermove', moveC)
     } else {
       startY = e.clientY; startV = sig.value
-      addEventListener('pointermove', move)
     }
-    addEventListener('pointerup', stop)
+    stop = follow(mode === 'circular' ? moveC : move, () => drag(held, false))
     e.currentTarget.focus(); e.preventDefault()
   }
   const key = e => {
@@ -62,5 +64,5 @@ export default (sig, opts = {}) => {
     set(sig.value + (e.key === 'ArrowUp' || e.key === 'ArrowRight' ? s : -s))
   }
 
-  return control(sig, { ...rest, type: 'knob', template, knobStyle, display, grab, key, dispose: () => stop() })
+  return control(sig, { ...rest, type: 'knob', template, knobStyle, display, valWidth, grab, key, dispose: () => stop() })
 }

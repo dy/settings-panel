@@ -19,8 +19,8 @@
     ::-webkit-scrollbar { display: none; }
     body { min-height: 100vh; background: #161616; font-size: 14px; }
     body.light { background: #f0f0f0; }
-    /* where DialKit's popover sits: 16px from the top right */
-    #panel { position: fixed; top: 16px; right: 16px; width: 280px; max-width: calc(100% - 32px); }
+    /* DialKit's popover, 16px from the top, centred (as demo/_ref centres the original) */
+    #panel { position: absolute; top: 16px; inset-inline: 0; margin-inline: auto; width: min(280px, calc(100% - 32px)); }
   </style>
 </head>
 <body>
@@ -28,9 +28,9 @@
   <script type="module">
     import settings from '../../index.js'
     import dialkit from '../../theme/dialkit.js'
-    import { nativeToggle } from './native-toggle.js'
+    import { caseBar, appearance } from './case-bar.js'
 
-    const light = location.hash === '#light'
+    const light = appearance('dark') === 'light'
     document.body.classList.toggle('light', light)
     const fixed = n => v => v.toFixed(n)
 
@@ -55,7 +55,7 @@
       theme: () => dialkit(light ? { shade: '#fafafa' } : {}),
     })
 
-    nativeToggle({ ref: '../_ref/dialkit-ref.html' + location.hash, nativeLabel: 'DialKit' })
+    caseBar({ ref: '../_ref/dialkit-ref.html', label: 'DialKit', appearance: 'dark' })
   </script>
 </body>
 </html>

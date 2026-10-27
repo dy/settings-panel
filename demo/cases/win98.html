@@ -18,9 +18,11 @@
     * { box-sizing: border-box; margin: 0; }
     html { scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
-    /* the Windows 98 desktop; the dialog stays on whole pixels (top-aligned, even width) */
-    body { min-height: 100vh; padding: 48px 16px; background: #008080; }
+    /* the Windows 98 desktop; the dialog, centred, stays on whole pixels (even width, centre() rounds its top) */
+    body { min-height: 100vh; padding: 0 16px; background: #008080; }
     #panel { margin: 0 auto; width: min(404px, 100%); }
+    /* the Speed tab spaces its groups 23px apart, wider than the theme's 12 */
+    #panel .s-panel { --row-gap: calc(23 * var(--space)); }
   </style>
 </head>
 <body>
@@ -28,6 +30,7 @@
   <script type="module">
     import settings from '../../index.js'
     import retro from '../../theme/retro.js'
+    import { centre } from './case-bar.js'
 
     // a tick on every position, captions on the two ends
     const ends = (max, lo, hi) => Object.fromEntries(Array.from({ length: max + 1 }, (_, i) => [i, i === 0 ? lo : i === max ? hi : '']))
@@ -47,6 +50,7 @@
       collapsed: false,
       theme: () => retro({ size: 11 / 13 }),
     })
+    centre(document.querySelector('#panel'), 48)
   </script>
 </body>
 </html>

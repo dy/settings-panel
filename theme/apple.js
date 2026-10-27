@@ -67,8 +67,10 @@ export default function apple({
   const thumb = dark ? '#dfdfdf' : '#fff'             // slider thumb
   const chevron = dark ? '#fff' : a(.259)             // disclosure chevron (tertiaryLabel in Aqua)
 
-  const shadowThumb = '0 1px calc(4 * var(--length)) rgb(0 0 0 / .08)'
-  const shadowKnob = '0 -1px calc(4 * var(--length)) rgb(0 0 0 / .1)'
+  // Measured on NSSlider and a mini NSSwitch rendered by AppKit at 2x on macOS 26.5: the slider's thumb casts its
+  // shade upward (6.5% black at its top edge, 4% at its side, 2.4% below), the switch's knob downward onto its track
+  const shadowThumb = '0 calc(-1 * var(--length)) calc(4 * var(--length)) rgb(0 0 0 / .1)'
+  const shadowKnob = '0 var(--length) calc(4 * var(--length)) rgb(0 0 0 / .1)'
 
   // Body 13px: macOS sets labels and values in the 13pt system font.
   const body = 13
@@ -161,7 +163,7 @@ export default function apple({
   .s-text input[type="text"] { flex: 1; }
 
   /* ── Number ── */
-  .s-number { input[type="number"] { flex: 1; cursor: ew-resize; } .s-step { display: none; } }
+  .s-number { input[type="number"] { flex: 1; &.s-scrub { cursor: ew-resize; } } .s-step { display: none; } }
 
   /* ── Vector: "x  0  y  0", label-colored axis names ── */
   .s-vector {
@@ -210,16 +212,17 @@ export default function apple({
       padding: 0 calc(35.5 * var(--length)) 0 calc(12 * var(--length));
       &:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
       option { background: var(--fill); color: var(--ink); } }
-    &.s-segmented { .s-input { flex: none; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0; margin-top: calc(-4 * var(--length)); background: var(--control); border-radius: var(--r); }
-      button { position: relative; height: var(--field-h); padding: 0 calc(10.25 * var(--length)); background: transparent; border: none; border-radius: var(--r); color: var(--ink); font: inherit; white-space: nowrap;
+    /* a segmented control is as wide as its words, never wider than the row: its segments share what there is */
+    &.s-segmented { .s-input { flex: 0 1 auto; display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); min-width: 0; gap: 0; margin-top: calc(-4 * var(--length)); background: var(--control); border-radius: var(--r); }
+      button { position: relative; min-width: 0; height: var(--field-h); padding: 0 calc(10.25 * var(--length)); .s-input:has(> :nth-child(4)) > & { padding: 0 calc(5 * var(--length)); } background: transparent; border: none; border-radius: var(--r); color: var(--ink); font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         &:not(.s-selected) + button:not(.s-selected)::before { content: ''; position: absolute; left: 0; top: calc(5 * var(--length)); bottom: calc(5 * var(--length)); width: .5px; transform: translateX(-.25px); background: var(--rule); }
         /* the selected pill stops 1pt short of neighbouring segments, flush with the control's own ends */
         &.s-selected { background: var(--action-fill) padding-box; color: var(--on-accent); &:not(:first-child) { border-left: 1px solid transparent; } &:not(:last-child) { border-right: 1px solid transparent; } }
         &:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; } } }
     &.s-radio, &.s-checkboxes { .s-input label { display: flex; align-items: center; gap: calc(5 * var(--length)); cursor: pointer; } }
-    &.s-radio .s-input { flex-direction: row; align-items: center; flex-wrap: wrap; column-gap: calc(16 * var(--length)); row-gap: calc(var(--u) * 2); }   /* radio group: options in a trailing row */
-    /* checkboxes: a leading-aligned column (box, then title) at the trailing edge, as a VStack of Toggles lays out */
-    &.s-checkboxes .s-input { flex: none; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 2); }
+    /* radio and checkbox lists: a leading-aligned column (mark, then title) at the trailing edge, as a VStack of
+       Toggles lays out */
+    &:is(.s-radio, .s-checkboxes) .s-input { flex: none; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 2); }
     &.s-radio input[type="radio"] { appearance: none; -webkit-appearance: none; margin: 0; width: var(--check); height: var(--check); border-radius: 50%; background: var(--track); display: grid; place-items: center;
       &::after { content: ''; width: calc(5 * var(--length)); height: calc(5 * var(--length)); border-radius: 50%; background: var(--on-accent); opacity: 0; }
       &:checked { background: var(--accent-fill); &::after { opacity: 1; } }
@@ -263,10 +266,9 @@ export default function apple({
       input[type="color"] { position: static; }
       input[type="text"] { flex: 1; min-width: 7ch; order: -1; } }
     /* rgba: the alpha slider, the value, then the well at the trailing edge, as the picker row ends */
-    &.s-rgba .s-color-input { gap: var(--column-gap); justify-content: flex-end; input[type="text"] { flex: 0 1 auto; width: auto; field-sizing: content; order: -1; } }
+    &.s-rgba .s-color-input { gap: var(--column-gap); justify-content: flex-end; input[type="text"] { flex: none; width: auto; field-sizing: content; order: -1; } }
     /* the label keeps only its own width there, so the slider has the room the trailing controls leave */
-    &.s-rgba .s-label-group { width: auto; flex: 0 1 auto; max-width: calc(45% - var(--column-gap)); }
-    &.s-swatches { .s-input { flex-wrap: wrap; justify-content: flex-end; } button { width: var(--check); height: var(--check); border-radius: 50%; border: none; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .1); &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } } }
+    &.s-swatches { .s-input { flex-wrap: wrap; justify-content: flex-start; } button { width: var(--check); height: var(--check); border-radius: 50%; border: none; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .1); &.s-selected { outline: 2px solid var(--accent); outline-offset: 2px; } } }
   }
 
   /* ── Button: 24pt push buttons, trailing; default action = accent ── */
@@ -284,7 +286,7 @@ export default function apple({
   }
 
   /* ── Textarea: borderless like the fields, leading-aligned prose ── */
-  .s-textarea { textarea { flex: 1; height: auto; resize: vertical; field-sizing: content; min-height: calc(3 * var(--line-height)); max-height: 50vh; text-align: left; } }
+  .s-textarea { textarea { flex: 1; height: auto; resize: none; field-sizing: content; min-height: calc(3 * var(--line-height)); max-height: 50vh; text-align: left; } }
 
   /* ── Folder: section header inside the sheet ── */
   .s-folder {
@@ -296,6 +298,7 @@ export default function apple({
   /* ── XY pad / knob ── */
   .s-pad { border-radius: var(--r); background: var(--control); border-color: var(--line); }
   .s-knob-dial { background: var(--control); border: none; }
+  .s-knob-val { text-align: right; }
   .s-knob { align-items: center; }   /* a dial is one tall line: its label centres on it */
 
   /* ── Help tag (circled "?", hover shows an NSToolTip-style 11pt tag); slider tooltip shares the tag ── */

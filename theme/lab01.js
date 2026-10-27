@@ -753,9 +753,12 @@ export default function lab01({
     input[type="text"] { flex: 1; min-width: 0; width: 0; padding: 0 var(--pad); }
   }
 
+  /* a swatch is form's square, not a button's row height */
+  .s-color.s-swatches button { height: calc(var(--u) * 5); }
+
   .s-color.s-rgba .s-color-input {
     flex-wrap: wrap;
-    input[type="text"] { min-width: 10ch; }
+    input[type="text"] { flex: 0 0 auto; width: auto; min-width: 0; field-sizing: content; }   /* the whole code, never cropped */
     /* the slider's groove, its checkerboard and ramp in place of the fill */
     .s-alpha { height: var(--slider-h); border-radius: calc(var(--r) * 0.5); box-shadow: var(--track-bevel); }
   }

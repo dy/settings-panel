@@ -73,6 +73,8 @@ persist: true          // key = 'settings-panel'
 persist: 'my-app'      // custom key
 ```
 
+A saved value restores only while the schema still admits it: one of a select's options (every one, for a multiple select), otherwise a value of the default's kind. A value saved under an older schema, such as an option since renamed, falls back to the default.
+
 
 ### `key`
 

@@ -6,7 +6,7 @@ import control from './control.js'
 
 const templates = {
   dropdown: `
-    <select :id="label || null" :name="label || null" :value="value" :onchange="e => set(e.target.value)">
+    <select :id="id" :name="label || null" :value="value" :onchange="e => set(e.target.value)">
       <option :each="opt in options" :value="opt.value" :text="opt.label"></option>
     </select>
   `,
@@ -57,7 +57,7 @@ export default (sig, opts = {}) => {
     sig.value = arr
   }
 
-  return control(sig, {
+  const result = control(sig, {
     ...rest,
     type: `select ${variant}`,
     template: templates[variant] || templates.dropdown,
@@ -65,4 +65,13 @@ export default (sig, opts = {}) => {
     multiple, toggle,
     options, radioName
   })
+
+  // a dropdown's whole row opens its menu: the label and the row's own padding included
+  const menu = result.el.querySelector('select')
+  if (menu) result.el.addEventListener('click', e => {
+    if (menu.contains(e.target) || e.target.closest('[data-tip]')) return
+    try { menu.showPicker?.() } catch {} // a picker the browser won't open (no activation, cross-origin frame) stays a focused field
+  })
+
+  return result
 }

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { contrast, mix } from '../theme/color.js'
 import { themes as registry } from '../demo/themes.js'
 
-const themes = ['default', 'skeu', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit']
+const themes = ['default', 'skeu', 'matte', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit', 'json']
 
 test('DevTools empty declarations keep braces on static panels and through collapse cycles', async ({ page }) => {
   await page.goto('/')
@@ -169,7 +169,7 @@ test('DevTools light and dark keep Chrome colors, inline fields and edited value
   await field.fill('translateX(' + '1'.repeat(100) + 'px)')
   await page.locator('[data-key=visible] input').uncheck()
   for (const mode of ['light', 'light', 'dark', 'light']) {
-    await page.locator('#appearance').selectOption(mode)
+    await page.locator(`.case-appearance button[data-mode=${mode}]`).click()
     await expect(panel).toHaveCSS('background-color', mode === 'light' ? 'rgb(255, 255, 255)' : 'rgb(40, 40, 40)')
     await expect(panel).toHaveCSS('color-scheme', mode)
     await expect(panel.locator('[data-key=display] .s-label')).toHaveCSS('color', mode === 'light' ? 'rgb(220, 54, 46)' : 'rgb(92, 213, 251)')
@@ -192,9 +192,9 @@ test('DevTools light and dark keep Chrome colors, inline fields and edited value
   await page.getByRole('button', { name: 'Reset declarations' }).click()
   await expect(field).toHaveValue('translateY(0)')
   await expect(page.locator('[data-key=visible] input')).toBeChecked()
-  await page.locator('#appearance').selectOption('dark')
+  await page.locator('.case-appearance button[data-mode=dark]').click()
   await page.reload()
-  await expect(page.locator('#appearance')).toHaveValue('dark')
+  await expect(page.locator('.case-appearance button[data-mode=dark]')).toHaveAttribute('aria-pressed', 'true')
   await expect(panel).toHaveCSS('color-scheme', 'dark')
 })
 
@@ -233,7 +233,7 @@ test('boolean, radio and checkbox-list properties follow resets after native int
 // readout floats centred over the thumb (DevTools prints it inline, as a CSS value; Synth at the end of
 // the label line, where its readouts sit); vector fields show their whole value; a radio or checkbox
 // list styles its options, never the row's own label.
-const ownTooltip = ['devtools', 'synth']
+const ownTooltip = ['devtools', 'synth', 'json']
 test('every theme hides title text until hover, wraps swatches, floats tooltips, fits vectors and leaves list labels plain', async ({ page }) => {
   await page.goto('/')
   for (const name of themes) {
@@ -306,7 +306,8 @@ test('every theme keeps checked, chosen and slider state perceivable under force
     host.remove()
     return results
   }, themes)
-  for (const name of themes) expect(results[name], name).toEqual({ hidden: 0, chosen: true })
+  // json prints a slider as its number, which carries the state; it draws no track
+  for (const name of themes) expect(results[name], name).toEqual({ hidden: name === 'json' ? 1 : 0, chosen: true })
 })
 
 // A vector axis keeps room for its value: in a narrow host the axes wrap rather than clip.
@@ -582,7 +583,7 @@ test.describe('text measured from pixels', () => {
         if (own) host.style.background = getComputedStyle(host.querySelector('.s-panel')).getPropertyValue('--bg')
       }, [name, grounds[name], pane.includes(name)])
       await page.locator('#placeholder .s-search-btn').click()
-      for (const [kind, selector, placeholder] of [['field', 'input[type=text]', 'Search…'], ['search', '.s-search-input', 'Filter']]) {
+      for (const [kind, selector, placeholder] of [['field', '.s-text :is(input, textarea)', 'Search…'], ['search', '.s-search-input', 'Filter']]) {
         const states = await fieldText(page, page.locator(`#placeholder ${selector}`), { placeholder, settle: 50 })
         for (const [state, { ink, bg, ratio }] of Object.entries(states)) if (ratio < 4.5) failures[`${name} ${kind} ${state}`] = `${ink} on ${bg} ${ratio}:1`
       }
@@ -687,7 +688,7 @@ test.describe('text measured from pixels', () => {
         host.offsetHeight
         await document.fonts.ready
       }, [name, size, grounds[name]])
-      ;(heights[name] ??= []).push(await glyphHeight(page, page.locator('#digits input[type=text]')))
+      ;(heights[name] ??= []).push(await glyphHeight(page, page.locator('#digits .s-text :is(input, textarea)')))
     }
     await page.close()
     const pixels = { imgui: 8 / 13, bitmap: 7 / 9, retro: 9 / 11 }, [low, high] = [8.67 - .1, 10.15 + .1]

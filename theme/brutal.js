@@ -219,7 +219,7 @@ export default function brutal({
   /* ── Number ── */
   .s-number {
     .s-input { gap: 0; }
-    input[type="number"] { flex: 1; text-align: right; cursor: ew-resize; -moz-appearance: textfield;
+    input[type="number"] { flex: 1; text-align: right; -moz-appearance: textfield; &.s-scrub { cursor: ew-resize; }
       &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       &:focus { cursor: text; } }
     .s-step { flex-direction: column; gap: 0; height: var(--h); margin-left: calc(var(--bw) * -1);
@@ -234,7 +234,7 @@ export default function brutal({
 
   /* ── Vector ── */
   .s-vector {
-    .s-vec-axis { height: var(--h); gap: 0; min-width: calc(var(--u) * 16); border: var(--bw) solid var(--ink); background: var(--paper);
+    .s-vec-axis { height: var(--h); gap: 0; min-width: max-content; border: var(--bw) solid var(--ink); background: var(--paper);   /* an axis keeps its letter and value; the row wraps first */
       &:focus-within { box-shadow: var(--plate-sm); } }
     .s-vec-label { width: calc(var(--u) * 6); height: 100%; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-weight: 700; font-size: var(--font-size-small); opacity: 1; }
     input[type="number"] { height: 100%; border: none; padding: 0 calc(var(--u) * 2); &:focus-visible { box-shadow: none; } }
@@ -397,7 +397,7 @@ export default function brutal({
   .s-textarea {
     align-items: flex-start;
     .s-label-group { padding-top: calc(var(--u) * 2.5); }
-    textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
+    textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(var(--lh) * 3 + var(--u) * 4); max-height: 50vh; }
     &.s-code textarea { font-family: ui-monospace, 'SF Mono', monospace; }
   }
 

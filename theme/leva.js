@@ -281,6 +281,8 @@ export default function leva({
       &:focus-visible { box-shadow: 0 0 0 var(--hairline) var(--accent); }
       option { background: var(--field); color: var(--field-ink); } }
     &.s-segmented { .s-input { gap: calc(2 * var(--length)); } button { flex: 1; background: var(--field); border: none; color: var(--ink); border-radius: var(--r); height: var(--control-height); padding: 0 calc(4 * var(--space)); font: inherit; &:hover { box-shadow: inset 0 0 0 var(--hairline) var(--accent1); } &.s-selected { background: var(--action); color: var(--on-accent); } } }
+    /* an option list stands a step clear of its neighbours, so two lists never read as one */
+    &:is(.s-radio, .s-checkboxes) > .s-input { padding-block: calc(4 * var(--space)); }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(4 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(7 * var(--space)); cursor: pointer; } }
   }
 
@@ -327,7 +329,7 @@ export default function leva({
   }
 
   /* ── Textarea ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(44 * var(--length)); max-height: 50vh; padding: calc(5 * var(--space)) calc(7 * var(--space)); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(44 * var(--length)); max-height: 50vh; padding: calc(5 * var(--space)) calc(7 * var(--space)); } }
 
   /* ── Folder: a root folder below any visible row (native re-renders filtered rows away)
      opens with a 1px elevation1 rule 10px below it; its chevron (highlight2 at 60%) and
@@ -353,6 +355,7 @@ export default function leva({
   .s-info > .s-label-group { align-self: flex-start; padding-top: calc(6 * var(--space)); }
   .s-info .s-monitor { color: var(--muted); opacity: 1; font-variant-numeric: tabular-nums; }
   .s-separator { background: var(--title); opacity: 1; }
+  .s-separator-labeled { background: none; &::before, &::after { background: var(--title); opacity: 1; } }
   .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 

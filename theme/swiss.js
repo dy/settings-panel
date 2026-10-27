@@ -32,7 +32,7 @@ export default function swiss({
   scale = 1,      // typographic scale multiplier
   titleFont = `'Oswald', 'Arial Narrow', sans-serif`,
   labelFont = `'DM Sans', 'Helvetica', sans-serif`,
-  valueFont = `'DM Serif Display', 'Georgia', serif`,
+  valueFont = `'DM Serif Display', 'Times New Roman', serif`,   // a fallback with lining figures (Georgia's are old-style)
   font,
 } = {}) {
   const { L } = parseColor(shade)
@@ -84,6 +84,8 @@ export default function swiss({
 
   --rule: light-dark(color-mix(in srgb, black 12%, transparent), white);
   --dim: light-dark(color-mix(in srgb, black ${dimLight}%, transparent), color-mix(in srgb, white ${dimDark}%, transparent));
+  --knob: light-dark(white, black);   /* a switch's knob: the page's colour against the ink */
+  --ink: light-dark(black, white);    /* a slider's hairline and an on switch's track: the ink, which reads on any shade */
   --fill: light-dark(color-mix(in srgb, black 7%, transparent), color-mix(in srgb, white 10%, transparent));
   --fill-hover: light-dark(color-mix(in srgb, black 11%, transparent), color-mix(in srgb, white 16%, transparent));
   --check-mark: ${checkMark};
@@ -91,6 +93,7 @@ export default function swiss({
   --chev-down: ${chevDown};
 
   --label-w: 28%;
+  --focus: color-mix(in srgb, var(--ink) 40%, transparent);   /* a focused field's hairline: present, not louder than the rules' ink */
 
 
   border-radius: 0;
@@ -175,7 +178,7 @@ export default function swiss({
     font-size: var(--size-label);
   }
   .s-hint, .s-vec-label, .s-mark-label { font-family: var(--label-font); font-size: var(--size-label); }
-  .s-readout, .s-tooltip, .s-knob-val, .s-pad-val, .s-info .s-monitor, .s-toggle .s-track { font-family: var(--value-font); }
+  .s-readout, .s-tooltip, .s-knob-val, .s-pad-val, .s-info .s-monitor, .s-toggle .s-track { font-family: var(--value-font); font-variant-numeric: lining-nums tabular-nums; }
   .s-readout, .s-tooltip, .s-knob-val, .s-pad-val { font-size: var(--size-readout); }
   .s-info .s-monitor, .s-toggle .s-track { font-size: var(--size-value); }
   /* base dims these by opacity; raised to read on the ground */
@@ -192,6 +195,7 @@ export default function swiss({
     font-family: var(--value-font);
     font-size: var(--size-value);
     font-weight: var(--weight);
+    font-variant-numeric: lining-nums tabular-nums;   /* figures on the line, in columns: the serif's own are old-style */
     color: inherit;
     border-radius: 0;
     box-shadow: none;
@@ -212,11 +216,13 @@ export default function swiss({
     outline: none;
     padding: var(--pad) calc(var(--u) * 4);
     &::placeholder { color: var(--dim); }
-    &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+    &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
   }
   /* a single-line field fills its row: the row sets the height, the field centres its text
      (an inset would add to the serif's own taller line box and lift the row past its pitch) */
   input[type="text"], select { padding-block: 0; }
+  /* a field with no label takes the row from its start: its text stands where the labels' does */
+  .s-control:has(> .s-label-group[hidden]) :is(input[type="text"], select, textarea) { padding-left: var(--pad); }
   .s-search-input::placeholder { color: var(--dim); }
 
   input[type="number"] {
@@ -229,7 +235,7 @@ export default function swiss({
     padding: 0 calc(var(--u) * 4);
     font-variant-numeric: tabular-nums;
     &::placeholder { color: var(--dim); }
-    &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+    &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
     &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   }
 
@@ -241,11 +247,13 @@ export default function swiss({
       padding-right: calc(var(--u) * 4);
       align-items: center;
     }
+    /* the field takes the cell, so any value reads whole; the steppers stand where the select's chevron does */
+    .s-input { flex: 1; }
     input[type="number"] {
-      flex: none;
+      flex: 1;
       align-self: stretch;
-      width: calc(var(--u) * 12);
-      min-width: calc(var(--u) * 12);
+      width: auto;
+      min-width: 0;
       text-align: left;
     }
     .s-step {
@@ -290,12 +298,21 @@ export default function swiss({
   .s-boolean {
     /* centred in the row, not inset from it: the row keeps its pitch */
     &.s-switch .s-input, &.s-toggle .s-input { align-items: center; padding: 0 calc(var(--u) * 4); }
-    &.s-switch .s-track { position: relative; flex: none; width: calc(var(--u) * 10); height: calc(var(--u) * 5);
-      &::after { content: ''; position: absolute; top: calc(2 * var(--length)); bottom: calc(2 * var(--length)); left: calc(2 * var(--length)); width: calc(var(--u) * 4 - 2 * var(--length)); transition: left 120ms; }
+    /* switch: a square-cornered track filled in the row's tone with a square knob of the page's colour that crosses
+       it; on, the track takes the accent (Studio's switch, unrounded) */
+    &.s-switch .s-track { position: relative; flex: none; width: calc(var(--u) * 9); height: calc(var(--u) * 5);
+      border: 0 !important; background: var(--fill-hover) !important;
+      &::after { content: ''; position: absolute; top: calc(var(--u) * .5); left: calc(var(--u) * .5); width: calc(var(--u) * 4); height: calc(var(--u) * 4); background: var(--knob) !important; transition: left 120ms; }
     }
-    &.s-switch:has(input:checked) .s-track::after { left: calc(var(--u) * 6 - 2 * var(--length)); }
-    &.s-toggle .s-track { padding: calc(3 * var(--length)) calc(12 * var(--length)); &::after { content: 'Off'; background: none; } }
-    &.s-toggle:has(input:checked) .s-track::after { content: 'On'; background: none; }
+    &.s-switch:has(input:checked) .s-track { background: var(--ink) !important; &::after { left: calc(var(--u) * 4.5); } }
+    &.s-switch .s-input:active .s-track { transform: none; }
+    /* toggle: the two-segment control, Off | On, the chosen one in the row's tone, as the segments draw it */
+    &.s-toggle .s-input { align-self: stretch; padding: 0; }
+    &.s-toggle .s-track { flex: 1; display: flex; align-items: stretch; border: 0 !important; padding: 0; background: none !important;
+      &::before, &::after { position: static; flex: 1; display: flex; align-items: center; justify-content: center; width: auto; height: auto; opacity: 1; transform: none; transition: background-color 120ms; }
+      &::before { content: 'Off'; background: var(--fill) !important; }
+      &::after { content: 'On'; border-left: var(--hairline) solid var(--rule); background: none !important; } }
+    &.s-toggle:has(input:checked) .s-track { background: none !important; &::before { background: none !important; } &::after { background: var(--fill) !important; } }
     /* checkbox: one row of the checkboxes list, a gutter cell that fills and takes the check mark */
     &.s-checkbox {
       input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -316,14 +333,14 @@ export default function swiss({
         box-shadow: none;
       }
     }
-    .s-input:active .s-track { transform: scale(0.96); }
+    &:not(.s-checkbox, .s-toggle) .s-input:active .s-track { transform: scale(0.96); }
     &:has(input:checked) .s-track {
       background: var(--fill);
       border-color: var(--rule);
       &::after { background: currentColor; }
     }
     &:has(input:focus-visible) .s-track {
-      outline: var(--hairline) solid var(--accent);
+      outline: var(--hairline) solid var(--focus);
       outline-offset: calc(var(--hairline) * -1);
     }
   }
@@ -336,7 +353,7 @@ export default function swiss({
       cursor: pointer;
       padding-right: calc(var(--u) * 9);
       background: ${selectChevron(ink)} right calc(var(--u) * 4) center / var(--glyph) no-repeat;
-      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+      &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
     }
 
     /* segmented — horizontal or vertical, same selection model */
@@ -378,7 +395,7 @@ export default function swiss({
     }
 
     /* lists, as the reference's checkbox list: sans options on the smaller list step, each with a
-       gutter cell that fills and takes the mark, a check for each one ticked, a square for the one chosen */
+       gutter cell that fills and takes the mark, a check for each one ticked, a dot for the one chosen */
     &:is(.s-checkboxes, .s-radio) {
       align-items: baseline;
 
@@ -439,30 +456,48 @@ export default function swiss({
           transition: opacity 140ms, transform 140ms;
         }
         &:has(input:checked)::after { opacity: 1; transform: scale(1); }
-        &:has(input:focus-visible) { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+        &:has(input:focus-visible) { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
       }
     }
     &.s-radio .s-input label::after {
       -webkit-mask: none; mask: none;
-      background: linear-gradient(light-dark(black, white) 0 0) center / calc(8 * var(--length)) calc(8 * var(--length)) no-repeat;
+      background: radial-gradient(circle closest-side, light-dark(black, white) calc(100% - .75px), transparent) center / calc(8 * var(--length)) calc(8 * var(--length)) no-repeat;
     }
   }
 
-  /* ── Slider: one square slider for every range (plain, interval, the colour's alpha): an outlined
-     groove, the accent filled up to the thumb, a square thumb of the fill ringed in the groove's tone.
-     The groove contrasts the accent as the native one does, dark under a light accent, light under a dark one. ── */
-  .s-slider input[type="range"], .s-color .s-alpha {
-    -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: calc(var(--u) * 2); margin: 0;
-    border: var(--hairline) solid var(--rule); border-radius: 0;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--groove) var(--p, 0%));
-    cursor: pointer;
-    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border: var(--hairline) solid var(--groove); border-radius: 0; background: var(--accent); cursor: grab; }
-    &::-moz-range-thumb { width: calc(var(--u) * 4); height: calc(var(--u) * 4); border: var(--hairline) solid var(--groove); border-radius: 0; background: var(--accent); cursor: grab; }
-    &:active::-webkit-slider-thumb { cursor: grabbing; }
-    &:focus-visible { outline: none; }
-    &:focus-visible::-webkit-slider-thumb { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * 2); }
-    &:focus-visible::-moz-range-thumb { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * 2); }
+  /* ── Slider: the value cell is the instrument (Studio's row-as-slider, square): the row's tone fills the cell up
+     to the value, a hairline of the ink stands at the fill's edge, the value sits at the cell's end. The colour's
+     alpha is its ramp with the same hairline. The hairline and an on switch are in the ink, which reads on any shade
+     where the accent (white by default) may not. ── */
+  .s-slider:not(.s-multiple) {
+    .s-input { padding-left: 0; align-self: stretch; position: relative; }
+    .s-track { align-self: stretch; display: flex; }
+    /* fill and hairline are painted, both the cell's full height whatever the row's (a two-line label grows it);
+       the thumb only takes the pointer */
+    input[type="range"] {
+      --edge: calc(2 * var(--hairline)); --tone: var(--fill);
+      -webkit-appearance: none; appearance: none; width: 100%; height: 100%; min-height: var(--row); margin: 0; border: 0; border-radius: 0; cursor: pointer;
+      background: linear-gradient(var(--ink), var(--ink)) var(--p, 0%) 0 / var(--edge) 100% no-repeat, linear-gradient(var(--tone), var(--tone)) 0 0 / var(--p, 0%) 100% no-repeat;
+      &::-webkit-slider-runnable-track { height: 100%; }
+      &::-webkit-slider-thumb { -webkit-appearance: none; width: var(--edge); height: var(--row); border: 0; opacity: 0; cursor: ew-resize; }
+      &::-moz-range-thumb { width: var(--edge); height: var(--row); border: 0; opacity: 0; cursor: ew-resize; }
+      &:hover { --tone: var(--fill-hover); }
+      &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
+    }
+    .s-readout { position: absolute; right: 0; top: calc(var(--row) / 2); transform: translateY(-50%); }
+    /* labelled marks hang in a line under the cell's: the fill keeps the row's height, the end labels stay one
+       inset inside the cell's rules */
+    .s-mark-label.s-first { transform: none; margin-left: calc(var(--u) * 2); } .s-mark-label.s-last { transform: translateX(-100%); margin-left: calc(var(--u) * -2); }
+    &:has(.s-mark-labels:not(:empty)) input[type="range"] { background-size: var(--edge) var(--row), var(--p, 0%) var(--row); }
   }
+  .s-color .s-alpha {
+    -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: calc(var(--u) * 3); margin: 0;
+    border: 0; border-radius: 0; cursor: pointer;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--hairline)); height: calc(var(--u) * 3); border: 0; border-radius: 0; background: var(--ink); cursor: ew-resize; }
+    &::-moz-range-thumb { width: calc(2 * var(--hairline)); height: calc(var(--u) * 3); border: 0; border-radius: 0; background: var(--ink); cursor: ew-resize; }
+    &:focus-visible { outline: var(--hairline) solid var(--ink); outline-offset: calc(var(--hairline) * 2); }
+  }
+
   .s-slider {
     /* the track starts one value inset off the column rule, as a field's text does */
     .s-input { padding-left: calc(var(--u) * 4); }
@@ -478,7 +513,6 @@ export default function swiss({
       color: var(--dim);
       font-size: var(--size-readout);
       font-variant-numeric: tabular-nums;
-      &.s-readout-lo { padding: 0 calc(var(--u) * 2) 0 0; }
     }
     /* tooltip readout: set in reverse above the thumb, so it reads over whatever row it overhangs */
     .s-tooltip {
@@ -488,13 +522,22 @@ export default function swiss({
       font-family: var(--value-font); font-size: var(--size-readout); line-height: 1;
       font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none;
     }
-    /* interval: the same groove, the span between the thumbs in its fill */
+    /* interval: the same cell, the span between its two hairlines in the row's tone, the whole cell its track; the
+       values sit inside it at its two ends, as a single slider's does at its end */
+    &.s-multiple .s-input { align-self: stretch; position: relative; padding-left: 0; }
+    &.s-multiple .s-readout { position: absolute; top: calc(var(--row) / 2); transform: translateY(-50%); z-index: 2; }
+    &.s-multiple .s-readout-lo { left: 0; padding: 0 0 0 calc(var(--u) * 4); text-align: left; }
+    &.s-multiple .s-readout-hi { right: 0; }
     &.s-multiple .s-interval-track {
-      align-self: center; height: calc(var(--u) * 2);
-      border: var(--hairline) solid var(--rule);
-      background: var(--groove);
-      &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); }
-      input[type="range"] { height: 100%; border: none; background: transparent; }
+      align-self: stretch; height: auto; min-height: var(--row); border: 0; background: none;
+      &::before { content: ''; position: absolute; inset-block: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--fill); }
+      /* the two hairlines painted at the ends of the span, the cell's full height; the thumbs only take the pointer */
+      &::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(var(--ink), var(--ink)) var(--low, 0%) 0 / calc(2 * var(--hairline)) 100% no-repeat, linear-gradient(var(--ink), var(--ink)) var(--high, 100%) 0 / calc(2 * var(--hairline)) 100% no-repeat; }
+      input[type="range"] { -webkit-appearance: none; appearance: none; height: 100%; margin: 0; border: none; background: transparent;
+        &::-webkit-slider-runnable-track { height: 100%; }
+        &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(2 * var(--hairline)); height: var(--row); border: 0; opacity: 0; cursor: ew-resize; }
+        &::-moz-range-thumb { width: calc(2 * var(--hairline)); height: var(--row); border: 0; opacity: 0; cursor: ew-resize; } }
     }
   }
 
@@ -515,12 +558,14 @@ export default function swiss({
       font-size: var(--size-button);
       /* optical lift: uppercase-only ink reads a hair low when geometrically
          centred — raise it 1px (reference buttons carry the same correction) */
-      padding: calc(var(--u) * 4 - 1px) calc(var(--u) * 5) calc(var(--u) * 4 + 1px);
+      min-height: calc(var(--row) + var(--hairline));
+      padding: calc(var(--u) * 1 - 1px) calc(var(--u) * 5) calc(var(--u) * 1 + 1px);
       cursor: pointer;
       transition: background-color 120ms, filter 120ms, transform 120ms;
       &:hover { background: var(--fill-hover); }
       &:active { filter: brightness(.9); transform: scale(0.96); }
-      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(var(--hairline) * -1); }
+      &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
+      &:disabled, &[aria-busy="true"] { opacity: .4; cursor: not-allowed; &:hover { background: var(--fill); } &:active { filter: none; transform: none; } }
     }
     &.s-secondary button, button.s-secondary {
       background: transparent;
@@ -535,9 +580,14 @@ export default function swiss({
     /* a heading row; the first row's rule closes it */
     > summary {
       min-height: var(--row);
-      padding: 0 var(--pad);
-      &::after { display: none; }
+      padding: 0 calc(var(--u) * 4) 0 var(--pad);
+      display: flex; align-items: center;
+      /* the fold's chevron, the select's and the stepper's glyph, at their inset */
+      &::after { content: ''; display: block; flex: none; margin-left: auto; width: var(--glyph); height: var(--glyph); background: currentColor;
+        -webkit-mask: var(--chev-down) center / contain no-repeat; mask: var(--chev-down) center / contain no-repeat; transition: rotate 120ms; }
     }
+    &[open] > summary::after { rotate: 180deg; }
+    &.s-section > summary::after { display: none; }
     .s-content { gap: 0; }
   }
 
@@ -554,24 +604,40 @@ export default function swiss({
   .s-knob .s-input { padding-left: calc(var(--u) * 4); align-items: center; }
   .s-knob-dial { width: calc(var(--u) * 6); height: calc(var(--u) * 6); }
 
-  /* ── Vector: axis letters start one value inset off the column rule ── */
+  /* ── Vector: axis letters start one value inset off the column rule; an open pad and the XY pad stand inside
+     their cell, inset from its rules ── */
   .s-vector .s-input { padding-left: calc(var(--u) * 4); }
+  .s-vec-expand { align-self: center; margin-right: calc(var(--u) * 2); }   /* on its axes' line, open or folded */
+  :is(.s-xy, .s-vector:has(.s-pad)) .s-input { padding: calc(var(--u) * 2) calc(var(--u) * 4); }
+  /* info: its value inset off the column rule like a field's, on the row's line */
+  .s-info .s-input { padding-left: calc(var(--u) * 4); align-self: center; }
+  /* a textarea grows with its lines, never scrolling its first one away */
+  .s-textarea textarea { field-sizing: content; min-height: calc(2 * var(--lh) + 2 * var(--pad)); }
   .s-vec-label { opacity: ${reads(55) / 100}; }
 
   /* ── Color ── */
+  /* swatches: plain squares of colour, no frame; the chosen one ringed in the ink */
+  .s-color.s-swatches {
+    .s-input { flex-wrap: wrap; gap: calc(var(--u) * 1.5); padding: calc(var(--u) * 2) calc(var(--u) * 4); }
+    button { flex: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); min-height: 0; padding: 0; border: 0; box-shadow: inset 0 0 0 var(--hairline) color-mix(in srgb, currentColor 12%, transparent); cursor: pointer;
+      &.s-selected { outline: calc(2 * var(--hairline)) solid var(--ink); outline-offset: calc(2 * var(--hairline)); }
+      &:focus-visible { outline: var(--hairline) solid var(--accent); outline-offset: calc(2 * var(--hairline)); } }
+  }
   .s-color {
     &.s-picker .s-color-input {
-      input[type="color"] { position: static; flex: none; width: calc(var(--u) * 6); height: calc(var(--u) * 6); }
+      input[type="color"] { position: static; flex: none; }
       input[type="text"] { width: 0; }
     }
     .s-color-input {
       input[type="text"] { font-variant-numeric: tabular-nums; }
-      input[type="color"] { border: var(--hairline) solid var(--rule); padding: 0; margin-left: calc(var(--u) * 4); }
+      /* the colour itself fills a square cell at the field's start, closed by the column's rule */
+      input[type="color"] { align-self: stretch; width: var(--row); height: auto; border: 0; border-right: var(--hairline) solid var(--rule); padding: 0; margin: 0;
+        &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: 0; border-radius: 0; } &::-moz-color-swatch { border: 0; border-radius: 0; } }
     }
     /* the code is as wide as its nine characters (narrower only in a narrow host); the alpha slider takes what is left */
     &.s-rgba .s-color-input input[type="text"] { flex: 0 1 auto; width: calc(11ch + var(--u) * 8); }
     /* the slider's groove, showing the colour's ramp over a checkerboard instead of the fill */
-    &.s-rgba .s-color-input .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
+    &.s-rgba .s-color-input .s-alpha { width: 0; margin-left: calc(var(--u) * 4); background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
   }
 }`
 

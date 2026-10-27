@@ -1,10 +1,11 @@
 /**
- * Slider control - linear, log, discrete, multiple (interval)
+ * Slider control - linear, log, discrete, range (interval)
  *
  * Options:
  *   min, max - range bounds
  *   step - increment: number | number[] (array = discrete values with snap)
- *   multiple - true for dual-thumb interval mode (value: [low, high])
+ *   range - two thumbs on one track, value [low, high], low ≤ high: `slider:range`, `multiple: true`, or a
+ *           [low, high] value
  *   scale - 'linear' | 'log'
  *   marks - visual indicators on track:
  *           false (default), true (at step positions), 'ends', 'center',
@@ -15,26 +16,30 @@
  *            'tooltip' (above thumb), (value) → string (custom text), false/null (hidden)
  *   unit - suffix appended to displayed value (e.g. 'px', '%', 'ms')
  *   format - (value) → string, overrides default auto-precision display
+ *
+ * Themes read `.s-track`'s --p (fill, %), --t (the same as a 0–1 number, for fills that end under a thumb) and --steps
+ * (step intervals across the range, absent when stepless) and carries the value as data-value (for a theme that prints it);
+ * the row is .s-over-label while a dragged thumb is over its label.
  */
 
 import control from './control.js'
-import { scrub, clamp, stepMul, decimals } from './util.js'
+import { scrub, clamp, stepMul, decimals, drag, follow } from './util.js'
 import { signal, effect, computed } from '../signals.js'
 
 const multipleTemplate = `
   <span class="s-readout s-readout-lo" :if="showReadonly" :text="fmtLow"></span>
   <input type="text" inputmode="decimal" class="s-readout s-readout-lo" :if="showInput" :value="fmtLow" :onchange="setLowActual" :onkeydown.arrow.prevent="stepKeyLow" :onfocus="e => e.target.select()" :onpointerdown="scrubLo" />
   <span class="s-interval-track" :style="{'--low': lowPct + '%', '--high': highPct + '%'}" :onpointermove="pickThumb">
-    <input type="range" class="s-interval-lo" :class="{'s-top': top === 'lo'}" :name="label ? label+'-lo' : null" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" />
-    <input type="range" class="s-interval-hi" :class="{'s-top': top === 'hi'}" :name="label ? label+'-hi' : null" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" />
+    <input type="range" class="s-interval-lo" :class="{'s-top': top === 'lo'}" :name="label ? label+'-lo' : null" :min="min" :max="max" :step="step" :value="low" :oninput="e => setLow(+e.target.value)" :onpointerdown="grab" />
+    <input type="range" class="s-interval-hi" :class="{'s-top': top === 'hi'}" :name="label ? label+'-hi' : null" :min="min" :max="max" :step="step" :value="high" :oninput="e => setHigh(+e.target.value)" :onpointerdown="grab" />
   </span>
   <span class="s-readout s-readout-hi" :if="showReadonly" :text="fmtHigh"></span>
   <input type="text" inputmode="decimal" class="s-readout s-readout-hi" :if="showInput" :value="fmtHigh" :onchange="setHighActual" :onkeydown.arrow.prevent="stepKeyHigh" :onfocus="e => e.target.select()" :onpointerdown="scrubHi" />
 `
 
 const template = `
-  <span class="s-track">
-    <input type="range" :id="label || null" :name="label || null" :list="nativeTicks ? listId : null" :style="{'--p': progress + '%'}" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" :onpointerup="release" />
+  <span class="s-track" :class="{ 's-dragging': moved }" :style="{'--p': progress + '%', '--t': progress / 100, '--steps': stepCount}" :data-value="format(actual)">
+    <input type="range" :id="id" :name="label || null" :list="nativeTicks ? listId : null" :min="dMin" :max="dMax" :step="dStep" :value="value" :oninput="e => set(+e.target.value)" :onpointerdown="grab" />
     <datalist :id="listId" :if="nativeTicks"><option :each="v in markDisplayVals" :value="v"></option></datalist>
     <span class="s-marks" :if="!nativeTicks" :each="m in marks"><span class="s-mark" :class="{ 's-active': m.pct <= progress, 's-first': m.pct === 0, 's-last': m.pct === 100 }" :style="'left:' + m.pct + '%'"></span></span>
     <span class="s-mark-labels" :if="!nativeTicks" :each="l in labels"><span class="s-mark-label" :class="{ 's-active': l.pct <= progress, 's-first': l.pct === 0, 's-last': l.pct === 100 }" :style="'left:' + l.pct + '%'" :text="l.text"></span></span>
@@ -58,6 +63,13 @@ const resolveReadout = (readout, format) => {
   }
 }
 
+// While a thumb in hand passes over its row's label, the row is .s-over-label, for themes whose label rides on the
+// track (it may step aside there, and only there)
+const overLabel = (row, x) => {
+  const r = row?.querySelector('.s-label')?.getBoundingClientRect()
+  row?.classList.toggle('s-over-label', !!r && x >= r.left - 6 && x <= r.right + 6)
+}
+
 // Curve: maps [0,1] → [0,1] non-linearly
 // number: power (>1 = precise low, <1 = precise high)
 // 'exp': alias for 2, 'log': alias for 0.5
@@ -72,7 +84,7 @@ const makeCurve = (opt) => {
 }
 
 export default (sig, opts = {}) => {
-  if (opts.multiple) {
+  if (opts.multiple || opts.variant === 'range' || Array.isArray(sig.value)) {
     const { min = 0, max = 100, step = 1, readout = true, format: fmt, unit = '', ...rest } = opts
 
     const low = signal(Array.isArray(sig.value) ? sig.value[0] : min)
@@ -123,13 +135,24 @@ export default (sig, opts = {}) => {
         : low.value - min > max - high.value ? 'lo' : 'hi'
     }
 
+    // a press anywhere moves the nearer thumb (pickThumb put it on top); in hand it hides the pointer and tells the
+    // row when it passes over the label
+    const grab = e => {
+      if (e.button) return
+      const row = e.currentTarget.closest('.s-control'), x0 = e.clientX
+      let moved = false
+      overLabel(row, x0)
+      follow(ev => { if (!moved && Math.abs(ev.clientX - x0) >= 3) { moved = true; drag(row?.querySelector('.s-interval-track'), true) } overLabel(row, ev.clientX) },
+        () => { if (moved) drag(row?.querySelector('.s-interval-track'), false); row?.classList.remove('s-over-label') })
+    }
+
     return control(sig, {
       ...rest,
       type: 'slider multiple',
       template: multipleTemplate, dispose,
       low, high, lowPct, highPct, min, max, step,
       setLow, setHigh, setLowActual, setHighActual, stepKeyLow, stepKeyHigh,
-      showInput, showReadonly, fmtLow, fmtHigh, top, pickThumb,
+      showInput, showReadonly, fmtLow, fmtHigh, top, pickThumb, grab,
       // a readout drags its thumb: the track's value per pixel
       scrubLo: scrub(() => low.value, v => setLow(clampVal(onStep(v))), perPx),
       scrubHi: scrub(() => high.value, v => setHigh(clampVal(onStep(v))), perPx)
@@ -248,9 +271,18 @@ export default (sig, opts = {}) => {
   }
 
   // Snap only during pointer drag, not keyboard
+  // a press that moves is a drag: .s-dragging on the track turns its transitions off (base), so the fill follows at
+  // once while a click's jump may still animate, and the pointer hides, the thumb standing in for it
   let dragging = false
-  const grab = () => { dragging = true; lastMark = -1 }
-  const release = () => { dragging = false }
+  const moved = signal(false)
+  let x0 = 0, row = null
+  const sweep = e => { if (!moved.value && Math.abs(e.clientX - x0) >= 3) { moved.value = true; drag(null, true) } overLabel(row, e.clientX) }
+  const release = () => { dragging = false; if (moved.value) drag(null, false); moved.value = false; row?.classList.remove('s-over-label') }
+  const grab = e => {
+    if (e.button) return
+    dragging = true; lastMark = -1; x0 = e.clientX; row = e.currentTarget.closest('.s-control')
+    overLabel(row, e.clientX); follow(sweep, release)
+  }
 
   // Haptic: vibrate when crossing a mark during drag
   const vibMs = haptic === true ? 10 : haptic || 0
@@ -305,13 +337,16 @@ export default (sig, opts = {}) => {
 
   const { showInput, showReadonly, showTooltip, readoutText } = resolveReadout(readout, format)
 
+  // step intervals across the range, for themes that draw step ticks without marks
+  const stepCount = discrete ? steps.length - 1 : step ? Math.round((max - min) / step) : null
+
   const listId = `s-${Math.random().toString(36).slice(2)}`
   const nativeTicks = signal(nativeTicksOpt ?? false)
 
   const result = control(sig, {
     ...rest,
-    type: 'slider', template, dispose, value, actual, progress, marks, markDisplayVals, labels, listId, nativeTicks,
-    dMin, dMax, dStep, set, setActual, stepKey, grab, release,
+    type: 'slider', template, dispose, value, actual, progress, stepCount, moved, marks, markDisplayVals, labels, listId, nativeTicks,
+    dMin, dMax, dStep, set, setActual, stepKey, grab,
     readout, showInput, showReadonly, showTooltip, readoutText, format,
     // dragging the number drags the slider: display space, the track's value per pixel, the drag's snapping
     scrubR: scrub(() => value.value, d => { dragging = true; set(clamp(d, dMin, dMax)); dragging = false },
@@ -322,6 +357,54 @@ export default (sig, opts = {}) => {
   if (nativeTicksOpt == null) {
     const inp = result.el.querySelector('input[type=range]')
     if (inp) nativeTicks.value = getComputedStyle(inp).appearance !== 'none'
+  }
+
+  // A theme may declare `--s-readout-dwell: <time>` (DialKit: .8s): the number is then part of the track, a click
+  // on it setting the slider like any other point, until the pointer rests on it that long; then it is .s-editable
+  const ro = result.el.querySelector('input.s-readout')
+  const dwell = (t => t ? parseFloat(t) * (t.endsWith('ms') ? 1 : 1000) : 0)(getComputedStyle(result.el).getPropertyValue('--s-readout-dwell').trim())
+  if (dwell && ro) {
+    let timer = 0, editable = false
+    const edit = on => { clearTimeout(timer); timer = 0; editable = on; ro.classList.toggle('s-editable', on); ro.style.pointerEvents = on ? '' : 'none' }
+    const over = e => { const r = ro.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom }
+    edit(false)
+    result.el.addEventListener('pointermove', e => {
+      if (e.buttons || ro === document.activeElement) return
+      if (!over(e)) { if (editable || timer) edit(false); return }
+      if (!editable && !timer) timer = setTimeout(() => edit(true), dwell)
+    })
+    result.el.addEventListener('pointerleave', () => { if (ro !== document.activeElement) edit(false) })
+    ro.addEventListener('focus', () => edit(true))
+    ro.addEventListener('blur', () => edit(false))
+  }
+
+  // Labelled marks on a track too short for all of them: a label that would touch the one before it (or the last)
+  // is .s-crowded, which base hides; the two ends always show. Refit when the track resizes or the fonts arrive.
+  // (each label renders in a .s-mark-labels of its own: the track holds them all)
+  const box = result.el.querySelector('.s-track')
+  if (box && labels) {
+    const fit = () => {
+      const ls = [...result.el.querySelectorAll('.s-mark-label')].sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left)
+      for (const l of ls) l.classList.remove('s-crowded')
+      const r = ls.map(l => l.getBoundingClientRect())
+      if (r.length < 2 || !r[0].width) return
+      const gap = 4, last = r.at(-1)
+      let prev = r[0]
+      for (let i = 1; i < r.length - 1; i++) {
+        if (r[i].left < prev.right + gap || r[i].right > last.left - gap) ls[i].classList.add('s-crowded')
+        else prev = r[i]
+      }
+      if (last.left < r[0].right + gap) ls.at(-1).classList.add('s-crowded')
+    }
+    const watch = new ResizeObserver(fit)
+    watch.observe(box)
+    document.fonts?.ready.then(fit)
+    // a folded folder lays nothing out: fit again when one holding the slider opens
+    const panel = result.el.closest('.s-panel')
+    const opened = e => { if (e.target.contains?.(box)) requestAnimationFrame(fit) }
+    panel?.addEventListener('toggle', opened, true)
+    const done = result[Symbol.dispose]
+    result[Symbol.dispose] = () => { watch.disconnect(); panel?.removeEventListener('toggle', opened, true); done?.() }
   }
 
   return result

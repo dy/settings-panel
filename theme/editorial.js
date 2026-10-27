@@ -60,7 +60,7 @@ export default function editorial({
   // 11px with hints and readouts.
   const body = 13
   const overrides = `.s-panel {
-  ${metrics({ size, spacing, font }, { body, fontSize: 13, lineHeight: 17, controlHeight: 56, inset: 6, rowGap: 0, columnGap: 28, sectionGap: 25, panelPadding: 14, fontFamily: "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif" })}
+  ${metrics({ size, spacing, font }, { body, fontSize: 13, lineHeight: 17, controlHeight: 40, inset: 6, rowGap: 0, columnGap: 28, sectionGap: 25, panelPadding: 14, fontFamily: "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif" })}
 
   /* ── Ink on paper ── */
   --bg: ${shade};
@@ -149,7 +149,7 @@ export default function editorial({
     padding-right: calc(18 * var(--length));
     background: ${selectChevron} right center / calc(10 * var(--length)) no-repeat;
   }
-  textarea { padding-block: calc(10 * var(--space)); line-height: 1.5; resize: vertical; field-sizing: content; min-height: calc(3 * 1.5em + 20 * var(--space)); }
+  textarea { padding-block: calc(10 * var(--space)); line-height: 1.5; resize: none; field-sizing: content; min-height: calc(3 * 1.5em + 20 * var(--space)); }
 
   /* ── Choices: typographic, the active one in ink ── */
   .s-select.s-segmented .s-input { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; justify-items: center; gap: 0; }
@@ -224,12 +224,12 @@ export default function editorial({
       input[type="range"] { top: 50%; translate: 0 -50%; background: none; } }
   }
 
-  /* ── Number: steppers in the chevron of the select and folders, shown on hover ── */
-  .s-number .s-step { opacity: 0; transition: opacity .12s;
+  /* ── Number: steppers in the chevron of the select and folders, always shown (the browser's own spinner hidden) ── */
+  .s-number input[type="number"] { -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
+  .s-number .s-step {
     button { display: grid; place-items: center; background: none; border: none; color: var(--muted); padding: calc(2 * var(--length)) calc(3 * var(--length)); font-size: 0; line-height: 0; cursor: pointer; &:hover { color: var(--ink); }
       &::before { content: ''; width: calc(10 * var(--length)); height: calc(6 * var(--length)); background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; }
       &.s-step-up::before { transform: rotate(180deg); } } }
-  .s-number:hover .s-step, .s-number:focus-within .s-step { opacity: 1; }
 
   /* ── Colour: a square swatch and the hex beside it ── */
   .s-color {
@@ -239,6 +239,8 @@ export default function editorial({
     &.s-rgba .s-color-input .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)) 0 50% / 100% calc(2 * var(--length)) no-repeat, linear-gradient(to right, #c4c4c4 50%, #fff 0) 0 50% / calc(4 * var(--length)) calc(2 * var(--length)) repeat-x; }
     input[type="color"] { position: static; flex: none; width: calc(20 * var(--length)); height: calc(20 * var(--length)); padding: 0; border: 1px solid var(--rule-color); border-radius: 0; background: none; cursor: pointer;
       &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 0; } &::-moz-color-swatch { border: none; border-radius: 0; } }
+    /* a palette that wraps keeps the row's air above and below it, as one line of swatches has */
+    &.s-swatches .s-input { padding-block: calc((var(--row) - 20 * var(--length)) / 2); }
     &.s-swatches button { width: calc(20 * var(--length)); height: calc(20 * var(--length)); padding: 0; border: 1px solid var(--rule-color); border-radius: 0; cursor: pointer;
       &.s-selected { outline: calc(1.5 * var(--length)) solid var(--ink); outline-offset: calc(2 * var(--length)); } }
   }
@@ -278,6 +280,10 @@ export default function editorial({
   .s-info .s-monitor { color: var(--muted); opacity: 1; }
   .s-title-text, .s-knob-val, .s-pad-val, .s-vec-label { font-size: var(--font-size-small); }
   .s-vector input[type="number"] { height: 100%; }
+  /* a pad stands inside its row's rule, a row's inset clear of it above and below; the label reads from the top */
+  .s-control:is(.s-xy, .s-vector:has(.s-pad)) { align-items: flex-start;
+    > .s-input { padding-block: calc(8 * var(--space)); flex-wrap: wrap; }
+    > .s-label-group { padding-top: calc((var(--row) - var(--line-height)) / 2); } }
   .s-vec-axis { align-self: stretch; }
 }`
 

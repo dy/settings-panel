@@ -38,7 +38,7 @@ Structural (handled separately, not in registry): `folder`, `separator`.
 - multiline string → textarea; other string → text
 - `[r,g,b,a]` 8-bit + alpha 0–1 → color:rgba; numeric 2–4 arrays → text(JSON)
 - array of strings → select; function → button; all-function dict → button group
-- `{type}` → explicit; `{min/max}` → slider; `{options}` → select; `{value}` → infer value
+- `{type}` → explicit; `{min/max}` → slider (a `[low, high]` value: two thumbs, as `slider:range`); `{options}` → select; `{value}` → infer value
 
 ## Architecture
 Controls are signal decorators: `factory(sig, opts) → sig` with `.el`, `[Symbol.dispose]`.
@@ -53,7 +53,7 @@ Panel flow: `settings() → theme <style> + panel el + controls + onchange effec
 - Controls receive store's internal signals directly (`store[_signals][key]`)
 - `collapsed` signal → two-way bind via `toggle` event + `effect`
 - `key` option → keyboard shortcut wired via `keydown` on `document`
-- `persist: true|string` → localStorage; restores falsy values (`false`, `0`, `''`)
+- `persist: true|string` → localStorage; restores falsy values (`false`, `0`, `''`); a saved value the schema no longer admits (an option since renamed, another kind) falls back to the default
 - `onchange`/`onChange` both accepted
 
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.

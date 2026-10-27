@@ -9,13 +9,13 @@ import { normalizeHex } from '../theme/color.js'
 const templates = {
   picker: `
     <span class="s-color-input" :style="'--color:' + value">
-      <input type="color" :id="label || null" :name="label || null" :value="value" :oninput="e => commit(e.target.value)" />
+      <input type="color" :id="id" :name="label || null" :value="value" :oninput="e => commit(e.target.value)" />
       <input type="text" :value="text" :oninput="e => input(e.target.value)" :onchange="e => commit(e.target.value)" spellcheck="false" />
     </span>
   `,
   rgba: `
     <span class="s-color-input s-rgba" :style="'--color:' + value">
-      <input type="color" :id="label || null" :name="label || null" :value="hex6" :oninput="e => setRgb(e.target.value)" />
+      <input type="color" :id="id" :name="label || null" :value="hex6" :oninput="e => setRgb(e.target.value)" />
       <input type="range" class="s-alpha" min="0" max="1" step="0.01" :value="alpha" :oninput="e => setAlpha(+e.target.value)" :style="{'--c': hex6}" />
       <input type="text" :value="text" :oninput="e => input(e.target.value)" :onchange="e => commit(e.target.value)" spellcheck="false" />
     </span>

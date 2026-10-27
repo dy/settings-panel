@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Swiss — Coworking</title>
-  <!-- Replica of the coworking sign-up pair in swiss.png: a newsletter form and the Be In Cahoots form,
-       each on its half of a two-tone page over a photographed Swiss flag -->
+  <!-- Replica of the Be In Cahoots sign-up form in swiss.png, on its ground: a photographed Swiss flag under a pale veil -->
   <script type="importmap">
   {
     "imports": {
@@ -20,25 +19,21 @@
     * { box-sizing: border-box; margin: 0; }
     html { height: 100%; scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
-    body { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); font-size: 14px; position: relative; background: #25262a; }
+    body { min-height: 100%; font-size: 14px; position: relative; background: #25262a; }
     /* The photograph, traced in the reference's own tones (658 × 410): a flag on its pole, dark, its
        cross catching a little light, a lit floor below it; softened as the photo is. */
     .backdrop { position: fixed; inset: 0; z-index: -1; background: var(--photo) center / cover no-repeat; }
-    /* The right half is the same photograph under a pale veil (the reference's 37 → 78 grey) */
-    .backdrop::after { content: ''; position: absolute; inset: 0 0 0 50%; background: rgb(253 233 255 / .19); }
+    /* the photograph under the reference's pale veil (its 37 → 78 grey), as the form's half of the page has it */
+    .backdrop::after { content: ''; position: absolute; inset: 0; background: rgb(253 233 255 / .19); }
     .half { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 4rem 1rem; }
     .half > div { width: min(100%, 340px); }
     /* the script flourish behind each title */
     .s-panel-title { position: relative; isolation: isolate; }
     .flourish { position: absolute; z-index: -1; left: 50%; top: 50%; translate: -38% -62%; font: 400 64px/1 'Pinyon Script', cursive; color: rgb(255 255 255 / .2); white-space: nowrap; text-transform: none; letter-spacing: 0; pointer-events: none; }
-    /* the newsletter's key is two thirds of its form, centred */
-    [data-key=signup] { padding-inline: 17% !important; }
-    @media (max-width: 760px) { body { grid-template-columns: 1fr; } .backdrop::after { inset: 50% 0 0 0; } }
   </style>
 </head>
 <body>
   <div class="backdrop"></div>
-  <section class="half"><div id="know"></div></section>
   <section class="half"><div id="cahoots"></div></section>
   <script type="module">
     import settings from '../../index.js'
@@ -73,11 +68,6 @@
       head.after(sub)
     }
 
-    form(document.getElementById('know'), 'Be in the Know', 'Know', 'Sign up for our newsletter to stay in the know.', {
-      name: { type: 'text', value: 'John Smith', label: 'Name' },
-      email: { type: 'text', value: 'john@example.com', label: 'Email' },
-      signup: { type: 'button', label: false, text: 'Sign Up', onClick: () => {} },
-    })
 
     form(document.getElementById('cahoots'), 'Be in Cahoots', 'Cahoots', 'Send us some info about yourself to get started.', {
       company: { type: 'text', value: 'Acme Co.', label: 'Company' },

@@ -223,18 +223,20 @@ test('controls gallery: separators, vector axes and row widths hold their layout
     await page.selectOption('#theme-picker', theme)
     await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.removeAttribute('name'); d.open = true }))
     await page.waitForTimeout(150)
-    const bad = await page.evaluate(() => {
+    // JSON prints a separator as a blank line and a vector's parts as numbers sized to their text
+    const json = await page.locator('#theme-picker').inputValue() === 'json'
+    const bad = await page.evaluate(json => {
       const out = []
       for (const sep of document.querySelectorAll('.s-separator-labeled')) {
         const l = sep.querySelector('.s-separator-label')
         if (l && l.getBoundingClientRect().height > sep.getBoundingClientRect().height + 1) out.push('separator label overflows')
       }
       // a plain separator is a rule, not a row: a row's min-height or padding would paint it as a band
-      for (const sep of document.querySelectorAll('.s-separator:not(.s-separator-labeled)')) {
+      for (const sep of json ? [] : document.querySelectorAll('.s-separator:not(.s-separator-labeled)')) {
         const h = sep.getBoundingClientRect().height
         if (h < 1 || h > 4) out.push(`plain separator ${h}px tall`)
       }
-      for (const inp of document.querySelectorAll('.s-vec-axis input')) {
+      for (const inp of json ? [] : document.querySelectorAll('.s-vec-axis input')) {
         if (inp.getBoundingClientRect().width < 20) out.push(`vector axis ${inp.value} squeezed to ${inp.getBoundingClientRect().width}px`)
       }
       const panel = document.querySelector('.s-panel').getBoundingClientRect()
@@ -243,7 +245,7 @@ test('controls gallery: separators, vector axes and row widths hold their layout
         if (r.width && r.right > panel.right + 1) out.push(`row ${row.dataset.key} spills ${Math.round(r.right - panel.right)}px past the panel`)
       }
       return out
-    })
+    }, json)
     expect(bad, theme).toEqual([])
   }
 })
@@ -279,4 +281,19 @@ test('case pages offer the native switch only when the reference loads', async (
   await page.reload()
   await page.locator('.case-render-switch button[data-mode=native]').click()
   await expect(page.frameLocator('.case-native-frame').locator('#ref')).toHaveText('original')
+})
+
+// A case with both appearances shows one Light | Dark switch: it names the appearance in the hash, and the
+// original's frame opens in the same one
+test('a case switches its appearance from the bar, the original following', async ({ page }) => {
+  await page.route('**/demo/_ref/dialkit-ref.html', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<p id="ref"></p><script>ref.textContent = location.hash</script>' }))
+  await page.goto('/demo/cases/dialkit.html')
+  const panel = page.locator('.s-panel')
+  await expect(panel).toHaveCSS('color-scheme', 'dark')
+  await page.locator('.case-appearance button[data-mode=light]').click()
+  await expect(page).toHaveURL(/#light$/)
+  await expect(panel).toHaveCSS('color-scheme', 'light')
+  await expect(page.locator('.case-appearance button[data-mode=light]')).toHaveAttribute('aria-pressed', 'true')
+  await page.locator('.case-render-switch button[data-mode=native]').click()
+  await expect(page.frameLocator('.case-native-frame').locator('#ref')).toHaveText('#light')
 })

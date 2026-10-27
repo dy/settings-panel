@@ -18,8 +18,13 @@
  *     control, toggle, range slider, button, textbox-color, 16px icons.
  *  D. Figma Help Center UI3 screenshots, pixel-measured: 1px divider, 40px header
  *     with the title centered, 32px rows, 12px section foot, 88px label column,
- *     8px right gutter, grey labels, 14px chip at 5px + 6px, outlined dropdown,
- *     neutral checkbox.
+ *     8px right gutter, grey labels, 14px chip at 5px + 6px, outlined dropdown.
+ *  E. Figma itself, measured at 2× for the Color Space plugin (color-space/plugins/figma/src/ui.html,
+ *     2026-10): its menu (#1e1e1e, 12px corners, 8px ends, 24px rows inset 8px with 4px corners, the
+ *     lit row #0d99ff, a bold check at the left), its knob (a 4px white ring, the fill's 1px 20% rim
+ *     inside, a 1px 20% outline and a soft shadow outside), its checkbox (12px, 2px corners, a
+ *     secondary-ink hairline; set, the brand blue with a white check), its tooltip (the menu's fill,
+ *     4 × 8px padding, 6px corners).
  *
  * Axes: shade (bg, drives dark/light), accent (action blue), size, spacing, font.
  * Surfaces are Figma's own greys expressed as shade mixes (white → #f5f5f5 field,
@@ -77,6 +82,8 @@ export default function figma({
   // Fixed regardless of shade: Figma paints these the same in either mode.
   const tooltipBg = '#1e1e1e'     // C: --color-bg-menu
   const tooltipFg = '#fff'
+  // E: Figma's menu, dark in either theme: #1e1e1e, white rows, the row under the pointer on its selection blue
+  const menuSel = '#0d99ff'
 
   // C: 16px icons (chevron-down-16, check-16), stroked on the 1px icon grid
   const chevron = c => `url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.9 7.1 8 9.2l2.1-2.1' fill='none' stroke='${enc(c)}' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -102,6 +109,7 @@ export default function figma({
   --disabled: ${disabled};
   --on-accent: ${onAccent};
   --knob: #fff;
+  --knob-edge: inset 0 0 0 1px rgb(0 0 0 / 20%), 0 0 0 1px rgb(0 0 0 / 20%), 0 1px calc(3 * var(--length)) rgb(0 0 0 / 15%);   /* E */
   --swatch-ring: inset 0 0 0 1px ${dark ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.1)'};
   --tooltip-bg: ${tooltipBg};
   --tooltip-fg: ${tooltipFg};
@@ -114,6 +122,7 @@ export default function figma({
   --header-h: calc(var(--line-height) + 24 * var(--space));   /* D: 40px section header */
   --ease: cubic-bezier(.2, 0, 0, 1);
   --chev: ${chevron('#000')};
+  --menu-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E");
   --check: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.8 4.1a.5.5 0 0 1 .1.7l-4 6a.5.5 0 0 1-.8.1l-3-3a.5.5 0 0 1 .7-.7l2.6 2.6 3.7-5.5a.5.5 0 0 1 .7-.2'/%3E%3C/svg%3E");
   color-scheme: ${dark ? 'dark' : 'light'};
 
@@ -183,7 +192,7 @@ export default function figma({
   .s-text input[type="text"] { flex: 1; }
 
   /* ── Number ── */
-  .s-number { input[type="number"] { flex: 1; text-align: left; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &:focus { cursor: text; } &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
+  .s-number { input[type="number"] { flex: 1; text-align: left; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &.s-scrub:not(:focus) { cursor: ew-resize; } &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } } .s-step { display: none; } }
 
   /* ── Vector (X/Y/W/H: grey axis letter centered in a 24px icon slot, value at 24px) ── */
   .s-vector {
@@ -194,7 +203,7 @@ export default function figma({
     .s-vec-label { opacity: 1; flex: none; color: var(--dim); width: calc(22 * var(--length)); text-align: center; }
     /* three or more axes pair up two to a row, at the X / Y field width */
     .s-input:has(> .s-vec-axis:nth-of-type(3)) .s-vec-axis { flex: 0 0 calc(50% - 4 * var(--space)); }
-    input[type="number"] { flex: 1; background: transparent; border: none; border-radius: 0; padding: 0 calc(7 * var(--space)) 0 calc(1 * var(--length)); text-align: left; cursor: ew-resize; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } &:focus { cursor: text; } }
+    input[type="number"] { flex: 1; background: transparent; border: none; border-radius: 0; padding: 0 calc(7 * var(--space)) 0 calc(1 * var(--length)); text-align: left; font-variant-numeric: tabular-nums; -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } }
   }
 
   /* ── Slider: 16px filled pill with a hairline, blue progress, ringed thumb (C range slider, D) ── */
@@ -202,11 +211,12 @@ export default function figma({
   :is(.s-slider, .s-rgba) input[type="range"] {
     width: 100%; height: calc(16 * var(--length)); -webkit-appearance: none; appearance: none; border: 1px solid transparent; border-radius: calc(8 * var(--length)); cursor: pointer; outline: none;
     background:
-      linear-gradient(var(--accent), var(--accent)) border-box 0 0 / var(--p, 0%) 100% no-repeat,
+      /* the progress ends under the thumb's centre, which travels the content box less the thumb's width */
+      linear-gradient(var(--accent), var(--accent)) border-box 0 0 / calc(1px + 8 * var(--length) + (100% - 2px - 16 * var(--length)) * var(--t, 0)) 100% no-repeat,
       linear-gradient(var(--field), var(--field)) padding-box,
       linear-gradient(var(--line), var(--line)) border-box;
-    &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px calc(3 * var(--length)) rgba(0,0,0,.1), 0 calc(3 * var(--length)) calc(8 * var(--length)) rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
-    &::-moz-range-thumb { box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--on-accent); box-shadow: 0 1px calc(3 * var(--length)) rgba(0,0,0,.1), 0 calc(3 * var(--length)) calc(8 * var(--length)) rgba(0,0,0,.1), 0 0 .5px rgba(0,0,0,.18); cursor: pointer; }
+    &::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--knob); box-shadow: var(--knob-edge); cursor: pointer; }
+    &::-moz-range-thumb { box-sizing: border-box; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: 50%; background: var(--accent); border: calc(4 * var(--length)) solid var(--knob); box-shadow: var(--knob-edge); cursor: pointer; }
     &:focus-visible::-webkit-slider-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
     &:focus-visible::-moz-range-thumb { outline: 1px solid var(--accent); outline-offset: 1px; }
     &.s-alpha { flex: 1 1 0; min-width: calc(32 * var(--length));
@@ -239,6 +249,17 @@ export default function figma({
       &:focus { border-color: var(--line); }
       &:focus-visible { border-color: var(--accent); }
       option { background: var(--bg); color: var(--ink); } }
+    /* E: where the select is customizable its list is Figma's menu */
+    @supports (appearance: base-select) {
+      &.s-dropdown select { appearance: base-select; display: flex; align-items: center; padding-block: 0 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        &::picker-icon { display: none; }
+        &::picker(select) { appearance: base-select; position-area: bottom span-right; position-try-fallbacks: flip-block; min-width: anchor-size(width); margin: calc(4 * var(--length)) 0;
+          padding: calc(8 * var(--length)) 0; border: 0; border-radius: calc(12 * var(--length)); background: var(--tooltip-bg); color: var(--tooltip-fg); box-shadow: 0 1rem 4rem rgb(0 0 0 / 28%); }
+        option { display: flex; align-items: center; gap: calc(2 * var(--length)); min-height: calc(24 * var(--length)); margin: 0 calc(8 * var(--length)); padding: calc(4 * var(--length)) calc(8 * var(--length)) calc(4 * var(--length)) calc(4 * var(--length));
+          border-radius: calc(4 * var(--length)); background: none; color: var(--tooltip-fg); font: inherit; letter-spacing: inherit; white-space: nowrap; cursor: pointer;
+          &::checkmark { order: -1; content: ''; flex: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); margin-inline-end: calc(2 * var(--length)); background: currentColor; -webkit-mask: var(--menu-check) center / contain no-repeat; mask: var(--menu-check) center / contain no-repeat; }
+          &:not(:checked)::checkmark { visibility: hidden; }
+          &:is(:hover, :focus-visible) { background: ${menuSel}; color: #fff; outline: none; } } } }
     /* Segmented: filled track; the selected segment takes the panel color and a hairline (C segmented control), at 3:1 */
     &.s-segmented { .s-input { gap: 0; background: var(--field); border-radius: var(--r); }
       button { flex: 1 1 0; min-width: calc(24 * var(--length)); background: transparent; border: 1px solid transparent; color: var(--dim); border-radius: var(--r); height: var(--field-h); padding: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: inherit; letter-spacing: inherit; outline: none;
@@ -247,6 +268,8 @@ export default function figma({
         &:focus-visible { border-color: var(--accent); color: var(--ink); }
         &.s-selected { background: var(--bg); border-color: var(--line-selected); color: var(--ink); }
         &.s-selected:focus-visible { border-color: var(--accent); } } }
+    /* an option list stands a step clear of its neighbours, so two lists never read as one */
+    &:is(.s-radio, .s-checkboxes) > .s-input { padding-block: calc(4 * var(--space)); }
     &.s-radio, &.s-checkboxes { .s-input { flex-direction: column; align-items: stretch; gap: calc(8 * var(--space)); } .s-input label { display: flex; align-items: center; gap: calc(8 * var(--space)); cursor: pointer; } }
   }
 
@@ -268,11 +291,11 @@ export default function figma({
     &.s-toggle:has(input:focus-visible) .s-track { border-color: var(--accent-hover); }
   }
 
-  /* ── Checkbox: 16px filled square, 5px corners; hairline while empty (C), ink check once set (D); the checkboxes list draws it on .s-track ── */
-  .s-boolean.s-checkbox .s-track, .s-checkboxes .s-track { display: grid; place-items: center; flex: none; width: calc(16 * var(--length)); height: calc(16 * var(--length)); border-radius: var(--r); background: var(--field); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer;
-    &::after { content: ''; width: calc(16 * var(--length)); height: calc(16 * var(--length)); -webkit-mask: var(--check) center / contain no-repeat; mask: var(--check) center / contain no-repeat; background: var(--s-color, var(--ink)); opacity: 0; } }
-  .s-boolean.s-checkbox:has(input:checked) .s-track, .s-checkboxes input:checked + .s-track { box-shadow: none; &::after { opacity: 1; } }
-  .s-boolean.s-checkbox:has(input:focus-visible) .s-track, .s-checkboxes input:focus-visible + .s-track { box-shadow: inset 0 0 0 1px var(--accent); }
+  /* ── Checkbox: 12px, 2px corners, a secondary-ink hairline; set, the brand blue with a white check (E); the checkboxes list draws it on .s-track ── */
+  .s-boolean.s-checkbox .s-track, .s-checkboxes .s-track { display: grid; place-items: center; flex: none; width: calc(12 * var(--length)); height: calc(12 * var(--length)); border-radius: var(--r-small); box-shadow: inset 0 0 0 1px var(--dim); cursor: pointer;
+    &::after { content: ''; width: calc(10 * var(--length)); height: calc(10 * var(--length)); -webkit-mask: var(--menu-check) center / contain no-repeat; mask: var(--menu-check) center / contain no-repeat; background: var(--on-accent); opacity: 0; } }
+  .s-boolean.s-checkbox:has(input:checked) .s-track, .s-checkboxes input:checked + .s-track { background: var(--s-color, var(--accent)); box-shadow: none; &::after { opacity: 1; } }
+  .s-boolean.s-checkbox:has(input:focus-visible) .s-track, .s-checkboxes input:focus-visible + .s-track { outline: 1px solid var(--accent); outline-offset: 1px; }
 
   /* ── Color: filled field, 14px chip (2px corners) 5px in, hex 6px after (C textbox-color, D) ── */
   .s-color {
@@ -308,7 +331,7 @@ export default function figma({
   }
 
   /* ── Textarea (C textbox-multiline) ── */
-  .s-textarea { align-items: stretch; textarea { flex: 1; resize: vertical; field-sizing: content; min-height: calc(48 * var(--length)); max-height: 50vh; height: auto; padding: calc(3 * var(--space)) calc(7 * var(--space)); } }
+  .s-textarea { align-items: stretch; textarea { flex: 1; resize: none; field-sizing: content; min-height: calc(48 * var(--length)); max-height: 50vh; height: auto; padding: calc(3 * var(--space)) calc(7 * var(--space)); } }
 
   /* ── Folder (section): 1px divider, 40px header, 12px foot (D) ── */
   .s-folder {
@@ -327,9 +350,13 @@ export default function figma({
   .s-pad { border-radius: var(--r); background: var(--field); }
   .s-knob-dial { background: var(--field); border: 1px solid var(--line); }
 
+  /* ── Tooltip (a label's ?): the menu's fill, 4 × 8px, 6px corners (E) ── */
+  .s-title-text { padding: calc(4 * var(--length)) calc(8 * var(--length)); border-radius: calc(6 * var(--length)); background: var(--tooltip-bg); color: var(--tooltip-fg); line-height: 1.45; }
+
   /* ── Info / separator ── */
   .s-info .s-monitor { color: var(--ink); font-variant-numeric: tabular-nums; }
   .s-separator { background: var(--line); opacity: 1; margin: calc(8 * var(--space)) 0; }
+  .s-separator-labeled { background: none; &::before, &::after { background: var(--line); opacity: 1; } }
   .s-separator-label { color: ${sepLabel}; opacity: 1; }
 }`
 
