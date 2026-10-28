@@ -115,6 +115,16 @@ test('theme: skeu hangs its key\'s lip below the box by depth', () => {
   }
 })
 
+// Soft's groove is a groove, not an outline: its floor holds at most 1.6:1 against the material, drawn back only that far
+test('theme: soft keeps its groove within 1.6:1 of the material', async () => {
+  const { contrast } = await import('../theme/color.js')
+  for (const shade of ['#ca9d63', '#ba965a', '#c0cbb9', '#b87959', '#c6cac9', '#f1f2f4', '#1e1e1e', '#ffffff', '#000000']) {
+    const floor = themes.default({ shade }).match(/--channel: (#[0-9a-f]{6})/)[1], c = contrast(shade, floor)
+    ok(c <= 1.601, `${shade}: floor ${floor} at ${c.toFixed(3)}:1`)
+    if (['#ca9d63', '#ba965a', '#b87959'].includes(shade)) ok(c > 1.58, `${shade}: drawn back to the cap, no further`)
+  }
+})
+
 // Soft-light shows less of a texture on lighter surfaces; surface() compensates along the
 // lightness stops it was calibrated on (graphite, bronze, chalk), so contrast rises with L.
 test('texture: surface layers follow the material and rise with lightness', async () => {

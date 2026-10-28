@@ -6,7 +6,7 @@
 export { lerp, clamp, parseColor, resolveAccent, normalizeHex } from './color.js'
 import metrics from './metrics.js'
 import baseCSS from './base.js'
-import { resolveAccent, resolveRoles, parseColor, toHex, lerp, clamp, luminance, ink as legible } from './color.js'
+import { resolveAccent, resolveRoles, parseColor, toHex, lerp, clamp, luminance, contrast, ink as legible } from './color.js'
 import { surface, woodFigure, woodGrain } from './texture.js'
 
 const chevron = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,3.5 5,6.5 8,3.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")`
@@ -435,6 +435,8 @@ const softCSS = (t) => `@layer s-soft {
 // more bounces (its colour multiplied by itself), a lit face lifts by the headroom L(1 - L),
 // which vanishes at black and white. A later layer than the form, so it restyles soft alone;
 // lab01 and skeu keep the form beneath.
+// the most a groove's floor may contrast with the material it is cut in (WCAG ratio)
+const GROOVE = 1.6
 const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   const { dark, onAccent } = resolveRoles(shade, accent)
   const { L, C, H } = parseColor(shade)
@@ -450,7 +452,16 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   // Raised faces, top to bottom: the Upgrade key, and the flatter face of a secondary one.
   const face = [lit(.36, .75), lit(-.18)], plain = [lit(.16, .85), lit(-.1)]
   const rim = lit(1.15, .3, 1.5), rimLo = lit(.25, .65)   /* the lower rim catches the floor's light (the new study's crisper bottom edge) */
-  const wall = bounce(3.25, .125), floor = bounce(2.25, .25), deep = bounce(7, .275), floorLo = bounce(4.25, .425)
+  // A socket reads as a groove, not an outline: on a mid-tone material (bronze, gold, sage) the bounces darken its
+  // floor past GROOVE against the shade, so the groove's tones are drawn back toward the shade together until it holds that
+  const groove = [bounce(3.25, .125), bounce(2.25, .25), bounce(4.25, .425)]
+  let back = 0
+  if (contrast(shade, groove[1]) > GROOVE) {
+    let lo = 0, hi = 1
+    for (let i = 0; i < 16; i++) { const t = (lo + hi) / 2; contrast(shade, mix(groove[1], shade, t)) > GROOVE ? lo = t : hi = t }
+    back = hi
+  }
+  const [wall, floor, floorLo] = groove.map(c => mix(c, shade, back)), deep = bounce(7, .275)
   // The lip catches light; the piece's cast lies over it, as strong as the light it has to take.
   const lip = lit(.42, .5), cast = alpha(bounce(2), Math.min(.6, 1.6 * luminance(shade)))
   // Sunken faces. A field is a lighter face in light finishes, a deeper one in dark; a track (the
@@ -500,8 +511,8 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   // contact shadow, the groove floor, the socket wall darkest at its outer top edge, the lip
   // catching light below, and the piece's soft cast beyond.
   const seat = (g, rims = `inset 0 var(--hair) 0 ${rim}, inset 0 calc(-1 * var(--hair)) 0 ${rimLo}`) => `${rims},
-    0 calc(${g} * .35) 0 0 ${deep}, 0 calc(${g} * .5) 0 calc(${g} * .5) ${floorLo}, 0 calc(${g} * .2) 0 calc(${g} * .8) ${floor},
-    0 0 0 ${g} ${wall}, 0 calc(${g} * 1.8) calc(${g} * 3.3) calc(${g} * .85) ${cast}, 0 calc(${g} * .4) 0 ${g} ${lip}`
+    0 calc(${g} * .35) 0 0 ${deep}, 0 calc(${g} * .5) 0 0 ${floorLo}, 0 calc(${g} * -.6) 0 0 ${floor}, 0 calc(-1 * ${g}) 0 0 ${wall},
+    0 0 0 ${g} ${floor}, 0 calc(${g} * 1.8) calc(${g} * 3.3) calc(${g} * .85) ${cast}, 0 calc(${g} * .4) 0 ${g} ${lip}`
   const seated = seat('var(--g)'), pressed = seat('var(--g)', `inset 0 calc(var(--g) * .5) calc(var(--g) * .8) ${alpha(deep, .35)}`)
   // A raised piece riding in a track (the track is its socket): rims and a contact shadow.
   const riding = s => `inset 0 var(--hair) 0 ${rim}, inset 0 calc(-1 * var(--hair)) 0 ${rimLo}, 0 0 0 calc(var(--hair) * .5) ${alpha(dark ? '#000000' : edgeSm, dark ? .6 : .7)}, 0 calc(${s} * .5) ${s} ${alpha(deep, .45)}`
