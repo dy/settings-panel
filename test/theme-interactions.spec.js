@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { contrast } from '../theme/color.js'
 
-const variants = ['porcelain', 'frost', 'soft', 'silver', 'ink']
+const variants = ['porcelain', 'soft']
 const demos = ['glass', 'neu', 'brutal', 'lab01', 'apple', 'figma', 'uil', 'leva']
 
 for (const name of [...demos, ...variants]) {
@@ -52,9 +52,15 @@ test('UIL color picker has an unobstructed pointer target', async ({ page }) => 
   })).toBe(true)
 })
 
+const controlsIn = async (page, theme) => {
+  await page.goto('/demo/controls')
+  await page.locator('#theme-picker').selectOption(theme)
+}
+
 test('Lab01 segmented is one sunken track with the raised selection inside; image cards stay framed', async ({ page }) => {
-  await page.goto('/demo/cases/variants#silver')
-  const quality = page.locator('[data-key=quality]')
+  await controlsIn(page, 'lab01')
+  await page.locator('.s-folder[data-key=sel] > summary').click()
+  const quality = page.locator('.s-folder[data-key=sel] [data-key=mode]')
   const layout = () => quality.locator('.s-input').evaluate(el => {
     const track = el.getBoundingClientRect(), buttons = [...el.querySelectorAll('button')].map(b => b.getBoundingClientRect())
     return {
@@ -63,7 +69,7 @@ test('Lab01 segmented is one sunken track with the raised selection inside; imag
       inside: buttons.every(b => b.top > track.top && b.bottom < track.bottom && b.left > track.left && b.right < track.right),
     }
   })
-  for (const choice of ['Ultra', 'Ultra', 'Draft']) {
+  for (const choice of ['Dark', 'Dark', 'Light']) {
     await quality.getByRole('button', { name: choice, exact: true }).click()
     const { fill, joined, inside } = await layout()
     expect(fill, 'the track is filled').not.toBe('rgba(0, 0, 0, 0)')
@@ -73,6 +79,9 @@ test('Lab01 segmented is one sunken track with the raised selection inside; imag
     await expect(quality.locator('button.s-selected')).not.toHaveCSS('box-shadow', 'none')
     for (const idle of await quality.locator('button:not(.s-selected)').all()) await expect(idle).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   }
+  // two and five options touch too: borderless options keep no overlap meant for collapsing borders
+  for (const key of ['toggle', 'size']) expect(await page.locator(`.s-folder[data-key=sel] [data-key=${key}] .s-input`).evaluate(el =>
+    [...el.querySelectorAll('button')].map(b => b.getBoundingClientRect()).every((b, i, bs) => !i || Math.abs(b.left - bs[i - 1].right) < .5)), key).toBe(true)
   await page.goto('/demo/cases/lab01')
   const cards = page.locator('.s-segmented .s-input')
   await expect(cards).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
@@ -80,18 +89,18 @@ test('Lab01 segmented is one sunken track with the raised selection inside; imag
 })
 
 test('Lab01 collapsed folder closes with the overlaid hairline pair, not a solid border', async ({ page }) => {
-  await page.goto('/demo/cases/variants#silver')
-  const summary = page.locator('.s-folder > summary')
+  await controlsIn(page, 'lab01')
+  const folder = page.locator('.s-folder[data-key=sel]'), summary = folder.locator('> summary')
   const rule = () => summary.evaluate(el => {
     const r = getComputedStyle(el, '::before')
     return { border: getComputedStyle(el).borderBottomStyle, content: r.content, blend: r.mixBlendMode, height: r.height }
   })
   expect(await rule()).toEqual({ border: 'none', content: '""', blend: 'overlay', height: '2px' })
   await summary.click()
-  await expect(page.locator('.s-folder')).toHaveAttribute('open')
+  await expect(folder).toHaveAttribute('open')
   expect((await rule()).content, 'an open folder has no closing rule').toBe('none')
   await summary.click()
-  await expect(page.locator('.s-folder')).not.toHaveAttribute('open')
+  await expect(folder).not.toHaveAttribute('open')
   expect(await rule()).toEqual({ border: 'none', content: '""', blend: 'overlay', height: '2px' })
 })
 
@@ -263,12 +272,12 @@ for (const name of variants) {
 }
 
 test('glass works without a document SVG and letters its buttons in a legible ink', async ({ page }) => {
-  await page.goto('/demo/cases/variants#frost')
+  await controlsIn(page, 'glass')
   const surface = await page.locator('.s-panel').evaluate(el => {
     const pseudo = getComputedStyle(el, '::after')
     return { backdrop: pseudo.backdropFilter, filter: pseudo.filter }
   })
-  expect(surface.backdrop).toContain('blur(28px)')
+  expect(surface.backdrop).toContain('blur(24px)')
   expect(surface.filter).toBe('none')
   await page.goto('/demo/cases/glass')
   const { ink, bg, button } = await page.locator('.s-panel').evaluate(el => ({

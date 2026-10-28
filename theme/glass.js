@@ -30,12 +30,12 @@ import { resolveRoles, parseColor, luminance, contrast, clamp, lerp, mix, toHex,
 import { bevel } from './mixins.js'
 
 export default function glass({
-  shade = '#1c2030',
-  accent = '#6ea8ff',
+  shade = '#f1f2f4',
+  accent = '#2563eb',
   ink,
   spacing = 1,
   weight = 400,
-  roundness = 1.4,
+  roundness = 1,
   blur = 24,
   size = 1,
   depth = 1,
@@ -167,11 +167,10 @@ export default function glass({
 
   --weight: ${weight};
   --roundness: ${roundness};
-  /* 1 at the native roundness: controls are capsules there, squarer below */
-  --round: min(1, var(--roundness) / 1.4);
-
-  --r: calc(var(--u) * var(--roundness) * 4.5);
+  /* the family's roundness: controls are capsules at 1, squarer below; the pane is concentric with a capsule at its edge */
+  --round: min(1, var(--roundness));
   --h: var(--control-height);
+  --r: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
   --r-lens: calc(var(--h) / 2 * var(--round));
   --well-pad: calc(12 * var(--space));
   --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */
@@ -240,10 +239,10 @@ export default function glass({
     background: var(--lens); box-shadow: var(--lens-edge);
   }
 
-  /* round lens buttons: fold + search */
+  /* round lens buttons: fold + search, the title row's height (the family's round key) */
   .s-fold-icon, .s-search-btn {
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-    width: calc(var(--u) * 7); height: calc(var(--u) * 7); padding: 0; border: none; border-radius: 50%;
+    width: var(--h); height: var(--h); padding: 0; border: none; border-radius: calc(var(--h) / 2 * var(--round));
     color: var(--fg); -webkit-mask: none; mask: none;
     transition: box-shadow .14s, transform .08s;
     &:hover { background: var(--lens-sheen), var(--lens); box-shadow: var(--lens-edge), var(--lens-lift); }
@@ -274,7 +273,8 @@ export default function glass({
   /* under a hint the row aligns at the top, the label's first line level with the control's text */
   .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-input { align-items: center; }
-  .s-label-group { min-width: 0; width: 30%; }
+  /* switch, checkbox and read-only rows keep the fields' height, so a row's parts centre on one line */
+  :is(.s-boolean, .s-info) .s-input { min-height: var(--h); }
   .s-label { font-weight: 500; text-shadow: var(--emboss); }
   .s-hint { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
   .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: 50%; font-size: calc(10 * var(--length)); cursor: help;

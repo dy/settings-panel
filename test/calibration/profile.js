@@ -16,14 +16,16 @@ const oklab = ([R, G, B]) => {
 }
 
 // Our profile: the second (text-free) button of test/calibration/row.html, averaged over its straight
-// part, pixel rows centred at y + .5 against the continuous border box, resampled to the grid. The
+// part, pixel rows centred at y + .5 against the continuous border box (with its lip), resampled to the grid. The
 // study's themes (soft, skeu, glass, neu) set their body at 14px; size 14 / 13 draws them at it.
 export async function profile(page, theme, palette, word) {
   await page.goto(`/test/calibration/row.html#${new URLSearchParams({ theme, palette, word, size: 14 / 13 })}`)
   await page.waitForSelector('body[data-ready]')
   await page.evaluate(() => document.fonts.ready)
   await page.waitForTimeout(400)
-  const bb = await page.locator('.s-button button').nth(1).boundingBox()
+  const key = page.locator('.s-button button').nth(1), bb = await key.boundingBox()
+  // the key's bottom edge: a theme whose key stands on a lip below its box (skeu) says how far
+  bb.height += await key.evaluate(el => parseFloat(getComputedStyle(el).getPropertyValue('--s-key-lip')) || 0)
   const { u0, u1, n } = materials.grid
   const clip = { x: Math.floor(bb.x), y: Math.floor(bb.y + u0 * bb.height) - 2, width: Math.ceil(bb.width) + 1, height: Math.ceil((u1 - u0) * bb.height) + 4 }
   const png = await page.screenshot({ clip })

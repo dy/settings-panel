@@ -15,15 +15,6 @@
   :where(a, button, input, select, summary, pre):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 }
 .app { height: calc(100svh - 32px); display: flex; flex-direction: column; max-width: 1660px; margin: var(--space-md) auto; background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-card); }
-.site-header { height: 72px; display: flex; align-items: center; gap: 56px; padding: 0 var(--space-lg); border-bottom: 1px solid var(--color-rule); }
-.wordmark { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 720; letter-spacing: -.65px; white-space: nowrap; }
-.brand-dot { width: 5px; height: 5px; margin-top: 3px; background: var(--color-accent); border-radius: 50%; }
-.site-header nav { align-self: stretch; display: flex; align-items: stretch; gap: 30px; }
-.site-header nav a { display: flex; align-items: center; position: relative; color: var(--color-muted); font-size: 13px; font-weight: 550; }
-.site-header nav a[aria-current] { color: var(--color-ink); }
-.site-header nav a[aria-current]::after { content: ''; position: absolute; height: 2px; background: var(--color-accent); bottom: -1px; left: 0; right: 0; }
-.repository { margin-left: auto; }
-.repository svg { width: 22px; height: 22px; stroke: none; }
 
 /* Look bar – global, theme-independent axes. Sticky so it stays reachable while
    either pane scrolls; inert (no scrolling ancestor) wherever nothing scrolls past it. */
@@ -160,7 +151,6 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .ui-button.primary:hover { background: color-mix(in srgb, var(--color-ink), var(--color-paper) 12%); }
 .icon-button { width: 38px; height: 38px; display: grid; place-items: center; flex: none; padding: 0; border: 1px solid var(--color-rule); background: transparent; border-radius: var(--radius-control); }
 .icon-button:hover { background: var(--color-subtle); }
-.repository { border: 0; }
 .copy-status { min-height: 20px; margin-top: 5px; font-size: 11px; color: var(--color-muted); }
 .skip-link { position: fixed; top: -100px; left: 15px; padding: 10px; background: var(--color-paper); z-index: 20; }
 .skip-link:focus { top: 10px; }
@@ -190,8 +180,6 @@ dialog pre { overflow: auto; max-height: 45svh; background: var(--color-subtle);
   .app { margin: 0; border: 0; border-radius: 0; height: auto; }
   .workspace { grid-template-columns: minmax(0, 1fr); }
   .catalog, .inspector { overflow: visible; }
-  .site-header { height: 62px; gap: 26px; padding: 0 22px; }
-  .site-header nav { gap: 20px; }
   .inspector { position: relative; top: auto; border-left: 0; border-bottom: 1px solid var(--color-rule); grid-row: 1; padding: 24px; }
   .inspector-heading, .theme-description, .preview-scene, .theme-extras, .export-row, .copy-status { max-width: 580px; margin-left: auto; margin-right: auto; }
   .preview-scene { min-height: 440px; }
@@ -203,10 +191,6 @@ dialog pre { overflow: auto; max-height: 45svh; background: var(--color-subtle);
   .look-bar { padding-inline: 22px; gap: 16px; }
 }
 @media (max-width: 520px) {
-  .site-header { padding: 0 16px; gap: 24px; flex-wrap: wrap; height: auto; min-height: 62px; }
-  .wordmark { font-size: 17px; }
-  .site-header nav { gap: 18px; height: 44px; order: 2; width: 100%; margin-top: -8px; }
-  .repository { margin-left: auto; }
   .inspector { padding: 20px 16px 12px; }
   .preview-scene { padding: 66px 16px 44px; min-height: 420px; }
   .live-panel { font-size: 13px; }

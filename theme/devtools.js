@@ -110,6 +110,7 @@ export default function devtools({ shade = '#ffffff', accent, size = 1, spacing 
     &::-moz-range-track { background: var(--ramp); } }
   .s-slider .s-readout { flex: none; }
   .s-slider .s-tooltip { position: static; transform: none; visibility: visible; }   /* printed inline, as a CSS value */
+  .s-graph .s-input { flex: 1; }   /* a plot takes the line's room, not its value's */
   .s-boolean .s-input { justify-content: flex-start; }
   .s-boolean input { position: relative; display: flex; align-items: center; justify-content: center; opacity: 1; width: calc(13 * var(--length)); height: calc(13 * var(--length)); margin: 0; outline: none;
     &:hover::after, &:active::before { content: ''; position: absolute; width: calc(24 * var(--length)); height: calc(24 * var(--length)); border-radius: 50%; }

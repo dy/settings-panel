@@ -372,6 +372,18 @@ export default `@layer s-base {
     }
   }
 
+  /* ── Graph and curve: lines drawn over the pad's surface, in the ink ── */
+  .s-pad svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none;
+    :is(path, polyline) { fill: none; stroke: currentColor; stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; } }
+  .s-graph { align-items: flex-start; .s-input { flex-wrap: wrap; } }
+  .s-curve {
+    .s-curve-guide { opacity: .3; stroke-width: 1px; stroke-dasharray: 3 4; }   /* linear, for reference */
+    .s-curve-arm { opacity: .45; stroke-width: 1px; }
+    .s-curve-line { stroke-width: 2px; }
+    .s-curve-end { fill: currentColor; stroke: none; opacity: .6; }
+    .s-pad-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  }
+
   /* ── Knob (rotary dial) ── */
   /* a knob row centres its label on the dial: the value beside it would otherwise set the baseline */
   .s-knob { align-items: center; }
@@ -420,6 +432,11 @@ export default `@layer s-base {
 /* a text area grows with its text (field-sizing) from its theme's minimum: the one-line field height a theme gives every
    input would hold it at that minimum and hide the lines under it */
 .s-panel .s-textarea textarea { height: auto; }
+/* a graph's plot is the pad's surface across the value's width, a few rows high: a theme's square pad would hold it square */
+.s-panel .s-graph .s-pad { width: 100%; max-width: none; height: calc(var(--u) * 12); aspect-ratio: auto; cursor: auto; }
+/* a curve's four numbers stand two by two, a handle's x and y to a line: where a theme's axes keep room for a long value,
+   four in a row would wrap the fourth alone */
+.s-panel .s-vector.s-curve .s-vec-axis { flex: 1 1 34%; }
 .s-panel .s-icon { display: inline-block; flex: none; width: 1.25em; height: 1.25em; vertical-align: -.27em; > svg { display: block; width: 100%; height: 100%; } }
 .s-panel .s-icon + .s-button-text { margin-left: .45em; }
 .s-panel button:has(> .s-icon) { white-space: nowrap; }   /* an icon and its word never part */

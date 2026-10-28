@@ -133,6 +133,10 @@ export default function skeu({
   const E = bevel <= 1 ? lerp(.3, 1, clamp(bevel, 0, 1)) : lerp(1, 1.25, clamp(bevel - 1, 0, 1))
   const rimW = +(bevel <= 1 ? 1 : lerp(1, 2, clamp(bevel - 1, 0, 1))).toFixed(2)
   const wallH = +(2.5 * relief).toFixed(2)
+  // A key's face is its box, the family's one measure; its front wall closes the face's lower edge
+  // (wallIn) and hangs below the box with the line it stands on (lip), standing the key that much
+  // taller than a flat one, as the study's Customize key stands a twentieth taller than its neighbours
+  const wallIn = min(wallH, 1.75), lip = wallH ? wallH - wallIn + .75 : 0
   const len = n => `calc(${+n.toFixed(3)} * var(--length))`
 
   // A key's tones: its face (lift 1 = the study's lifted face, 0 = flush with the plate),
@@ -154,21 +158,22 @@ export default function skeu({
   // dome: its crown faces the light and takes the face's top, its lower side turns away to the tone of
   // the key's front wall. It keeps the key's rim, silhouette, base line and shadow; a dome has no wall.
   const domeOf = t => `radial-gradient(circle farthest-corner at 50% 30%, ${tone(t.top)}, ${tone(t.mid)} 40%, ${tone(t.low)} 62%, ${tone(t.wall)} 88%)`
-  // Its shadow at elevation e (1 at rest, higher under a hovering finger)
-  const drop = (e = 1) => D ? [
-    `0 ${len(.5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
-    `0 ${len(2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
+  // Its shadow at elevation e (1 at rest, higher under a hovering finger), from the key's lower edge
+  const drop = (e = 1, below = 0) => D ? [
+    `0 ${len(below + .5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
+    `0 ${len(below + 2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
   ] : []
-  // All inside the key's box, in proportion at every size: the dark line along its bottom, the
-  // front wall over the silhouette edge (1 unit at the sides, 3/4 at top and bottom), the lit rim.
+  // In proportion at every size: the silhouette edge (1 unit at the sides, 3/4 at the top) and the lit
+  // rim; a key's front wall over the silhouette's lower edge and, below the box, the rest of the wall
+  // and the line it stands on, which a pressed key or a cap (no wall) keeps inside its box.
   const edges = (c, wall = true) => [
-    `inset 0 ${len(-.75)} 0 ${c.base}`,                                       // the line it stands on
-    wall && wallH ? `inset 0 ${len(-.75 - wallH)} 0 ${c.wall}` : '',          // front wall
+    wall && wallH ? `inset 0 ${len(-wallIn)} 0 ${c.wall}` : `inset 0 ${len(-.75)} 0 ${c.base}`,
     `inset 0 ${len(-.25)} 0 ${len(1)} ${c.outline}`,                          // silhouette edge
-    `inset 0 ${len(.75 + rimW)} 0 ${c.rim}`,                                  // lit rim
-  ].filter(Boolean)
+    `inset 0 ${len(1 + rimW)} 0 ${c.rim}`,                                  // lit rim
+    ...(wall && wallH ? [lip > .75 && `0 ${len(lip - .75)} 0 ${c.wall}`, `0 ${len(lip)} 0 ${c.base}`].filter(Boolean) : []),
+  ]
   const colors = t => ({ base: tone(t.base), wall: tone(t.wall), outline: tone(t.outline), rim: tone(t.rim) })
-  const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e) : [])].join(', ')
+  const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e, lip) : [])].join(', ')
   const capShadow = (c, e = 1) => [...edges(c, false), ...drop(e)].join(', ')
   // The same key over a face of any colour (swatches): its edges as light and shade
   const glaze = {
@@ -252,7 +257,7 @@ export default function skeu({
     border: none;
     background: var(--floor);
     box-shadow: var(--well);`
-  // A key rises a little under the pointer and travels its wall's height when pressed
+  // A key rises a little under the pointer and, pressed, travels down to the line it stands on
   const press = (kind = 'key') => `
     transition: transform 90ms, box-shadow 140ms, filter 140ms;
     &:not(:disabled):hover { box-shadow: var(--${kind}-up); filter: var(--hover); }
@@ -275,7 +280,9 @@ export default function skeu({
 
   // Body 14px: skeu sets its labels and values at 14px.
   const body = 14
-  const overrides = `.s-panel {
+  // --s-key-lip: how far a key's drawing reaches below its box (registered, so it reads back in px)
+  const overrides = `@property --s-key-lip { syntax: '<length>'; inherits: true; initial-value: 0px; }
+.s-panel {
   ${metrics({ size, spacing, font }, { body, controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif" })}
 
   --bg: ${plate};
@@ -315,14 +322,16 @@ export default function skeu({
   --well: ${well};
   --edge: ${tone(W.wall * E)};
   --catch: ${tone(W.lip * E)};
-  --travel: ${len(wallH)};
+  --travel: ${len(lip)};
+  --s-key-lip: ${len(lip)};
+  --wall: ${len(wallIn)};
   --hover: brightness(${+(1 + .12 * (1 - clamp(sL + lifted.mid, 0, 1))).toFixed(3)});
 
   /* Keys and wells are capsules at roundness 1; the plate keeps rounding past it */
   --round: min(var(--roundness), 1);
   --h: var(--control-height);
   --rk: calc(var(--h) / 2 * var(--round));
-  --r: calc((var(--h) / 2 + var(--panel-padding) / 2) * var(--roundness));
+  --r: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
   --thumb: calc(var(--u) * ${+thumbU.toFixed(4)});
   --gap: ${len(3)};
   /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
@@ -341,6 +350,8 @@ export default function skeu({
 
   /* ── Rows ── */
   .s-control { align-items: center; }
+  /* under a hint the row aligns at the top, the label's first line level with the control's text */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-input { align-items: center; }
   .s-select.s-radio, .s-select.s-checkboxes, .s-textarea, .s-xy { align-items: flex-start; .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-select.s-radio .s-input, .s-select.s-checkboxes .s-input { align-items: stretch; }
@@ -373,7 +384,7 @@ export default function skeu({
   .s-fold-icon {
     margin-left: auto; order: 2;
     .s-search ~ &, :has(> .s-search) > & { margin-left: 0; }
-    i { position: relative; width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); translate: 0 calc(var(--travel) / -2); }  /* centred on the face, above the wall */
+    i { position: relative; width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); translate: 0 calc(var(--wall) / -2); }  /* centred on the face, above the wall */
     i::before, i::after { content: ''; position: absolute; inset: 0; transition: transform 200ms; }
     i::before { ${glyph(chevron, onKeyEdge.color)} transform: translateY(${onKeyEdge.dy}px); }
     i::after { ${glyph(chevron, 'var(--ink-key)')} }
@@ -420,7 +431,7 @@ export default function skeu({
     &::before, &::after {
       content: ''; position: absolute; top: 50%; right: max(var(--pad), var(--rk) * .6);
       width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5);
-      margin-top: calc(var(--u) * -1.75 - var(--travel) / 2); pointer-events: none;
+      margin-top: calc(var(--u) * -1.75 - var(--wall) / 2); pointer-events: none;
     }
     &::before { ${glyph(chevron, onPlateEdge.color)} transform: translateY(${onPlateEdge.dy}px); }
     &::after { ${glyph(chevron, 'var(--ink)')} }
@@ -502,7 +513,7 @@ export default function skeu({
     button {
       ${key('flush')}
       width: calc(var(--u) * 5); height: calc((var(--h) - ${len(3)}) / 2);
-      padding: 0 0 ${len(wallH / 2)};
+      padding: 0 0 ${len(wallIn / 2)};
       border-radius: calc(var(--u) * 1.25 * var(--round));
       font-size: 0; opacity: 1;
       ${press('flush')}

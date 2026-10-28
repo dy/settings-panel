@@ -41,10 +41,7 @@ const cases = [
   { name: 'industrial-dark', path: '/demo/cases/industrial.html#dark', width: 1000 },
   { name: 'materials', path: '/demo/cases/materials.html', width: 1200, fullPage: true },
   { name: 'porcelain', path: '/demo/cases/variants#porcelain' },
-  { name: 'frost', path: '/demo/cases/variants#frost' },
   { name: 'soft', path: '/demo/cases/variants#soft' },
-  { name: 'silver', path: '/demo/cases/variants#silver' },
-  { name: 'ink', path: '/demo/cases/variants#ink' },
 ]
 
 test.describe('interval slider readout keyboard', () => {
@@ -223,9 +220,10 @@ test('controls gallery: separators, vector axes and row widths hold their layout
     await page.selectOption('#theme-picker', theme)
     await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.removeAttribute('name'); d.open = true }))
     await page.waitForTimeout(150)
-    // JSON prints a separator as a blank line and a vector's parts as numbers sized to their text
-    const json = await page.locator('#theme-picker').inputValue() === 'json'
-    const bad = await page.evaluate(json => {
+    // JSON prints a separator as a blank line and a vector's parts as numbers sized to their text; DialKit writes a
+    // curve's points as one line of text, '0, 0, 0.58, 1', each number as wide as itself
+    const id = await page.locator('#theme-picker').inputValue(), json = id === 'json', text = json || id === 'dialkit'
+    const bad = await page.evaluate(([json, text]) => {
       const out = []
       for (const sep of document.querySelectorAll('.s-separator-labeled')) {
         const l = sep.querySelector('.s-separator-label')
@@ -236,7 +234,7 @@ test('controls gallery: separators, vector axes and row widths hold their layout
         const h = sep.getBoundingClientRect().height
         if (h < 1 || h > 4) out.push(`plain separator ${h}px tall`)
       }
-      for (const inp of json ? [] : document.querySelectorAll('.s-vec-axis input')) {
+      for (const inp of json ? [] : document.querySelectorAll(text ? '.s-vector:not(.s-curve) .s-vec-axis input' : '.s-vec-axis input')) {
         if (inp.getBoundingClientRect().width < 20) out.push(`vector axis ${inp.value} squeezed to ${inp.getBoundingClientRect().width}px`)
       }
       const panel = document.querySelector('.s-panel').getBoundingClientRect()
@@ -245,7 +243,7 @@ test('controls gallery: separators, vector axes and row widths hold their layout
         if (r.width && r.right > panel.right + 1) out.push(`row ${row.dataset.key} spills ${Math.round(r.right - panel.right)}px past the panel`)
       }
       return out
-    }, json)
+    }, [json, text])
     expect(bad, theme).toEqual([])
   }
 })

@@ -30,7 +30,9 @@ export const padState = (sig, opts = {}) => {
   const snap = (v, s) => s ? Math.round(v / s) * s : v
   const clean = v => +v.toFixed(4)
 
-  // --x/--y position the dot (base CSS) and drive theme crosshair lines;
+  // --x/--y position the dot (base CSS) and drive theme crosshair lines, --tx/--ty are the same as 0–1 numbers (y from
+  // the top), for a theme whose dot travels a plane inset in the pad (--s-pad-inset, a length a press reads: the theme
+  // registers it as <length> so it resolves to px);
   // --angle/--dist describe the center→point vector (CSS trig can't consume
   // percentage vars, so themes drawing a connector line get it precomputed)
   const vars = computed(() => {
@@ -39,13 +41,13 @@ export const padState = (sig, opts = {}) => {
     const py = (1 - clamp((y - minY) / (maxY - minY), 0, 1)) * 100
     const angle = +Math.atan2(py - 50, px - 50).toFixed(4)
     const dist = +Math.hypot(px - 50, py - 50).toFixed(2)
-    return `--x:${px}%; --y:${py}%; --angle:${angle}rad; --dist:${dist}%`
+    return `--x:${px}%; --y:${py}%; --tx:${+(px / 100).toFixed(6)}; --ty:${+(py / 100).toFixed(6)}; --angle:${angle}rad; --dist:${dist}%`
   })
 
-  let rect, held, stop = () => {}
+  let rect, inset = 0, held, stop = () => {}
   const fromEvent = e => {
-    const fx = clamp((e.clientX - rect.left) / rect.width, 0, 1)
-    const fy = clamp((e.clientY - rect.top) / rect.height, 0, 1)
+    const fx = clamp((e.clientX - rect.left - inset) / (rect.width - 2 * inset), 0, 1)
+    const fy = clamp((e.clientY - rect.top - inset) / (rect.height - 2 * inset), 0, 1)
     sig.value = [
       clean(snap(minX + fx * (maxX - minX), stepX)),
       clean(snap(minY + (1 - fy) * (maxY - minY), stepY)),
@@ -54,6 +56,7 @@ export const padState = (sig, opts = {}) => {
   const move = e => { if (!held?.classList.contains('s-dragging')) drag(held, true); fromEvent(e) }
   const grab = e => {
     rect = e.currentTarget.getBoundingClientRect()
+    inset = parseFloat(getComputedStyle(e.currentTarget).getPropertyValue('--s-pad-inset')) || 0
     held = e.currentTarget.closest('.s-control')
     fromEvent(e)
     stop = follow(move, () => drag(held, false))

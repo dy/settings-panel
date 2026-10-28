@@ -524,32 +524,32 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   --fg: ${fg};
   --fg-muted: ${fgMuted};
   --hair: var(--length);
-  --g: calc(4 * var(--length));             /* groove: the gap between a piece and its socket */
+  --g: calc(var(--control-height) * .097);  /* groove: the gap between a piece and its socket, the study's (14 of a 144px key) */
   --face-hi: ${face[0]};
   --face-lo: ${face[1]};
   --well: ${well};
   --track: ${track};
   --channel: ${channel};
-  --r-panel: calc(var(--u) * var(--roundness) * 3);
+  --r-panel: calc((var(--control-height) / 2 + var(--panel-padding)) * var(--roundness));   /* concentric with a capsule at its edge, as in the family */
   --r-pill: calc(var(--control-height) / 2 * var(--roundness));
-  /* the material family's one measure (soft, skeu, glass, neu): 34px keys and fields, 14 between rows, 22 round
-     the panel, at the 14px body */
+  /* the material family's one measure (soft, skeu, glass, neu): 34px keys and fields, 14 between rows and under
+     the title, 22 round the panel, at the 14px body */
   --control-height: calc(var(--line-height) + 18 * var(--space));
   --row-gap: max(calc(14 * var(--space)), calc(2 * var(--g) + 3 * var(--length)));   /* sockets never touch */
   --panel-padding: calc(22 * var(--space));
+  --section-gap: calc(14 * var(--space));
   /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
   --font-size-small: calc(12 * var(--length));
 
   color: var(--fg);
   border-radius: var(--r-panel);
-  padding-bottom: calc(var(--panel-padding) + var(--g));   /* the last row's socket reaches below its box */
   ${surf ? `background: ${surf.image}, var(--bg); background-blend-mode: ${surf.blend};` : ''}
   box-shadow: inset 0 var(--hair) 0 ${alpha(rim, .5)}, 0 0 0 1px ${alpha(wall, dark ? .9 : .35)}, 0 1px calc(2 * var(--length)) ${alpha(deep, .12)}, 0 calc(10 * var(--length)) calc(28 * var(--length)) calc(-10 * var(--length)) ${alpha(deep, .35)};
 
   > summary, > .s-panel-title { font-size: calc(15 * var(--length)); font-weight: ${w(200)}; letter-spacing: -0.01em; }
   /* Layout here keeps off margins: soft sits in cascade layers, so a page's own reset (* { margin: 0 })
      would win over them. A spring pushes the fold button right; containers pad and space the sockets. */
-  > summary { padding-right: calc(2.25 * var(--length)); }
+  > summary { min-height: var(--control-height); padding-right: calc(2.25 * var(--length)); }   /* the title row at the rows' height, as in the family */
   > summary::after, > .s-panel-title::after { content: ''; order: 1; flex: 1; width: auto; height: 0; margin: 0; background: none; -webkit-mask: none; mask: none; transform: none; }
   .s-search { order: 2; }
   .s-search-input::placeholder { color: var(--fg-muted); }
@@ -558,13 +558,15 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   :is(.s-hint, .s-readout, .s-mark-label, .s-tooltip, .s-separator-label, .s-knob-val, .s-pad-val, .s-vec-label, .s-title-text) { font-size: var(--font-size-small); }
   /* Rows keep the fields' pitch: switch, checkbox and read-only rows too; a row's parts centre on it */
   :is(.s-boolean, .s-info) .s-input { min-height: var(--control-height); align-items: center; }
+  /* under a hint the row aligns at the top, the label's first line level with the control's text */
+  .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--control-height) - var(--line-height)) / 2); } }
   .s-slider .s-input, .s-color.s-rgba { align-items: center; }
   .s-info .s-monitor { opacity: 1; }
 
-  /* ── The fold button: a round raised piece in its socket ── */
+  /* ── The fold button: a round raised piece in its socket, the socket the title row's height (the family's round key) ── */
   .s-fold-icon {
     order: 3; flex: none; display: grid; place-items: center;
-    width: calc(24 * var(--length)); height: calc(24 * var(--length)); border-radius: calc(12 * var(--length) * var(--roundness));
+    width: calc(var(--control-height) - 2 * var(--g)); height: calc(var(--control-height) - 2 * var(--g)); border-radius: calc((var(--control-height) / 2 - var(--g)) * min(1, var(--roundness)));
     ${faceOf()}
     box-shadow: ${seat('calc(2.25 * var(--length))')};
     i { width: 50%; height: 50%; background: ${onFaceMuted}; -webkit-mask: ${glyph(chevron, '#000')} center / contain no-repeat; mask: ${glyph(chevron, '#000')} center / contain no-repeat; transition: transform 140ms; }

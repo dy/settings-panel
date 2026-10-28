@@ -51,6 +51,9 @@ const CASES = {
   dialkit: dialkit('', [410, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot'),
   'dialkit-light-title': dialkit('#light', [410, 16, 280, 37], [0, 0], 'title and close cross, light'),
   'dialkit-light': dialkit('#light', [410, 101, 280, 744], [0, 43], 'from the header hairline to the panel\'s foot, light'),
+  // one of each control DialKit has, from the first row to the pad's foot (its easing editor has rows ours has not)
+  'dialkit-controls': dialkit('', [410, 106, 280, 646], [0, 48], 'every control, from the first row to the pad\'s foot', 'all'),
+  'dialkit-controls-light': dialkit('#light', [410, 106, 280, 646], [0, 48], 'every control, from the first row to the pad\'s foot, light', 'all'),
   // Learning Synths without its graphs and modulation dots (the panel has no graph), restacked by the
   // page's own rule; the six columns against our six panels.
   ableton: synth('light'),
@@ -113,9 +116,10 @@ function imgui(scheme) {
     source: `Dear ImGui 1.92.9b demo, Widgets > Basic, StyleColors${scheme ? 'Light' : 'Dark'} (sokol-samples imgui-sapp)`,
   }
 }
-function dialkit(hash, rect, at, part) {
-  return { mode: 'page', page: 'demo/cases/dialkit.html' + hash, viewport: [1100, 1000], original: 'demo/_ref/dialkit-ref.html' + hash, steps: [['wait', 800]], rect, at,
-    source: `DialKit 2.0.2 vanilla build, its README example, popover${hash ? ', light' : ''}, demo/_ref/dialkit-ref.html: ${part}` }
+function dialkit(hash, rect, at, part, all) {
+  const [page, ref] = all ? ['dialkit-all', 'dialkit-all-ref'] : ['dialkit', 'dialkit-ref']
+  return { mode: 'page', page: `demo/cases/${page}.html` + hash, viewport: [1100, 1000], original: `demo/_ref/${ref}.html` + hash, steps: [['wait', 800]], rect, at,
+    source: `DialKit 2.0.2 vanilla build, ${all ? 'one of each control' : 'its README example'}, popover${hash ? ', light' : ''}, demo/_ref/${ref}.html: ${part}` }
 }
 function synth(scheme) {
   const panel = '.components_embeds_subtractive-synth__panel'

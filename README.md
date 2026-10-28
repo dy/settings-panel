@@ -32,6 +32,7 @@ Types are inferred from values.
 | `textarea` | `'line one\nline two'` (multiline) |
 | `color` | `'#hex'`, `'rgb()'`, `'hsl()'` |
 | `select` | `['a', 'b', 'c']` or `{ options: [] }` |
+| `curve` | `'cubic-bezier(0.4, 0, 0.2, 1)'`; or `{ type: 'curve', value: 'ease-out' }` |
 | `button` | `() => {}` |
 | `folder` | `'group.key'` dot-notation |
 
@@ -43,7 +44,8 @@ settings({
 
   // Explicit
   frequency: { type: 'slider', min: 20, max: 20000, scale: 'log' },
-  palette: { type: 'color', variant: 'swatches' }
+  palette: { type: 'color', variant: 'swatches' },
+  level: { type: 'graph', value: 0, min: 0, max: 1 }   // plots the value's history as it changes
 })
 ```
 
@@ -63,18 +65,18 @@ Seventeen original themes, all functions: `theme(axes?) → CSS string`. The gal
 
 | Import | Name | Character |
 |--------|------|-----------|
+| `settings-panel/theme/lab01` | **lab01** | Frosted glass with gradient borders, noise texture. |
+| `settings-panel/theme/studio` | **studio** | The row is the instrument: labels ride the slider fill, values edit in place. |
+| `settings-panel/theme/glass` | **glass** | A liquid-glass pane; controls are lenses with a rim and a caustic. |
+| `settings-panel/theme/neu` | **neu** | One material, raised and pressed by light from above. |
+| `settings-panel/theme/skeu` | **skeu** | Keycaps with a lip and a rim, engraved wells. |
 | `settings-panel/theme/default` | **soft** | Capsules seated in soft grooves, one material. The mainstream baseline. |
 | `settings-panel/theme/swiss` | **swiss** | No shadows, grid-pure, typographic hierarchy. |
 | `settings-panel/theme/editorial` | **editorial** | A reader's settings sheet: ink frame, rules under the values, typographic choices. |
-| `settings-panel/theme/studio` | **studio** | The row is the instrument: labels ride the slider fill, values edit in place. |
-| `settings-panel/theme/skeu` | **skeu** | Keycaps with a lip and a rim, engraved wells. |
 | `settings-panel/theme/matte` | **matte** | One matte plate: low domed keys, shallow wells. |
 | `settings-panel/theme/brutal` | **brutal** | Hard offset shadows, thick borders, zero radius. |
 | `settings-panel/theme/terminal` | **terminal** | Monospace on a character-cell grid, inverse video, no depth. |
-| `settings-panel/theme/neu` | **neu** | One material, raised and pressed by light from above. |
 | `settings-panel/theme/porcelain` | **porcelain** | Glazed ceramic face, mineral rim, embossed relief. |
-| `settings-panel/theme/glass` | **glass** | A liquid-glass pane; controls are lenses with a rim and a caustic. |
-| `settings-panel/theme/lab01` | **lab01** | Frosted glass with gradient borders, noise texture. |
 | `settings-panel/theme/synth` | **synth** | Each group in its own colour on white cards, hairline tracks and ring thumbs (after Ableton Learning Synths). |
 | `settings-panel/theme/retro` | **retro** | Raised and sunken bevels in border colour, system grey, pixel type (after Windows 98). |
 | `settings-panel/theme/bitmap` | **bitmap** | Two inks, greys only as dither, state by inversion (after the 1-bit Macintosh). |

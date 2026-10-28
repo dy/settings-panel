@@ -1,0 +1,27 @@
+/* The site header the pages share: the wordmark, the two tabs (Themes, Controls), the technical pages
+   (Playground, Cases, Docs) set quieter at the end, and the source link. Needs tokens.css. */
+.site-header { height: 72px; display: flex; align-items: center; gap: 56px; padding: 0 var(--space-lg); border-bottom: 1px solid var(--color-rule); background: var(--color-paper); color: var(--color-ink); font: 14px/1.5 var(--font-body); }
+.site-header a { color: inherit; text-decoration: none; }
+.wordmark { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 720; letter-spacing: -.65px; white-space: nowrap; }
+.brand-dot { width: 5px; height: 5px; margin-top: 3px; background: var(--color-accent); border-radius: 50%; }
+.site-tabs { align-self: stretch; display: flex; align-items: stretch; gap: 30px; }
+.site-tabs a { display: flex; align-items: center; position: relative; color: var(--color-muted); font-size: 13px; font-weight: 550; }
+.site-tabs a[aria-current] { color: var(--color-ink); }
+.site-tabs a[aria-current]::after { content: ''; position: absolute; height: 2px; background: var(--color-accent); bottom: -1px; left: 0; right: 0; }
+.site-links { margin-left: auto; display: flex; align-items: center; gap: 20px; font-size: 12px; }
+.site-links a { color: var(--color-muted); }
+.site-header a:hover { color: var(--color-ink); }
+.repository { width: 38px; height: 38px; display: grid; place-items: center; flex: none; margin-left: -12px; border-radius: var(--radius-control); }
+.repository:hover { background: var(--color-subtle); }
+.repository svg { width: 22px; height: 22px; stroke: none; }
+
+@media (max-width: 820px) {
+  .site-header { height: 62px; gap: 26px; padding: 0 22px; }
+  .site-tabs { gap: 20px; }
+  .site-links { gap: 14px; }
+}
+@media (max-width: 520px) {
+  .site-header { padding: 0 16px; gap: 12px 24px; flex-wrap: wrap; height: auto; min-height: 62px; }
+  .wordmark { font-size: 17px; }
+  .site-tabs { gap: 18px; height: 44px; order: 2; width: 100%; margin-top: -8px; }
+}

@@ -13,6 +13,8 @@ import separator from '../control/separator.js'
 import vector from '../control/vector.js'
 import xy from '../control/xy.js'
 import knob from '../control/knob.js'
+import graph from '../control/graph.js'
+import curve, { easings } from '../control/curve.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -835,6 +837,125 @@ test('knob: renders dial, keyboard adjusts value', () => {
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
+// GRAPH, CURVE
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('graph: a number draws its history, newest at the right', async () => {
+  const c = mount()
+  const s = signal(0)
+  const ctrl = graph(s, { min: 0, max: 1, history: 4, interval: 5, container: c })
+  const line = () => ctrl.el.querySelector('polyline').getAttribute('points')
+  is(line(), '1,1')
+  s.value = 1
+  await new Promise(r => setTimeout(r, 30))
+  const pts = line().split(' ')
+  is(pts.length, 4, 'holds its last four samples')
+  is(pts.at(-1), '1,0', 'the newest sample stands at the right, at the top of the range')
+  cleanup(ctrl, c)
+})
+
+test('graph: an array plots as it is; with no range, the data\'s own', () => {
+  const c = mount()
+  const s = signal([2, 4, 3])
+  const ctrl = graph(s, { readout: true, container: c })
+  is(ctrl.el.querySelector('polyline').getAttribute('points'), '0,1 0.5,0 1,0.5')
+  is(ctrl.el.querySelector('.s-pad-val').textContent, '[2, 4, 3]')
+  s.value = [5, 5]
+  is(ctrl.el.querySelector('polyline').getAttribute('points'), '0,0.5 1,0.5', 'a flat line runs across the middle')
+  cleanup(ctrl, c)
+})
+
+test('curve: keeps the form it is given — array, keyword, cubic-bezier()', () => {
+  const c = mount()
+  const a = signal([0.25, 0.1, 0.25, 1])
+  const ca = curve(a, { container: c })
+  const fields = () => [...ca.el.querySelectorAll('input[type=number]')]
+  is(fields().map(f => +f.value), [0.25, 0.1, 0.25, 1])
+  fields()[1].value = '0.5'; fields()[1].dispatchEvent(new Event('change'))
+  is(a.value, [0.25, 0.5, 0.25, 1], 'an array stays an array')
+  ca[Symbol.dispose]()
+
+  const k = signal('ease-in')
+  const ck = curve(k, { container: c })
+  is([...ck.el.querySelectorAll('input[type=number]')].map(f => +f.value), easings['ease-in'])
+  const f = ck.el.querySelectorAll('input[type=number]')[0]
+  f.value = '0.3'; f.dispatchEvent(new Event('change'))
+  is(k.value, 'cubic-bezier(0.3, 0, 1, 1)', 'a string stays a string')
+  f.value = '0.42'; f.dispatchEvent(new Event('change'))
+  is(k.value, 'ease-in', 'and names its keyword again when it matches one')
+  k.value = 'cubic-bezier(.1, .2, .3, .4)'
+  is([...ck.el.querySelectorAll('input[type=number]')].map(f => +f.value), [0.1, 0.2, 0.3, 0.4], 'a change from outside reaches the fields')
+  cleanup(ck, c)
+})
+
+test('graph: a history of one holds the latest sample only', async () => {
+  const c = mount()
+  const s = signal(0)
+  const ctrl = graph(s, { min: 0, max: 1, history: 1, interval: 5, container: c })
+  s.value = 1
+  await new Promise(r => setTimeout(r, 30))
+  is(ctrl.el.querySelector('polyline').getAttribute('points'), '0,0')
+  cleanup(ctrl, c)
+})
+
+test('graph: an empty array or a non-number draws nothing, and does not throw', () => {
+  const c = mount()
+  const s = signal([])
+  const ctrl = graph(s, { container: c })
+  is(ctrl.el.querySelector('polyline').getAttribute('points') || '', '')
+  s.value = 'n/a'
+  is(ctrl.el.querySelector('polyline').getAttribute('points') || '', '')
+  cleanup(ctrl, c)
+})
+
+test('curve: a value it cannot read is CSS\'s initial ease; an x past 0–1 is held to it', () => {
+  const c = mount()
+  const fields = ctrl => [...ctrl.el.querySelectorAll('input[type=number]')].map(f => +f.value)
+  for (const v of ['bounce', 'cubic-bezier(1, 2)', [1, 2, 3], null]) {
+    const ctrl = curve(signal(v), { container: c })
+    is(fields(ctrl), easings.ease, `${JSON.stringify(v)} reads as ease`)
+    ctrl[Symbol.dispose]()
+  }
+  const s = signal('cubic-bezier(1.5, 0, -1, 1)')
+  const ctrl = curve(s, { container: c })
+  is(fields(ctrl), [1, 0, 0, 1])
+  is(s.value, 'cubic-bezier(1, 0, 0, 1)', 'and the store holds the value it shows')
+  cleanup(ctrl, c)
+})
+
+test('xy: a theme\'s --s-pad-inset insets the plane a press reads', () => {
+  const c = mount()
+  const s = signal([0, 0])
+  const ctrl = xy(s, { min: 0, max: 1, container: c })
+  const pad = ctrl.el.querySelector('.s-pad')
+  pad.style.setProperty('--s-pad-inset', '10px')
+  pad.getBoundingClientRect = () => ({ left: 0, top: 0, width: 120, height: 120, right: 120, bottom: 120 })
+  // 10px in from the left and the bottom is the plane's corner; the pad's own corner clamps to it
+  pad.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true }), { clientX: 10, clientY: 110 }))
+  dispatchEvent(new Event('pointerup'))
+  is(s.value, [0, 0])
+  pad.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true }), { clientX: 60, clientY: 35 }))
+  dispatchEvent(new Event('pointerup'))
+  is(s.value, [0.5, 0.75])
+  cleanup(ctrl, c)
+})
+
+test('curve: x stays within 0–1, y overshoots; a handle moves by the arrows', () => {
+  const c = mount()
+  const s = signal([0.5, 0.5, 0.5, 0.5])
+  const ctrl = curve(s, { container: c })
+  const f = ctrl.el.querySelectorAll('input[type=number]')
+  f[0].value = '2'; f[0].dispatchEvent(new Event('change'))
+  f[1].value = '1.6'; f[1].dispatchEvent(new Event('change'))
+  is(s.value, [1, 1.6, 0.5, 0.5])
+  const [, dot] = ctrl.el.querySelectorAll('.s-pad-dot')
+  dot.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+  dot.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', shiftKey: true }))
+  is(s.value, [1, 1.6, 0.4, 0.51])
+  cleanup(ctrl, c)
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DISPOSE
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -847,6 +968,8 @@ test('dispose: all control types clean up', () => {
     [color, signal('#fff'), {}],
     [text, signal('hi'), {}],
     [slider, signal(50), { min: 0, max: 100 }],
+    [graph, signal(0), {}],
+    [curve, signal('ease'), {}],
   ]
   for (const [factory, sig, opts] of factories) {
     const ctrl = factory(sig, { ...opts, container: c })

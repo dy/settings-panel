@@ -50,7 +50,7 @@ export default function neu({
   texture = 'grain',
   spacing = 1,
   weight = 500,
-  roundness = 1.6,
+  roundness = 1,
   depth = 1,
   softness = 1,
   contrast = 1,
@@ -147,12 +147,13 @@ export default function neu({
 
   --weight: ${weight};
   --roundness: ${roundness};
-  --r: calc(var(--u) * var(--roundness) * 2.2);
+  --r: calc(var(--u) * var(--roundness) * 3.52);
   --h: var(--control-height);
-  /* keys are capsules at twice the wells' radius; the plate and trays are concentric with the parts at their edge */
-  --r-key: min(calc(var(--r) * 2), var(--h) / 2);
+  /* keys and one-line wells are capsules (the family's form), a text area keeps the wells' radius; the plate and
+     trays are concentric with the parts at their edge */
+  --r-key: calc(var(--h) / 2 * min(1, var(--roundness)));
   --tray-pad: calc(16 * var(--space));
-  --r-panel: calc(var(--r-key) + var(--panel-padding) * min(1, var(--roundness)));
+  --r-panel: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
   --r-tray: calc(var(--r-key) + var(--tray-pad) * min(1, var(--roundness)));
   --knob: calc(var(--u) * 5.5);
   --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */
@@ -221,7 +222,7 @@ export default function neu({
   /* the fold and search buttons: round, raised */
   .s-fold-icon, .s-search-btn {
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-    width: var(--h); height: var(--h); padding: 0; border: none; border-radius: 50%;
+    width: var(--h); height: var(--h); padding: 0; border: none; border-radius: var(--r-key);
     box-shadow: var(--neu-raise); -webkit-mask: none; mask: none;
     transition: box-shadow .15s;
     &:hover { box-shadow: var(--neu-lift); }
@@ -253,7 +254,8 @@ export default function neu({
   /* under a hint the row aligns at the top, the label's first line level with the control's text */
   .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-input { align-items: center; }
-  .s-label-group { min-width: 0; width: 30%; }
+  /* switch, checkbox and read-only rows keep the fields' height, so a row's parts centre on one line */
+  :is(.s-boolean, .s-info) .s-input { min-height: var(--h); }
   .s-label { font-weight: 500; }
   .s-hint { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); font-weight: 500; }
   .s-title { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 4.5); height: calc(var(--u) * 4.5); border-radius: 50%; box-shadow: var(--neu-sink-sm); color: var(--fg-muted); font-size: calc(10 * var(--length)); font-weight: 800; cursor: help;
@@ -262,19 +264,19 @@ export default function neu({
 
   /* ── Fields: wells in the material ── */
   input[type="text"], input[type="number"], textarea {
-    color: var(--fg); border: none; border-radius: var(--r); box-shadow: var(--neu-sink);
+    color: var(--fg); border: none; border-radius: var(--r-key); box-shadow: var(--neu-sink);
     font: inherit; font-weight: 600; transition: box-shadow .15s;
     &::placeholder { color: ${placeholder}; font-weight: 500; }
     &:hover { box-shadow: var(--neu-sink-deep); }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   }
   input[type="text"], input[type="number"], select { height: var(--h); padding: 0 calc(var(--u) * 3.5); }
-  textarea { padding: calc(var(--u) * 2.5) calc(var(--u) * 3.5); }
+  textarea { padding: calc(var(--u) * 2.5) calc(var(--u) * 3.5); border-radius: var(--r); }
   input[type="number"] { font-variant-numeric: tabular-nums; }
   input.s-scrubbing { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Select: pressed to open, so raised like a button ── */
-  select { color: var(--fg); border: none; border-radius: calc(var(--r) * 2); box-shadow: var(--neu-raise);
+  select { color: var(--fg); border: none; border-radius: var(--r-key); box-shadow: var(--neu-raise);
     font: inherit; font-weight: 600; cursor: pointer; appearance: none; -webkit-appearance: none; transition: box-shadow .15s;
     background: ${selectArrow} right calc(var(--u) * 3.5) center / var(--glyph) no-repeat, var(--neu-face);
     background-blend-mode: normal, var(--neu-face-blend); padding-right: calc(var(--u) * 9);
@@ -296,7 +298,7 @@ export default function neu({
 
   /* ── Vector ── */
   .s-vector {
-    .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 2.5); border-radius: var(--r); box-shadow: var(--neu-sink);
+    .s-vec-axis { gap: var(--u); height: var(--h); min-width: calc(var(--u) * 16); padding: 0 calc(var(--u) * 2.5); border-radius: var(--r-key); box-shadow: var(--neu-sink);
       &:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; } }
     .s-vec-label { font-size: var(--font-size-small); font-weight: 700; color: var(--fg-muted); opacity: 1; }
     input[type="number"] { height: auto; padding: 0; box-shadow: none; background: transparent; &:hover { box-shadow: none; } &:focus-visible { outline: none; } }
@@ -306,7 +308,7 @@ export default function neu({
   button { font: inherit; cursor: pointer; }
   .s-button {
     .s-input { gap: calc(var(--u) * 3); }
-    button { flex: 1; min-width: 0; min-height: var(--h); color: var(--fg); font-weight: var(--weight); border: none; border-radius: calc(var(--r) * 2); box-shadow: var(--neu-raise);
+    button { flex: 1; min-width: 0; min-height: var(--h); color: var(--fg); font-weight: var(--weight); border: none; border-radius: var(--r-key); box-shadow: var(--neu-raise);
       padding: calc((var(--h) - var(--line-height)) / 2) calc(var(--u) * 3); transition: box-shadow .15s, color .15s;
       &:hover:enabled { box-shadow: var(--neu-lift); }
       &:active:enabled { box-shadow: var(--neu-press); }
@@ -337,7 +339,7 @@ export default function neu({
     }
     /* a latching push button: raised off, pressed in on */
     &.s-toggle {
-      .s-track { padding: 0 calc(var(--u) * 4); border-radius: calc(var(--r) * 2); box-shadow: var(--neu-raise-sm); height: var(--h); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--fg-muted); cursor: pointer; transition: box-shadow .15s, color .15s;
+      .s-track { padding: 0 calc(var(--u) * 4); border-radius: var(--r-key); box-shadow: var(--neu-raise-sm); height: var(--h); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--fg-muted); cursor: pointer; transition: box-shadow .15s, color .15s;
         &::after { content: 'Off'; } }
       &:hover .s-track { box-shadow: var(--neu-raise); }
       &:has(input:checked) .s-track { background: var(--neu-floor); background-blend-mode: var(--neu-blend); box-shadow: var(--neu-sink-sm); color: var(--accent); &::after { content: 'On'; } }
@@ -384,8 +386,8 @@ export default function neu({
     &.s-dropdown select { flex: 1; }
     /* one sunken track; the chosen option is the piece raised inside it */
     &.s-segmented {
-      .s-input { gap: 0; height: var(--h); padding: calc(var(--u) * .75); border-radius: calc(var(--r) * 2); box-shadow: var(--neu-sink); }
-      button { flex: 1; min-width: 0; height: 100%; background: transparent; border: none; border-radius: calc(var(--r) * 2); color: var(--fg-muted); font-weight: 600; padding: 0 var(--u); transition: box-shadow .15s, color .15s;
+      .s-input { gap: 0; height: var(--h); padding: calc(var(--u) * .75); border-radius: var(--r-key); box-shadow: var(--neu-sink); }
+      button { flex: 1; min-width: 0; height: 100%; background: transparent; border: none; border-radius: calc(var(--r-key) - var(--u) * .75 * min(1, var(--roundness))); color: var(--fg-muted); font-weight: 600; padding: 0 var(--u); transition: box-shadow .15s, color .15s;
         &:hover { color: var(--fg); }
         &.s-selected { color: var(--fg); box-shadow: var(--neu-raise-sm); }
         &:active { box-shadow: var(--neu-press); }

@@ -163,6 +163,7 @@ on every face of their field: at rest, hovered and focused.
 - Controls sit in sockets cut into one material: a raised capsule rides in a groove whose wall is darkest at its outer top edge, with a catch-light on the lip below
 - Fields and tracks are sunken faces in sockets; the segmented control is one track with the selection raised inside it
 - Radius: capsules at roundness 1 (radius = height / 2)
+- Socket: a tenth of the key's height wide, the study's (14px round a 144px key), so a seated key stands as far past the family's measure as the study's Upgrade key past its neighbours
 - Tones come from the shade by two rules fitted on the study's three finishes: a crevice multiplies the material by itself, a lit face rises by L(1 − L)
 - The accent marks on-states only (slider fill, switch track, checks, focus); primary and secondary are a bright and a flat key, never an accent slab
 - Lettering in the ink, embossed, at least 4.5:1 on every surface it sits on; `texture` adds grain, or wood figure on raised faces
@@ -235,7 +236,10 @@ on every face of their field: at rest, hovered and focused.
 - Text: a long value wraps, Enter breaks the line, and the row grows, five lines at most, as native's autosize; the field is as wide as its value (six characters at least), so the focus line runs under the value, not the row. Number: the field as wide as its value, its steppers the select's chevron up and down beside it, each half of the row's height a press
 - Range: the slider with two handles: the fill spans low to high, a handle 9px inside each end under the pointer, the values at the row's end as `low – high`; in hand a slider's label steps aside while a handle passes over it
 - Colour: the code, then a 20px swatch with 5px corners that grows 8% under the pointer
-- Pad: a caption and an X and Y field in three equal cells, the square surface below with a line every sixth (`vector` with `pad: 'open'`)
+- Pad: a caption and an X and Y field in three equal cells, the square surface below with a line every sixth (`vector` with `pad: 'open'`); the point travels a plane 12px in from the surface's edges and rings while dragged
+- Curve: native's easing editor as a group of its own: the title between hairlines, the 256:180 graph with its dashed reference, tangents, endpoint dots and ringed handles, fitted as native fits it, then the points as one Ease row (`0, 0, 0.58, 1`). Native's Type (Easing / Time / Physics) and Duration rows belong to its transition value, which a curve does not have; its chevron folds a group a curve is not
+- Graph: no native counterpart; drawn as the pad is, a caption cell and a plain surface below, three rows high
+- Folders: a first group shares the header's hairline; native draws a second rule there when more groups follow (its own rule covers a sole first group only)
 - Folders: a 13px semibold title and chevron, 36px tall, between hairlines at 6% ink; buttons are rows with centred 60% labels
 - Panel: 280px wide, 14px radius, a 10% hairline, native's shadow; the 15px title and a close cross over a hairline. Native's version menu and copy key are its preset UI, which the panel has no element for
 - Colour model: native's white (dark) or black (light) alphas over any shade; a placeholder, native's 40% tertiary, is lifted to 4.5:1 on its row
@@ -330,6 +334,7 @@ on every face of their field: at rest, hovered and focused.
 - Lettering in the ink, cut into the glass; needs an interesting background behind it
 - Lettering holds 4.5:1 over its scene, a backdrop up to .35 lighter or .16 darker (OKLab L) than its shade: muted text and placeholders lighten to read there, and the tint thickens only where the ink itself would not (slate, mid greys). A dark glass on a white page is outside that: give it its scene
 - Calibrated against the study's Think row
+- Light by default, as the original: a chalk pane (`#f1f2f4`) with a blue accent
 - A folded folder ends in the separator's cut line, so a stack of folded folders reads as rows
 
 - One slider: groove and bright lens thumb shared by plain, interval and alpha; the groove is thinner than the lens's bands are drawn for, so its accent and the alpha ramp lie under clear glass (the lit top, no body). The folder well is concentric with its lenses
@@ -341,7 +346,7 @@ on every face of their field: at rest, hovered and focused.
 - Lit from straight above by default; depth, diffusion, lighting contrast, direction and texture strength tune independently
 - Calibrated against the study's Search row; the [Neu demo](../demo/cases/neu.html) has a Material folder with the three finishes
 
-- Radii: keys at twice the wells' radius; the plate and folder trays concentric with the keys at their edge
+- Radii: keys and one-line wells are capsules, as in the rest of the family; a text area keeps the wells' radius; the plate and folder trays concentric with the keys at their edge
 - One slider: one pill for plain, interval and alpha. Ink laid in a groove (the fill, an on switch, the alpha ramp) covers the floor's catch-light and lies in the lip's shade; a knob riding in a groove spills no light, which would fog the ink beside it
 
 ### porcelain
@@ -354,7 +359,7 @@ on every face of their field: at rest, hovered and focused.
 - Boxes: every box (field, select, button, segment, toggle) and every row at the control height; the alpha slider shares the 6px groove and the 14×22 glazed thumb
 
 ### skeu
-- Keycaps: an outline, a bright rim, a face lighter than the plate, a front wall, a dark base line and a short shadow, all inside the key's box; lettering is engraved
+- Keycaps: an outline, a bright rim, a face lighter than the plate, a front wall, a dark base line and a short shadow; the face fills the key's box (the family's measure) and the wall's lower part and the base line hang below it, so a key stands a twentieth taller, as the study's Customize key stands over its neighbours (`--s-key-lip`, registered as a `<length>`, says how far; the calibration's profile reads it); a pressed key travels down to its base line; lettering is engraved
 - Wells for fields, tracks, checkbox and radio; the segmented control is one sunken track with the selected key raised in it
 - The primary is a lifted key, the secondary sits flush with the plate; on-states take the accent
 - Tones are measured on the key in each of the study's finishes and interpolated by lightness for other palettes; darker tones take the material squared, so bronze reddens and neutrals stay neutral
@@ -434,20 +439,23 @@ controls four ways: Neu raises the surface itself, Glass lays a lens on it, Soft
 in a groove, and Skeu cuts a keycap with a lip. Each theme was calibrated against its row with
 averaged vertical profiles (halo, rim, face, lip, shadow) at the panel's own scale.
 
-The [demo gallery](../demo/cases/index.html) also includes Porcelain and four material presets,
+The four share one measure, so switching between them moves nothing: at the 14px body, 34px keys
+and fields, 14 between rows and under the title, 22 round the panel; the title row at the control
+height with a round key of that height; a row with a hint sets its label on the control's line and
+the hint below. Roundness is one scale: at 1 keys and one-line fields are capsules (height / 2), and
+the panel is concentric with a capsule at its edge, (height / 2 + padding) × roundness. A theme's
+material reaches past the measure without moving it: soft's socket, skeu's lip, neu's halo.
+
+The [demo gallery](../demo/cases/index.html) also includes Porcelain and a Matte preset,
 using the same light-adjustment controls for comparison:
 
 | Case | Theme | Axes |
 |------|-------|------|
 | [Porcelain](../demo/cases/variants.html#porcelain) | porcelain | glazed ceramic face, mineral rim, embossed relief |
-| [Frost](../demo/cases/variants.html#frost) | glass | light mineral tint, blur 28, tint .85 |
 | [Soft](../demo/cases/variants.html#soft) | matte | matte silver, green accent, spacing 1.6, depth .7 |
-| [Silver](../demo/cases/variants.html#silver) | lab01 | silver tint, one segmented track with a raised selection, consistent row spacing |
-| [Ink](../demo/cases/variants.html#ink) | brutal | off-white stock, lime accent, 2px borders, 3px offset |
 
 Save keeps a snapshot for the current session; Reset restores it (or the initial
-values before the first Save). Porcelain is a separate theme; the other cases are axis presets. Skeu / Soft uses
-the current Skeu engine.
+values before the first Save).
 
 Glass works without page-provided SVG filters. Its shade tints the backdrop to
 support readable text; blur controls the frost. The experimental lens remains
@@ -560,11 +568,11 @@ each case may differ from it by at most its budget (dat.gui 0 px; UIL 23; Leva 2
 whose alpha slider shows inline where the original keeps it in a popup; Control Panel 8565, light 9876,
 its buttons and selects at the body size where the original leaks the browser's 13.3px, and its text box and checkbox at the others' 20px where the original's are 22 and 18 (a 3px gap under the text box, 7 over the checkbox, 5 everywhere else); ControlKit 8142,
 its select and button at its fields' 25px; OUI 13432, its dropdown on the half-row column its text and colour fields take, where the original sizes it to its value (12892 before); ImGui title 96, body 93472,
-light 81316; DialKit title 0 (dark and light) and body 1114, light 1145, the body measured from the header's hairline because the original's version menu and copy key have no element in the panel; Learning Synths 108833, dark 123245, of 3.4M px; Windows 98 in seven parts, 0 to 642 px each, except the title bar's 24176, which is the
+light 81316; DialKit title 0 (dark and light) and body 1114, light 1145, the body measured from the header's hairline because the original's version menu and copy key have no element in the panel, and one of each of its controls, first row to the pad's foot, 115, light 1109 (the placeholder lifted to 4.5:1); Learning Synths 108833, dark 123245, of 3.4M px; Windows 98 in seven parts, 0 to 642 px each, except the title bar's 24176, which is the
 emulator's 16-colour navy `#0000a8` against the scheme's `#000080`; the typed field 556 since its text is centred, the owner's call, where the Speed tab sets it 1px higher; System 7 in nine parts, 92 to 1024
 px each, the font clones' glyphs). The DMX-FIELD mockup, which exists only as a picture, is measured in
 eight parts (capture.mjs `image` mode), 112 to 19152 px each: our module titles push the parts down, the
-picture lets fader travel run into the keys below, and its MASTER encoder is smaller and sits at the far right. The encoders' part rose from 5135 to 5148 px when the case page centred the desk: their gradients rasterise a little differently at another position, the theme unchanged. The material study itself is held as pictures too: its four rows of keys in each finish (`study-*`, the [Materials case](../demo/cases/materials.html)), 13581 to 43225 px of about 347k, bronze the most as the picture's wood is warmer than the finish (they rose from 13367 and 42882 with the rounds that made skeu's and soft's keys more pronounced and soft's sockets 4px wide at the owner's request; the part each change contributes is not isolated). The material rows (materials.json) rose where the owner asked for the family's one measure, 34px keys and fields 14 apart in soft, skeu, glass and neu: skeu's top edge (bronze 2.8 → 3.1, graphite 1.6 → 2, a fixed wall on a taller key), and soft's halo, lower edge and shadow with the wider socket and the taller key (bronze above 2.9 → 3.4, bottom edge 2.5 → 3.1, below 1.3 → 1.8; graphite above .5 → .8, below .7 → 1.3; chalk below 1.1 → 1.2). Five more pictures the owner supplied are drawn by the closest existing theme, each case scaled and cropped to fit by least squares or by measured centres (capture.mjs records the transform), and held at what they differ today: a dashboard by synth 281613 px, a wallet dialog by lab01 476353, a round key by soft 231513 (226956 before soft's sockets widened to 4px), an actions palette by studio 530410 (480409 before studio took its reference's row gap and insets; its crop does not align with the panel, so the number says little until the picture is recaptured), an element inspector by figma 79580 (79457 before figma's progress came to end under the thumb's centre). Those are far from the pictures: no theme has their knobs, chips or list rows; the budgets measure the distance, they do not excuse it. The material themes are held to the study the same way: each of the
+picture lets fader travel run into the keys below, and its MASTER encoder is smaller and sits at the far right. The encoders' part rose from 5135 to 5148 px when the case page centred the desk: their gradients rasterise a little differently at another position, the theme unchanged. The material study itself is held as pictures too: its four rows of keys in each finish (`study-*`, the [Materials case](../demo/cases/materials.html)), 12499 to 42474 px of about 347k, bronze the most as the picture's wood is warmer than the finish (they rose from 13367 and 42882 with the rounds that made skeu's and soft's keys more pronounced and soft's sockets 4px wide at the owner's request, then fell from 13581 and 43225 when the case let each theme draw its keys at the study's height, capsules again, soft's socket took the study's tenth of the key and skeu's key its lip below the face; the part each change contributes is not isolated). The material rows (materials.json) rose where the owner asked for the family's one measure, 34px keys and fields 14 apart in soft, skeu, glass and neu: skeu's top edge (bronze 2.8 → 3.1, graphite 1.6 → 2, a fixed wall on a taller key), and soft's halo, lower edge and shadow with the wider socket and the taller key (bronze above 2.9 → 3.4, bottom edge 2.5 → 3.1, below 1.3 → 1.8; graphite above .5 → .8, below .7 → 1.3; chalk below 1.1 → 1.2). They fell again, twelve zones in all, with soft's socket at the study's width (among them bronze above 3.4 → 2.9, bottom edge 3.1 → 2.8, below 1.8 → 1.3; graphite above .8 → .6, below 1.3 → .9) and skeu's lip below its face, its rim a quarter unit wider to keep its share of the taller key (among them graphite bottom edge 1.3 → 1.1, chalk top edge 1 → .9). Glass's graphite halo rose (above 2.2 → 2.7) when the pane took the family's concentric radius, which reshapes the pane behind the key. Five more pictures the owner supplied are drawn by the closest existing theme, each case scaled and cropped to fit by least squares or by measured centres (capture.mjs records the transform), and held at what they differ today: a dashboard by synth 281613 px, a wallet dialog by lab01 476353, a round key by soft 234524 (226956 before soft's sockets widened to 4px, 231513 before they narrowed to the study's tenth of the key: this picture's socket is wider than the study's, and the study decides), an actions palette by studio 530410 (480409 before studio took its reference's row gap and insets; its crop does not align with the panel, so the number says little until the picture is recaptured), an element inspector by figma 79580 (79457 before figma's progress came to end under the thumb's centre). Those are far from the pictures: no theme has their knobs, chips or list rows; the budgets measure the distance, they do not excuse it. The material themes are held to the study the same way: each of the
 twelve rows keeps its averaged button profile within its zone budgets. Unlike snapshots, these
 references cannot be regenerated from our own render.
 

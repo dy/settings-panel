@@ -36,6 +36,8 @@ export default function dialkit({
   const [border, borderHover] = [.1, .15]
   const row = mix(shade, dark ? '#ffffff' : '#000000', surface)
   const placeholder = ink(row, 4.5, mix(row, dark ? '#ffffff' : '#000000', tertiary))
+  // an easing handle's ring is filled with the graph's surface over itself, so the tangent under it never shows through
+  const ring = mix(row, dark ? '#ffffff' : '#000000', surface)
 
   const svg = path => `url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='${path}'/%3E%3C/svg%3E")`
   const chevron = svg('M6 9.5L12 15.5L18 9.5')
@@ -55,6 +57,7 @@ export default function dialkit({
   // Body 13px: DialKit sets its labels and values at 13px.
   // the fill's end as a typed length, so a click's jump can spring there
   const overrides = `@property --p { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+@property --s-pad-inset { syntax: '<length>'; inherits: true; initial-value: 0px; }
 .s-panel {
   ${metrics({ size, spacing, font }, { body: 13, fontSize: 13, fontFamily: "system-ui, -apple-system, 'SF Pro Display', sans-serif", lineHeight: 16, controlHeight: 36, inset: 12, rowGap: 6, columnGap: 12, sectionGap: 12, panelPadding: 12 })}
 
@@ -263,6 +266,8 @@ export default function dialkit({
       &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: 0; }
       transition: scale .15s; &:hover { scale: 1.08; }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; } }
+    /* the swatch grows under the pointer, not under its label (a label's hover reaches its field) */
+    &:has(> .s-label-group:hover) input[type="color"] { scale: 1; }
     /* its focus line runs 4px under the code, at the foot of native's 4px pad, not at the row's */
     input[type="text"] { flex: 1; min-width: 0; font-family: var(--mono);
       &:focus-visible { box-shadow: none; background: linear-gradient(var(--focus), var(--focus)) 0 calc(50% + 12 * var(--length)) / 100% var(--px) no-repeat; } }
@@ -311,19 +316,49 @@ export default function dialkit({
     .s-vec-expand { display: none; }
     .s-vec-pad { grid-column: 1 / -1; }
   }
-  /* an XY pad is the vector's pad: its caption in a cell, the surface the row's width below */
-  .s-xy { flex-direction: column; align-items: stretch; gap: var(--row-gap); padding: 0; background: none;
-    > .s-label-group { width: calc((100% - 2 * var(--row-gap)) / 3); height: var(--h); padding: 0 var(--inset); border-radius: var(--r); background: var(--surface); display: flex; align-items: center; max-width: none; } }
+  /* an XY pad is the vector's pad, and a graph draws on one: the caption in a cell, the surface the row's width below */
+  :is(.s-xy, .s-graph) { flex-direction: column; align-items: stretch; gap: var(--row-gap); padding: 0; background: none;
+    > .s-label-group { width: calc((100% - 2 * var(--row-gap)) / 3); height: var(--h); padding: 0 var(--inset); border-radius: var(--r); background: var(--surface); display: flex; flex-direction: row; align-items: center; max-width: none;
+      .s-label-row { min-width: 0; } } }   /* a long caption ends in an ellipsis in its cell */
   .s-pad { width: 100%; height: auto; aspect-ratio: 1; border: none; border-radius: var(--r); background: var(--surface); cursor: crosshair;
     /* five lines a side, one every sixth of the surface */
     background-image: linear-gradient(to right, ${grid}), linear-gradient(to bottom, ${grid});
     .s-pad-x, .s-pad-y { display: none; }
     &::before { content: ''; position: absolute; left: 50%; top: 50%; width: calc(3 * var(--length)); height: calc(3 * var(--length)); border-radius: 50%; translate: -50% -50%; background: ${a(tertiary)}; }
     .s-pad-dot { width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--primary); box-shadow: 0 2px 4px #0003; }
-    &:active .s-pad-dot { box-shadow: 0 0 0 6px var(--border-hover), 0 2px 6px #0003; }
+    /* the point travels a plane 12px in from the surface's edges, so it never overhangs them */
+    --s-pad-inset: calc(12 * var(--length));
+    &:has(.s-pad-x) .s-pad-dot { left: calc(var(--s-pad-inset) + (100% - 2 * var(--s-pad-inset)) * var(--tx, .5)); top: calc(var(--s-pad-inset) + (100% - 2 * var(--s-pad-inset)) * var(--ty, .5)); }
+    &:is(.s-dragging *):has(.s-pad-x) .s-pad-dot { box-shadow: 0 0 0 6px var(--border-hover), 0 2px 6px #0003; }
     &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   }
   .s-pad-val { font-family: var(--mono); color: var(--label); opacity: 1; }
+  /* a graph is a plain surface, native's spring graph: no grid, no centre */
+  .s-graph .s-pad { height: calc(3 * var(--h) + 2 * var(--row-gap)); background-image: none; cursor: auto; &::before { display: none; } polyline { stroke: var(--primary); } }
+
+  /* ── Curve: native's easing editor, a group of its own: the title between hairlines, the graph at 256:180 with its
+     dashed reference, tangents and ringed handles, and the points as one Ease row ── */
+  .s-vector.s-curve { display: flex; flex-direction: column; align-items: stretch; gap: 0; border-radius: 0;
+    border-block: var(--px) solid var(--subtle); margin-top: calc(4 * var(--space)); padding-bottom: calc(10 * var(--space));
+    > .s-label-group { height: var(--h); max-width: none; padding: 0; background: none; .s-label { font-weight: 600; letter-spacing: -.01em; translate: 0 calc(-.5 * var(--px)); } }
+    > .s-input { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0;
+      &::before { content: 'Ease'; flex: 1; align-self: stretch; display: flex; align-items: center; padding-left: var(--inset); border-radius: var(--r) 0 0 var(--r); background: var(--surface); } }
+    .s-vec-pad { order: -1; flex-basis: 100%; margin-bottom: var(--row-gap); }
+    .s-vec-axis { flex: none !important; height: var(--h); padding: 0; gap: 0; border-radius: 0; background: var(--surface);
+      &:nth-of-type(4) { padding-right: var(--inset); border-radius: 0 var(--r) var(--r) 0; }
+      & + .s-vec-axis::before { content: ', '; white-space: pre; }
+      &:focus-within { background: var(--surface); } }
+    input[type="number"] { flex: none; width: auto; field-sizing: content; min-width: .5ch; font-family: inherit; text-align: right; padding-bottom: 0; }
+    .s-pad { aspect-ratio: 256 / 180; background-image: none; cursor: default; &::before { display: none; } }
+    .s-curve-guide { stroke: ${a(tertiary)}; opacity: .4; }
+    .s-curve-arm { stroke: ${a(tertiary)}; opacity: 1; }
+    .s-curve-line { stroke: var(--primary); }
+    .s-curve-end { fill: var(--secondary); opacity: 1; }
+    .s-pad-dot { width: calc(10 * var(--length)); height: calc(10 * var(--length)); border: 1.5px solid var(--secondary); background: ${ring}; box-shadow: none; cursor: grab;
+      &:focus-visible { outline: none; border-color: var(--primary); background: var(--primary); } }
+    &.s-dragging .s-pad-dot:focus { border-color: var(--primary); background: var(--primary); }
+  }
+  .s-curve + .s-folder, .s-folder + .s-curve { border-top: none; margin-top: calc(-6 * var(--space)); }
   .s-knob-dial { background: var(--surface-active); border: none; i { background: var(--primary); } }
   .s-knob-val { font-family: var(--mono); color: var(--label); opacity: 1; text-align: right; }
 
@@ -346,6 +381,9 @@ export default function dialkit({
     > .s-content { gap: var(--row-gap); padding-bottom: calc(10 * var(--space)); }
   }
   .s-folder:last-child { border-bottom: none; }
+  /* the first group shares the header's hairline: native draws two rules there when more groups follow, its own rule
+     for a sole first group extended to all */
+  .s-panel-content > .s-folder:first-child { border-top: none; margin-top: 0; }
   .s-folder + .s-folder { border-top: none; margin-top: calc(-6 * var(--space)); }
   .s-folder:has(+ .s-folder) { border-bottom: var(--px) solid var(--subtle); }
 

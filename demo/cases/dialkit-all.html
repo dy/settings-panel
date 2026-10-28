@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DialKit — every control</title>
+  <!-- One of each control DialKit has, popover panel, dark (#light for light), beside demo/_ref/dialkit-all-ref.html · ref: https://github.com/joshpuckett/dialkit -->
+  <script type="importmap">
+  {
+    "imports": {
+      "sprae": "https://esm.sh/sprae@13",
+      "sprae/store": "https://esm.sh/sprae@13/store"
+    }
+  }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; background: #161616; font-size: 14px; }
+    body.light { background: #f0f0f0; }
+    /* DialKit's popover, 16px from the top, centred (as demo/_ref centres the original) */
+    #panel { position: absolute; top: 16px; inset-inline: 0; margin-inline: auto; width: min(280px, calc(100% - 32px)); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import dialkit from '../../theme/dialkit.js'
+    import { caseBar, appearance } from './case-bar.js'
+
+    const light = appearance('dark') === 'light'
+    document.body.classList.toggle('light', light)
+
+    settings({
+      slider: { type: 'slider', value: 24, min: 0, max: 64, step: 1, label: 'Slider' },
+      stepped: { type: 'slider', value: .6, min: 0, max: 1, step: .2, label: 'Stepped' },
+      toggle: { type: 'boolean', value: true, label: 'Toggle' },
+      off: { type: 'boolean', value: false, label: 'Off' },
+      text: { type: 'text', value: 'Hello, HTML.', label: 'Text' },
+      empty: { type: 'text', value: '', placeholder: 'Placeholder', label: 'Empty' },
+      color: { type: 'color', value: '#a78bfa', label: 'Color' },
+      select: { type: 'select', value: 'center', options: [{ value: 'center', label: 'Center' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }], label: 'Select' },
+      pad: { type: 'vector', value: [0, 0], min: -1, max: 1, step: .01, pad: 'open', label: 'Pad' },
+      easing: { type: 'curve', value: [0, 0, .58, 1], label: 'Easing' },
+      folder: { type: 'folder', label: 'Folder' },
+      'folder.inner': { type: 'slider', value: 12, min: 0, max: 40, step: 1, label: 'Inner' },
+      'folder.action': { type: 'button', label: false, text: 'Action' },
+      closed: { type: 'folder', label: 'Closed', collapsed: true },
+      'closed.hidden': { type: 'slider', value: 1, min: 0, max: 2, step: .1, label: 'Hidden' },
+    }, {
+      container: '#panel',
+      title: 'Controls',
+      collapsed: false,
+      theme: () => dialkit(light ? { shade: '#fafafa' } : {}),
+    })
+
+    caseBar({ ref: '../_ref/dialkit-all-ref.html', label: 'DialKit', appearance: 'dark' })
+  </script>
+</body>
+</html>

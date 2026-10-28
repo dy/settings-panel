@@ -24,8 +24,10 @@ import separator from './control/separator.js'
 import vector from './control/vector.js'
 import xy from './control/xy.js'
 import knob from './control/knob.js'
+import graph from './control/graph.js'
+import curve from './control/curve.js'
 
-export { boolean, number, slider, select, color, folder, text, textarea, button, info, separator, vector, xy, knob }
+export { boolean, number, slider, select, color, folder, text, textarea, button, info, separator, vector, xy, knob, graph, curve }
 export * from './signals.js'
 
 // Control registry (folder & separator excluded — structural, handled in settings())
@@ -42,6 +44,8 @@ const controls = {
   vector,
   xy,
   knob,
+  graph,
+  curve,
 }
 
 /**
@@ -323,6 +327,7 @@ function matchKey(e, combo) {
 const isColor = (v) => typeof v === 'string' && /^#[0-9a-f]{3,8}$/i.test(v.trim())
 const isRgb = (v) => typeof v === 'string' && /^rgba?\(/i.test(v)
 const isHsl = (v) => typeof v === 'string' && /^hsla?\(/i.test(v)
+const isEasing = (v) => typeof v === 'string' && /^cubic-bezier\(/i.test(v.trim())
 const isMultiline = (v) => typeof v === 'string' && v.includes('\n')
 const isNormalized = (v) => typeof v === 'number' && v >= 0 && v <= 1 && v % 1 !== 0
 
@@ -348,6 +353,9 @@ export function infer(key, def) {
   if (typeof def === 'string') {
     if (isColor(def) || isRgb(def) || isHsl(def)) {
       return { type: 'color', value: isColor(def) ? normalizeHex(def) : def, label: key }
+    }
+    if (isEasing(def)) {
+      return { type: 'curve', value: def, label: key }
     }
     if (isMultiline(def)) {
       return { type: 'textarea', value: def, label: key }

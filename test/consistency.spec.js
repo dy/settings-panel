@@ -25,7 +25,7 @@ const alphaExceptions = { json: 'values printed as literals: no thumbs', swiss: 
 // themes whose boxed controls keep more than one height by design
 const boxExceptions = { studio: 'boxes nest inside its 36px rows', apple: 'borderless fields', devtools: 'inline declarations', oui: "native's 25px buttons", bitmap: "System 7's control heights", industrial: 'screens a line of print, lower than a key', synth: "the original's 25.5px chips", swiss: 'typographic rows', editorial: 'reader rows' }
 
-const mount = (page, file, schema) => page.evaluate(async ([file, schema]) => {
+const mount = (page, file, schema, axes = {}) => page.evaluate(async ([file, schema, axes]) => {
   const { default: settings } = await import('/index.js')
   const { default: theme } = await import(`/theme/${file}.js`)
   document.querySelector('#consistency')?.remove()
@@ -36,8 +36,8 @@ const mount = (page, file, schema) => page.evaluate(async ([file, schema]) => {
   document.body.prepend(host)
   const noop = () => {}
   for (const v of Object.values(schema)) if (v.buttons) for (const k in v.buttons) v.buttons[k] = typeof v.buttons[k] === 'object' ? { ...v.buttons[k], onclick: noop } : noop
-  window.consistencyPanel = settings(schema, { container: host, title: 'Layer', collapsed: false, theme: theme() })
-}, [file, schema])
+  window.consistencyPanel = settings(schema, { container: host, title: 'Layer', collapsed: false, theme: theme(axes) })
+}, [file, schema, axes])
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
@@ -90,6 +90,34 @@ test('dragging a number steps it one step per pixel', async ({ page }) => {
   expect(await page.evaluate(() => consistencyPanel.count)).toBe(19)
   await page.keyboard.down('Shift'); await page.mouse.move(box.x + 10, y); await page.mouse.down(); await page.mouse.move(box.x + 5, y, { steps: 4 }); await page.mouse.up(); await page.keyboard.up('Shift')
   expect(await page.evaluate(() => consistencyPanel.count)).toBe(-31)
+})
+
+// the material family draws its keys and one-line fields as capsules (radius = height / 2), as its study does
+for (const file of ['glass', 'neu', 'skeu', 'default']) test(`${file}: keys and one-line fields are capsules`, async ({ page }) => {
+  await mount(page, file, { name: 'Aurora', blend: ['Screen', 'Multiply'], count: 7, run: { type: 'button', text: 'Apply', label: false } })
+  const flat = await page.evaluate(() => [...document.querySelectorAll('#consistency :is([data-key=name] input, [data-key=blend] select, [data-key=count] input, [data-key=run] button)')]
+    .map(el => [el.closest('[data-key]').dataset.key, el.getBoundingClientRect().height / 2 - parseFloat(getComputedStyle(el).borderTopLeftRadius)])
+    .filter(([, short]) => short > .5))
+  expect(flat).toEqual([])
+})
+
+// the material family shares one measure: switching between its themes moves no row and rounds no corner differently
+test('glass, neu, skeu and soft keep every row in place and round alike', async ({ page }) => {
+  const schema = {
+    name: { type: 'text', value: 'Aurora' }, blend: ['Screen', 'Multiply'], opacity: { type: 'slider', value: 82, min: 0, max: 100 },
+    enabled: { type: 'boolean', variant: 'switch', value: true, hint: 'Show this layer' }, tint: { type: 'color', value: '#8b80f9' },
+    apply: { type: 'button', label: false, buttons: { Reset: { variant: 'secondary' }, 'Apply effect': {} } },
+  }
+  const layout = () => page.evaluate(() => {
+    const P = document.querySelector('#consistency .s-panel'), top = P.getBoundingClientRect().top, r = e => { const b = e.getBoundingClientRect(); return Math.min(parseFloat(getComputedStyle(e).borderTopLeftRadius), b.width / 2, b.height / 2) }   // the corner drawn
+    return { rows: [...P.querySelectorAll('.s-control[data-key]')].map(e => Math.round(e.getBoundingClientRect().top - top)), height: Math.round(P.getBoundingClientRect().height),
+      panel: Math.round(r(P)), field: Math.round(r(P.querySelector('[data-key=name] input'))), button: Math.round(r(P.querySelector('.s-button button'))) }
+  })
+  for (const axes of [{}, { roundness: 0 }, { roundness: .5 }, { roundness: 2 }, { spacing: .65 }, { spacing: 1.5 }, { size: 1.2 }]) {
+    const seen = {}
+    for (const file of ['glass', 'neu', 'skeu', 'default']) { await mount(page, file, schema, axes); seen[file] = await layout() }
+    for (const file of ['neu', 'skeu', 'default']) expect(seen[file], `${file} against glass at ${JSON.stringify(axes)}`).toEqual(seen.glass)
+  }
 })
 
 for (const [id, file] of files) test.describe(id, () => {

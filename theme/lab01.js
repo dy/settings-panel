@@ -672,7 +672,8 @@ export default function lab01({
       border-radius: calc(var(--r) * 0.5 + var(--seg-inset));
       background: var(--secondary-bg);
     }
-    &.s-segmented:not(:has(button[style*="background-image"])) button { flex: 1 1 auto; }   /* each label its width and an equal share */
+    /* each label its width and an equal share; borderless, so no 1px overlap to collapse borders */
+    &.s-segmented:not(:has(button[style*="background-image"])) button { flex: 1 1 auto; margin-left: 0; }
     &.s-segmented button {
       min-width: 0; white-space: nowrap;
       background: transparent;

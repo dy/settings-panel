@@ -209,17 +209,17 @@ test('range and custom color write-back exports typed axes; skip link preserves 
 })
 
 test("Corners shows each theme's own native default, not one shared anchor", async ({ page }) => {
-  await expect(page.locator('#roundness')).toHaveValue('1.4') // glass, the initial theme
-  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await expect(page.locator('#roundness')).toHaveValue('1.6')
-  await expect(page.locator('#roundness-value')).toHaveText('1.6')
+  await expect(page.locator('#roundness')).toHaveValue('1') // glass, the initial theme: the material family's capsules
+  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
+  await expect(page.locator('#roundness')).toHaveValue('1.5')
+  await expect(page.locator('#roundness-value')).toHaveText('1.5')
   await page.getByRole('button', { name: 'Preview Porcelain', exact: true }).click()
   await expect(page.locator('#roundness')).toHaveValue('1')
   await page.getByRole('button', { name: 'Preview Swiss', exact: true }).click()
   await expect(page.locator('#roundness')).toHaveValue('0') // swiss keeps its own corners sharp regardless of the axis
-  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await page.locator('#roundness').press('ArrowRight') // continuous from Neu's real 1.6, no snap to a shared anchor
-  await expect(page.locator('#roundness-value')).toHaveText('1.7')
+  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
+  await page.locator('#roundness').press('ArrowRight') // continuous from Lab01's real 1.5, no snap to a shared anchor
+  await expect(page.locator('#roundness-value')).toHaveText('1.6')
 })
 
 for (const width of [320, 375, 414, 768, 1440]) {
@@ -385,8 +385,8 @@ test('share URLs restore axes, validate boundary inputs, and support browser bac
   await page.goto('about:blank')
   await page.goto('/#theme=constructor&time=unknown&accent=oops&density=0&corners=Infinity&scale=-20')
   await expect(page.locator('#preview-title')).toHaveText('Glass')
-  await expect(page.locator('#custom-accent')).toHaveValue('#6ea8ff') // native keeps glass's own default accent (theme/glass.js)
-  await expect(page.locator('#roundness')).toHaveValue('1.4')
+  await expect(page.locator('#custom-accent')).toHaveValue('#2563eb') // native keeps glass's own default accent (theme/glass.js)
+  await expect(page.locator('#roundness')).toHaveValue('1')
   await expect(page.locator('#size')).toHaveValue('0.8')
 })
 
@@ -423,7 +423,7 @@ test('colormap URLs restore exports and reject missing, empty, unknown and inher
   for (const query of ['', 'colormap=', 'colormap=unknown', 'colormap=constructor', 'colormap=__proto__&time=day']) {
     await page.goto('/#theme=glass&' + query)
     await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
-    await expect(page.locator('#custom-accent')).toHaveValue('#6ea8ff')
+    await expect(page.locator('#custom-accent')).toHaveValue('#2563eb')
   }
   await page.goto('/#theme=lab01&colormap=gold')
   await expect(page.locator('input[name="light"][value="gold"]')).toBeChecked()

@@ -20,14 +20,14 @@
     .cell > p { font-size: 11px; letter-spacing: .02em; }
     /* the study's rows, in its proportions to a key's height h (measured on the graphite study): the round key
        h across, .79h to the pill, the pill 3.27h long, a row every 1.93h. Its keys are one size, h = 36px (--study-h), their
-       lettering the study's 14px; they lie on the bare surface, each row's panel keeping its theme's controls
-       and dropping its plate */
+       lettering the study's 14px: each theme draws its keys at that control height, rounding and seating them in
+       its own way; they lie on the bare surface, each row's panel keeping its theme's controls and dropping its plate */
     #study { --study-h: 36px; display: grid; justify-items: center; margin-bottom: 72px; }
     #study .s-panel { background: none !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; backdrop-filter: none !important; width: auto !important; min-width: 0 !important; max-width: none !important; &::before, &::after { display: none !important; } }
     #study .s-panel-content { padding: 0 !important; }
     #study .s-control { padding: 0 !important; min-height: 0 !important; background: none !important; border: 0 !important; }
     #study .s-input { gap: calc(var(--study-h) * .79) !important; }
-    #study .s-button button { height: var(--study-h) !important; min-height: 0 !important; }
+    #study .s-panel { --control-height: var(--study-h); }
     #study .s-button button:not(.s-icon-only) { flex: none !important; width: calc(var(--study-h) * 3.27) !important; }
     #study > div + div { margin-top: calc(var(--study-h) * .93); }
     #study .s-icon { width: 1.6em; height: 1.6em; }

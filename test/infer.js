@@ -163,6 +163,12 @@ test('array: option objects → select', () => {
   is(r.value, 's')
 })
 
+test('string: cubic-bezier() → curve', () => {
+  const r = infer('easing', 'cubic-bezier(0.4, 0, 0.2, 1)')
+  is(r.type, 'curve')
+  is(r.value, 'cubic-bezier(0.4, 0, 0.2, 1)')
+})
+
 // Numeric arrays → vector (N labeled axis inputs).
 test('array: 2 numbers → vector', () => {
   const r = infer('pos', [0, 0])

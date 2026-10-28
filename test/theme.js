@@ -102,6 +102,19 @@ for (const name of ['skeu', 'matte']) test(`theme: ${name} accepts a ramp functi
   ok(!/NaN|undefined/.test(css), 'ramp-driven sheet emits no NaN/undefined')
 })
 
+// A skeu key's face is its box; its wall and base line hang below it by --s-key-lip, which a press travels.
+// No depth: no wall, the base line inside the box; a wall shorter than the part closing the face: the base line alone below.
+test('theme: skeu hangs its key\'s lip below the box by depth', () => {
+  const tok = (css, name) => css.match(new RegExp(`--${name}: calc\\(([\\d.]+) \\* var\\(--length\\)\\);`))?.[1]
+  for (const [depth, lip] of [[0, '0'], [.5, '0.75'], [1, '1.5'], [2, '4']]) {
+    const css = themes.skeu({ depth })
+    is(tok(css, 's-key-lip'), lip, `depth ${depth}: lip`)
+    is(tok(css, 'travel'), lip, `depth ${depth}: a press travels the lip`)
+    const key = css.match(/--key: ([^;]+);/)[1]
+    is(key.split(/,(?![^(]*\))/).filter(s => !s.includes('inset') && /^\s*0 calc\([\d.]+ \* var\(--length\)\) 0 /.test(s)).length, +lip > .75 ? 2 : +lip ? 1 : 0, `depth ${depth}: wall and base line below the box`)
+  }
+})
+
 // Soft-light shows less of a texture on lighter surfaces; surface() compensates along the
 // lightness stops it was calibrated on (graphite, bronze, chalk), so contrast rises with L.
 test('texture: surface layers follow the material and rise with lightness', async () => {

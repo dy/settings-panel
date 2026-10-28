@@ -220,6 +220,8 @@ export default function tweakpane({
        same fg wash over an opaque bg backing so rows behind it don't show through. */
     .s-pad { position: absolute; top: 100%; left: 0; z-index: 10; width: var(--vec-pad); height: var(--vec-pad); margin: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow);
       background: linear-gradient(var(--pad-fill), var(--pad-fill)), var(--bg); }
+    /* a curve's pad is its view, inline as the cubic-bezier plugin's expanded picker, not a popup */
+    &.s-curve .s-pad { position: relative; top: auto; z-index: auto; border-radius: var(--r); box-shadow: none; }
   }
 
   /* ── Slider: 2px track + 2px fill + 12px square knob. The colour's alpha is the same groove and

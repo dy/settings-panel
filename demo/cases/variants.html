@@ -7,8 +7,6 @@
   <script type="importmap">
     { "imports": { "sprae": "https://esm.sh/sprae@13", "sprae/store": "https://esm.sh/sprae@13/store" } }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 */
     :root { --scene: #e9e8e3; --scene-ink: #52534f; }
@@ -19,10 +17,7 @@
     .caption { margin-top: 28px; display: flex; justify-content: space-between; gap: 12px; font-size: 11px; letter-spacing: .02em; }
     .caption a { color: inherit; text-underline-offset: 3px; }
     body[data-material="porcelain"] { --scene: #edf3f2; --scene-ink: #617f83; background-image: url(./marble.svg); background-size: 720px; }
-    body[data-material="frost"] { --scene: #b8c7c3; --scene-ink: #344945; background: radial-gradient(ellipse at 0 0, #eef1da, transparent 65%), linear-gradient(125deg, transparent 40%, #516e6c 40% 48%, transparent 48%), linear-gradient(155deg, #b8c7c3 30%, #7e9d97 65%, #e1d7bf); }
     body[data-material="soft"] { --scene: #c9c8c3; --scene-ink: #4e514e; }
-    body[data-material="silver"] { --scene: #aeb0b0; --scene-ink: #303537; background: radial-gradient(ellipse at 15% 0, #e4e6e5, transparent 70%), linear-gradient(145deg, #c4c7c6, #858b8c); }
-    body[data-material="ink"] { --scene: #dddcd3; --scene-ink: #41463c; }
   </style>
 </head>
 <body>
@@ -33,19 +28,13 @@
   <script type="module">
     import settings from '../../index.js'
     import porcelain from '../../theme/porcelain.js'
-    import glass from '../../theme/glass.js'
     import matte from '../../theme/matte.js'
-    import lab01 from '../../theme/lab01.js'
-    import brutal from '../../theme/brutal.js'
 
     // Same working controls make differences in material and density comparable.
     // The hash survives static hosts that redirect .html to a clean URL.
     const finishes = {
       porcelain: { name: 'Porcelain', theme: porcelain, axes: { size: 14 / 13 } },
-      frost: { name: 'Glass / Frost', theme: glass, axes: { shade: '#edf3ee', accent: '#35685a', tint: .85, blur: 28, roundness: 1.3, size: 14 / 13 } },
       soft: { name: 'Matte / Soft', theme: matte, axes: { shade: '#dadbd6', accent: '#476254', spacing: 1.6, depth: .7, bevel: .8, roundness: 1.35, size: 14 / 13 } },
-      silver: { name: 'Lab01 / Silver', theme: lab01, axes: { shade: '#c6cac9', accent: '#40574d', spacing: 1, roundness: 1.4 } },
-      ink: { name: 'Brutal / Ink', theme: brutal, axes: { shade: '#f4f3e9', accent: '#b7cd75', bevel: 2, offset: 3, spacing: .85, size: 14 / 13 } },
     }
     const key = Object.hasOwn(finishes, location.hash.slice(1)) ? location.hash.slice(1) : 'porcelain'
     const finish = finishes[key]

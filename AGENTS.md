@@ -28,7 +28,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
 - `/signals.js` — decorators + re-exports: `signal`, `effect`, `computed`, `batch`, `untracked`, `store`, `use`.
 
 ## Control Registry (index.js)
-Registered: `boolean`, `number`, `slider`, `select`, `color`, `text`, `textarea`, `button`, `info`.
+Registered: `boolean`, `number`, `slider`, `select`, `color`, `text`, `textarea`, `button`, `info`, `vector`, `xy`, `knob`, `graph`, `curve`.
 Structural (handled separately, not in registry): `folder`, `separator`.
 
 ## Inference summary (`infer()`)
@@ -37,6 +37,7 @@ Structural (handled separately, not in registry): `folder`, `separator`.
 - `'#hex'` / `'rgb()'` / `'hsl()'` → color; bare hex without `#` is NOT a color
 - multiline string → textarea; other string → text
 - `[r,g,b,a]` 8-bit + alpha 0–1 → color:rgba; numeric 2–4 arrays → text(JSON)
+- `'cubic-bezier(…)'` → curve
 - array of strings → select; function → button; all-function dict → button group
 - `{type}` → explicit; `{min/max}` → slider (a `[low, high]` value: two thumbs, as `slider:range`); `{options}` → select; `{value}` → infer value
 

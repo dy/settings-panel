@@ -7,8 +7,8 @@
         800
       ],
       "clip": {
-        "x": 395.0,
-        "y": 108.0,
+        "x": 395,
+        "y": 108,
         "width": 310,
         "height": 584
       },
@@ -71,8 +71,8 @@
         800
       ],
       "clip": {
-        "x": 380.0,
-        "y": 199.0,
+        "x": 380,
+        "y": 199,
         "width": 340,
         "height": 402
       },
@@ -263,7 +263,7 @@
         "height": 21
       },
       "budget": 24176,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: title bar without the ? and \u00d7 buttons",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: title bar without the ? and × buttons",
       "mode": "page"
     },
     "win98-group": {
@@ -279,7 +279,7 @@
         "height": 15
       },
       "budget": 62,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: Character repeat group caption and top edge",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Character repeat group caption and top edge",
       "mode": "page"
     },
     "win98-trackbar-start": {
@@ -295,7 +295,7 @@
         "height": 30
       },
       "budget": 6,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: Repeat delay: Long caption, channel start, first tick",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Repeat delay: Long caption, channel start, first tick",
       "mode": "page"
     },
     "win98-trackbar-end": {
@@ -311,7 +311,7 @@
         "height": 30
       },
       "budget": 0,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: Repeat delay: thumb at Short, channel end, last tick",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: Repeat delay: thumb at Short, channel end, last tick",
       "mode": "page"
     },
     "win98-field": {
@@ -327,7 +327,7 @@
         "height": 38
       },
       "budget": 196,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: test field and its caption",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: test field and its caption",
       "mode": "page"
     },
     "win98-buttons": {
@@ -343,7 +343,7 @@
         "height": 23
       },
       "budget": 642,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: OK, Cancel, Apply",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: OK, Cancel, Apply",
       "mode": "page"
     },
     "win98-typed": {
@@ -359,7 +359,7 @@
         "height": 23
       },
       "budget": 556,
-      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel \u203a Keyboard Properties \u203a Speed: test field after typing \"hello world\"",
+      "source": "Windows 98 in v86 (copy.sh/v86, build 1e4f43c95), Control Panel › Keyboard Properties › Speed: test field after typing \"hello world\"",
       "mode": "page"
     },
     "macintosh-mouse": {
@@ -710,8 +710,8 @@
         "width": 268,
         "height": 324
       },
-      "budget": 19882,
-      "source": "material study, graphite (owner's image \u00d70.519, cropped at 155, 92): the four rows of keys",
+      "budget": 19336,
+      "source": "material study, graphite (owner's image ×0.519, cropped at 155, 92): the four rows of keys",
       "mode": "image"
     },
     "study-bronze": {
@@ -726,8 +726,8 @@
         "width": 268,
         "height": 324
       },
-      "budget": 43225,
-      "source": "material study, bronze (owner's image \u00d70.59, cropped at 157, 95): the four rows of keys",
+      "budget": 42474,
+      "source": "material study, bronze (owner's image ×0.59, cropped at 157, 95): the four rows of keys",
       "mode": "image"
     },
     "study-chalk": {
@@ -742,8 +742,8 @@
         "width": 268,
         "height": 324
       },
-      "budget": 13581,
-      "source": "material study, chalk (owner's image \u00d70.499, cropped at 12, 21): the four rows of keys",
+      "budget": 12499,
+      "source": "material study, chalk (owner's image ×0.499, cropped at 12, 21): the four rows of keys",
       "mode": "image"
     },
     "dashboard": {
@@ -759,7 +759,7 @@
         "height": 670
       },
       "budget": 281613,
-      "source": "Demo Dashboard (owner's image \u00d71.008, cropped at 4, 2): the window, its title bar and tiles",
+      "source": "Demo Dashboard (owner's image ×1.008, cropped at 4, 2): the window, its title bar and tiles",
       "mode": "image"
     },
     "send": {
@@ -775,7 +775,7 @@
         "height": 594
       },
       "budget": 476353,
-      "source": "Send Money dialog (owner's image \u00d70.998, cropped at 2, 71): the dialog",
+      "source": "Send Money dialog (owner's image ×0.998, cropped at 2, 71): the dialog",
       "mode": "image"
     },
     "push": {
@@ -785,13 +785,13 @@
         800
       ],
       "clip": {
-        "x": 227,
-        "y": 227,
+        "x": 215.859375,
+        "y": 218.328125,
         "width": 347,
         "height": 347
       },
-      "budget": 231513,
-      "source": "push the button in figma, yodiz \u00d7 zaykina (owner's image \u00d70.955, cropped at 355, 341): the round key",
+      "budget": 234524,
+      "source": "push the button in figma, yodiz × zaykina (owner's image ×0.955, cropped at 355, 341): the round key",
       "mode": "image"
     },
     "workflow": {
@@ -823,7 +823,7 @@
         "height": 311
       },
       "budget": 79580,
-      "source": "visual CSS editor's Edit element panel (owner's image cropped at 2493, 1136, \u00d70.523): the panel's top, as far as the picture shows it",
+      "source": "visual CSS editor's Edit element panel (owner's image cropped at 2493, 1136, ×0.523): the panel's top, as far as the picture shows it",
       "mode": "image"
     },
     "studio": {
@@ -839,8 +839,40 @@
         "height": 571
       },
       "budget": 29497,
-      "source": "the owner's shot of the light reference (Text / Layout / Path), its sheet cropped at 66, 114 and scaled \u00d70.5372: the sheet down to its last row",
+      "source": "the owner's shot of the light reference (Text / Layout / Path), its sheet cropped at 66, 114 and scaled ×0.5372: the sheet down to its last row",
       "mode": "image"
+    },
+    "dialkit-controls": {
+      "page": "demo/cases/dialkit-all.html",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 410,
+        "y": 64,
+        "width": 280,
+        "height": 646
+      },
+      "budget": 115,
+      "source": "DialKit 2.0.2 vanilla build, one of each control, popover, demo/_ref/dialkit-all-ref.html: every control, from the first row to the pad's foot",
+      "mode": "page"
+    },
+    "dialkit-controls-light": {
+      "page": "demo/cases/dialkit-all.html#light",
+      "viewport": [
+        1100,
+        1000
+      ],
+      "clip": {
+        "x": 410,
+        "y": 64,
+        "width": 280,
+        "height": 646
+      },
+      "budget": 1109,
+      "source": "DialKit 2.0.2 vanilla build, one of each control, popover, light, demo/_ref/dialkit-all-ref.html: every control, from the first row to the pad's foot, light",
+      "mode": "page"
     }
   }
 }

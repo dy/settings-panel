@@ -13,7 +13,7 @@ import { axis, scrub } from './util.js'
 import { padTemplate, padState } from './xy.js'
 import { signal } from '../signals.js'
 
-const axesTemplate = `
+export const axesTemplate = `
   <span class="s-vec-axis" :each="d in dims">
     <label class="s-vec-label" :for="id + '-' + d.i" :text="d.label" :hidden="!d.label" :onpointerdown="d.scrub"></label>
     <input type="number" :id="id + '-' + d.i" :class="{ 's-scrub': scrubs }" :onpointerdown="scrubs ? d.scrub : null" :value="vals[d.i]" :min="d.min" :max="d.max" :step="d.step" :onchange="e => setAt(d.i, e.target.value)" />
@@ -24,11 +24,10 @@ const expandTemplate = `
   <button type="button" class="s-vec-expand" :class="{'s-open': padOpen}" :onclick="() => padOpen = !padOpen" aria-label="Toggle 2D pad"></button>
 `
 
-export default (sig, opts = {}) => {
-  const arr = Array.isArray(sig.value) ? sig.value : [0, 0]
-  const n = opts.dimensions || arr.length
+/** Axis fields over an array signal → sprae state { dims, vals, setAt, scrubs } (curve types its points with them). */
+export const axes = (sig, opts = {}) => {
+  const n = opts.dimensions || (Array.isArray(sig.value) ? sig.value.length : 2)
   const labels = opts.labels === false ? [] : (opts.labels || ['X', 'Y', 'Z', 'W'])
-  const { dimensions, labels: _l, pad, dispose, scrub: scrubs = false, ...rest } = opts
 
   const clampAt = (i, v) => {
     let mn = axis(opts.min, i), mx = axis(opts.max, i)
@@ -54,6 +53,13 @@ export default (sig, opts = {}) => {
     return { i, step, min, max, label: labels[i] ?? '', scrub: scrub(() => sig.value?.[i] ?? 0, v => setAt(i, +v.toPrecision(12)), rate) }
   })
 
+  return { dims, vals: sig, setAt, scrubs: opts.scrub ?? false }
+}
+
+export default (sig, opts = {}) => {
+  const { dimensions, labels, pad, dispose, scrub: _s, ...rest } = opts
+  const n = dimensions || (Array.isArray(sig.value) ? sig.value.length : 2)
+
   // Expandable XY-pad picker (2D vectors only) — shares the xy control's widget
   const withPad = pad && n === 2
   const padExtras = withPad ? { padOpen: signal(pad === 'open'), ...padState(sig, opts) } : null
@@ -62,7 +68,7 @@ export default (sig, opts = {}) => {
     : axesTemplate
 
   return control(sig, {
-    ...rest, type: 'vector', template, dims, vals: sig, setAt, scrubs, ...padExtras,
+    ...rest, type: 'vector', template, ...axes(sig, opts), ...padExtras,
     dispose: () => { padExtras?.stop(); dispose?.() }
   })
 }

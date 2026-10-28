@@ -8,6 +8,7 @@
   <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
   <link rel="stylesheet" href="./tokens.css">
   <link rel="stylesheet" href="./demo/gallery.css">
+  <link rel="stylesheet" href="./demo/site.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </head>
@@ -16,12 +17,16 @@
   <div class="app">
     <header class="site-header">
       <a class="wordmark" href="./">settings-panel<span class="brand-dot" aria-hidden="true"></span></a>
-      <nav aria-label="Main navigation">
+      <nav class="site-tabs" aria-label="Main navigation">
         <a href="./" aria-current="page">Themes</a>
+        <a href="./demo/controls.html">Controls</a>
+      </nav>
+      <nav class="site-links" aria-label="More">
         <a href="./demo/playground.html">Playground</a>
+        <a href="./demo/cases/">Cases</a>
         <a href="./docs/themes.md">Docs</a>
       </nav>
-      <a class="repository icon-button" href="https://github.com/dfcreative/settings-panel" aria-label="Source on GitHub">
+      <a class="repository" href="https://github.com/dy/settings-panel" aria-label="Source on GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.64.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
       </a>
     </header>

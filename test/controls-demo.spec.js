@@ -66,12 +66,12 @@ for (const { id } of themes) test(`controls page: ${id} range moves its nearer t
   await page.close()
 })
 
-// Like controls look alike within a theme: a swatch is square, the vector's pad is the XY pad (one size, one place),
+// Like controls look alike within a theme: a swatch is square, the vector's and the curve's pads are the XY pad (one size, one place),
 // and dials stand in one column whatever their values read. A terminal's swatch is two character cells; DevTools sets
 // each value right after its name, as the Styles pane does, so a pad or a dial stands where its name ends. A labelled
 // separator is text between two rules, not the plain rule's paint, but in dat, whose labelled separator is a band, and
-// ControlKit, where every row is a band.
-const ragged = { terminal: ['swatch'], devtools: ['place'], dat: ['band'], controlkit: ['band'] }
+// ControlKit, where every row is a band. DialKit draws a curve on its easing editor's own graph, at 256:180.
+const ragged = { terminal: ['swatch'], devtools: ['place'], dat: ['band'], controlkit: ['band'], dialkit: ['curve'] }
 for (const { id } of themes) test(`controls page: ${id} draws like controls alike`, async ({ browser }) => {
   const page = await browser.newPage({ viewport: { width: 470, height: 900 } })
   await page.goto('/demo/controls')
@@ -81,9 +81,12 @@ for (const { id } of themes) test(`controls page: ${id} draws like controls alik
   const bad = await page.evaluate(skip => {
     const out = [], box = s => { const e = document.querySelector(s); return e?.checkVisibility() ? e.getBoundingClientRect() : null }
     if (!skip.includes('swatch')) for (const b of document.querySelectorAll('.s-swatches button')) { const r = b.getBoundingClientRect(); if (Math.abs(r.width - r.height) > 1) out.push(`swatch ${Math.round(r.width)}×${Math.round(r.height)}`) }
-    const vp = box('[data-key=anchor] .s-pad'), xy = box('[data-key=pad] .s-pad')
-    if (vp && xy && [vp.width - xy.width, vp.height - xy.height, skip.includes('place') ? 0 : vp.left - xy.left].some(d => Math.abs(d) > 1))
-      out.push(`vector pad ${Math.round(vp.width)}×${Math.round(vp.height)} at ${Math.round(vp.left)}, XY pad ${Math.round(xy.width)}×${Math.round(xy.height)} at ${Math.round(xy.left)}`)
+    const xy = box('[data-key=pad] .s-pad')
+    for (const [name, at] of [['vector pad', 'anchor'], ...skip.includes('curve') ? [] : [['curve pad', 'easing']]]) {
+      const p = box(`[data-key=${at}] .s-pad`)
+      if (p && xy && [p.width - xy.width, p.height - xy.height, skip.includes('place') ? 0 : p.left - xy.left].some(d => Math.abs(d) > 1))
+        out.push(`${name} ${Math.round(p.width)}×${Math.round(p.height)} at ${Math.round(p.left)}, XY pad ${Math.round(xy.width)}×${Math.round(xy.height)} at ${Math.round(xy.left)}`)
+    }
     // a dial turns, so its centre, not its box, marks where it stands
     const [a, b] = ['knob', 'freq'].map(k => box(`[data-key=${k}] .s-knob-dial`)).map(r => r && r.left + r.width / 2)
     if (a && b && !skip.includes('place') && Math.abs(a - b) > 1) out.push(`dials at ${Math.round(a)} and ${Math.round(b)}`)

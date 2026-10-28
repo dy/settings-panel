@@ -106,7 +106,7 @@ export default function json({ shade = '#ffffff', accent, size = 1, spacing = 1,
   .s-info .s-monitor { color: var(--str); opacity: 1; white-space: pre-wrap; &::before, &::after { content: '"'; } }
 
   /* numbers: a number, a slider's readout, a knob's value; a slider's readout scrubs */
-  :is(.s-number, .s-slider, .s-vector, .s-xy, .s-knob) .s-input { color: var(--num); }
+  :is(.s-number, .s-slider, .s-vector, .s-xy, .s-knob, .s-graph) .s-input { color: var(--num); }
   .s-slider .s-readout { flex: none; width: auto; min-width: 1ch; text-align: left; cursor: ew-resize; }
   /* a range, a vector, a pad: [a, b] */
   :is(.s-multiple, .s-vector, .s-xy) .s-input { &::before { content: '['; color: var(--fg); } &::after { content: ']' var(--comma); } }
@@ -114,15 +114,16 @@ export default function json({ shade = '#ffffff', accent, size = 1, spacing = 1,
     &::before { content: ', '; white-space: pre; color: var(--fg); } &::after { content: none; }
     input { display: none; } }
   .s-vector .s-vec-axis { flex: none; display: inline-flex; align-items: baseline; gap: 0; height: auto; min-width: 0; padding: 0; background: none; border: 0; box-shadow: none; }
+  .s-vector.s-curve .s-vec-axis { flex: none; }   /* the four print in a line, as a literal */
   .s-vector .s-vec-axis + .s-vec-axis::before { content: ', '; white-space: pre; color: var(--fg); }
   .s-vector :is(.s-vec-label, .s-vec-expand, .s-vec-pad) { display: none; }
   .s-vector input[type=number] { flex: none; text-align: left; }
-  .s-xy .s-input, .s-knob .s-input { position: relative; }
+  :is(.s-xy, .s-graph) .s-input, .s-knob .s-input { position: relative; }
   /* the pad prints its value (its data-value) and still drags and takes the arrow keys */
-  .s-xy .s-pad { position: static; display: inline; width: auto; height: auto; aspect-ratio: auto; background: none; border: 0; box-shadow: none; cursor: move;
+  :is(.s-xy, .s-graph) .s-pad { position: static; display: inline; width: auto; height: auto; aspect-ratio: auto; background: none; border: 0; box-shadow: none; cursor: move;
     > * { display: none; } &::after { content: attr(data-value); } }
   .s-knob .s-knob-val { position: static; opacity: 1; font-size: inherit; transform: none; translate: none; }
-  .s-xy .s-pad-val { display: none; }   /* the pad prints the value itself */
+  :is(.s-xy, .s-graph) .s-pad-val { display: none; }   /* the pad prints the value itself */
   .s-knob .s-knob-wrap { display: inline; position: static; width: auto; height: auto; background: none; box-shadow: none; cursor: ns-resize;
     &::before, &::after { content: none; } &:focus-visible { outline: 1px solid var(--key); outline-offset: 1px; } }
   .s-knob .s-knob-dial { display: none; }
