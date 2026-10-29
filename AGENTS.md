@@ -60,4 +60,4 @@ Panel flow: `settings() → theme <style> + panel el + controls + onchange effec
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.
 - `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles`; one plate-shadow helper)
 - New themes: `brutal`, `neu`, `glass` use `resolveRoles` + mixins from `theme/color.js` + `theme/mixins.js`
-- Package: v2.1.0. Dependency: `sprae ^13.9.2` only (`sube` removed).
+- Package: v2.1.1. Dependency: `sprae ^13.9.2` only (`sube` removed).

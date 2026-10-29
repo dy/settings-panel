@@ -232,7 +232,7 @@ on every face of their field: at rest, hovered and focused.
 
 ### tracked
 - The reference: a phone settings screen the owner supplied (a blue bar with a bolt; Notifications, Style, Auto refresh), reproduced in [its case](../demo/cases/tracked.html); the picture is not yet in `test/calibration`, so the theme is not yet held to it
-- Lettering: every label and heading in capitals tracked wide (labels .3em at 11px, headings .5em at 14px, 800), Montserrat standing in for the picture's geometric sans; near-white on the slate sheet, held to 4.5:1 on the sheet and in the wells
+- Lettering: every label and heading in capitals tracked wide (labels .3em at 10px, headings .5em at 12px, 800, as the picture sets them against its rows), Montserrat standing in for the picture's geometric sans; near-white on the slate sheet, held to 4.5:1 on the sheet and in the wells
 - The title is a bar of the accent across the sheet, its mark centred and white wherever white holds 3:1 on the accent
 - Groups are bands across the sheet, every other one lifted an eighth toward white, each headed by a darker bar with corners of 4px
 - Controls are wells cut a step below the sheet (45% toward black), corners of 4px: a switch is a well with a square knob (grey at the left off, the accent at the right on), a select and a colour are wells with a small triangle at their end (the colour a wide swatch, its code kept off screen), a segmented choice is a strip of the bar's tone with the chosen one sunk to the well's, number steppers two small triangles, a checkbox and a radio a well with the accent inside
@@ -352,9 +352,9 @@ on every face of their field: at rest, hovered and focused.
 - Light by default, as the original: a chalk pane (`#f1f2f4`) with a blue accent
 - A folded folder ends in the separator's cut line, so a stack of folded folders reads as rows
 - A lens's lower edge is darker, where the glass thickens toward the pane (the chalk study's Think key): a translucent line of the surface's deep tone, set apart from the lighter contact shadow under it
-- A lens over the accent (an on switch, a checked box) is edged by the accent lit (a fifth of the way to white in OKLCH lightness, a fifth more saturated: white mixed in greyed a dark accent, a fixed lift glared on a vivid one), with the rim and caustic of any lens; a slider's fill lies on the accent lit too, so the groove's pale inner ring glazes it in the accent's own colour; a knob is a bead, its hairline the surface's shade at a sixth
+- On-states are the system's own (after glassyui's switch and slider, themselves after iOS): an on switch or a checked box is the accent flat with only a soft shade under its top edge; the slider is a thin rail of the ink at a fifth with the accent flat to the value; knobs and thumbs are white, lifted by a soft shadow, no edge of their own (a lit rim, a lens over the accent or a pale ring round the fill glared on the colour)
 
-- One slider: groove and bright lens thumb shared by plain, interval and alpha; the groove is thinner than the lens's bands are drawn for, so its accent and the alpha ramp lie under clear glass (the lit top, no body). The folder well is concentric with its lenses
+- One slider: rail and white thumb shared by plain, interval and alpha. The folder well is concentric with its lenses
 
 ### neu
 - One material: controls are the surface pushed up (buttons, knobs, the selected segment) or pressed in (fields, tracks, checkbox, radio)

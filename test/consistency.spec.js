@@ -15,7 +15,7 @@ const typeExceptions = {
   controlkit: ['button', 'folder'],                // chrome buttons 10px caps, group titles 12px
   devtools: ['segment', 'button'],                 // Chrome's 12px action pills
   editorial: ['button'],                           // actions in the reference's small tracked capitals
-  tracked: ['label', 'folder', 'button', 'segment'], // the reference's tracked capitals: 11px labels and keys, 14px headings
+  tracked: ['label', 'folder', 'button', 'segment'], // the reference's tracked capitals: 10-11px labels and keys, 12px headings
 }
 // painted button rows whose side inset follows another grid by design
 const sideInsetExceptions = { controlkit: 'the label grid sets the side inset' }

@@ -225,11 +225,13 @@ test('theme: soft groove wall and crevice even', () => {
   ok(crevice >= .25 && crevice <= .4, `about 1px of a 3.3px socket: ${crevice}`)
 })
 
-// Glass edges and fills an on-state's lens in the accent lit, not greyed with white
-test('theme: glass lights its accent in its own hue', () => {
+// Glass draws its on-states as the system's own (glassyui, after iOS): the accent flat under a soft top shade, a thin rail
+// with the accent flat to the value, white knobs lifted by a shadow; no lit rim, lens or pale ring over the colour
+test('theme: glass keeps its on-states flat and its knobs white', () => {
   const css = themes.glass({ accent: '#4e2920' })
-  ok(/--accent-lit: oklch\(from var\(--accent\) calc\(l \+ \(1 - l\) \* [\d.]+\) calc\(c \* [\d.]+\) h\)/.test(css), 'lighter, as saturated')
-  ok(/--lens-edge-on: inset 0 0 0 [^,]+ var\(--accent-lit\)/.test(css), 'on-state hairline')
-  ok(css.includes('var(--accent-lit) 0 var(--p, 0%)'), 'slider fill under the pale ring')
-  ok(!/var\(--accent\), white/.test(css), 'no white mixed into the accent')
+  ok(/--lens-edge-on: inset 0 calc\([^;,]+\) calc\([^;,]+\) rgb\(0 0 0 \/ \.1\);/.test(css), 'on-state: a soft top shade only')
+  ok(/:has\(input:checked\) \.s-track \{ background: var\(--accent\);/.test(css), 'on-state: the accent flat')
+  ok(css.includes('linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--rail) var(--p, 0%))'), 'slider: the accent flat to the value on the rail')
+  ok(/-webkit-slider-thumb \{[^}]*background: #fff; box-shadow: var\(--knob-shadow\)/.test(css), 'thumb: white, lifted')
+  ok(!/var\(--accent\), white|--accent-lit/.test(css), 'no white or lit accent over the colour')
 })

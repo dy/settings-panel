@@ -90,9 +90,10 @@ export default function tracked({
   /* ── Rows: tracked capitals left, the control right ── */
   .s-control { align-items: center; gap: var(--column-gap); min-height: var(--h); }
   .s-label-group { width: 50%; max-width: none; min-width: 0; }
+  .s-control:is(.s-boolean, .s-dropdown, .s-picker) > .s-label-group { width: 62%; }   /* a switch, a select or a swatch is compact: its label takes more */
   .s-control > .s-label-group:has(.s-label[hidden]):not(:has(.s-hint)) { display: none; }   /* no label: the control takes the row */
-  .s-label { color: var(--label); font-size: calc(11 * var(--length)); text-transform: uppercase; letter-spacing: var(--tracking); }
-  .s-hint { color: var(--label); opacity: 1; font-size: calc(10 * var(--length)); letter-spacing: .06em; }
+  .s-label { color: var(--label); font-size: calc(10 * var(--length)); text-transform: uppercase; letter-spacing: var(--tracking); }
+  .s-hint { color: var(--label); opacity: 1; font-size: calc(9 * var(--length)); letter-spacing: .06em; }
   .s-control:has(> .s-label-group .s-hint) { align-items: flex-start; > .s-label-group { padding-top: calc((var(--h) - var(--line-height)) / 2); } }
   .s-title { display: inline-grid; place-items: center; width: calc(14 * var(--length)); height: calc(14 * var(--length)); border-radius: 50%; background: var(--well); font-size: calc(9 * var(--length)); letter-spacing: 0; cursor: help;
     &:is(:hover, :focus-visible) + .s-title-text { opacity: 1; visibility: visible; } }
@@ -203,7 +204,7 @@ export default function tracked({
     &.s-rgba .s-color-input { gap: calc(8 * var(--length));
       input[type="color"] { width: var(--h); height: var(--h); padding: 0; border: none; border-radius: var(--r); &::-webkit-color-swatch-wrapper { padding: 0; } &::-webkit-color-swatch { border: none; border-radius: var(--r); } }
       .s-alpha { width: 0; background: linear-gradient(to right, transparent, var(--c)), conic-gradient(#c4c4c4 90deg, #fff 0 180deg, #c4c4c4 0 270deg, #fff 0) 0 0 / calc(8 * var(--length)) calc(8 * var(--length)); }
-      input[type="text"] { flex: 0 1 auto; width: calc(10ch + 24 * var(--length)); } }
+      input[type="text"] { flex: 0 1 auto; min-width: 0; width: calc(10ch + 24 * var(--length)); } }
     &.s-swatches { .s-input { flex-wrap: wrap; justify-content: flex-end; gap: calc(8 * var(--length)); }
       button { width: calc(24 * var(--length)); height: calc(24 * var(--length)); padding: 0; border: none; border-radius: var(--r); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .2);
         &.s-selected { outline: 2px solid var(--fg); outline-offset: 2px; } &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } } } }
@@ -226,7 +227,7 @@ export default function tracked({
     &:first-child { margin-top: calc(-1 * var(--panel-padding)); }
     &:last-child { margin-bottom: calc(-1 * var(--panel-padding)); }
     > summary { min-height: calc(var(--h) * 1.3); padding: 0 calc(14 * var(--length)); border-radius: var(--r); background: var(--bar); color: var(--fg); gap: calc(10 * var(--length));
-      font-size: calc(14 * var(--length)); font-weight: 800; text-transform: uppercase; letter-spacing: .5em;
+      font-size: calc(12 * var(--length)); font-weight: 800; text-transform: uppercase; letter-spacing: .5em;
       &::after { content: ''; margin-left: auto; width: calc(8 * var(--length)); height: calc(6 * var(--length)); background: var(--tri) center / contain no-repeat; opacity: .7; transition: rotate .15s; }
       &:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } }
     &[open] > summary::after { rotate: 180deg; }

@@ -120,12 +120,12 @@ export default function glass({
   // Inset: the hairline edge (on top), the rim under the top edge, the caustic above the bottom one.
   // the lower edge is darker where the glass thickens toward the pane (the study's Think key, a dark rim along its bottom)
   const edgeIn = `inset 0 ${len(-1)} 0 ${deep(.15)}, inset ${len(.75)} 0 0 ${flankC}, inset ${len(-.75)} 0 0 ${flankC}, inset 0 0 0 ${len(1)} ${edgeC}, inset 0 0 0 ${len(2)} ${lite(mixTo(L, Math.min(L + .02 * d, 1), 1))}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
-  // A lens over the accent (an on switch or checkbox): its hairline is the accent lit (lighter, as saturated: white
-  // mixed in would grey a dark accent), and the rim and caustic light it as they light any lens; the pane's grey edge
-  // and pale inner ring would outline the colour instead of glazing it
-  const edgeOn = `inset 0 0 0 ${len(1)} var(--accent-lit), inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
-  // A knob is a bead of glass: its hairline the surface's shade at a sixth, so it never rings the bead in grey or black
-  const edgeBead = `inset 0 0 0 ${len(1)} ${deep(.15)}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
+  // An on-state (a switch, a checkbox) is the accent flat, as the system's own controls draw it: only a soft shade under
+  // its top edge, where it sinks into the pane; a lit rim or a lens over it glared on the colour
+  const edgeOn = `inset 0 ${len(1)} ${len(2)} rgb(0 0 0 / .1)`
+  // A knob (the switch's, a slider's thumb) is white, lifted by a soft shadow and a hairline of shade, no edge of its own
+  const knobShadow = `0 ${len(2)} ${len(6)} ${deep(.16)}, 0 ${len(1)} ${len(2)} ${deep(.1)}, 0 0 0 ${len(.5)} ${deep(.05)}`
+  const knobLift = `0 ${len(3)} ${len(9)} ${deep(.2)}, 0 ${len(1)} ${len(3)} ${deep(.12)}, 0 0 0 ${len(.5)} ${deep(.05)}`
   const drop = `0 ${len(1)} ${len(2.5)} ${shadow(.03)}, 0 ${len(4)} ${len(9)} ${shadow(.055)}`
   const lift = `0 ${len(1.5)} ${len(3)} ${shadow(.08)}, 0 ${len(5)} ${len(11)} ${shadow(.07)}`
   const sheenFace = `linear-gradient(${lite(sheen)}, ${lite(sheen)})`
@@ -157,7 +157,7 @@ export default function glass({
 
   --bg: ${shade};
   --accent: ${acc};
-  --accent-lit: oklch(from var(--accent) calc(l + (1 - l) * .2) calc(c * 1.2) h);
+  --rail: color-mix(in oklab, var(--fg), transparent 80%);   /* a slider's rail: the ink at a fifth, as the system's grey track */
   --on-accent: ${onAccent};
   --fg: ${fg};
   --fg-muted: ${fgMuted};
@@ -167,7 +167,8 @@ export default function glass({
   --lens-clear: ${faceClear};
   --lens-edge: ${edgeIn};
   --lens-edge-on: ${edgeOn};
-  --lens-edge-bead: ${edgeBead};
+  --knob-shadow: ${knobShadow};
+  --knob-lift: ${knobLift};
   --lens-drop: ${drop};
   --lens-lift: ${lift};
   --lens-sheen: ${sheenFace};
@@ -353,12 +354,12 @@ export default function glass({
     .s-input { cursor: pointer; }
     .s-track { position: relative; transition: background .2s, box-shadow .2s; }
     &:hover .s-track { background: var(--lens-sheen), var(--lens); }
-    &:has(input:checked) .s-track { background: var(--lens), var(--accent); box-shadow: var(--lens-edge-on); }
+    &:has(input:checked) .s-track { background: var(--accent); box-shadow: var(--lens-edge-on); }
     &:has(input:focus-visible) .s-track { box-shadow: var(--lens-edge), var(--focus); }
     &:has(input:checked:focus-visible) .s-track { box-shadow: var(--lens-edge-on), var(--focus); }
     &.s-switch .s-track { width: calc(var(--u) * 12.5); height: calc(var(--u) * 7); border-radius: calc(var(--u) * 3.5 * var(--round));
-      /* the knob: a bright raised lens */
-      &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: calc(var(--u) * 2.75 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge-bead), var(--lens-drop); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
+      /* the knob: white, lifted */
+      &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: calc(var(--u) * 2.75 * var(--round)); background: #fff; box-shadow: var(--knob-shadow); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
     &.s-switch:has(input:checked) .s-track::after { left: calc(100% - var(--u) * 6.25); }
     &.s-checkbox .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--u) * 1.6 * var(--round));
       &::after { content: ''; width: 60%; height: 55%; background: var(--on-accent); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; opacity: 0; transform: scale(.6); transition: opacity .1s, transform .14s; } }
@@ -368,22 +369,19 @@ export default function glass({
     &.s-toggle:has(input:checked) .s-track { color: var(--on-accent); &::after { content: 'On'; } }
   }
 
-  /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb; the colour's alpha slider is the same slider ──
-     the groove is thinner than the lens's bands are drawn for: its accent lies under clear glass, the lit top without the body;
-     under the groove's pale inner ring the fill is the accent lit, so the ring glazes it rather than greying a dark accent */
+  /* ── Slider: the system's own (glassyui's, after iOS): a thin rail of the ink at a fifth, the accent flat to the value,
+     a white knob lifted by a soft shadow; no rim or ring on the rail or the fill. The colour's alpha slider is the same slider ── */
   .s-slider input[type="range"], .s-color .s-alpha {
-    width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
-    background: var(--lens-clear) 0 0 / var(--p, 0%) 100% no-repeat,
-      linear-gradient(var(--accent), var(--accent)) ${len(2)} ${len(2)} / max(0px, var(--p, 0%) - ${len(4)}) calc(100% - ${len(4)}) no-repeat,
-      linear-gradient(to right, var(--accent-lit) 0 var(--p, 0%), transparent var(--p, 0%)), var(--lens);
-    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
-    &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
-    &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }
-    &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--lens-edge), var(--lens-lift), var(--focus); }
+    width: 100%; height: calc(var(--u) * 1.5); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
+    background: linear-gradient(to right, var(--accent) 0 var(--p, 0%), var(--rail) var(--p, 0%)); box-shadow: none;
+    &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: #fff; box-shadow: var(--knob-shadow); cursor: grab; transition: transform .12s, box-shadow .12s; }
+    &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: #fff; box-shadow: var(--knob-shadow); cursor: grab; }
+    &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--knob-lift); }
+    &:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.12); box-shadow: var(--knob-lift), var(--focus); }
     &:active::-moz-range-thumb { cursor: grabbing; }
     &:focus-visible { outline: none; }
-    &:focus-visible::-webkit-slider-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
-    &:focus-visible::-moz-range-thumb { box-shadow: var(--lens-edge), var(--lens-drop), var(--focus); }
+    &:focus-visible::-webkit-slider-thumb { box-shadow: var(--knob-shadow), var(--focus); }
+    &:focus-visible::-moz-range-thumb { box-shadow: var(--knob-shadow), var(--focus); }
   }
   .s-slider {
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: calc(var(--u) * 4); }
@@ -394,8 +392,8 @@ export default function glass({
     .s-readout { flex: 0 0 auto; min-width: 6ch; text-align: right; font-size: var(--font-size-small); color: var(--fg); font-variant-numeric: tabular-nums; background: transparent; border: none; box-shadow: none; height: auto; padding: 0; cursor: ew-resize; text-shadow: var(--emboss);
       &:hover, &:focus-visible, &.s-scrubbing { color: var(--fg); box-shadow: none; background: transparent; } }
     .s-tooltip { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: calc(var(--u) * -1); background: color-mix(in oklab, var(--bg), transparent 12%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: var(--lens-edge); border-radius: calc(var(--u) * 2 * var(--round)); padding: calc(2 * var(--length)) calc(8 * var(--length)); font-size: var(--font-size-small); white-space: nowrap; }
-    &.s-multiple .s-interval-track { height: calc(var(--u) * 2); margin: calc((var(--h) - var(--u) * 2) / 2) 0; border-radius: calc(var(--u) * var(--round)); position: relative;
-      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--lens-clear), var(--accent); border-radius: inherit; }
+    &.s-multiple .s-interval-track { height: calc(var(--u) * 1.5); margin: calc((var(--h) - var(--u) * 1.5) / 2) 0; border-radius: calc(var(--u) * var(--round)); position: relative; background: var(--rail); box-shadow: none;
+      &::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--low, 0%); width: calc(var(--high, 100%) - var(--low, 0%)); background: var(--accent); border-radius: inherit; }
       input[type="range"] { background: transparent; box-shadow: none; } }
   }
 
@@ -467,7 +465,7 @@ export default function glass({
   .s-xy { align-items: flex-start; .s-label-group { padding-top: calc(var(--u) * 1); } }
   .s-pad { border: none; border-radius: calc(var(--u) * 3 * var(--round));
     .s-pad-x, .s-pad-y { background: ${edgeC}; }
-    .s-pad-dot { background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop), 0 0 0 ${len(2)} var(--accent); } }
+    .s-pad-dot { background: #fff; box-shadow: var(--knob-shadow), 0 0 0 ${len(2)} var(--accent); } }   /* a knob, as the slider's and the switch's */
   .s-knob-dial { width: calc(var(--u) * 10); height: calc(var(--u) * 10); background: var(--lens-bright), var(--bg); border: none; box-shadow: var(--lens-edge), var(--lens-drop);
     i { background: var(--accent); width: calc(3 * var(--length)); border-radius: calc(2 * var(--length)); } }
   .s-knob-val, .s-pad-val { color: var(--fg-muted); opacity: 1; font-size: var(--font-size-small); }
