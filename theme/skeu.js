@@ -732,6 +732,7 @@ export default function skeu({
     &::after { width: calc(var(--u) * 3.5); height: calc(var(--u) * 3.5); ${glyph(chevron, 'var(--ink-dim)')} }
   }
   .s-folder > .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 0; }
+  .s-folder:last-child:not([open]) > summary { background: none; }   /* a shut last folder has nothing below to rule off */
 }`
 
   return form({ size, spacing, font }) + '\n' + overrides

@@ -477,8 +477,9 @@ export default function glass({
       &::after { content: ''; width: var(--glyph); height: var(--glyph); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .2s; }
       &:focus-visible { outline: none; color: var(--fg); } }
     &[open] > summary { color: var(--fg); text-shadow: var(--emboss); &::after { transform: rotate(-180deg); } }
-    /* a folded folder ends in the separator's cut line, so a stack of them reads as rows, not loose words */
-    &:not([open], .s-section) > summary { box-shadow: inset 0 -1px 0 ${edgeC}, 0 1px 0 ${rimC}; }
+    /* a folded folder ends in the separator's cut line, so a stack of them reads as rows, not loose words; the last
+       has nothing below to part it from */
+    &:not([open], .s-section, :last-child) > summary { box-shadow: inset 0 -1px 0 ${edgeC}, 0 1px 0 ${rimC}; }
     /* a shallow flush well: the lens edge without its body, concentric with the lenses it holds */
     .s-content { gap: var(--row-gap); padding: var(--well-pad); border-radius: calc(var(--r-lens) + var(--well-pad) * var(--round)); background: ${faceClear}; box-shadow: var(--lens-edge); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }

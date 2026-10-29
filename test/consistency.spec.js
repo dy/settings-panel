@@ -200,3 +200,52 @@ for (const [id, file] of files) test.describe(id, () => {
     if (m.marks != null) expect(m.marks, `${id} mark labels end above the next row`).toBeLessThanOrEqual(m.next + .5)
   })
 })
+
+// soft seats a segmented choice as it seats a select: the chosen option is the select's key, the strip round it exactly
+// its height, so the groove round both is the select's width, even above and below
+for (const axes of [{}, { roundness: 0 }, { size: 1.2 }, { spacing: .65 }]) test(`soft: a segmented choice sits in the select's groove at ${JSON.stringify(axes)}`, async ({ page }) => {
+  await mount(page, 'default', { blend: ['Screen', 'Multiply'], mode: { type: 'select', variant: 'segmented', options: ['Light', 'Dark', 'Auto'], value: 'Auto' } }, axes)
+  const m = await page.evaluate(() => {
+    const r = s => document.querySelector(`#consistency ${s}`).getBoundingClientRect()
+    const sel = r('[data-key=blend] select'), strip = r('[data-key=mode] .s-input'), key = r('[data-key=mode] button.s-selected')
+    return { select: Math.round(sel.height), key: Math.round(key.height), above: Math.round(key.top - strip.top), below: Math.round(strip.bottom - key.bottom),
+      shadow: [getComputedStyle(document.querySelector('#consistency [data-key=blend] select')).boxShadow, getComputedStyle(document.querySelector('#consistency [data-key=mode] .s-input')).boxShadow] }
+  })
+  expect([m.key, m.above, m.below]).toEqual([m.select, 0, 0])
+  // the groove's layers (floor, wall, lip) are the select's own
+  const layers = s => s.split(/,(?![^(]*\))/).map(l => l.trim())
+  for (const layer of layers(m.shadow[1])) expect(layers(m.shadow[0])).toContain(layer)
+})
+
+// soft parts a group from its neighbours with one engraved rule, wherever the group stands, and never at the panel's
+// ends: no rule closes the last group, none stands above the first row
+test('soft: rules stand only between a group and its neighbours', async ({ page }) => {
+  await mount(page, 'default', { a: ['A', 'B'], seg: { type: 'select', variant: 'segmented', options: ['XS', 'M'], value: 'M' },
+    f1: { type: 'folder', label: 'One' }, 'f1.x': 1, b: ['A', 'B'], f2: { type: 'folder', label: 'Two' }, 'f2.y': 2 })
+  const ruled = await page.evaluate(() => [...document.querySelectorAll('#consistency .s-panel-content > *, #consistency .s-folder > *, #consistency .s-folder .s-content > *')]
+    .filter(e => ['borderTopWidth', 'borderBottomWidth'].some(k => parseFloat(getComputedStyle(e)[k]) > 0)).map(e => `${e.dataset.key || e.tagName.toLowerCase()} ${parseFloat(getComputedStyle(e).borderBottomWidth) ? 'bottom' : 'top'}`))
+  expect(ruled).toEqual(['f1 top', 'b top', 'f2 top'])
+  // a panel opening on a group, its groups shut: a rule between them only
+  await mount(page, 'default', { f1: { type: 'folder', label: 'One', collapsed: true }, 'f1.x': 1, f2: { type: 'folder', label: 'Two', collapsed: true }, 'f2.y': 2 })
+  expect(await page.evaluate(() => [...document.querySelectorAll('#consistency .s-panel-content > *, #consistency .s-folder > summary')]
+    .filter(e => ['borderTopWidth', 'borderBottomWidth'].some(k => parseFloat(getComputedStyle(e)[k]) > 0)).map(e => e.dataset.key || e.tagName.toLowerCase()))).toEqual(['f2'])
+})
+
+// a shut folder closing the panel draws no rule under its title: there is nothing below it to part it from (a rule
+// there read as a stray line at the panel's foot); the rows' own grids (swiss, the classic reproductions) keep theirs
+for (const file of ['default', 'glass', 'skeu', 'matte', 'brutal']) test(`${file}: no rule under a shut last folder`, async ({ page }) => {
+  await mount(page, file, { x: 1, f: { type: 'folder', label: 'F', collapsed: true }, 'f.y': 2, g: { type: 'folder', label: 'G', collapsed: true }, 'g.z': 3 })
+  const rule = await page.evaluate(() => {
+    const drawn = e => { const cs = getComputedStyle(e); return [parseFloat(cs.borderBottomWidth) && cs.borderBottomColor !== 'rgba(0, 0, 0, 0)' ? 'border' : '', cs.boxShadow !== 'none' ? 'shadow' : '', cs.backgroundImage !== 'none' ? 'background' : ''].filter(Boolean) }
+    const g = document.querySelector('#consistency .s-folder[data-key=g]')
+    const cs = getComputedStyle(g)   // the folder itself may carry the rule above it (soft), never one below
+    return [...(parseFloat(cs.borderBottomWidth) && cs.borderBottomColor !== 'rgba(0, 0, 0, 0)' ? ['folder border'] : []), ...drawn(g.querySelector('summary'))]
+  })
+  expect(rule).toEqual([])
+  // and the rhythm holds: a stack of shut folders keeps one pitch, the last one's title as tall as the others'
+  await mount(page, file, Object.fromEntries(['a', 'b', 'c', 'd'].flatMap(k => [[k, { type: 'folder', label: k, collapsed: true }], [k + '.v', 1]])))
+  const pitch = await page.evaluate(() => [...document.querySelectorAll('#consistency .s-panel-content > .s-folder > summary')].map(f => f.getBoundingClientRect()).map((r, i, a) => i ? Math.round((r.top - a[i - 1].top) * 10) / 10 : null).slice(1))
+  const heights = await page.evaluate(() => [...document.querySelectorAll('#consistency .s-folder > summary')].map(s => Math.round(s.getBoundingClientRect().height * 10) / 10))
+  expect(new Set(pitch).size, `${file} pitch ${pitch}`).toBe(1)
+  expect(new Set(heights).size, `${file} titles ${heights}`).toBe(1)
+})

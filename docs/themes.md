@@ -162,7 +162,7 @@ on every face of their field: at rest, hovered and focused.
 
 ### soft (default)
 - Controls sit in sockets cut into one material: a raised capsule rides in a groove whose wall is darkest at its outer top edge, with a catch-light on the lip below
-- Fields and tracks are sunken faces in sockets; the segmented control is one track with the selection raised inside it
+- Fields and tracks are sunken faces in sockets; a segmented choice sits in the select's own groove (as wide, round a strip of its floor the key's height), the selection the select's key in it
 - Radius: capsules at roundness 1 (radius = height / 2)
 - Socket: a tenth of the key's height wide, the study's (14px round a 144px key), so a seated key stands as far past the family's measure as the study's Upgrade key past its neighbours
 - Tones come from the shade by two rules fitted on the study's three finishes: a crevice multiplies the material by itself, a lit face rises by L(1 − L)
@@ -174,7 +174,7 @@ on every face of their field: at rest, hovered and focused.
 
 - Type: body 13 at size 1; one secondary step, 12/14 of body (hints, readouts, mark labels, tooltips, separator labels, knob values); title 15/14
 - One slider: plain, interval and the colour's alpha share the 6px socket and the 18px cap; the alpha shows its checkerboard and ramp in the groove
-- Rhythm: every row (switch, checkbox, info, folder title) sits on the control height; folder contents keep the row gap; chevrons, checks and stepper chevrons share one stroke
+- Rhythm: every row (switch, checkbox, info) sits on the control height; folder contents keep the row gap; a folder's title is a line of type, its rows half again the row gap below it; one engraved rule parts a group from whatever stands next to it (a loose row, another group), a row gap and a socket's width either side, so a shut folder's title stands midway between its rules, never at the panel's ends; chevrons, checks and stepper chevrons share one stroke
 
 ### swiss
 - Shadows: none
@@ -330,6 +330,7 @@ on every face of their field: at rest, hovered and focused.
 - Feel: the state, as you would paste it
 
 ### brutal
+- A folder title stands on its rule; a shut folder closing the panel has none, nothing being below it to part it from
 - Shadows: **hard offset, no blur** (4px 4px 0 black)
 - Borders: **thick** (2-4px), always black/dark
 - Radius: 0 or small (0-4px)
@@ -350,7 +351,7 @@ on every face of their field: at rest, hovered and focused.
 - Lettering holds 4.5:1 over its scene, a backdrop up to .35 lighter or .16 darker (OKLab L) than its shade: muted text and placeholders lighten to read there, and the tint thickens only where the ink itself would not (slate, mid greys). A dark glass on a white page is outside that: give it its scene
 - Calibrated against the study's Think row
 - Light by default, as the original: a chalk pane (`#f1f2f4`) with a blue accent
-- A folded folder ends in the separator's cut line, so a stack of folded folders reads as rows
+- A folded folder ends in the separator's cut line, so a stack of folded folders reads as rows; the last, with nothing below it, has none
 - A lens's lower edge is darker, where the glass thickens toward the pane (the chalk study's Think key): a translucent line of the surface's deep tone, set apart from the lighter contact shadow under it
 - On-states are the system's own (after glassyui's switch and slider, themselves after iOS): an on switch or a checked box is the accent flat with only a soft shade under its top edge; the slider is a thin rail of the ink at a fifth with the accent flat to the value; knobs and thumbs are white, lifted by a soft shadow, no edge of their own (a lit rim, a lens over the accent or a pale ring round the fill glared on the colour)
 
@@ -376,6 +377,7 @@ on every face of their field: at rest, hovered and focused.
 - Boxes: every box (field, select, button, segment, toggle) and every row at the control height; the alpha slider shares the 6px groove and the 14×22 glazed thumb
 
 ### skeu
+- A folder title stands on its rule; a shut folder closing the panel has none, nothing being below it to part it from
 - Keycaps: an outline one unit wide all round, one layer of shade laid over the key (its colour at an opacity, set to give the study's tone over the lit rim, so the face shows through it), which falls deeper by itself over the face at the rounded ends, as the study's do (a second layer there doubled them) where the key turns from the light (the chalk study's Customize key), a bright rim, a face lighter than the plate, a front wall, a dark base line and a short shadow; the base line and the wall above it lie inside the key's box (the family's measure), under the silhouette edge, so the silhouette wraps them round the ends as one edge; anything drawn below the box (the wall, then the base line) drew a second crescent outside the silhouette there; the base line is 1 unit, the wall 2 at depth 1, as the chalk study measures them; a pressed key travels .75 units down; lettering is engraved
 - Wells for fields, tracks, checkbox and radio; the segmented control is one sunken track with the selected key raised in it
 - The primary is a lifted key, the secondary sits flush with the plate; on-states take the accent
@@ -388,6 +390,7 @@ on every face of their field: at rest, hovered and focused.
 - Rhythm: every row on the control height; a folder title is a row with its engraved rule at its foot; contents keep the row gap. Readouts fit their value (at least three figures) with the field's inset; segmented options take their label's width plus an equal share. One glyph stroke and a 3.5u box
 
 ### matte
+- A folder title stands on its rule; a shut folder closing the panel has none, nothing being below it to part it from
 - One matte material lit softly from above: the panel is a molded plate with a top-to-bottom falloff and a fine grain
 - Fields, tracks and checkboxes are shallow wells (a shaded lip on top, a catch-light on the lower edge); selects, segments, steppers and buttons are low domed keys with a crisp rim and a contact shadow; the slider knob is a domed cap
 - The catch-light is the material's own: on a light material, the body lifted toward white in its own hue (near-white on chalk, a warm light on bronze and gold); on a dark one, light scaled by the material's lightness

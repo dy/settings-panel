@@ -693,14 +693,14 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     label:has(input:focus-visible) .s-track { outline: ${ring}; outline-offset: calc(2 * var(--length)); }
   }
 
-  /* ── Segmented: the select's socket, wide and filled with its floor; the selected option a raised piece in it, as
-     far from the floor's top as its crevice is from the floor's bottom ── */
+  /* ── Segmented: the select's socket, as wide as the select's (g), round a strip of its floor the key's height; the
+     selected option is the select's key in it, seated as the select is ── */
   .s-select.s-segmented {
-    .s-input { gap: 0; margin: 0 var(--g); padding: calc(3 * var(--length)) calc(3 * var(--length)) calc(3 * var(--length) + var(--g) * .35); border-radius: var(--r-pill); background: ${floor}; box-shadow: ${socket('var(--g)')}; }
+    .s-input { gap: 0; margin: 0 var(--g); padding: 0; border-radius: var(--r-pill); background: ${floor}; box-shadow: ${socket('var(--g)')}; }
     button {
-      flex: 1 1 auto; height: calc(var(--control-height) - 6 * var(--length) - var(--g) * .35); min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share */
-      padding: 0 max(calc(8 * var(--space)), (var(--r-pill) - 3 * var(--length)) * .75);
-      border: none; border-radius: calc(var(--r-pill) - 3 * var(--length)); background: transparent;
+      flex: 1 1 auto; height: var(--control-height); min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share */
+      padding: 0 max(calc(8 * var(--space)), var(--r-pill) * .75);
+      border: none; border-radius: var(--r-pill); background: transparent;
       color: ${onTrack}; font-size: inherit; font-weight: ${w(100)};
       transition: color 140ms, box-shadow 140ms;
       &:hover { filter: none; color: var(--fg); } &:active { filter: none; }
@@ -743,14 +743,17 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   }
 
   /* ── Structure: engraved rules ── */
-  /* a folder's title sits midway between its rule and the one above: the row gap above it is matched below */
-  .s-folder > summary { min-height: var(--control-height); padding: 0 0 var(--row-gap); opacity: 1; color: var(--fg); font-weight: ${w(200)}; border-bottom-color: ${alpha(wall, .45)};
+  /* a folder's title is a line of type (in a row's height it would float a third of the row clear of the rule above),
+     its rows following it at half again the row gap: a heading sits nearer its rows than the rule before it */
+  .s-folder > summary { min-height: 0; padding: 0; border-bottom: none; opacity: 1; color: var(--fg); font-weight: ${w(200)};
     &::after { width: calc(12 * var(--length)); height: calc(12 * var(--length)); background: var(--fg-muted); -webkit-mask: ${glyph(chevron, '#000')} center / contain no-repeat; mask: ${glyph(chevron, '#000')} center / contain no-repeat; } }
-  /* an open folder's rows follow its title at the row gap and close on the same engraved rule a shut folder's title
-     stands on, a row gap under the last row: every group reads title, rows, rule */
   .s-folder > .s-content { gap: var(--row-gap); padding: 0; }
-  .s-folder[open]:not(.s-section) > .s-content { padding-bottom: var(--row-gap); border-bottom: 1px solid ${alpha(wall, .45)}; box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
-  .s-folder:not([open], .s-section) > summary { box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
+  .s-folder[open] > summary { padding-bottom: calc(var(--row-gap) / 2); }
+  /* an engraved rule parts a group from what stands next to it, a row gap either side, wherever it stands (after a
+     loose row, between groups, before loose rows), and never at the panel's ends: a rule closing the last group, or
+     only some groups, broke the rhythm; it stands a socket's width further from each neighbour, clear of a raised
+     piece's socket, so a shut folder's title stands midway between its rules */
+  :is(* + .s-folder:not(.s-section), .s-folder:not(.s-section) + *) { margin-top: var(--g); padding-top: calc(var(--row-gap) + var(--g)); border-top: 1px solid ${alpha(wall, .45)}; box-shadow: inset 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; }
   .s-separator-labeled { background: none; box-shadow: none; &::before, &::after { background: ${alpha(wall, .45)}; opacity: 1; box-shadow: 0 1px 0 ${alpha(lip, .9)}; } }
   .s-knob-dial { border: none; ${faceOf(face)} box-shadow: ${seat('calc(2 * var(--length))')}; }

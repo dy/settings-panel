@@ -1,6 +1,6 @@
 {
   "name": "settings-panel",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Controls designed for purpose that feel right",
   "type": "module",
   "main": "index.js",

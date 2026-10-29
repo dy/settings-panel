@@ -423,6 +423,7 @@ export default function brutal({
       &::after { content: ''; width: var(--glyph); height: calc(var(--glyph) * 2 / 3); margin-left: auto; background: currentColor; -webkit-mask: ${chevron} center / contain no-repeat; mask: ${chevron} center / contain no-repeat; transition: transform .12s; }
       &:focus-visible { outline: var(--bw) solid var(--accent); outline-offset: var(--focus-gap); } }
     &[open] > summary::after { transform: rotate(180deg); }
+    &:last-child:not([open]) > summary { border-bottom-color: transparent; }   /* a shut last folder has nothing below to rule off */
     .s-content { gap: var(--row-gap); padding: var(--row-gap) 0 calc(var(--row-gap) / 2); }
     &.s-section > summary { pointer-events: none; &::after { display: none; } }
   }

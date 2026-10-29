@@ -544,6 +544,7 @@ export default function matte({
       transition: transform 140ms;
     }
   }
+  .s-folder:last-child:not([open]) > summary { border-bottom-color: transparent; box-shadow: none; }   /* nothing below to rule off */
   .s-folder[open] > summary {
     box-shadow: none;
     &::after { transform: rotate(-180deg); }
