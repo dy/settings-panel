@@ -38,11 +38,15 @@ const GRID = {
 }
 
 // The study's finishes, by lightness: a tone measured in each reads between them for any
-// other surface (clamped past the ends).
-const FINISH = ['#1e1e1e', '#ca9d63', '#f1f2f4'].map(c => parseColor(c).L)
-const study = L => ([g, b, c]) => {
-  const [lg, lb, lc] = FINISH
-  return L <= lg ? g : L >= lc ? c : L < lb ? lerp(g, b, (L - lg) / (lb - lg)) : lerp(b, c, (L - lb) / (lc - lb))
+// other surface (clamped past the ends). Bronze is a saturated wood: its deep edges belong to its
+// colour, so a surface takes them by its chroma, and a grey (silver, a mid grey) reads between
+// graphite and chalk, the two neutral finishes.
+const FINISH = ['#1e1e1e', '#ca9d63', '#f1f2f4'].map(c => parseColor(c))
+const study = (L, C) => ([g, b, c]) => {
+  const [lg, lb, lc] = FINISH.map(f => f.L)
+  const neutral = L <= lg ? g : L >= lc ? c : lerp(g, c, (L - lg) / (lc - lg))
+  const warm = L <= lg ? g : L >= lc ? c : L < lb ? lerp(g, b, (L - lg) / (lb - lg)) : lerp(b, c, (L - lb) / (lc - lb))
+  return lerp(neutral, warm, clamp(C / FINISH[1].C, 0, 1))
 }
 
 // The Customize key, measured as lightness offsets from the surface in each finish
@@ -51,7 +55,7 @@ const study = L => ([g, b, c]) => {
 // contact, long falloff) fitted to the profile of the plate below it, laid as translucent shade
 // (where they overlap they deepen each other, as two occlusions do).
 const KEY = {
-  outline: [-.048, -.13, -.035],
+  outline: [-.048, -.13, -.05],
   rim: [.204, .168, .03],
   top: [.117, .111, .015],
   mid: [.103, .033, .02],
@@ -113,17 +117,17 @@ export default function skeu({
   }
   const tone = (d, alpha) => { const { L, C, H } = toneOf(d); return $(L, C, H, alpha) }
   // A shadow is light taken away: the colour and opacity that give tone(d) (at alpha) exactly over
-  // the plate, and over anything darker (an accent fill, a groove) darken it rather than paint the
-  // plate's lighter tone there as a glow. The least opacity keeps the colour as dark as the hue allows.
+  // the plate (or the tone `on` it lies on), and over anything darker (an accent fill, a groove) darken it
+  // rather than paint a lighter tone there as a glow. The least opacity keeps the colour as dark as the hue allows.
   const srgb = c => toHex(c).slice(1).match(/../g).map(h => parseInt(h, 16) / 255)
   const P = isFunc ? null : srgb(S)
-  const shadow = (d, alpha = 1) => {
+  const shadow = (d, alpha = 1, on = 0) => {
     if (!P) return tone(d, alpha)
-    const T = srgb(toneOf(d)), t = P.map((p, i) => p + alpha * (T[i] - p))
-    const k = min(1, max(.001, ...P.map((p, i) => p > 0 ? (p - t[i]) / p : 0)))
-    return `rgb(${P.map((p, i) => Math.round(clamp(p + (t[i] - p) / k, 0, 1) * 255)).join(' ')} / ${+k.toFixed(3)})`
+    const G = on ? srgb(toneOf(on)) : P, T = srgb(toneOf(d)), t = G.map((p, i) => p + alpha * (T[i] - p))
+    const k = min(1, max(.001, ...G.map((p, i) => p > 0 ? (p - t[i]) / p : 0)))
+    return `rgb(${G.map((p, i) => Math.round(clamp(p + (t[i] - p) / k, 0, 1) * 255)).join(' ')} / ${+k.toFixed(3)})`
   }
-  const at = study(sL)
+  const at = study(sL, sC)
   const K = Object.fromEntries(Object.entries(KEY).map(([n, v]) => [n, at(v)]))
   const W = Object.fromEntries(Object.entries(WELL).map(([n, v]) => [n, at(v)]))
 
@@ -132,11 +136,11 @@ export default function skeu({
   const D = clamp(depth, 0, 3), relief = min(D, 2)
   const E = bevel <= 1 ? lerp(.3, 1, clamp(bevel, 0, 1)) : lerp(1, 1.25, clamp(bevel - 1, 0, 1))
   const rimW = +(bevel <= 1 ? 1 : lerp(1, 2, clamp(bevel - 1, 0, 1))).toFixed(2)
-  const wallH = +(2.5 * relief).toFixed(2)
-  // A key's face is its box, the family's one measure; its front wall closes the face's lower edge
-  // (wallIn) and hangs below the box with the line it stands on (lip), standing the key that much
-  // taller than a flat one, as the study's Customize key stands a twentieth taller than its neighbours
-  const wallIn = min(wallH, 1.75), lip = wallH ? wallH - wallIn + .75 : 0
+  // A key's box is the family's one measure: the line it stands on and its front wall above it close the face's
+  // lower edge inside the box, so the silhouette wraps them round the ends as one edge (anything drawn below the
+  // box drew a second crescent outside the silhouette there)
+  const wallH = relief ? +(1 + 2 * relief).toFixed(2) : 0
+  const travel = wallH ? .75 : 0
   const len = n => `calc(${+n.toFixed(3)} * var(--length))`
 
   // A key's tones: its face (lift 1 = the study's lifted face, 0 = flush with the plate),
@@ -159,25 +163,27 @@ export default function skeu({
   // the key's front wall. It keeps the key's rim, silhouette, base line and shadow; a dome has no wall.
   const domeOf = t => `radial-gradient(circle farthest-corner at 50% 30%, ${tone(t.top)}, ${tone(t.mid)} 40%, ${tone(t.low)} 62%, ${tone(t.wall)} 88%)`
   // Its shadow at elevation e (1 at rest, higher under a hovering finger), from the key's lower edge
-  const drop = (e = 1, below = 0) => D ? [
-    `0 ${len(below + .5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
-    `0 ${len(below + 2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
+  const drop = (e = 1) => D ? [
+    `0 ${len(.5 * D * e)} ${len(1.5 * D * e)} ${shadow(K.contact)}`,
+    `0 ${len(2.5 * D * e)} ${len(6 * D * e)} ${len(-1)} ${shadow(K.falloff)}`,
   ] : []
-  // In proportion at every size: the silhouette edge (1 unit at the sides, 3/4 at the top) and the lit
-  // rim; a key's front wall over the silhouette's lower edge and, below the box, the rest of the wall
-  // and the line it stands on, which a pressed key or a cap (no wall) keeps inside its box.
+  // In proportion at every size: the line it stands on, the silhouette edge (1 unit all round, as the study draws
+  // it over the top too), the lit rim, and a key's front wall under them (a pressed key or a cap has none, and a
+  // thinner line).
   const edges = (c, wall = true) => [
-    wall && wallH ? `inset 0 ${len(-wallIn)} 0 ${c.wall}` : `inset 0 ${len(-.75)} 0 ${c.base}`,
-    `inset 0 ${len(-.25)} 0 ${len(1)} ${c.outline}`,                          // silhouette edge
+    `inset 0 ${len(wall && wallH ? -1 : -.75)} 0 ${c.base}`,
+    `inset 0 0 0 ${len(1)} ${c.outline}`,                                      // silhouette edge
     `inset 0 ${len(1 + rimW)} 0 ${c.rim}`,                                  // lit rim
-    ...(wall && wallH ? [lip > .75 && `0 ${len(lip - .75)} 0 ${c.wall}`, `0 ${len(lip)} 0 ${c.base}`].filter(Boolean) : []),
+    ...(wall && wallH ? [`inset 0 ${len(-wallH)} 0 ${c.wall}`] : []),
   ]
-  const colors = t => ({ base: tone(t.base), wall: tone(t.wall), outline: tone(t.outline), rim: tone(t.rim) })
-  const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e, lip) : [])].join(', ')
+  // the silhouette edge is shade laid over the key's lit rim (its tone exactly there): over the face it falls deeper,
+  // so the rounded ends, where the face turns from the light, darken by themselves (the study's ends)
+  const colors = t => ({ base: tone(t.base), wall: tone(t.wall), outline: shadow(t.outline, 1, t.rim), rim: tone(t.rim) })
+  const keyShadow = (c, e, wall = true) => [...edges(c, wall), ...(wall ? drop(e) : [])].join(', ')
   const capShadow = (c, e = 1) => [...edges(c, false), ...drop(e)].join(', ')
   // The same key over a face of any colour (swatches): its edges as light and shade
   const glaze = {
-    base: tone(K.base * E, .55), outline: tone(K.outline * E, .5),
+    base: shadow(K.base * E, .55), outline: shadow(K.outline * E, 1, K.rim),
     rim: `oklch(1 0 0 / ${+(.45 * E).toFixed(3)})`, wall: `oklch(0 0 0 / ${+(.16 * E).toFixed(3)})`,
   }
 
@@ -257,7 +263,7 @@ export default function skeu({
     border: none;
     background: var(--floor);
     box-shadow: var(--well);`
-  // A key rises a little under the pointer and, pressed, travels down to the line it stands on
+  // A key rises a little under the pointer and, pressed, travels down onto its wall
   const press = (kind = 'key') => `
     transition: transform 90ms, box-shadow 140ms, filter 140ms;
     &:not(:disabled):hover { box-shadow: var(--${kind}-up); filter: var(--hover); }
@@ -280,9 +286,7 @@ export default function skeu({
 
   // Body 14px: skeu sets its labels and values at 14px.
   const body = 14
-  // --s-key-lip: how far a key's drawing reaches below its box (registered, so it reads back in px)
-  const overrides = `@property --s-key-lip { syntax: '<length>'; inherits: true; initial-value: 0px; }
-.s-panel {
+  const overrides = `.s-panel {
   ${metrics({ size, spacing, font }, { body, controlHeight: 34, rowGap: 14, sectionGap: 14, panelPadding: 22, fontFamily: "system-ui, -apple-system, 'Helvetica Neue', sans-serif" })}
 
   --bg: ${plate};
@@ -322,16 +326,15 @@ export default function skeu({
   --well: ${well};
   --edge: ${tone(W.wall * E)};
   --catch: ${tone(W.lip * E)};
-  --travel: ${len(lip)};
-  --s-key-lip: ${len(lip)};
-  --wall: ${len(wallIn)};
+  --travel: ${len(travel)};
+  --wall: ${len(wallH)};
   --hover: brightness(${+(1 + .12 * (1 - clamp(sL + lifted.mid, 0, 1))).toFixed(3)});
 
   /* Keys and wells are capsules at roundness 1; the plate keeps rounding past it */
   --round: min(var(--roundness), 1);
   --h: var(--control-height);
   --rk: calc(var(--h) / 2 * var(--round));
-  --r: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
+  --r: calc((var(--h) / 2 + var(--panel-padding) / 4) * var(--roundness));
   --thumb: calc(var(--u) * ${+thumbU.toFixed(4)});
   --gap: ${len(3)};
   /* Type: one body size (labels, values, keys, folder titles), one secondary step for the small print */
@@ -506,18 +509,15 @@ export default function skeu({
     }
   }
 
-  /* ── Number: a well with two small keys ── */
-  .s-number input[type="number"] { -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; } }
+  /* ── Number: a well, its steppers two chevrons engraved at its end, where a select's chevron stands ── */
+  .s-number .s-input { position: relative; }
+  .s-number input[type="number"] { padding-right: calc(var(--u) * 7.5); -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; } }
   .s-number .s-step {
-    gap: ${len(3)};
+    position: absolute; right: calc(var(--u) * 2.5); top: 0; bottom: 0; justify-content: center; gap: 0;
     button {
-      ${key('flush')}
-      width: calc(var(--u) * 5); height: calc((var(--h) - ${len(3)}) / 2);
-      padding: 0 0 ${len(wallIn / 2)};
-      border-radius: calc(var(--u) * 1.25 * var(--round));
-      font-size: 0; opacity: 1;
-      ${press('flush')}
-      &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); ${glyph(chevronSm, 'var(--ink)')} }
+      width: calc(var(--u) * 3); height: calc(var(--u) * 2.75); padding: 0; border: none; background: none; box-shadow: none;
+      font-size: 0; opacity: 1; cursor: pointer; color: var(--ink-dim); &:hover { color: var(--ink); }
+      &::before { content: ''; width: calc(var(--u) * 2.5); height: calc(var(--u) * 2.5); ${glyph(chevronSm, 'currentColor')} }
     }
     .s-step-up::before { rotate: 180deg; }
   }
@@ -546,10 +546,11 @@ export default function skeu({
     }
     .s-mark-label { color: var(--ink-dim); opacity: 1; &.s-active { color: var(--ink); } }
     .s-readout { color: var(--ink-dim); opacity: 1; font-variant-numeric: tabular-nums; text-shadow: none; }
-    /* An editable readout is a field: body type, the field's inset, as wide as its value (at least three
-       figures, so the track holds still while a short value is dragged) */
-    input[type="text"].s-readout { flex: none; font-size: inherit; padding: 0 max(var(--pad), var(--rk) * .75); color: var(--ink-well); text-align: center;
-      width: calc(7ch + 2 * max(var(--pad), var(--rk) * .75)); min-width: calc(3ch + 2 * max(var(--pad), var(--rk) * .75));
+    /* An editable readout is a field, in the small type and three quarters of the field's inset (beside a slider the
+       number is secondary to it), as wide as its value (at least three figures, so the track holds still while a
+       short value is dragged) */
+    input[type="text"].s-readout { flex: none; font-size: var(--font-size-small); padding: 0 calc(var(--pad) * .75); color: var(--ink-well); text-align: center;
+      width: calc(7ch + 1.5 * var(--pad)); min-width: calc(3ch + 1.5 * var(--pad));
       @supports (field-sizing: content) { field-sizing: content; width: auto; } }
     .s-tooltip { ${key('flush', 'var(--glaze)')} bottom: calc(50% + var(--thumb) / 2); border-radius: calc(var(--u) * 1.5 * var(--round)); color: var(--ink); text-shadow: var(--engrave-key); }
     &.s-multiple .s-interval-track {
@@ -638,7 +639,7 @@ export default function skeu({
       border-radius: calc(var(--chip) / 2 * var(--round));
       -webkit-appearance: none; appearance: none;
       &:focus-visible { outline: none; }
-      &::-webkit-color-swatch-wrapper { padding: 0; }
+      &::-webkit-color-swatch-wrapper { padding: 0; border-radius: inherit; }   /* the swatch rounds as its input does, so its edges follow the curve */
       &::-webkit-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
       &::-moz-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
     }
@@ -654,7 +655,7 @@ export default function skeu({
       width: var(--h); height: var(--h); padding: 0; border: none; background: none;
       border-radius: calc(var(--h) / 2 * var(--round));
       -webkit-appearance: none; appearance: none;
-      &::-webkit-color-swatch-wrapper { padding: 0; }
+      &::-webkit-color-swatch-wrapper { padding: 0; border-radius: inherit; }   /* the swatch rounds as its input does, so its edges follow the curve */
       &::-webkit-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
       &::-moz-color-swatch { border: none; border-radius: inherit; box-shadow: var(--glaze); }
     }

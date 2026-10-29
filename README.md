@@ -54,12 +54,11 @@ settings({
 
 The [theme gallery](index.html) compares identical specimens. Its Look bar (light,
 accent, density, corners, scale, body font) restyles every theme at once, starting
-from each theme's native look; Theme controls tune the selected theme's own axes.
-Use theme exports the current JavaScript or CSS; the link button shares its axes.
+from each theme's native look; sliders under the preview tune the selected theme's own axes.
+Use theme gives the JavaScript for the theme and axes on screen; All controls shows every control in it.
 Every theme supports size, density, and body-font tuning through
-[shared dimensional tokens](docs/axes.md#shared-dimensional-tokens). The
-[DevTools case](demo/cases/devtools.html) presents editable, syntax-colored declarations.
-The original editor is available in the [playground](demo/playground.html).
+[shared dimensional tokens](docs/axes.md#shared-dimensional-tokens).
+The [cases](demo/cases/) reproduce known panels and the material study. The original editor is available in the [playground](demo/playground.html).
 
 Seventeen original themes, all functions: `theme(axes?) → CSS string`. The gallery also ships twelve faithful reproductions of classic panels (dat.gui, Tweakpane, Leva, DialKit, ControlKit, UIL, OUI, Dear ImGui, Figma, Apple, DevTools, control-panel). The [controls page](demo/controls.html) shows every control and variant in any theme.
 
@@ -81,6 +80,7 @@ Seventeen original themes, all functions: `theme(axes?) → CSS string`. The gal
 | `settings-panel/theme/retro` | **retro** | Raised and sunken bevels in border colour, system grey, pixel type (after Windows 98). |
 | `settings-panel/theme/bitmap` | **bitmap** | Two inks, greys only as dither, state by inversion (after the 1-bit Macintosh). |
 | `settings-panel/theme/industrial` | **industrial** | A chassis of modules: printed labels, white keys, faders, encoders, LEDs, a black screen (after Teenage Engineering). |
+| `settings-panel/theme/tracked` | **tracked** | Capitals tracked wide over dark wells, a bar of the accent, square-knob switches (after a phone settings screen). |
 | `settings-panel/theme/json` | **json** | The panel as a JSON literal: keys, strings, numbers and booleans in an editor's colours, each value editable in place. |
 | `settings-panel/theme/control-panel` | **control-panel** | freeman-lab/control-panel reproduction. |
 

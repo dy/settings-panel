@@ -9,8 +9,8 @@
  * original at any width. Labels sit on native's `vertical-align: sub`; the
  * text field is a 20px strip like the rest (native's is 22px and 1px wider,
  * from UA padding it never reset); the slider thumb is 10×20, and the
- * colour's alpha slider is that slider over a checkerboard; checkboxes fill the
- * row's 20px line with a 10px core (native's 18px box sat 2px low), and radios are
+ * colour's alpha slider is that slider over a checkerboard; checkboxes are native's
+ * 18px box with a 10px core, centred in the row's 20px line (native's sat 2px low), and radios are
  * the same box round, in native multibox's row. Native has one boolean widget, so
  * switch/toggle render as that box. What native lacks (pad, knob, swatches) is drawn
  * in its own terms: background2 fields, square, the thumb colour for the mark.
@@ -329,16 +329,16 @@ export default function controlPanel({
     }
   }
 
-  /* ── Checkbox (native checkbox.css / multibox.css): native's is an 18px box 2px below the row top, which leaves 7px
-     over it where every other box has 5; here it fills the row's 20px line as the other boxes do, so the rhythm holds;
-     checked shows a 10px core inside a background2 frame ── */
+  /* ── Checkbox (native checkbox.css / multibox.css): native's 18px box, centred in the row's 20px line (native set it
+     2px below the row top, leaving 7px over it where every other box has 5), so the rhythm holds; checked shows a
+     10px core inside a background2 frame ── */
   :is(.s-boolean, .s-checkboxes) .s-track {
     position: relative;
     flex: none;
     display: block;
-    width: var(--lh);
-    height: var(--lh);
-    margin: 0;
+    width: var(--box);
+    height: var(--box);
+    margin: calc(var(--lh) - var(--box)) 0 0;
     padding: 0;
     border: none;
     border-radius: 0;
@@ -376,7 +376,7 @@ export default function controlPanel({
       > span:not(.s-track) { margin-top: var(--pad-xs); padding: var(--pad-xs); font-size: var(--fs); line-height: normal; } }
   }
   .s-select.s-radio {
-    input[type="radio"] { -webkit-appearance: none; appearance: none; flex: none; display: grid; place-items: center; width: var(--lh); height: var(--lh); margin: 0; border-radius: 50%; background: var(--bg2); cursor: pointer;
+    input[type="radio"] { -webkit-appearance: none; appearance: none; flex: none; display: grid; place-items: center; width: var(--box); height: var(--box); margin: calc((var(--lh) - var(--box)) / 2) 0; border-radius: 50%; background: var(--bg2); cursor: pointer;
       &::after { content: ''; width: var(--thumb); height: var(--thumb); border-radius: 50%; }
       &:checked::after { background: var(--s-color, var(--accent)); }
       &:focus-visible { outline: var(--line) solid var(--accent); outline-offset: 0; } }

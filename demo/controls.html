@@ -27,17 +27,18 @@
       }
 
       /* the site header stays in reach; the page's own tools (the theme, opening every folder) sit in it */
-      .site-header { position: sticky; top: 0; z-index: 100; color-scheme: light; }
+      .site-header { position: sticky; top: 0; z-index: 100; color-scheme: light; background: var(--color-paper); border-bottom: 1px solid var(--color-rule); }
       .page-tools { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--color-muted); }
       .page-tools label { display: inline-flex; align-items: center; gap: 8px; }
       .page-tools select, .page-tools button { font: inherit; color: var(--color-ink); padding: 4px 8px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); background: var(--color-paper); white-space: nowrap; }
-      /* narrower, the tools take a line of their own under the header's */
-      @media (max-width: 900px) {
+      /* narrow, the tools take a line of their own under the wordmark */
+      @media (max-width: 520px) {
         .site-header { flex-wrap: wrap; height: auto; min-height: 62px; row-gap: 0; }
         .page-tools { order: 3; width: 100%; padding-bottom: 12px; }
       }
 
       #panel { width: min(100% - 4rem, 360px); margin: 2rem auto; }
+      .embed .site-header { display: none; }
 
       /* a planned control's placeholder */
       .s-stub {
@@ -58,19 +59,10 @@
   <body>
     <header class="site-header">
       <a class="wordmark" href="../">settings-panel<span class="brand-dot" aria-hidden="true"></span></a>
-      <nav class="site-tabs" aria-label="Main navigation">
-        <a href="../">Themes</a>
-        <a href="./controls.html" aria-current="page">Controls</a>
-      </nav>
       <div class="page-tools">
         <label>Theme <select id="theme-picker"></select></label>
         <button id="open-all" type="button">Open all</button>
       </div>
-      <nav class="site-links" aria-label="More">
-        <a href="./playground.html">Playground</a>
-        <a href="./cases/">Cases</a>
-        <a href="../docs/themes.md">Docs</a>
-      </nav>
       <a class="repository" href="https://github.com/dy/settings-panel" aria-label="Source on GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.64.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
       </a>
@@ -238,6 +230,9 @@
       }
 
       const picker = document.getElementById('theme-picker')
+      // #theme=<id>&axes=<json>[&embed]: the gallery opens a theme here with the axes on its screen; embedded, the page is the panel alone
+      const params = new URLSearchParams(location.hash.slice(1)), axes = (() => { try { return JSON.parse(params.get('axes')) || {} } catch { return {} } })()
+      document.documentElement.classList.toggle('embed', params.has('embed'))
 
       let state, logged
       function create() {
@@ -246,7 +241,7 @@
         const t = byId[picker.value]
         state = settings(schema, {
           container: '#panel',
-          theme: t.fn(),
+          theme: t.fn(t.id === params.get('theme') ? axes : undefined),
           title: 'Controls',
           // the graphs' live values change twenty times a second: the log shows the rest
           onChange: s => { const { wave, load, ...rest } = JSON.parse(JSON.stringify(s)), json = JSON.stringify(rest); if (json !== logged) log('state', JSON.parse(logged = json)) },
@@ -263,7 +258,7 @@
       }
 
       for (const t of registry) picker.append(new Option(t.name, t.id))
-      picker.value = 'soft'
+      picker.value = Object.hasOwn(byId, params.get('theme')) ? params.get('theme') : 'soft'
       picker.addEventListener('change', create)
       document.getElementById('open-all').addEventListener('click', () => {
         const folders = [...document.querySelectorAll('.s-folder:not(.s-section)')], open = folders.some(f => !f.open)

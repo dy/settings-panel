@@ -30,17 +30,27 @@ test('all thumbnails share the five-part specimen and have one accessible select
   await expect(page.getByRole('button', { name: 'Preview Glass', exact: true })).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('search and category filters compose; empty and cleared results preserve the live preview', async ({ page }) => {
-  await page.getByRole('button', { name: 'Classics', exact: true }).click()
-  await expect(page.locator('.theme-card:visible')).toHaveCount(themes.filter(t => t.classic).length)
-  await page.getByRole('searchbox', { name: 'Search themes' }).fill('  FIGMA ')
-  await expect(page.locator('.theme-card:visible')).toHaveCount(1)
-  await page.getByRole('button', { name: 'Originals', exact: true }).click()
-  await expect(page.locator('#empty-state')).toBeVisible()
-  await expect(page.locator('#preview-title')).toHaveText('Glass')
-  await page.getByRole('button', { name: 'Clear filters' }).click()
-  await expect(page.locator('.theme-card:visible')).toHaveCount(themes.length)
-  await expect(page.getByRole('searchbox')).toBeFocused()
+test('the page scrolls as one: no column scrolls, the head and the preview stay in view', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.mouse.wheel(0, 1500)
+  await page.waitForTimeout(300)
+  const m = await page.evaluate(() => ({
+    scroll: scrollY, columns: [...document.querySelectorAll('.catalog, .workspace, .app')].filter(e => /(auto|scroll)/.test(getComputedStyle(e).overflowY)).length,
+    head: document.querySelector('.app-head').getBoundingClientRect().top, look: document.querySelector('.app-head').getBoundingClientRect().bottom,
+    preview: document.querySelector('#preview').getBoundingClientRect().top,
+  }))
+  expect(m.scroll, 'the page itself scrolled').toBeGreaterThan(1000)
+  expect(m.columns, 'no column has its own scroll').toBe(0)
+  await expect(page.locator('.app')).toHaveCSS('border-top-width', '0px')   // no card round the page
+  expect(m.head).toBe(0)
+  expect(m.preview - m.look, 'the preview panel stays a gutter under the head').toBeCloseTo(28, 0)
+})
+
+test('the header links the cases and the controls page in the selected theme', async ({ page }) => {
+  await expect(page.locator('.theme-card')).toHaveCount(themes.length)
+  await expect(page.locator('.site-links a', { hasText: 'Cases' })).toHaveAttribute('href', './demo/cases/')
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await expect(page.locator('.site-links a', { hasText: 'Controls' })).toHaveAttribute('href', './demo/controls.html#theme=neu')
 })
 
 test('reactive shell updates retain mounted specimens and dispose replaced preview styles', async ({ page }) => {
@@ -51,8 +61,6 @@ test('reactive shell updates retain mounted specimens and dispose replaced previ
   await name.fill('')
   await name.pressSequentially('Moonrise')
   await expect(name).toBeFocused()
-  await page.getByRole('searchbox').fill('nothing matches')
-  await page.getByRole('button', { name: 'Clear filters' }).click()
   await page.getByRole('button', { name: 'Preview Glass', exact: true }).click()
   expect(await panel.evaluate(el => el.isConnected)).toBe(true)
   expect(await thumb.evaluate(el => el.isConnected)).toBe(true)
@@ -83,7 +91,7 @@ test('theme, colormap, accent and density preserve edited values; reset restores
   await expect(live.locator('[data-key=enabled] input')).not.toBeChecked()
   await live.getByRole('button', { name: 'Apply effect' }).click()
   await expect(page.locator('#preview-feedback')).toContainText('Applied · Multiply at 83%')
-  await page.getByRole('button', { name: 'Reset preview values' }).click()
+  await live.getByRole('button', { name: 'Reset', exact: true }).click()
   await expect(live.locator('[data-key=name] input')).toHaveValue('Aurora')
   await expect(live.locator('[data-key=blend] select')).toHaveValue('Screen')
   await expect(live.locator('[data-key=opacity] input[type=range]')).toHaveValue('82')
@@ -197,7 +205,7 @@ test('range and custom color write-back exports typed axes; skip link preserves 
   await expect(page.locator('#roundness-value')).toHaveText('2')
   await expect(page.locator('#size-value')).toHaveText('1.2×')
   const url = page.url()
-  await page.getByRole('link', { name: 'Skip to live preview' }).focus()
+  await page.getByRole('link', { name: 'Skip to preview' }).focus()
   await page.keyboard.press('Enter')
   await expect(page.locator('#preview')).toBeFocused()
   await expect(page.locator('#preview-title')).toHaveText('Neu')
@@ -310,23 +318,28 @@ test('exports contain the selected axes; clipboard success and refusal have feed
   await page.getByRole('button', { name: 'Copy code', exact: true }).click()
   await expect(page.locator('#code-status')).toHaveText('Copied')
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('theme: glass(')
-  await page.getByRole('button', { name: 'CSS', exact: true }).click()
-  await expect(page.locator('#theme-code')).toContainText('.s-panel {')
   await page.evaluate(() => { navigator.clipboard.writeText = async () => { throw new Error('denied') } })
   await page.getByRole('button', { name: 'Copy code', exact: true }).click()
   await expect(page.locator('#code-status')).toContainText('Select the code above')
   await page.keyboard.press('Escape')
   await expect(page.locator('#code-dialog')).not.toBeVisible()
   await expect(page.getByRole('button', { name: 'Use theme', exact: false })).toBeFocused()
-  await page.getByRole('button', { name: 'Copy preview link', exact: true }).click()
-  await expect(page.locator('#code-title')).toHaveText('Preview link')
-  await expect(page.locator('#theme-code')).toContainText('#theme=glass')
-  await expect(page.getByRole('group', { name: 'Code format' })).toBeHidden()
+})
+
+test('All controls opens every control in the selected theme with the axes on screen', async ({ page }) => {
+  await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
+  await page.getByRole('button', { name: 'Rose', exact: true }).click()
+  await page.getByRole('button', { name: 'All controls', exact: true }).click()
+  await expect(page.locator('#controls-dialog')).toBeVisible()
+  await expect(page.locator('#controls-title')).toHaveText('Neu')
+  const frame = page.frameLocator('#controls-frame')
+  await expect(frame.locator('#theme-picker')).toHaveValue('neu')
+  await expect(frame.locator('.site-header')).toBeHidden()
+  await expect(frame.locator('.s-panel')).toHaveCSS('--accent', /#d94c91/i)
+  await expect(frame.locator('.s-folder').first()).toBeVisible()
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Use theme', exact: false }).click()
-  await expect(page.locator('#code-title')).toHaveText('Use Glass')
-  await expect(page.getByRole('group', { name: 'Code format' })).toBeVisible()
-  await expect(page.locator('#theme-code')).toContainText("settings-panel/theme/glass.js")
+  await expect(page.locator('#controls-dialog')).not.toBeVisible()
+  await expect(page.getByRole('button', { name: 'All controls', exact: true })).toBeFocused()
 })
 
 test('executed JavaScript export preserves control types, empty text, zero and false', async ({ page }) => {
@@ -561,44 +574,39 @@ test('a non-selected thumbnail restyles from the Look bar without remounting', a
   expect(await handle.evaluate(el => el.isConnected)).toBe(true)
 })
 
-test('theme controls: populated vs. empty state, and per-theme isolation', async ({ page }) => {
+test("a theme's own axes: shown when it has them, kept per theme, reset with the look", async ({ page }) => {
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
   await expect(page.locator('.extra-row')).toHaveCount(6)
-  await expect(page.locator('.extras-empty')).toBeHidden()
-  await expect(page.locator('.extras-reset')).toBeHidden()
 
   await page.getByRole('button', { name: 'Preview dat.gui', exact: true }).click()
-  await expect(page.locator('.extras-empty')).toBeVisible()
-  await expect(page.locator('.extras-grid')).toBeHidden()
+  await expect(page.locator('.theme-extras')).toBeHidden()
 
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await page.locator('.extras-grid input[type=range]').last().fill('1') // Grain, max
-  await expect(page.locator('.extras-reset')).toBeVisible()
+  const grain = page.locator('.extras-grid input[type=range]').last()
+  await grain.fill('1') // Grain, max
   const neuThumb = await page.locator('[data-theme=neu] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--neu-texture'))
   expect(neuThumb, 'the edited grain paints a texture').toContain('url(')
 
   await page.getByRole('button', { name: 'Preview Glass', exact: true }).click()
   const glassBefore = await page.locator('[data-theme=glass] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--bg'))
-  await expect(page.locator('.extras-reset')).toBeHidden() // glass's own extras are untouched
+  await expect(page.locator('.extras-grid input[type=range]').last()).toHaveValue('1') // glass's Tint, its own default, untouched
 
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
-  await expect(page.locator('.extras-reset')).toBeVisible() // neu's edit is session-local, not lost
+  await expect(grain).toHaveValue('1') // neu's edit is session-local, not lost
   expect(await page.locator('[data-theme=neu] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--neu-texture'))).toBe(neuThumb)
   const glassAfter = await page.locator('[data-theme=glass] .s-panel').evaluate(el => getComputedStyle(el).getPropertyValue('--bg'))
   expect(glassAfter, "neu's extras must not leak into glass").toBe(glassBefore)
 
-  await page.locator('.extras-reset').click()
-  await expect(page.locator('.extras-reset')).toBeHidden()
+  await page.locator('#reset-look').click()
+  await expect(grain).toHaveValue('0.3') // Grain, neu's default
 })
 
-test('a non-native extra round-trips through Copy link, scoped to the selected theme', async ({ page, context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+test('a non-native extra round-trips through the URL, scoped to the selected theme', async ({ page }) => {
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
   await page.locator('.extras-grid input[type=range]').first().fill('900') // Weight, max
   await page.getByRole('button', { name: 'Preview Skeu', exact: true }).click()
   await page.locator('.extra-select select').selectOption('dots') // a different theme's own extra
-  await page.getByRole('button', { name: 'Copy preview link', exact: true }).click()
-  const link = await page.evaluate(() => navigator.clipboard.readText())
+  const link = page.url()
   expect(link, 'only the selected theme (skeu) scopes into the URL').toContain('x-grid=dots')
   expect(link, "a different theme's (neu) customization stays session-local").not.toContain('x-weight')
 

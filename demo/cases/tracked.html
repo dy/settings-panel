@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracked — settings-panel</title>
+  <script type="importmap">{"imports":{"sprae":"https://esm.sh/sprae@13.9.2","sprae/store":"https://esm.sh/sprae@13.9.2/store"}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-content: center; padding: 64px 16px; background: #b9babd; }
+    #panel { width: min(440px, calc(100vw - 32px)); }
+  </style>
+</head>
+<body>
+  <div id="panel"></div>
+  <script type="module">
+    import settings from '../../index.js'
+    import tracked from '../../theme/tracked.js'
+    import { caseBar } from './case-bar.js'
+
+    // The owner's phone settings screen: a bolt in the bar, then Notifications, Style and Auto refresh
+    settings({
+      notifications: { type: 'folder', label: 'Notifications', collapsed: false },
+      'notifications.enabled': { type: 'boolean', variant: 'switch', value: true, label: 'Notifications' },
+      'notifications.volume': { type: 'slider', value: .55, min: 0, max: 1, step: .01, label: 'Volume' },
+      'notifications.fullscreen': { type: 'boolean', variant: 'switch', value: false, label: 'Full screen' },
+
+      style: { type: 'folder', label: 'Style', collapsed: false },
+      'style.appearance': { type: 'select', variant: 'segmented', options: ['☀︎', '◐'], value: '◐', label: '' },
+      'style.primary': { type: 'color', value: '#2196f3', label: 'Primary color' },
+      'style.secondary': { type: 'color', value: '#ffffff', label: 'Secondary color' },
+
+      refresh: { type: 'folder', label: 'Auto refresh', collapsed: false },
+      'refresh.enabled': { type: 'boolean', variant: 'switch', value: true, label: 'Auto refresh' },
+      'refresh.interval': { type: 'select', options: ['5m', '15m', '30m', '1h'], value: '15m', label: 'Refresh interval' },
+      'refresh.cellular': { type: 'boolean', variant: 'switch', value: false, label: 'Auto refresh on cellular' },
+    }, {
+      container: '#panel',
+      title: '⚡︎',
+      theme: tracked(),
+    })
+
+    caseBar({})
+  </script>
+</body>
+</html>

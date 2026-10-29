@@ -88,7 +88,10 @@ export default function studio({
   // face), and moves only where it then reads 4.5:1: a shade too mid-grey for any ink keeps its tone. It aims
   // at 4.6, since the browser composites a wash a level off the exact blend (4.45:1 aimed at 4.5).
   const page = g => [g(shade)]
-  const fit = (grounds, tone) => { const t = grounds.reduce((t, g) => ink(g, 4.6, t), tone); return grounds.every(g => contrast(t, g) >= 4.5) ? t : tone }
+  // One polarity (`side`): on a mid shade (copper) a darker ground (a slider's fill) that dark lettering can't hold
+  // at its ratio keeps the dark ink rather than flip it to white beside dark labels.
+  const side = dark ? 1 : 0
+  const fit = (grounds, tone) => { const t = grounds.reduce((t, g) => ink(g, 4.6, t, side), tone); return grounds.every(g => contrast(t, g) >= 4.5) ? t : tone }
   const row = g => mix(g, primary, dark ? .05 : .04), hovered = g => mix(g, primary, dark ? .1 : .08)
   const face = (g, under = row) => mix(under(g), primary, dark ? .11 : .1)
   // row labels, the separator eyebrow: the lightest tone that still reads 4.5:1 (AA text) on every ground a label
@@ -99,7 +102,7 @@ export default function studio({
   const label = fit([row, hovered, fill, g => fill(g, hovered), face, g => face(g, hovered)].flatMap(page), ink(shade, 4.5, { L: dark ? .66 : .5, C: nC, H }))
   const eyebrow = fit(page(g => g), mix(shade, label, .6))
   // values: a soft near-black (reference: #4c), held at 7:1 where a value lies darkest, a selected face
-  const value = [row, hovered, fill, face].reduce((t, g) => ink(g(shade), 7, t), { L: dark ? .93 : .4, C: nC, H })
+  const value = [row, hovered, fill, face].reduce((t, g) => ink(g(shade), 7, t, side), { L: dark ? .93 : .4, C: nC, H })
   const onButton = fit(page(g => face(g, g => g)), label)   /* a button is a face on the bare panel */
   // A placeholder, the tertiary tone (2.9:1 on its row), held the same way on the row and, in a textarea, on its face,
   // at rest and in a hovered or focused row (--row-hover)
@@ -112,7 +115,9 @@ export default function studio({
   const chevUpDown = `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L5 1 L9 5' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M1 9 L5 13 L9 9' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
   const check = `url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5 L4.5 8.5 L11 1.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`
 
-  const overrides = `.s-panel {
+  // --s-clear: how far the step dots keep clear of the label (registered, so it eases as the label fades)
+  const overrides = `@property --s-clear { syntax: '<length>'; inherits: true; initial-value: 0px; }
+.s-panel {
   ${metrics({ size, spacing, font }, { fontSize: 13, fontFamily: "-apple-system, system-ui, 'SF Pro Display', sans-serif", lineHeight: 18, controlHeight: 36, inset: 11, rowGap: 8.5, columnGap: 12, sectionGap: 12, panelPadding: 12 })}
 
   /* ── Ink (shade axis only – no accent; every state is lightness/alpha of one ink) ── */
@@ -134,7 +139,8 @@ export default function studio({
   --fill: ${wash(dark ? 15 : 10.5)};
   --edge: ${wash(dark ? 6 : 3)};
   --dot-active: ${wash(45)};
-  --mark: ${wash(dark ? 12 : 9)};   /* the chosen word of Off / On and of a segmented choice */
+  --mark: ${wash(dark ? 12 : 9)};
+  --swatch-edge: inset 0 0 0 1px ${wash(dark ? 30 : 18)};   /* the ink's own: shade on a light panel, light on a dark one */   /* the chosen word of Off / On and of a segmented choice */
 
   /* ── Scale ── */
   --weight: ${weight};
@@ -149,7 +155,7 @@ export default function studio({
      a band round the panel), so any shade keeps its hue in it and the band shows on a ground as dark as the sheet */
   background: var(--bg);
   border-radius: var(--r-panel);
-  box-shadow: 0 0 0 calc(7 * var(--length)) oklch(from var(--bg) calc(l + .14) c h / .3), var(--shadow);
+  box-shadow: 0 0 0 calc(7 * var(--length)) color-mix(in oklab, var(--bg), transparent 85%), var(--shadow);
   color: var(--ink-label);
   width: min(100%, var(--w));
   max-width: min(100%, var(--w));
@@ -217,7 +223,9 @@ export default function studio({
     &:has(input:active) { --handle: ${wash(95)}; .s-track::after { height: calc(24 * var(--length)); } }
     /* under the pointer, the steps show as dots along the whole row, under the fill and past it (DialKit's hashmarks,
        as dots), stronger in hand: one at every step, at every tenth past ten. Each step's cell draws half a dot at
-       either edge, so neighbouring cells meet in a whole dot on the step; a mask clears the ends and the value.
+       either edge, so neighbouring cells meet in a whole dot on the step; a mask clears the ends, the label and the value,
+       its edges midway between dots so no dot is cut. While the handle passes over the label the label steps aside and
+       its clearance with it (--s-clear eases to 0 as the label fades, in hand only), so the dots behind it show.
        A slider with marks keeps its own dots. */
     --step-dot: ${wash(dark ? 30 : 25)};
     &:has(input:active) { --step-dot: ${wash(45)}; }
@@ -226,9 +234,16 @@ export default function studio({
       background: radial-gradient(circle at 0 50%, var(--dot)), radial-gradient(circle at 100% 50%, var(--dot));
       /* each dot stands where the handle stands at that step: the handle's inset and half its width inside the fill's end */
       background-size: calc(100% / var(--n)) 100%; background-repeat: repeat-x; background-position: calc(-1 * var(--handle-x) - 1.5px) 0;
-      --along: linear-gradient(to right, transparent 2px, #000 0 calc(100% - var(--inset) - 5 * var(--space) - 4ch), transparent 0);
+      --cell: calc(100% / var(--n)); --at: calc(var(--handle-x) + 1.5px);   /* dot k stands at k cells less --at */
+      --from: calc(round(up, var(--s-clear) + var(--at), var(--cell)) - var(--at) - var(--cell) / 2);
+      --to: calc(round(down, min(100% - var(--inset) - 5 * var(--space) - 4ch, var(--s-value-start, 100%) - 4 * var(--space)) + var(--at), var(--cell)) - var(--at) + var(--cell) / 2);
+      --along: linear-gradient(to right, transparent var(--from), #000 0 var(--to), transparent 0);
       -webkit-mask: var(--along); mask: var(--along); }
+    input[type="range"] { --s-clear: max(2px, var(--s-label-end, 0px) + 4 * var(--space)); }
+    &:has(input:active) input[type="range"] { transition: --s-clear .15s; }   /* in hand only: a hover sets it at once */
+    &.s-over-label input[type="range"] { --s-clear: 0px; }
     input[type="range"] {
+      position: relative;   /* its step dots lie over the fill, as the marks do: under the pointer every step reads alike */
       -webkit-appearance: none; appearance: none; width: 100%; height: 100%; margin: 0; padding: 0;
       border-radius: var(--r); background: none; cursor: pointer;
       &::-webkit-slider-runnable-track { height: 100%; }
@@ -240,10 +255,13 @@ export default function studio({
     .s-marks, .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark-labels { display: none; } /* DialKit's hashmarks carry no text, dots only */
     /* Step dots mark the steps still ahead: those under the fill, and the end the
-       value sits over, are hidden (light reference, Width row). */
+       value sits over, are hidden at rest (light reference, Width row); under the pointer all show, over the fill. */
     .s-mark { position: absolute; top: 50%; width: calc(3 * var(--length)); height: calc(3 * var(--length)); border-radius: 50%; transform: translate(-50%, -50%); background: var(--border-hover); transition: background .2s; }
-    .s-mark.s-active, .s-marks:not(:has(~ .s-marks)) .s-mark { visibility: hidden; }
-    &:hover .s-mark, &:focus-within .s-mark { background: var(--dot-active); }
+    .s-mark:is(.s-active, .s-last) { visibility: hidden; }
+    &:is(:hover, :focus-within) .s-mark.s-active { visibility: visible; }   /* under the pointer, the steps behind too */
+    /* clear of the row's start, the label and the value, as the step dots are; the label's while it steps aside */
+    .s-mark:is(.s-first, .s-under-value), &:not(.s-over-label) .s-mark.s-under-label { visibility: hidden !important; }
+    &:hover .s-mark, &:focus-within .s-mark { background: var(--step-dot); }   /* as the step dots, stronger in hand */
     .s-readout { position: absolute; right: calc(var(--inset) + 5 * var(--space)); top: 50%; transform: translateY(-50%); z-index: 3; pointer-events: auto;
       background: transparent; border: none; padding: 0; field-sizing: content; width: auto; min-width: 1ch; max-width: 7ch; text-align: right;
       font-weight: var(--weight); color: var(--value); cursor: text;
@@ -364,9 +382,11 @@ export default function studio({
   /* ── Color: circular swatch (image 1/2 – DialKit's own source draws a rounded square) ── */
   .s-color {
     &.s-picker .s-color-input, &.s-rgba .s-color-input { justify-content: flex-end; gap: calc(8 * var(--space)); }
-    input[type="color"] { width: calc(22 * var(--length)); height: calc(22 * var(--length)); border-radius: 50%; border: 1px solid var(--border-hover); padding: 0; cursor: pointer;
+    /* a swatch's edge is the ink over its own colour, inside it: no grey ring round it */
+    input[type="color"] { width: calc(22 * var(--length)); height: calc(22 * var(--length)); border-radius: 50%; border: none; padding: 0; cursor: pointer;
       &::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; overflow: hidden; }
-      &::-webkit-color-swatch { border: none; }
+      &::-webkit-color-swatch { border: none; border-radius: 50%; box-shadow: var(--swatch-edge); }
+      &::-moz-color-swatch { border: none; border-radius: 50%; box-shadow: var(--swatch-edge); }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
     }
     /* the code reads first, then its colour: a value at the row's end, as every other row's is */
@@ -381,7 +401,7 @@ export default function studio({
     &.s-swatches > .s-label-group { flex: none; }
     &.s-swatches { padding-block: calc(8 * var(--space)); }
     &.s-swatches .s-input { flex-wrap: wrap; justify-content: flex-end; gap: calc(6 * var(--space)); }
-    &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); padding: 0; border-radius: 50%; border: 1px solid var(--border);
+    &.s-swatches button { width: calc(18 * var(--length)); height: calc(18 * var(--length)); padding: 0; border-radius: 50%; border: none; box-shadow: var(--swatch-edge);
       &.s-selected { outline: 2px solid var(--ink); outline-offset: 2px; }
       &:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
     }

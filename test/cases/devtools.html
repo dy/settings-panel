@@ -16,7 +16,7 @@
     import settings from '../../index.js'
     import { signal } from '../../signals.js'
     import devtools from '../../theme/devtools.js'
-    import { caseBar, appearance } from './case-bar.js'
+    import { caseBar, appearance } from '../../demo/cases/case-bar.js'
     const mode = signal(appearance('light'))
     const theme = () => devtools({ shade: mode.value === 'dark' ? '#282828' : '#ffffff', size: 11 / 13 })
     const defaults = { display: 'grid', 'font-size': 14, opacity: .85, color: '#1a73e8', visible: true, transform: 'translateY(0)', gap: 16, 'align-items': 'center' }

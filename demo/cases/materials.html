@@ -9,20 +9,17 @@
   </script>
   <style>
     /* The four material themes of the study they reproduce, in one of its finishes at a time (the bar's
-       switch): the page is the finish's surface; first the study itself, a row of keys per theme (a round
-       icon key and a pill) on the bare surface, then a panel per theme. */
+       switch): the page is the finish's surface, and on it the study itself, a row of keys per theme (a round
+       icon key and a pill) on the bare surface. */
     * { box-sizing: border-box; margin: 0; }
     html { scrollbar-width: none; }
     ::-webkit-scrollbar { display: none; }
     body { min-height: 100vh; display: grid; place-items: safe center; padding: 56px 24px 40px; font: 13px/1.5 system-ui, sans-serif; color: var(--caption); }
-    main { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 340px)); justify-content: center; gap: 40px 32px; width: 100%; max-width: 760px; margin: auto; }
-    .cell { display: grid; gap: 10px; align-content: start; }
-    .cell > p { font-size: 11px; letter-spacing: .02em; }
     /* the study's rows, in its proportions to a key's height h (measured on the graphite study): the round key
        h across, .79h to the pill, the pill 3.27h long, a row every 1.93h. Its keys are one size, h = 36px (--study-h), their
        lettering the study's 14px: each theme draws its keys at that control height, rounding and seating them in
        its own way; they lie on the bare surface, each row's panel keeping its theme's controls and dropping its plate */
-    #study { --study-h: 36px; display: grid; justify-items: center; margin-bottom: 72px; }
+    #study { --study-h: 36px; display: grid; justify-items: center; }
     #study .s-panel { background: none !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; backdrop-filter: none !important; width: auto !important; min-width: 0 !important; max-width: none !important; &::before, &::after { display: none !important; } }
     #study .s-panel-content { padding: 0 !important; }
     #study .s-control { padding: 0 !important; min-height: 0 !important; background: none !important; border: 0 !important; }
@@ -36,7 +33,6 @@
 <body>
   <div>
     <section id="study"></section>
-    <main id="main"></main>
   </div>
   <script type="module">
     import settings from '../../index.js'
@@ -46,7 +42,7 @@
 
     const finishes = { chalk: 'Chalk', bronze: 'Bronze', graphite: 'Graphite' }
     const rows = ['neu', 'glass', 'soft', 'skeu']
-    const main = document.getElementById('main'), study = document.getElementById('study')
+    const study = document.getElementById('study')
     let panels = []
 
     // The study's glyphs: a body at part strength, its sparkle at full, both in the key's ink
@@ -62,37 +58,17 @@
 
     const show = id => {
       panels.forEach(p => p[Symbol.dispose]())
-      main.replaceChildren()
       study.replaceChildren()
       const map = colormaps[id], t = surface(map.texture, map.shade)
       document.body.style.background = t ? `${t.image}, ${map.shade}` : map.shade
       document.body.style.backgroundBlendMode = t ? `${t.blend}, normal` : ''
       document.body.style.setProperty('--caption', map.ink)
-      const keys = rows.map((themeId, i) => {
-        const theme = byId[themeId], axes = { ...material(theme, colormaps[id]), accent: colormaps[id].accent, size: 14 / 13 }
+      panels = rows.map((themeId, i) => {
+        // size: the study's themes set their body at 14px; 14 / 13 draws them at it
+        const theme = byId[themeId], axes = { ...material(theme, map), accent: map.accent, size: 14 / 13 }
         return settings({ keys: { type: 'button', label: false, buttons: [{ icon: glyphs[words[i]], name: words[i], onClick() {} }, { text: words[i], onClick() {} }] } },
           { container: study.appendChild(document.createElement('div')), theme: theme.fn(axes) })
       })
-      panels = [...keys, ...rows.map(themeId => {
-        // size: the study's themes set their body at 14px; 14 / 13 draws them at it
-        const theme = byId[themeId], axes = { ...material(theme, map), accent: map.accent, size: 14 / 13 }
-        const cell = main.appendChild(document.createElement('div'))
-        cell.className = 'cell'
-        const host = cell.appendChild(document.createElement('div'))
-        cell.insertAdjacentHTML('beforeend', `<p>${theme.name} / ${map.name}</p>`)
-        const panel = settings({
-          preset: { type: 'select', value: 'Daylight', options: ['Daylight', 'Overcast', 'Evening'], label: 'Preset' },
-          name: { type: 'text', value: 'Aurora', label: 'Name' },
-          exposure: { type: 'slider', value: .35, min: -2, max: 2, step: .05, label: 'Exposure', unit: ' EV' },
-          quality: { type: 'select', variant: 'segmented', value: 'Fine', options: ['Draft', 'Fine', 'Ultra'], label: 'Quality' },
-          enabled: { type: 'boolean', variant: 'switch', value: true, label: 'Preview' },
-          actions: { type: 'button', label: false, buttons: {
-            Reset: { variant: 'secondary', onClick: () => Object.assign(panel, { preset: 'Daylight', name: 'Aurora', exposure: .35, quality: 'Fine', enabled: true }) },
-            Save: { onClick() {} },
-          } },
-        }, { container: host, title: theme.name, collapsed: false, theme: theme.fn(axes) })
-        return panel
-      })]
     }
 
     show(appearance('chalk', finishes))

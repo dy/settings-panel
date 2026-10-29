@@ -241,10 +241,10 @@ export default function swiss({
 
   /* ── Number ── */
   .s-number {
-    /* the stepper's chevrons end one value inset off the edge, where the select's does */
+    /* the stepper's chevrons end the row's own inset off its edge (the labels' at its start), where the select's does */
     .s-input {
       gap: calc(var(--u) * 2);
-      padding-right: calc(var(--u) * 4);
+      padding-right: var(--pad);
       align-items: center;
     }
     /* the field takes the cell, so any value reads whole; the steppers stand where the select's chevron does */
@@ -351,8 +351,8 @@ export default function swiss({
     /* an open cell like the fields, its chevron the stepper's */
     select {
       cursor: pointer;
-      padding-right: calc(var(--u) * 9);
-      background: ${selectChevron(ink)} right calc(var(--u) * 4) center / var(--glyph) no-repeat;
+      padding-right: calc(var(--pad) + var(--glyph) + var(--u) * 2);
+      background: ${selectChevron(ink)} right var(--pad) center / var(--glyph) no-repeat;
       &:focus-visible { outline: var(--hairline) solid var(--focus); outline-offset: calc(var(--hairline) * -1); }
     }
 
@@ -508,7 +508,7 @@ export default function swiss({
     .s-mark-labels { position: absolute; inset: 0; pointer-events: none; }
     .s-mark-label { position: absolute; top: calc(100% - var(--pad) / 2); transform: translateX(-50%); line-height: var(--lh); color: var(--dim); white-space: nowrap; &.s-active { color: inherit; } }
     .s-readout {
-      flex: none; align-self: center; width: 6ch; min-width: 6ch; padding: 0 calc(var(--u) * 4) 0 calc(var(--u) * 2); text-align: right;
+      flex: none; align-self: center; width: 6ch; min-width: 6ch; padding: 0 var(--pad) 0 calc(var(--u) * 2); text-align: right;
       @supports (field-sizing: content) { field-sizing: content; width: auto; }
       color: var(--dim);
       font-size: var(--size-readout);
@@ -580,7 +580,7 @@ export default function swiss({
     /* a heading row; the first row's rule closes it */
     > summary {
       min-height: var(--row);
-      padding: 0 calc(var(--u) * 4) 0 var(--pad);
+      padding: 0 var(--pad);
       display: flex; align-items: center;
       /* the fold's chevron, the select's and the stepper's glyph, at their inset */
       &::after { content: ''; display: block; flex: none; margin-left: auto; width: var(--glyph); height: var(--glyph); background: currentColor;

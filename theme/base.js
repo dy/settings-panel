@@ -441,11 +441,11 @@ export default `@layer s-base {
 .s-panel .s-icon + .s-button-text { margin-left: .45em; }
 .s-panel button:has(> .s-icon) { white-space: nowrap; }   /* an icon and its word never part */
 .s-panel .s-button button.s-icon-only { flex: none !important; width: auto !important; min-width: 0 !important; aspect-ratio: 1; padding: 0 !important; }   /* a theme's full-width keys would stretch the square */
-/* A scrub's trail, as Tweakpane draws its drag: from where the press began toward the pointer, a light dashed line
-   in the ink with a dot at its start and an arrowhead at its end, drawn in the row while the value is dragged */
-.s-panel .s-control:has(> .s-scrub-trail) { position: relative; }
-.s-panel .s-scrub-trail { position: absolute; z-index: 5; height: 2px; translate: 0 -50%; pointer-events: none;
-  color: color-mix(in oklab, currentColor 45%, transparent);
+/* A scrub's trail, one for every theme: from where the press began toward the pointer, a dotted line in the panel's
+   ink with a dot at its start and an arrowhead at its end, over the page (past the panel's edge, never clipped by it),
+   haloed by the panel's ground so it reads over the panel and beyond it */
+.s-scrub-trail { position: fixed; z-index: 2147483647; height: 2px; translate: 0 -50%; pointer-events: none;
+  filter: drop-shadow(0 0 1px var(--halo)) drop-shadow(0 0 1px var(--halo));
   background: radial-gradient(circle closest-side, currentColor 75%, transparent) 0 0 / 4px 2px repeat-x;
   &::before, &::after { content: ''; position: absolute; top: 50%; background: currentColor; }
   &::before { left: 0; width: 4px; height: 4px; border-radius: 50%; translate: -50% -50%; }

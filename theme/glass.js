@@ -118,8 +118,15 @@ export default function glass({
   // Secondary buttons and wells: clear glass, the edge without the body.
   const faceClear = `linear-gradient(180deg, ${lite(mixTo(L, top, 1) / 2)}, transparent ${fromTop(1)})`
   // Inset: the hairline edge (on top), the rim under the top edge, the caustic above the bottom one.
-  const edgeIn = `inset ${len(.75)} 0 0 ${flankC}, inset ${len(-.75)} 0 0 ${flankC}, inset 0 0 0 ${len(1)} ${edgeC}, inset 0 0 0 ${len(2)} ${lite(mixTo(L, Math.min(L + .02 * d, 1), 1))}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
-  const drop = `0 ${len(1)} ${len(2.5)} ${shadow(.045)}, 0 ${len(4)} ${len(9)} ${shadow(.055)}`
+  // the lower edge is darker where the glass thickens toward the pane (the study's Think key, a dark rim along its bottom)
+  const edgeIn = `inset 0 ${len(-1)} 0 ${deep(.15)}, inset ${len(.75)} 0 0 ${flankC}, inset ${len(-.75)} 0 0 ${flankC}, inset 0 0 0 ${len(1)} ${edgeC}, inset 0 0 0 ${len(2)} ${lite(mixTo(L, Math.min(L + .02 * d, 1), 1))}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
+  // A lens over the accent (an on switch or checkbox): its hairline is the accent lit (lighter, as saturated: white
+  // mixed in would grey a dark accent), and the rim and caustic light it as they light any lens; the pane's grey edge
+  // and pale inner ring would outline the colour instead of glazing it
+  const edgeOn = `inset 0 0 0 ${len(1)} var(--accent-lit), inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
+  // A knob is a bead of glass: its hairline the surface's shade at a sixth, so it never rings the bead in grey or black
+  const edgeBead = `inset 0 0 0 ${len(1)} ${deep(.15)}, inset 0 ${len(2.3)} ${len(.5)} ${rimC}, inset 0 ${len(-2)} ${len(.5)} ${caustic}`
+  const drop = `0 ${len(1)} ${len(2.5)} ${shadow(.03)}, 0 ${len(4)} ${len(9)} ${shadow(.055)}`
   const lift = `0 ${len(1.5)} ${len(3)} ${shadow(.08)}, 0 ${len(5)} ${len(11)} ${shadow(.07)}`
   const sheenFace = `linear-gradient(${lite(sheen)}, ${lite(sheen)})`
   const press = `linear-gradient(${deep(.08)}, ${deep(.08)})`
@@ -150,6 +157,7 @@ export default function glass({
 
   --bg: ${shade};
   --accent: ${acc};
+  --accent-lit: oklch(from var(--accent) calc(l + (1 - l) * .2) calc(c * 1.2) h);
   --on-accent: ${onAccent};
   --fg: ${fg};
   --fg-muted: ${fgMuted};
@@ -158,6 +166,8 @@ export default function glass({
   --lens-bright: ${faceBright};
   --lens-clear: ${faceClear};
   --lens-edge: ${edgeIn};
+  --lens-edge-on: ${edgeOn};
+  --lens-edge-bead: ${edgeBead};
   --lens-drop: ${drop};
   --lens-lift: ${lift};
   --lens-sheen: ${sheenFace};
@@ -167,10 +177,10 @@ export default function glass({
 
   --weight: ${weight};
   --roundness: ${roundness};
-  /* the family's roundness: controls are capsules at 1, squarer below; the pane is concentric with a capsule at its edge */
+  /* the family's roundness: controls are capsules at 1, squarer below; the pane rounds by a capsule's radius and a quarter of its padding */
   --round: min(1, var(--roundness));
   --h: var(--control-height);
-  --r: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
+  --r: calc((var(--h) / 2 + var(--panel-padding) / 4) * var(--roundness));
   --r-lens: calc(var(--h) / 2 * var(--round));
   --well-pad: calc(12 * var(--space));
   --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */
@@ -343,11 +353,12 @@ export default function glass({
     .s-input { cursor: pointer; }
     .s-track { position: relative; transition: background .2s, box-shadow .2s; }
     &:hover .s-track { background: var(--lens-sheen), var(--lens); }
-    &:has(input:checked) .s-track { background: var(--lens), var(--accent); }
+    &:has(input:checked) .s-track { background: var(--lens), var(--accent); box-shadow: var(--lens-edge-on); }
     &:has(input:focus-visible) .s-track { box-shadow: var(--lens-edge), var(--focus); }
+    &:has(input:checked:focus-visible) .s-track { box-shadow: var(--lens-edge-on), var(--focus); }
     &.s-switch .s-track { width: calc(var(--u) * 12.5); height: calc(var(--u) * 7); border-radius: calc(var(--u) * 3.5 * var(--round));
       /* the knob: a bright raised lens */
-      &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: calc(var(--u) * 2.75 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
+      &::after { content: ''; position: absolute; top: 50%; left: calc(var(--u) * 0.75); width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); transform: translateY(-50%); border-radius: calc(var(--u) * 2.75 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge-bead), var(--lens-drop); transition: left .2s cubic-bezier(.3, 1.2, .5, 1); } }
     &.s-switch:has(input:checked) .s-track::after { left: calc(100% - var(--u) * 6.25); }
     &.s-checkbox .s-track { display: grid; place-items: center; width: calc(var(--u) * 5.5); height: calc(var(--u) * 5.5); border-radius: calc(var(--u) * 1.6 * var(--round));
       &::after { content: ''; width: 60%; height: 55%; background: var(--on-accent); -webkit-mask: ${check} center / contain no-repeat; mask: ${check} center / contain no-repeat; opacity: 0; transform: scale(.6); transition: opacity .1s, transform .14s; } }
@@ -358,10 +369,13 @@ export default function glass({
   }
 
   /* ── Slider: a flush glass groove filled with the accent, a bright lens thumb; the colour's alpha slider is the same slider ──
-     the groove is thinner than the lens's bands are drawn for: its accent lies under clear glass, the lit top without the body */
+     the groove is thinner than the lens's bands are drawn for: its accent lies under clear glass, the lit top without the body;
+     under the groove's pale inner ring the fill is the accent lit, so the ring glazes it rather than greying a dark accent */
   .s-slider input[type="range"], .s-color .s-alpha {
     width: 100%; height: calc(var(--u) * 2); -webkit-appearance: none; appearance: none; border-radius: calc(var(--u) * var(--round)); cursor: pointer;
-    background: var(--lens-clear) 0 0 / var(--p, 0%) 100% no-repeat, linear-gradient(to right, var(--accent) 0 var(--p, 0%), transparent var(--p, 0%)), var(--lens);
+    background: var(--lens-clear) 0 0 / var(--p, 0%) 100% no-repeat,
+      linear-gradient(var(--accent), var(--accent)) ${len(2)} ${len(2)} / max(0px, var(--p, 0%) - ${len(4)}) calc(100% - ${len(4)}) no-repeat,
+      linear-gradient(to right, var(--accent-lit) 0 var(--p, 0%), transparent var(--p, 0%)), var(--lens);
     &::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; transition: transform .12s, box-shadow .12s; }
     &::-moz-range-thumb { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border: none; border-radius: calc(var(--u) * 2.5 * var(--round)); background: var(--lens-bright), var(--bg); box-shadow: var(--lens-edge), var(--lens-drop); cursor: grab; }
     &:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: var(--lens-edge), var(--lens-lift); }

@@ -195,7 +195,7 @@ Axes (palette and shape support varies):
 | roundness | 0–2 | `1` | corner radius |
 | weight | 100–900 | `400` | font weight |
 
-Theme-specific extras (the gallery exposes them as the selected theme's Theme controls):
+Theme-specific extras (the gallery shows the selected theme's under its preview):
 
 | Axis | Themes | What it does |
 |------|--------|-------------|

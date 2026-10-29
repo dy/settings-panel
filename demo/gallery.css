@@ -14,22 +14,21 @@
   svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   :where(a, button, input, select, summary, pre):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 }
-.app { height: calc(100svh - 32px); display: flex; flex-direction: column; max-width: 1660px; margin: var(--space-md) auto; background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-card); }
+/* The grey page holds panels: the header with the Look bar, the theme cards, and the preview */
+.app { min-height: 100svh; display: flex; flex-direction: column; max-width: 1660px; margin: 0 auto; }
 
 /* Look bar – global, theme-independent axes. Sticky so it stays reachable while
    either pane scrolls; inert (no scrolling ancestor) wherever nothing scrolls past it. */
-.look-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 13px; padding: 10px var(--space-md); border-bottom: 1px solid var(--color-rule); overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
-  /* Edge-fade scroll cue: a solid cover (scrolls with content, so it only shows at the
-     true start/end) sits over a fixed shadow (stays put), hiding the shadow once there's
-     nothing left to scroll to and revealing it while a cluster is still off-screen. Pure
-     CSS, no scroll listener needed, so it self-corrects if a cluster is ever added or removed. */
-  background:
-    linear-gradient(to right, var(--color-paper) 40%, transparent) 0 0 / 28px 100% no-repeat local,
-    linear-gradient(to left, var(--color-paper) 40%, transparent) 100% 0 / 28px 100% no-repeat local,
-    linear-gradient(to right, color-mix(in srgb, var(--color-ink), transparent 84%), transparent) 0 0 / 14px 100% no-repeat scroll,
-    linear-gradient(to left, color-mix(in srgb, var(--color-ink), transparent 84%), transparent) 100% 0 / 14px 100% no-repeat scroll
-    var(--color-paper);
-}
+/* One page scroll: the header and the Look bar stay at the top, the catalog runs down the page and the preview
+   stays beside it, scrolling in itself only where it is taller than the window */
+.app-head { position: sticky; top: 0; z-index: 5; padding-bottom: var(--space-sm); background: var(--color-page); }
+.look-bar { --bar-gap: 11px; display: flex; align-items: center; gap: var(--bar-gap); margin: 0 var(--space-md); padding: 10px 0; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: var(--space-md);
+  background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-card); }
+/* Edge fades: the bar's inline padding is two sticky fades, so the clusters fade into the panel's white at its edges
+   as they scroll past, and at rest the fades cover nothing (the gap beside each is cancelled) */
+.look-bar::before, .look-bar::after { content: ''; position: sticky; z-index: 1; flex: none; align-self: stretch; width: var(--space-md); margin: -10px 0; pointer-events: none; }
+.look-bar::before { left: 0; margin-right: calc(-1 * var(--bar-gap)); background: linear-gradient(to right, var(--color-paper), transparent); }
+.look-bar::after { right: 0; margin-left: calc(-1 * var(--bar-gap)); background: linear-gradient(to left, var(--color-paper), transparent); }
 .look-bar::-webkit-scrollbar { display: none; }
 .look-cluster { display: flex; align-items: center; gap: 7px; flex: none; scroll-snap-align: start; }
 .look-tag { font-size: 10px; font-weight: 600; color: var(--color-muted); white-space: nowrap; }
@@ -51,19 +50,12 @@
 .light-native { background: none; overflow: hidden; border-color: color-mix(in srgb, var(--color-ink), transparent 75%); }
 .light-glyph { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
-.workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
-.catalog { overflow-y: auto; scrollbar-width: thin; padding: var(--space-lg); min-width: 0; }
+.workspace { flex: 1; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.catalog { padding: var(--space-lg); min-width: 0; }
 .catalog-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-sm); margin-bottom: 25px; }
 h1, h2, p { margin: 0; }
 h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; letter-spacing: -1.2px; }
-.catalog-heading p { color: var(--color-muted); margin-top: 9px; font-size: 14px; }
 .theme-count { color: var(--color-muted); font-size: 11px; white-space: nowrap; padding-bottom: 2px; }
-.catalog-tools { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
-.search-field { display: flex; align-items: center; gap: 8px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); min-width: 0; flex: 1; padding: 0 10px; color: var(--color-muted); }
-.search-field svg { width: 16px; height: 16px; }
-.search-field input { width: 100%; min-width: 0; background: transparent; border: 0; height: 38px; color: var(--color-ink); font-size: 12px; outline: none; }
-.search-field:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.search-field input::placeholder { color: var(--color-muted); }
 .segments { display: inline-flex; align-items: center; padding: 3px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); min-width: 0; gap: 1px; }
 .segments button { flex: 1; border: 0; border-radius: 4px; background: transparent; padding: 7px 12px; font-size: 11px; line-height: 18px; color: var(--color-muted); font-weight: 500; white-space: nowrap; transition: background var(--dur-fast), color var(--dur-fast); }
 .segments button:hover { color: var(--color-ink); background: var(--color-subtle); }
@@ -84,16 +76,11 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .selected .theme-choice { color: var(--color-accent); }
 .selection-mark { position: absolute; right: 11px; top: 11px; width: 23px; height: 23px; background: var(--color-accent); color: var(--color-paper); border: 2px solid var(--color-paper); border-radius: 50%; display: grid; place-items: center; pointer-events: none; z-index: 1; }
 .selection-mark svg { width: 13px; height: 13px; stroke-width: 2; }
-.empty-state { padding: 60px 20px; text-align: center; color: var(--color-muted); }
-.empty-state .ui-button { margin-top: 14px; }
-.gallery-footnote { font-size: 11px; color: var(--color-muted); margin-top: var(--space-lg); }
-.gallery-footnote a { display: block; margin-top: 5px; text-decoration: underline; text-underline-offset: 3px; }
-.inspector { border-left: 1px solid var(--color-rule); padding: var(--space-lg); min-width: 0; overflow-y: auto; scrollbar-width: thin; }
-.inspector-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
-.eyebrow { font-size: 9px; letter-spacing: .15em; font-weight: 600; color: var(--color-muted); }
-.inspector h2 { font-size: 28px; line-height: 1.2; letter-spacing: -.9px; font-weight: 650; margin-top: 5px; }
+.inspector { position: sticky; top: calc(var(--app-head, 0px) + var(--space-lg)); align-self: start; max-height: calc(100svh - var(--app-head, 0px) - 2 * var(--space-lg)); margin: var(--space-lg) var(--space-lg) var(--space-lg) 0; padding: var(--space-lg); min-width: 0; overflow-y: auto; scrollbar-width: none; background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-card); }
+.inspector-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+.inspector h2 { font-size: 28px; line-height: 1.2; letter-spacing: -.9px; font-weight: 650; }
 .theme-description { font-size: 13px; color: var(--color-muted); margin-top: 8px; margin-bottom: 20px; }
-.preview-scene { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 470px; padding: 72px 28px 48px; border-radius: 9px; background: var(--scene-texture, none), var(--material-bg); background-blend-mode: var(--scene-blend, normal); isolation: isolate; }
+.preview-scene { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: clamp(320px, 100svh - var(--app-head, 0px) - 500px, 470px); padding: 28px; border-radius: 9px; background: var(--scene-texture, none), var(--material-bg); background-blend-mode: var(--scene-blend, normal); isolation: isolate; }
 .landscape { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; stroke: none; border-radius: inherit; overflow: hidden; display: none; }
 .preview-scene[data-surface=glass] .landscape { display: block; }
 .sky-top { stop-color: var(--scene-sky); }
@@ -103,10 +90,6 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .ridge-mid { fill: var(--scene-mid); }
 .ridge-near { fill: var(--scene-near); }
 .preview-scene[data-surface=porcelain] { background-image: url('./cases/marble.svg'); background-size: 600px; }
-.scene-toolbar { position: absolute; top: 18px; left: 20px; right: 20px; display: flex; align-items: center; justify-content: flex-end; z-index: 2; color: var(--scene-ink); }
-.scene-reset { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid color-mix(in srgb, var(--scene-ink), transparent 78%); background: color-mix(in srgb, var(--material-bg), transparent 60%); border-radius: 6px; color: inherit; }
-.scene-reset:hover { background: color-mix(in srgb, var(--material-bg), transparent 20%); }
-.scene-reset svg { width: 15px; height: 15px; }
 .live-panel { width: 100%; max-width: 380px; font-size: 14px; }
 .live-panel > .s-panel { min-width: 0; max-width: 100%; }
 .preview-feedback { position: absolute; bottom: 15px; font-size: 10px; color: var(--scene-ink); }
@@ -121,14 +104,9 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .range-axis input { width: 0; flex: 1; min-width: 0; height: 14px; accent-color: var(--color-accent); }
 .range-axis output { min-width: 30px; text-align: right; color: var(--color-muted); font-size: 11px; }
 
-/* Theme controls (extras) – the only per-theme UI left; everything else lives in the Look bar. */
+/* The selected theme's own axes (extras); the shared ones live in the Look bar. */
 .theme-extras { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--color-rule); }
-.extras-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
-.extras-heading h3 { font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--color-muted); }
-.extras-reset { border: 0; background: transparent; color: var(--color-muted); font-size: 11px; font-weight: 550; padding: 2px 0; text-decoration: underline; text-underline-offset: 3px; }
-.extras-reset:hover { color: var(--color-ink); }
-.extras-empty { margin-top: 12px; font-size: 12px; color: var(--color-muted); }
-.extras-grid { margin-top: 14px; display: grid; gap: 16px; }
+.extras-grid { display: grid; gap: 16px; }
 .extra-row { display: contents; }
 /* A fixed label column keeps every slider on one left edge. */
 .extras-grid .range-axis > span:first-child { flex: 0 0 104px; }
@@ -142,24 +120,23 @@ h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.15; font-weight: 650; l
 .extra-switch input:checked + .extra-track { background: var(--color-accent); }
 .extra-switch input:checked + .extra-track::after { transform: translateX(13px); }
 .extra-switch input:focus-visible + .extra-track { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.export-row { display: flex; align-items: center; gap: 9px; padding-top: var(--space-md); }
-.export-row > a { font-size: 11px; color: var(--color-muted); margin-right: auto; }
-.export-row > a:hover { color: var(--color-ink); }
+.export-row { display: flex; gap: 9px; }
 .ui-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: var(--color-paper); color: var(--color-ink); padding: 10px 16px; border: 1px solid var(--color-rule); border-radius: var(--radius-control); font-size: 12px; font-weight: 550; white-space: nowrap; }
 .ui-button:hover { background: var(--color-subtle); }
 .ui-button.primary { background: var(--color-ink); color: var(--color-paper); border-color: var(--color-ink); }
 .ui-button.primary:hover { background: color-mix(in srgb, var(--color-ink), var(--color-paper) 12%); }
 .icon-button { width: 38px; height: 38px; display: grid; place-items: center; flex: none; padding: 0; border: 1px solid var(--color-rule); background: transparent; border-radius: var(--radius-control); }
 .icon-button:hover { background: var(--color-subtle); }
-.copy-status { min-height: 20px; margin-top: 5px; font-size: 11px; color: var(--color-muted); }
 .skip-link { position: fixed; top: -100px; left: 15px; padding: 10px; background: var(--color-paper); z-index: 20; }
 .skip-link:focus { top: 10px; }
 dialog { width: min(640px, calc(100% - 32px)); max-height: calc(100svh - 40px); padding: 24px; border: 1px solid var(--color-rule); border-radius: var(--radius-card); color: var(--color-ink); background: var(--color-paper); }
 dialog::backdrop { background: var(--color-overlay); backdrop-filter: blur(3px); }
-.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+/* every control, in the selected theme: the controls page in a frame, the dialog's full height */
+.controls-dialog { width: min(560px, calc(100% - 32px)); height: calc(100svh - 40px); }
+.controls-dialog[open] { display: flex; flex-direction: column; }
+.controls-dialog iframe { flex: 1; width: 100%; border: 0; border-radius: var(--radius-control); }
 .dialog-heading h2 { font-size: 22px; letter-spacing: -.6px; }
-dialog > p { color: var(--color-muted); font-size: 12px; margin: 12px 0 20px; }
-.code-tabs { margin-bottom: 14px; }
 dialog pre { overflow: auto; max-height: 45svh; background: var(--color-subtle); border: 1px solid var(--color-rule); border-radius: var(--radius-control); padding: 18px; margin: 0 0 20px; font: 12px/1.65 var(--font-mono); tab-size: 2; }
 .dialog-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 #code-status { font-size: 11px; color: var(--color-muted); }
@@ -168,49 +145,36 @@ dialog pre { overflow: auto; max-height: 45svh; background: var(--color-subtle);
 @media (max-width: 1699px) { .app { margin: 16px; } }
 @media (max-width: 1200px) {
   .catalog, .inspector { padding: 22px; }
-  .catalog-tools { flex-wrap: wrap; }
-  .search-field { flex-basis: 100%; }
-  .filters { width: 100%; }
   .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .swatches { gap: 10px; }
   .preview-scene { padding-inline: 22px; }
-  .look-bar { padding-inline: 22px; }
+  .look-bar { margin-inline: 22px; }
 }
 @media (max-width: 820px) {
-  .app { margin: 0; border: 0; border-radius: 0; height: auto; }
   .workspace { grid-template-columns: minmax(0, 1fr); }
   .catalog, .inspector { overflow: visible; }
-  .inspector { position: relative; top: auto; border-left: 0; border-bottom: 1px solid var(--color-rule); grid-row: 1; padding: 24px; }
-  .inspector-heading, .theme-description, .preview-scene, .theme-extras, .export-row, .copy-status { max-width: 580px; margin-left: auto; margin-right: auto; }
+  .inspector { position: relative; top: auto; max-height: none; margin: 16px 16px 0; grid-row: 1; padding: 24px; }
+  .inspector-heading, .theme-description, .preview-scene, .theme-extras { max-width: 580px; margin-left: auto; margin-right: auto; }
   .preview-scene { min-height: 440px; }
   .catalog { padding: 28px 24px; }
   .theme-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .catalog-tools { flex-wrap: nowrap; }
-  .search-field { flex-basis: auto; }
-  .filters { width: auto; }
-  .look-bar { padding-inline: 22px; gap: 16px; }
+  .look-bar { margin-inline: 16px; --bar-gap: 16px; }
 }
 @media (max-width: 520px) {
-  .inspector { padding: 20px 16px 12px; }
-  .preview-scene { padding: 66px 16px 44px; min-height: 420px; }
+  .inspector { margin: 8px 8px 0; padding: 16px 12px; }
+  .preview-scene { padding: 40px 8px; min-height: 420px; }
   .live-panel { font-size: 13px; }
-  .scene-toolbar { left: 16px; right: 16px; }
   .inspector h2 { font-size: 26px; }
   .catalog { padding: 24px 16px; }
-  .catalog-tools { flex-wrap: wrap; }
-  .search-field { flex-basis: 100%; }
-  .filters { width: 100%; }
   .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .thumbnail { height: 172px; }
   .card-category { display: none; }
   .swatches { gap: 10px; }
   .swatch, .custom-accent { width: 25px; height: 25px; }
   .segments button { padding-inline: 8px; }
-  .look-bar { padding-inline: 16px; gap: 14px; }
+  .look-bar { margin-inline: 8px; --bar-gap: 14px; }
   .look-bar .range-axis input[type=range] { width: 58px; }
-  .export-row > a { font-size: 10px; white-space: nowrap; }
   .ui-button { padding-inline: 12px; }
-  .catalog-heading p { font-size: 12px; }
   h1 { font-size: 28px; }
 }
 @media (prefers-reduced-motion: reduce) {

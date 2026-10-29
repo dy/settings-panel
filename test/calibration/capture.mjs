@@ -95,15 +95,15 @@ const CASES = {
   // the picture's own pixels, recorded).
   'study-graphite': study('graphite', .519, [155, 92]),
   'study-bronze': study('bronze', .59, [157, 95]),
-  'study-chalk': study('chalk', .499, [12, 21]),
+  'study-chalk': study('chalk', .51, [20, 29]),
   // Studio is an original, held to the owner's shot of the reference it was drawn from (rows, gaps, insets)
   studio: { mode: 'image', page: 'demo/cases/studio.html', viewport: [900, 1000], at: [0, 0], source: "the owner's shot of the light reference (Text / Layout / Path), its sheet cropped at 66, 114 and scaled ×0.5372: the sheet down to its last row" },
   // Pictures of designs the owner supplied, each drawn by the closest theme; scaled and cropped to our render
-  dashboard: { mode: 'image', page: 'demo/cases/dashboard.html', viewport: [1000, 800], at: [0, -30], source: "Demo Dashboard (owner's image ×1.008, cropped at 4, 2): the window, its title bar and tiles" },
-  send: { mode: 'image', page: 'demo/cases/send.html', viewport: [900, 900], at: [-12, -12], source: "Send Money dialog (owner's image ×0.998, cropped at 2, 71): the dialog" },
-  push: { mode: 'image', page: 'demo/cases/push.html', viewport: [800, 800], at: [-15, -40], source: "push the button in figma, yodiz × zaykina (owner's image ×0.955, cropped at 355, 341): the round key" },
-  workflow: { mode: 'image', page: 'demo/cases/workflow.html', viewport: [900, 1100], at: [0, 0], source: "automation builder's Actions palette (owner's image, cropped at 240, 378): the palette" },
-  inspector: { mode: 'image', page: 'demo/cases/inspector.html', viewport: [900, 1000], at: [0, 0], source: "visual CSS editor's Edit element panel (owner's image cropped at 2493, 1136, ×0.523): the panel's top, as far as the picture shows it" },
+  dashboard: { mode: 'image', page: 'test/cases/dashboard.html', viewport: [1000, 800], at: [0, -30], source: "Demo Dashboard (owner's image ×1.008, cropped at 4, 2): the window, its title bar and tiles" },
+  send: { mode: 'image', page: 'test/cases/send.html', viewport: [900, 900], at: [-12, -12], source: "Send Money dialog (owner's image ×0.998, cropped at 2, 71): the dialog" },
+  push: { mode: 'image', page: 'test/cases/push.html', viewport: [800, 800], at: [-15, -40], source: "push the button in figma, yodiz × zaykina (owner's image ×0.955, cropped at 355, 341): the round key" },
+  workflow: { mode: 'image', page: 'test/cases/workflow.html', viewport: [900, 1100], at: [0, 0], source: "automation builder's Actions palette (owner's image, cropped at 240, 378): the palette" },
+  inspector: { mode: 'image', page: 'test/cases/inspector.html', viewport: [900, 1000], at: [0, 0], source: "visual CSS editor's Edit element panel (owner's image cropped at 2493, 1136, ×0.523): the panel's top, as far as the picture shows it" },
 }
 
 function imgui(scheme) {
@@ -118,13 +118,13 @@ function imgui(scheme) {
 }
 function dialkit(hash, rect, at, part, all) {
   const [page, ref] = all ? ['dialkit-all', 'dialkit-all-ref'] : ['dialkit', 'dialkit-ref']
-  return { mode: 'page', page: `demo/cases/${page}.html` + hash, viewport: [1100, 1000], original: `demo/_ref/${ref}.html` + hash, steps: [['wait', 800]], rect, at,
+  return { mode: 'page', page: `${all ? 'test' : 'demo'}/cases/${page}.html` + hash, viewport: [1100, 1000], original: `demo/_ref/${ref}.html` + hash, steps: [['wait', 800]], rect, at,
     source: `DialKit 2.0.2 vanilla build, ${all ? 'one of each control' : 'its README example'}, popover${hash ? ', light' : ''}, demo/_ref/${ref}.html: ${part}` }
 }
 function synth(scheme) {
   const panel = '.components_embeds_subtractive-synth__panel'
   return {
-    mode: 'page', page: 'demo/cases/ableton.html' + (scheme === 'dark' ? '#dark' : ''), viewport: [1440, 900], scheme, until: 'load',
+    mode: 'page', page: 'test/cases/ableton.html' + (scheme === 'dark' ? '#dark' : ''), viewport: [1440, 900], scheme, until: 'load',
     original: 'https://learningsynths.ableton.com/en/playground', region: panel,
     steps: [['waitFor', '#lfo-panel .components_control__slider'], ['wait', 5000], ['click', 'Close'], ['wait', 1500],
       ['eval', `window.requestAnimationFrame = () => 0
@@ -180,12 +180,12 @@ function macintosh([x, y, width, height], at, part) {
 // `rect` (image px; even sizes, origins chosen so each part lands on whole CSS px of ours) into
 // industrial-<part>.png; the chassis' top-left corner is image (35, 41).
 function industrial(rect, at, part) {
-  return { mode: 'image', page: 'demo/cases/industrial.html', at, source: `DMX-FIELD mockup (owner's image, 2x) cropped at ${rect.join(', ')}: ${part}` }
+  return { mode: 'image', page: 'test/cases/industrial.html', at, source: `DMX-FIELD mockup (owner's image, 2x) cropped at ${rect.join(', ')}: ${part}` }
 }
 
-// the study strip sits 222px right of and 40px above the case's panels' union (its rows, padded 40px)
+// the picture's crop sits 39.4px left of and 40px above the study's rows (their panels' union)
 function study(finish, scale, [x, y]) {
-  return { mode: 'image', page: 'demo/cases/materials.html#' + finish, viewport: [1100, 1000], at: [222, -40], source: `material study, ${finish} (owner's image ×${scale}, cropped at ${x}, ${y}): the four rows of keys` }
+  return { mode: 'image', page: 'demo/cases/materials.html#' + finish, viewport: [1100, 1000], at: [-39.4375, -40], source: `material study, ${finish} (owner's image ×${scale}, cropped at ${x}, ${y}): the four rows of keys` }
 }
 
 const manifestUrl = new URL('manifest.json', DIR)

@@ -44,7 +44,7 @@
         "width": 364,
         "height": 388
       },
-      "budget": 8565,
+      "budget": 7787,
       "source": "control-panel 1.3.4, demo/_ref/cp-ref.html",
       "mode": "switch"
     },
@@ -60,7 +60,7 @@
         "width": 364,
         "height": 388
       },
-      "budget": 9876,
+      "budget": 6894,
       "source": "control-panel 1.3.4, light shade",
       "mode": "switch"
     },
@@ -219,7 +219,7 @@
       "mode": "page"
     },
     "ableton": {
-      "page": "demo/cases/ableton.html",
+      "page": "test/cases/ableton.html",
       "viewport": [
         1440,
         900
@@ -235,7 +235,7 @@
       "mode": "page"
     },
     "ableton-dark": {
-      "page": "demo/cases/ableton.html#dark",
+      "page": "test/cases/ableton.html#dark",
       "viewport": [
         1440,
         900
@@ -507,7 +507,7 @@
       "mode": "page"
     },
     "industrial-top": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -523,7 +523,7 @@
       "mode": "image"
     },
     "industrial-screen-top": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -539,7 +539,7 @@
       "mode": "image"
     },
     "industrial-screen-bottom": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -555,7 +555,7 @@
       "mode": "image"
     },
     "industrial-keys": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -571,7 +571,7 @@
       "mode": "image"
     },
     "industrial-encoders": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -587,7 +587,7 @@
       "mode": "image"
     },
     "industrial-master": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -603,7 +603,7 @@
       "mode": "image"
     },
     "industrial-faders": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -619,7 +619,7 @@
       "mode": "image"
     },
     "industrial-bottom": {
-      "page": "demo/cases/industrial.html",
+      "page": "test/cases/industrial.html",
       "viewport": [
         1100,
         800
@@ -706,11 +706,11 @@
       ],
       "clip": {
         "x": 416,
-        "y": 16,
+        "y": 345.796875,
         "width": 268,
         "height": 324
       },
-      "budget": 19352,
+      "budget": 20069,
       "source": "material study, graphite (owner's image ×0.519, cropped at 155, 92): the four rows of keys",
       "mode": "image"
     },
@@ -722,11 +722,11 @@
       ],
       "clip": {
         "x": 416,
-        "y": 16,
+        "y": 345.796875,
         "width": 268,
         "height": 324
       },
-      "budget": 43085,
+      "budget": 47144,
       "source": "material study, bronze (owner's image ×0.59, cropped at 157, 95): the four rows of keys",
       "mode": "image"
     },
@@ -738,16 +738,16 @@
       ],
       "clip": {
         "x": 416,
-        "y": 16,
+        "y": 345.796875,
         "width": 268,
         "height": 324
       },
-      "budget": 12499,
-      "source": "material study, chalk (owner's image ×0.499, cropped at 12, 21): the four rows of keys",
+      "budget": 16528,
+      "source": "material study, chalk (owner's image ×0.51, cropped at 20, 29): the four rows of keys",
       "mode": "image"
     },
     "dashboard": {
-      "page": "demo/cases/dashboard.html",
+      "page": "test/cases/dashboard.html",
       "viewport": [
         1000,
         800
@@ -763,7 +763,7 @@
       "mode": "image"
     },
     "send": {
-      "page": "demo/cases/send.html",
+      "page": "test/cases/send.html",
       "viewport": [
         900,
         900
@@ -779,7 +779,7 @@
       "mode": "image"
     },
     "push": {
-      "page": "demo/cases/push.html",
+      "page": "test/cases/push.html",
       "viewport": [
         800,
         800
@@ -790,12 +790,12 @@
         "width": 347,
         "height": 347
       },
-      "budget": 237508,
+      "budget": 242097,
       "source": "push the button in figma, yodiz × zaykina (owner's image ×0.955, cropped at 355, 341): the round key",
       "mode": "image"
     },
     "workflow": {
-      "page": "demo/cases/workflow.html",
+      "page": "test/cases/workflow.html",
       "viewport": [
         900,
         1100
@@ -806,12 +806,12 @@
         "width": 416,
         "height": 713
       },
-      "budget": 530410,
+      "budget": 530716,
       "source": "automation builder's Actions palette (owner's image, cropped at 240, 378): the palette",
       "mode": "image"
     },
     "inspector": {
-      "page": "demo/cases/inspector.html",
+      "page": "test/cases/inspector.html",
       "viewport": [
         900,
         1000
@@ -838,12 +838,12 @@
         "width": 300,
         "height": 571
       },
-      "budget": 29497,
+      "budget": 29715,
       "source": "the owner's shot of the light reference (Text / Layout / Path), its sheet cropped at 66, 114 and scaled ×0.5372: the sheet down to its last row",
       "mode": "image"
     },
     "dialkit-controls": {
-      "page": "demo/cases/dialkit-all.html",
+      "page": "test/cases/dialkit-all.html",
       "viewport": [
         1100,
         1000
@@ -859,7 +859,7 @@
       "mode": "page"
     },
     "dialkit-controls-light": {
-      "page": "demo/cases/dialkit-all.html#light",
+      "page": "test/cases/dialkit-all.html#light",
       "viewport": [
         1100,
         1000

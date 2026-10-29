@@ -8,17 +8,17 @@ test.beforeEach(async ({ page }) => {
 })
 
 const cases = [
-  { name: 'devtools', path: '/demo/cases/devtools.html' },
-  { name: 'devtools-dark', path: '/demo/cases/devtools.html#dark' },
+  { name: 'devtools', path: '/test/cases/devtools.html' },
+  { name: 'devtools-dark', path: '/test/cases/devtools.html#dark' },
   { name: 'swiss', path: '/demo/cases/swiss.html', width: 1280 },
   { name: 'control-panel', path: '/demo/cases/control-panel.html' },
   { name: 'control-panel-light', path: '/demo/cases/control-panel.html#shade=ebebeb' },
-  { name: 'skeu', path: '/demo/cases/skeu.html' },
+  { name: 'skeu', path: '/test/cases/skeu.html' },
   { name: 'lab01', path: '/demo/cases/lab01.html' },
-  { name: 'brutal', path: '/demo/cases/brutal.html' },
-  { name: 'neu', path: '/demo/cases/neu.html' },
-  { name: 'glass', path: '/demo/cases/glass.html' },
-  { name: 'terminal', path: '/demo/cases/terminal.html' },
+  { name: 'brutal', path: '/test/cases/brutal.html' },
+  { name: 'neu', path: '/test/cases/neu.html' },
+  { name: 'glass', path: '/test/cases/glass.html' },
+  { name: 'terminal', path: '/test/cases/terminal.html' },
   { name: 'dat', path: '/demo/cases/dat.html' },
   { name: 'tweakpane', path: '/demo/cases/tweakpane.html' },
   { name: 'dialkit', path: '/demo/cases/dialkit.html' },
@@ -27,21 +27,20 @@ const cases = [
   { name: 'controlkit', path: '/demo/cases/controlkit.html' },
   { name: 'uil', path: '/demo/cases/uil.html' },
   { name: 'oui', path: '/demo/cases/oui.html' },
-  { name: 'figma', path: '/demo/cases/figma.html' },
-  { name: 'apple', path: '/demo/cases/apple.html' },
+  { name: 'figma', path: '/test/cases/figma.html' },
+  { name: 'apple', path: '/test/cases/apple.html' },
   { name: 'studio', path: '/demo/cases/studio.html' },
   { name: 'editorial', path: '/demo/cases/editorial.html' },
-  { name: 'ableton', path: '/demo/cases/ableton.html', width: 1280, fullPage: true },
-  { name: 'ableton-dark', path: '/demo/cases/ableton.html#dark', width: 1280, fullPage: true },
+  { name: 'ableton', path: '/test/cases/ableton.html', width: 1280, fullPage: true },
+  { name: 'ableton-dark', path: '/test/cases/ableton.html#dark', width: 1280, fullPage: true },
   { name: 'imgui', path: '/demo/cases/imgui.html' },
   { name: 'imgui-light', path: '/demo/cases/imgui.html#light' },
   { name: 'win98', path: '/demo/cases/win98.html' },
   { name: 'macintosh', path: '/demo/cases/macintosh.html' },
-  { name: 'industrial', path: '/demo/cases/industrial.html', width: 1000 },
-  { name: 'industrial-dark', path: '/demo/cases/industrial.html#dark', width: 1000 },
+  { name: 'industrial', path: '/test/cases/industrial.html', width: 1000 },
+  { name: 'industrial-dark', path: '/test/cases/industrial.html#dark', width: 1000 },
   { name: 'materials', path: '/demo/cases/materials.html', width: 1200, fullPage: true },
   { name: 'porcelain', path: '/demo/cases/variants#porcelain' },
-  { name: 'soft', path: '/demo/cases/variants#soft' },
 ]
 
 test.describe('interval slider readout keyboard', () => {
@@ -161,7 +160,7 @@ test.describe('interval slider readout keyboard', () => {
 // Vector inputs commit on change, not input — oninput writeback re-rendered
 // :value into the focused field, mangling typed digits (e.g. "12.5" → "512").
 test('vector input typing is not mangled', async ({ page }) => {
-  await page.goto('/demo/cases/figma.html')
+  await page.goto('/test/cases/figma.html')
   await page.waitForLoadState('networkidle')
   const inp = page.locator('.s-vec-axis input').first()
   await inp.click({ clickCount: 3 })

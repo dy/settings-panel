@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test'
 import { contrast } from '../theme/color.js'
 
-const variants = ['porcelain', 'soft']
+const variants = ['porcelain']
+// a case page: the public cases, or the fixtures the tests keep (test/cases)
+const caseOf = name => ['dialkit', 'studio', 'lab01', 'uil', 'leva'].includes(name) ? `/demo/cases/${name}` : `/test/cases/${name}`
 const demos = ['glass', 'neu', 'brutal', 'lab01', 'apple', 'figma', 'uil', 'leva']
 
 for (const name of [...demos, ...variants]) {
-  const path = variants.includes(name) ? `/demo/cases/variants#${name}` : `/demo/cases/${name}`
+  const path = variants.includes(name) ? `/demo/cases/variants#${name}` : caseOf(name)
   test(`${name}: fits narrow hosts and preserves control geometry`, async ({ page }) => {
     await page.goto(path)
     await expect(page.locator('.s-panel')).toBeVisible()
@@ -154,7 +156,7 @@ test('Lab01 inputs share the inactive toggle track; fonts, color editing and sli
     })
     for (const actual of recesses.actual) expect(actual).toEqual(recesses.expected)
   }
-  await page.getByRole('button', { name: 'Reset preview values' }).click()
+  await live.getByRole('button', { name: 'Reset', exact: true }).click()
   await expect(range).toHaveValue('82')
   await expect(toggle).toBeChecked()
   await expect(live.locator('input[type=color]')).toHaveValue('#8b80f9')
@@ -279,7 +281,7 @@ test('glass works without a document SVG and letters its buttons in a legible in
   })
   expect(surface.backdrop).toContain('blur(24px)')
   expect(surface.filter).toBe('none')
-  await page.goto('/demo/cases/glass')
+  await page.goto('/test/cases/glass')
   const { ink, bg, button } = await page.locator('.s-panel').evaluate(el => ({
     ink: getComputedStyle(el).color, bg: getComputedStyle(el).getPropertyValue('--bg').trim(),
     button: getComputedStyle(el.querySelector('.s-button button')).color,
@@ -290,7 +292,7 @@ test('glass works without a document SVG and letters its buttons in a legible in
 })
 
 test('Apple appearance and accent controls update its theme', async ({ page }) => {
-  await page.goto('/demo/cases/apple')
+  await page.goto('/test/cases/apple')
   await page.getByRole('button', { name: 'Dark', exact: true }).click()
   await expect(page.locator('.s-panel')).toHaveCSS('color-scheme', 'dark')
   await page.getByRole('button', { name: 'Light', exact: true }).click()
@@ -300,7 +302,7 @@ test('Apple appearance and accent controls update its theme', async ({ page }) =
 for (const name of ['glass', 'neu', 'brutal']) {
   test(`${name}: open content keeps focus rings and shadows; narrow search fits`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 })
-    await page.goto(`/demo/cases/${name}`)
+    await page.goto(caseOf(name))
     expect(await page.locator('.s-panel').evaluate(el => getComputedStyle(el, '::details-content').overflow)).toBe('visible')
     await page.getByRole('button', { name: 'Filter controls' }).click()
     await expect(page.locator('.s-search-input')).toBeFocused()
@@ -311,13 +313,13 @@ for (const name of ['glass', 'neu', 'brutal']) {
 
 test('reduced motion disables panel and control transitions', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/demo/cases/neu')
+  await page.goto('/test/cases/neu')
   await expect(page.locator('.s-button button')).toHaveCSS('transition-duration', '0s')
   expect(await page.locator('.s-panel').evaluate(el => getComputedStyle(el, '::details-content').transitionDuration)).toBe('0s')
 })
 
 test('collapsed content is skipped by keyboard navigation', async ({ page }) => {
-  await page.goto('/demo/cases/neu')
+  await page.goto('/test/cases/neu')
   await page.locator('.s-panel > summary').click()
   await expect(page.locator('[data-key=name] input')).toBeHidden()
   for (let i = 0; i < 5; i++) {
@@ -329,7 +331,7 @@ test('collapsed content is skipped by keyboard navigation', async ({ page }) => 
 for (const reducedMotion of ['no-preference', 'reduce']) {
   test(`nested folder retains values through repeated collapse (${reducedMotion})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion })
-    await page.goto('/demo/cases/neu')
+    await page.goto('/test/cases/neu')
     const folder = page.locator('.s-folder').filter({ has: page.getByText('Lore', { exact: true }) })
     const age = folder.locator('input[type=number]')
     await expect(age).toBeHidden()
@@ -382,7 +384,7 @@ test('Tweakpane folder preserves the visibility transition and values across col
 
 test('Neu material axes keep solid faces, independent depth, and a reversible light direction', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/demo/cases/neu')
+  await page.goto('/test/cases/neu')
   await page.locator('.s-folder > summary').filter({ hasText: 'Material' }).click()
   const axis = key => page.locator(`[data-key="${key}"] input[type=range]`)
   const panel = page.locator('.s-panel')
@@ -526,7 +528,7 @@ test.describe('ink in a groove', () => {
 // Labels as handles: a number's label and a vector's axis letters drag their value (Figma, Blender);
 // a click without a drag focuses the field, as a label's click does
 test('figma: dragging a number label or an axis letter scrubs its value, a click focuses the field', async ({ page }) => {
-  await page.goto('/demo/cases/figma')
+  await page.goto('/test/cases/figma')
   const rotation = page.locator('[data-key="rotation"]'), field = rotation.locator('input')
   const label = await rotation.locator('.s-label').boundingBox()
   await page.mouse.move(label.x + 4, label.y + label.height / 2)
@@ -548,7 +550,7 @@ test('figma: dragging a number label or an axis letter scrubs its value, a click
 
 // The row is the hit target: a dropdown's label opens its menu, in themes that draw the menu and those that don't
 for (const name of ['dialkit', 'studio', 'figma']) test(`${name}: a click on a dropdown's label opens its menu`, async ({ page }) => {
-  await page.goto(`/demo/cases/${name}`)
+  await page.goto(caseOf(name))
   const row = page.locator('.s-select.s-dropdown').first()
   await row.locator('.s-label').click()
   expect(await row.locator('select').evaluate(s => s.matches(':open'))).toBe(true)
@@ -576,7 +578,7 @@ test('dialkit: text wraps a long value and grows its row; Enter breaks the line'
 
 // A theme that doesn't ask for wrapping keeps the single-line input
 test('glass: text stays a single-line input', async ({ page }) => {
-  await page.goto('/demo/cases/glass')
+  await page.goto('/test/cases/glass')
   await expect(page.locator('.s-text input[type=text]').first()).toBeVisible()
   await expect(page.locator('.s-text textarea')).toHaveCount(0)
 })
@@ -625,7 +627,7 @@ test('a scrub hides the pointer and a slider drag turns its transitions off, bot
   await page.mouse.up()
   expect(await track.evaluate(t => getComputedStyle(t).transitionDuration)).not.toBe('0s')
 
-  await page.goto('/demo/cases/figma')
+  await page.goto('/test/cases/figma')
   const label = await page.locator('[data-key="rotation"] .s-label').boundingBox()
   await page.mouse.move(label.x + 4, label.y + 4)
   await page.mouse.down()
@@ -805,19 +807,37 @@ test('studio: a slider readout hugs its value', async ({ page }) => {
   for (const d of over) expect(d).toBeLessThan(2)
 })
 
-// A scrub draws its change: a trail in the row from the press to the pointer, gone when the drag ends
-test('a scrub draws a trail from where it began to the pointer, and clears it', async ({ page }) => {
-  await page.goto('/demo/cases/figma')
-  const label = await page.locator('[data-key="rotation"] .s-label').boundingBox()
-  await page.mouse.move(label.x + 4, label.y + 4)
-  await page.mouse.down()
-  await page.mouse.move(label.x + 44, label.y + 4, { steps: 4 })
-  const trail = page.locator('[data-key="rotation"] .s-scrub-trail')
-  await expect(trail).toHaveCount(1)
-  expect(Math.round((await trail.boundingBox()).width)).toBe(40)
-  await page.mouse.up()
-  await expect(trail).toHaveCount(0)
-})
+// A scrub draws its change: one trail for every theme, over the page from the press to the pointer, past the panel's
+// edge, in the panel's ink; gone when the drag ends
+for (const [path, sel] of [['/test/cases/figma', '[data-key="rotation"] .s-label'], ['/demo/cases/tweakpane', 'input.s-scrub'], ['/demo/cases/dialkit', '.s-vec-label:not([hidden])']]) {
+  test(`a scrub draws a trail from where it began to the pointer, past the panel, and clears it: ${path}`, async ({ page }) => {
+    await page.goto(path)
+    const target = page.locator(sel).first()
+    const at = await target.boundingBox(), panel = await page.locator('.s-panel').first().boundingBox()
+    const x = at.x + 4, y = at.y + at.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + 44, y, { steps: 4 })
+    const trail = page.locator('body > .s-scrub-trail')
+    await expect(trail).toHaveCount(1)
+    expect((await trail.boundingBox()).width).toBeCloseTo(44, 0)
+    await page.mouse.move(panel.x + panel.width + 60, y, { steps: 6 })
+    const end = await trail.boundingBox()
+    expect(end.x + end.width).toBeGreaterThan(panel.x + panel.width + 50)
+    expect(await trail.evaluate(el => el.style.color)).not.toBe('')
+    await page.mouse.up()
+    await expect(trail).toHaveCount(0)
+    // a drag cut short (the window loses focus) clears it too, and a drag under 3px never draws one
+    await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 30, y, { steps: 3 })
+    await expect(trail).toHaveCount(1)
+    await page.evaluate(() => dispatchEvent(new Event('blur')))
+    await expect(trail).toHaveCount(0)
+    await page.mouse.up()
+    await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 2, y)
+    await expect(trail).toHaveCount(0)
+    await page.mouse.up()
+  })
+}
 
 // Studio: in hand, a slider's label steps aside only while the handle is over it
 test('studio: a dragged slider hides its label only while the handle passes over it', async ({ page }) => {
@@ -860,4 +880,46 @@ test('studio: a press anywhere on a range moves its nearer handle there', async 
   await expect(row).toHaveClass(/s-over-label/)
   await page.mouse.up()
   await expect(row).not.toHaveClass(/s-over-label/)
+})
+
+// A slider row carries where its label ends and its value begins along the track once the pointer is on it; studio keeps
+// its step dots clear of both
+test('studio: the step dots stay clear of the slider\'s label and value', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const row = page.locator('.s-slider:not(.s-multiple)').first(), box = await row.boundingBox()
+  await page.mouse.move(box.x + box.width * .5, box.y + box.height / 2)
+  const m = await row.evaluate(el => {
+    const t = el.querySelector('.s-track').getBoundingClientRect(), l = el.querySelector('.s-label').getBoundingClientRect(), v = el.querySelector('.s-readout').getBoundingClientRect()
+    return { end: parseFloat(el.style.getPropertyValue('--s-label-end')), start: parseFloat(el.style.getPropertyValue('--s-value-start')), label: l.right - t.left, value: v.left - t.left, mask: getComputedStyle(el.querySelector('input[type=range]')).maskImage }
+  })
+  expect(m.end).toBeCloseTo(m.label, 0)
+  expect(m.start).toBeCloseTo(m.value, 0)
+  expect(m.mask).toContain('linear-gradient')
+  // the mask's edges fall midway between dots, so no dot is cut (dot k at k cells less the handle's inset)
+  const clear = () => row.evaluate(el => parseFloat(getComputedStyle(el.querySelector('input[type=range]')).getPropertyValue('--s-clear')))
+  expect(await clear()).toBeGreaterThan(m.label)   // at once: a hover never shows dots under the label
+  expect(m.mask).toContain('round(up')
+  // dragged over the label, the label steps aside and the dots behind it show
+  const label = await row.locator('.s-label').boundingBox()
+  await page.mouse.down(); await page.mouse.move(label.x + label.width / 2, box.y + box.height / 2, { steps: 6 })
+  await expect(row).toHaveClass(/s-over-label/)
+  await expect.poll(clear).toBe(0)
+  await page.mouse.up()
+  await expect.poll(clear).toBeGreaterThan(m.label)
+})
+
+// Studio's marks read as its step dots: under the pointer all of them, over the fill, clear of the row's start, the
+// label and the value; a swatch's edge is shade inside it, no ring round it
+test('studio: marks clear of the label and value, swatches edged inside', async ({ page }) => {
+  await page.goto('/demo/cases/studio')
+  const row = page.locator('.s-slider:has(.s-mark)').first(), box = await row.boundingBox()
+  await page.mouse.move(box.x + box.width * .4, box.y + box.height / 2)
+  const seen = await row.evaluate(el => [...el.querySelectorAll('.s-mark')].map(m => ({
+    shown: getComputedStyle(m).visibility === 'visible', label: m.classList.contains('s-under-label'), value: m.classList.contains('s-under-value'),
+    first: m.classList.contains('s-first'), last: m.classList.contains('s-last'), active: m.classList.contains('s-active') })))
+  expect(seen.some(m => m.label)).toBe(true)
+  for (const m of seen) expect(m.shown).toBe(!m.label && !m.value && !m.first && !m.last)
+  expect(seen.some(m => m.active && m.shown)).toBe(true)
+  const sw = await page.locator('.s-color input[type=color]').first().evaluate(el => getComputedStyle(el).borderTopWidth)
+  expect(sw).toBe('0px')
 })

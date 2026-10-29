@@ -13,19 +13,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <a class="skip-link" href="#preview" :onclick.prevent="focusPreview()">Skip to live preview</a>
+  <a class="skip-link" href="#preview" :onclick.prevent="focusPreview()">Skip to preview</a>
   <div class="app">
+    <div class="app-head">
     <header class="site-header">
       <a class="wordmark" href="./">settings-panel<span class="brand-dot" aria-hidden="true"></span></a>
-      <nav class="site-tabs" aria-label="Main navigation">
-        <a href="./" aria-current="page">Themes</a>
-        <a href="./demo/controls.html">Controls</a>
-      </nav>
-      <nav class="site-links" aria-label="More">
-        <a href="./demo/playground.html">Playground</a>
-        <a href="./demo/cases/">Cases</a>
-        <a href="./docs/themes.md">Docs</a>
-      </nav>
+      <nav class="site-links" aria-label="More"><a href="./demo/cases/">Cases</a><a :href="'./demo/controls.html#theme=' + theme">Controls</a></nav>
       <a class="repository" href="https://github.com/dy/settings-panel" aria-label="Source on GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.64.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
       </a>
@@ -50,7 +43,7 @@
         <div id="accent-swatches" class="swatches" role="group" aria-label="Accent presets">
           <button class="swatch" type="button" :each="swatch in accents" :aria-label="swatch[0]" :title="swatch[0]" :data-color="swatch[1]" :style="{ '--swatch': swatch[1] }" :aria-pressed="String(look.accent === swatch[1])" :onclick="look.accent = swatch[1]"></button>
         </div>
-        <button type="button" class="auto-accent" :aria-pressed="String(look.accent === null)" :onclick="look.accent = null" title="Use the theme or colormap accent">Auto</button>
+        <button type="button" class="auto-accent" :aria-pressed="String(look.accent === null)" :onclick="look.accent = null" title="The theme's own accent, or the light's">Auto</button>
         <label class="custom-accent" title="Custom accent">
           <input id="custom-accent" :value="accent" :change="v => look.accent = v" type="color" value="#6d5ce8" aria-label="Custom accent">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -87,36 +80,25 @@
       <button id="reset-look" type="button" class="look-cluster icon-button" :onclick="resetLook()" aria-label="Reset look" title="Reset look"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
     </div>
 
+    </div>
+
     <main class="workspace">
       <section class="catalog" aria-labelledby="gallery-title">
         <div class="catalog-heading">
-          <div><h1 id="gallery-title">Find your panel.</h1><p>Same controls. A different feel.</p></div>
-          <span id="theme-count" :text="count + (count === 1 ? ' theme' : ' themes')" class="theme-count" aria-live="polite"></span>
-        </div>
-        <div class="catalog-tools">
-          <label class="search-field">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
-            <input id="theme-search" :value="query" :change="v => query = v" type="search" placeholder="Search themes…" aria-label="Search themes" autocomplete="off">
-          </label>
-          <div class="segments filters" role="group" aria-label="Theme category">
-            <button type="button" data-filter="all" :aria-pressed="String(filter === 'all')" :onclick="filter = 'all'">All</button>
-            <button type="button" data-filter="original" :aria-pressed="String(filter === 'original')" :onclick="filter = 'original'">Originals</button>
-            <button type="button" data-filter="classic" :aria-pressed="String(filter === 'classic')" :onclick="filter = 'classic'">Classics</button>
-          </div>
+          <h1 id="gallery-title">Themes</h1>
+          <span id="theme-count" :text="themes.length" class="theme-count"></span>
         </div>
         <div id="theme-grid" class="theme-grid">
-          <article class="theme-card" :each="t in themes" :data-theme="t.id" :class="{ selected: theme === t.id }" :hidden="!matches(t)">
+          <article class="theme-card" :each="t in themes" :data-theme="t.id" :class="{ selected: theme === t.id }">
             <div class="thumbnail" inert aria-hidden="true" :mount="el => mountThumbnail(el, t)"><div class="mini-stage"></div></div>
             <button class="theme-choice" type="button" :aria-pressed="String(theme === t.id)" :aria-label="'Preview ' + t.name" :onclick="selectTheme(t.id)"><span :text="t.name"></span><span class="card-category" :text="t.classic ? 'Classic' : 'Original'"></span></button>
             <span class="selection-mark" :hidden="theme !== t.id"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 8 3 3 5-6"/></svg></span>
           </article>
         </div>
-        <div id="empty-state" :hidden="count > 0" class="empty-state" hidden><p>No matching themes.</p><button class="ui-button" id="clear-filters" :onclick="clearFilters()">Clear filters</button></div>
-        <p class="gallery-footnote">Small controls, real interactions. <a href="./demo/cases/">Explore the demo cases <span aria-hidden="true">↗</span></a></p>
       </section>
 
       <aside id="preview" class="inspector" aria-labelledby="preview-title" tabindex="-1">
-        <div class="inspector-heading"><div><span class="eyebrow">YOUR PREVIEW</span><h2 id="preview-title" :text="selected.name">Glass</h2></div></div>
+        <div class="inspector-heading"><h2 id="preview-title" :text="selected.name">Glass</h2><div class="export-row"><button id="all-controls" :onclick="showControls()" class="ui-button">All controls</button><button id="use-theme" :onclick="showCode()" class="ui-button primary">Use theme</button></div></div>
         <p id="theme-description" :text="selected.description" class="theme-description"></p>
         <div id="preview-scene" class="preview-scene" data-surface="glass">
           <svg class="landscape" viewBox="0 0 700 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -133,17 +115,12 @@
               <path class="ridge-near" d="M-30 590 95 536 163 555 231 520 354 582 416 541 527 588 619 537 730 595V680H-30Z"/>
             </g>
           </svg>
-          <div class="scene-toolbar">
-            <button id="reset-preview" :onclick="resetPreview()" class="scene-reset" aria-label="Reset preview values" title="Reset preview values"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 .4 7M4 4v5h5"/></svg></button>
-          </div>
           <div id="live-panel" class="live-panel"></div>
           <span id="preview-feedback" :text="feedback" class="preview-feedback" role="status"></span>
         </div>
 
-        <section class="theme-extras" aria-label="Theme controls">
-          <div class="extras-heading"><h3>Theme controls</h3><button type="button" class="extras-reset" :hidden="!extrasChanged" :onclick="resetExtras()">Reset</button></div>
-          <p class="extras-empty" :hidden="themeExtras.length">This theme has no controls of its own.</p>
-          <div class="extras-grid" :hidden="!themeExtras.length">
+        <section class="theme-extras" :aria-label="selected.name + ' axes'" :hidden="!themeExtras.length">
+          <div class="extras-grid">
             <div class="extra-row" :each="ex in themeExtras" :data-extra="ex.key">
               <label class="range-axis" :if="!ex.type"><span :text="ex.label"></span>
                 <input type="range" :min="ex.min" :max="ex.max" :step="ex.step" :value="extraValues[ex.key] ?? ex.default" :change="v => extraValues[ex.key] = v">
@@ -158,12 +135,11 @@
             </div>
           </div>
         </section>
-        <div class="export-row"><a id="control-link" href="./demo/controls.html">Explore all controls <span aria-hidden="true">↗</span></a><button id="use-theme" :onclick="showCode()" class="ui-button primary">Use theme <span aria-hidden="true">↗</span></button><button id="copy-link" :onclick="copyLink()" class="icon-button" aria-label="Copy preview link" title="Copy preview link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 14 4-4m-6 2-2 2a4 4 0 0 0 6 6l2-2m-4-12 2-2a4 4 0 0 1 6 6l-2 2"/></svg></button></div>
-        <p id="copy-status" :text="copyStatus" class="copy-status" role="status"></p>
       </aside>
     </main>
   </div>
-  <dialog id="code-dialog" aria-labelledby="code-title"><div class="dialog-heading"><h2 id="code-title" :text="link ? 'Preview link' : 'Use ' + selected.name">Use Glass</h2><button id="close-dialog" :onclick="closeCode()" class="icon-button" aria-label="Close code"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><p>Your current theme and axes, ready for a panel.</p><div class="segments code-tabs" :hidden="!!link" role="group" aria-label="Code format"><button data-format="js" :aria-pressed="String(format === 'js')" :onclick="format = 'js'; codeStatus = ''">JavaScript</button><button data-format="css" :aria-pressed="String(format === 'css')" :onclick="format = 'css'; codeStatus = ''">CSS</button></div><pre tabindex="0"><code id="theme-code" :text="code"></code></pre><div class="dialog-footer"><span id="code-status" :text="codeStatus" role="status"></span><button id="copy-code" :onclick="copyCode()" class="ui-button primary">Copy code</button></div></dialog>
+  <dialog id="code-dialog" aria-labelledby="code-title"><div class="dialog-heading"><h2 id="code-title" :text="'Use ' + selected.name">Use Glass</h2><button id="close-dialog" :onclick="closeCode()" class="icon-button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><pre tabindex="0"><code id="theme-code" :text="code"></code></pre><div class="dialog-footer"><span id="code-status" :text="codeStatus" role="status"></span><button id="copy-code" :onclick="copyCode()" class="ui-button primary">Copy code</button></div></dialog>
+  <dialog id="controls-dialog" class="controls-dialog" aria-labelledby="controls-title"><div class="dialog-heading"><h2 id="controls-title" :text="selected.name">Glass</h2><button :onclick="closeControls()" class="icon-button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><iframe id="controls-frame" :title="'Every control in ' + selected.name"></iframe></dialog>
   <noscript><p class="noscript">Enable JavaScript to explore the interactive themes. <a href="./docs/themes.md">Read the theme documentation.</a></p></noscript>
   <script type="module" src="./demo/gallery.js"></script>
 </body>

@@ -121,8 +121,10 @@ export function contrast(a, b) {
  * keeping hue and chroma. Without a tone, the most muted passing neutral of bg's hue.
  * Returns #rrggbb, or the tone unchanged when bg or tone is not a parseable color.
  * The guarantee holds against `bg` only: derive ink per surface it is painted on.
+ * `side` (0 dark, 1 light) holds a theme's one polarity across its grounds: the ink moves only toward that
+ * extreme, and where even it falls short returns it, rather than flip to the other one on a mid ground.
  */
-export function ink(bg, ratio = 4.5, tone) {
+export function ink(bg, ratio = 4.5, tone, side) {
   const back = parseColor(bg, null)
   const want = tone == null ? back && { L: back.L, C: min(back.C, .03), H: back.H }
     : typeof tone === 'string' ? parseColor(tone, null) : tone
@@ -131,7 +133,7 @@ export function ink(bg, ratio = 4.5, tone) {
   const passes = L => contrast(hex(L), bg) >= ratio
   if (tone != null && passes(want.L)) return hex(want.L)
   // Move toward whichever extreme can reach the ratio (black for light bg, white for dark).
-  const end = luminance(bg) > .179 ? 0 : 1
+  const end = side ?? (luminance(bg) > .179 ? 0 : 1)
   if (!passes(end)) return end ? '#ffffff' : '#000000'
   // Search from bg's side outward so contrast grows monotonically toward `end`.
   let near = end ? max(want.L, back.L) : min(want.L, back.L), far = end

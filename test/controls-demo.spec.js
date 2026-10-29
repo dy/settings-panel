@@ -106,3 +106,17 @@ for (const { id } of themes) test(`controls page: ${id} draws like controls alik
   await page.close()
   expect(bad, id).toEqual([])
 })
+
+// The gallery opens the page as #theme=<id>&axes=<json>&embed; an unknown theme or unreadable axes fall back to soft's defaults
+test('controls page: an unknown theme or unreadable axes in the hash fall back to soft, embedded without its header', async ({ page }) => {
+  const errors = []
+  page.on('pageerror', e => errors.push(e.message))
+  for (const hash of ['theme=nope&axes=%7Bbad&embed', 'theme=constructor&axes=null&embed', 'theme=neu&axes=%7B%22roundness%22%3A0%7D']) {
+    await page.goto('about:blank')
+    await page.goto('/demo/controls#' + hash)
+    await expect(page.locator('#theme-picker')).toHaveValue(hash.startsWith('theme=neu') ? 'neu' : 'soft')
+    await expect(page.locator('.site-header')).toBeVisible({ visible: !hash.endsWith('embed') })
+  }
+  await expect(page.locator('.s-button button').first()).toHaveCSS('border-top-left-radius', '0px')   // neu's axes reached it
+  expect(errors).toEqual([])
+})

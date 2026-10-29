@@ -28,7 +28,7 @@
   <script type="module">
     import settings from '../../index.js'
     import dialkit from '../../theme/dialkit.js'
-    import { caseBar, appearance } from './case-bar.js'
+    import { caseBar, appearance } from '../../demo/cases/case-bar.js'
 
     const light = appearance('dark') === 'light'
     document.body.classList.toggle('light', light)
@@ -56,7 +56,7 @@
       theme: () => dialkit(light ? { shade: '#fafafa' } : {}),
     })
 
-    caseBar({ ref: '../_ref/dialkit-all-ref.html', label: 'DialKit', appearance: 'dark' })
+    caseBar({ ref: '../../demo/_ref/dialkit-all-ref.html', label: 'DialKit', appearance: 'dark' })
   </script>
 </body>
 </html>

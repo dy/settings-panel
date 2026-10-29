@@ -436,7 +436,7 @@ const softCSS = (t) => `@layer s-soft {
 // which vanishes at black and white. A later layer than the form, so it restyles soft alone;
 // lab01 and skeu keep the form beneath.
 // the most a groove's floor may contrast with the material it is cut in (WCAG ratio)
-const GROOVE = 1.6
+const GROOVE = 1.3
 const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   const { dark, onAccent } = resolveRoles(shade, accent)
   const { L, C, H } = parseColor(shade)
@@ -450,20 +450,32 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
 
   // Fitted on the study's three finishes (chalk, bronze, graphite), each within 3 ΔE.
   // Raised faces, top to bottom: the Upgrade key, and the flatter face of a secondary one.
-  const face = [lit(.36, .75), lit(-.18)], plain = [lit(.16, .85), lit(-.1)]
-  const rim = lit(1.15, .3, 1.5), rimLo = lit(.25, .65)   /* the lower rim catches the floor's light (the new study's crisper bottom edge) */
+  // The face falls toward its lower edge by L(1 - L), and on a pale finish further, by L⁴/33 (chalk's key darkens by a
+  // thirtieth top to bottom; graphite's not at all)
+  const face = [lit(.36, .75), toHex({ L: L - .18 * L * (1 - L) - .03 * L ** 4, C, H })], plain = [lit(.16, .85), lit(-.1)]
+  // the lower rim catches the floor's light on a dark finish (graphite's crisper bottom edge); a pale one has none to catch
+  const rim = lit(1.15, .3, 1.5), rimLo = lit(.25 * Math.min(1, 2 * (1 - L)), .65)
   // A socket reads as a groove, not an outline: on a mid-tone material (bronze, gold, sage) the bounces darken its
   // floor past GROOVE against the shade, so the groove's tones are drawn back toward the shade together until it holds that
-  const groove = [bounce(3.25, .125), bounce(2.25, .25), bounce(4.25, .425)]
+  const groove = [bounce(4, .125), bounce(2.25, .25), bounce(4.25, .425)]
   let back = 0
   if (contrast(shade, groove[1]) > GROOVE) {
     let lo = 0, hi = 1
     for (let i = 0; i < 16; i++) { const t = (lo + hi) / 2; contrast(shade, mix(groove[1], shade, t)) > GROOVE ? lo = t : hi = t }
     back = hi
   }
-  const [wall, floor, floorLo] = groove.map(c => mix(c, shade, back)), deep = bounce(7, .275)
+  // The study's grooves are cool where its ink is (chalk's blue-grey): a groove tone takes the ink's hue with chroma for
+  // each step it falls below the shade (seven times the ink's chroma per unit of lightness), unless its own is more
+  const inkTone = ink ? parseColor(ink, null) : null
+  const tinted = c => {
+    const t = parseColor(c), k = inkTone ? inkTone.C * 7 * Math.max(0, L - t.L) : 0
+    return k > t.C ? toHex({ L: t.L, C: k, H: inkTone.H }) : c
+  }
+  const deep = bounce(7, .275)
+  const [wall, floor, floorLo, crevice] = [...groove, deep].map(c => tinted(mix(c, shade, back)))
   // The lip catches light; the piece's cast lies over it, as strong as the light it has to take.
-  const lip = lit(.42, .5), cast = alpha(bounce(2), Math.min(.6, 1.6 * luminance(shade)))
+  // the cast is strongest on a mid finish: a pale one has little light to lose under the key, a dark one little to give
+  const lip = lit(.6, .4), cast = alpha(bounce(2), Math.min(.3, 1.2 * luminance(shade) * (1 - luminance(shade))))
   // Sunken faces. A field is a lighter face in light finishes, a deeper one in dark; a track (the
   // floor a piece rides in) and the slider's channel are darker. On a light finish these recesses
   // keep at least the contrast a hairline needs to be seen (1.3:1); edges of the small wells 2:1.
@@ -511,14 +523,19 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   // contact shadow, the groove floor, the socket wall darkest at its outer top edge, the lip
   // catching light below, and the piece's soft cast beyond.
   const seat = (g, rims = `inset 0 var(--hair) 0 ${rim}, inset 0 calc(-1 * var(--hair)) 0 ${rimLo}`) => `${rims},
-    0 calc(${g} * .35) 0 0 ${deep}, 0 calc(${g} * .5) 0 0 ${floorLo}, 0 calc(${g} * -.6) 0 0 ${floor}, 0 calc(-1 * ${g}) 0 0 ${wall},
-    0 0 0 ${g} ${floor}, 0 calc(${g} * 1.8) calc(${g} * 3.3) calc(${g} * .85) ${cast}, 0 calc(${g} * .4) 0 ${g} ${lip}`
+    0 calc(${g} * .35) 0 0 ${crevice}, 0 calc(${g} * .6) 0 0 ${floorLo}, 0 calc(${g} * .175) 0 calc(${g} * .825) ${floor},
+    0 0 0 ${g} ${wall}, 0 calc(${g} * 1.8) calc(${g} * 3.3) calc(${g} * .85) ${cast}, 0 calc(${g} * .4) 0 ${g} ${lip}`
   const seated = seat('var(--g)'), pressed = seat('var(--g)', `inset 0 calc(var(--g) * .5) calc(var(--g) * .8) ${alpha(deep, .35)}`)
+  // A wide socket holding pieces side by side (a segmented choice): the select's groove round it, its floor filling it.
+  const socket = g => `0 calc(${g} * .175) 0 calc(${g} * .825) ${floor}, 0 0 0 ${g} ${wall}, 0 calc(${g} * .4) 0 ${g} ${lip}`
   // A raised piece riding in a track (the track is its socket): rims and a contact shadow.
   const riding = s => `inset 0 var(--hair) 0 ${rim}, inset 0 calc(-1 * var(--hair)) 0 ${rimLo}, 0 0 0 calc(var(--hair) * .5) ${alpha(dark ? '#000000' : edgeSm, dark ? .6 : .7)}, 0 calc(${s} * .5) ${s} ${alpha(deep, .45)}`
   // A sunken face: the socket wall shades its top edge; the lip catches light below it.
-  const sunk = (s = 'var(--g)', line = edge) => `inset 0 calc(${s} * .45) calc(${s} * .7) ${alpha(deep, dark ? .7 : .5)}, inset 0 0 0 var(--hair) ${line},
-    0 calc(-1 * var(--hair)) 0 0 ${alpha(wall, .55)}, 0 var(--hair) 0 0 ${lip}`
+  const lipOut = `0 calc(-1 * var(--hair)) 0 0 ${alpha(wall, .55)}, 0 var(--hair) 0 0 ${lip}`
+  const sunk = (s = 'var(--g)', line = edge) => `inset 0 calc(${s} * .45) calc(${s} * .7) ${alpha(deep, dark ? .7 : .5)}, inset 0 0 0 var(--hair) ${line}, ${lipOut}`
+  // A thin groove holding ink (a slider's fill, an on switch): the ink fills it to its edges, over the floor's shade,
+  // drawn as a band under the fill; inset shading would ring the ink and make it read narrower than the empty groove
+  const floorShade = s => `linear-gradient(${alpha(deep, dark ? .7 : .5)}, transparent calc(${s} * .8))`
   const ring = 'calc(2 * var(--length)) solid color-mix(in oklab, var(--accent), transparent 40%)'
   const thumbRing = `${riding('calc(3 * var(--length))')}, 0 0 0 calc(3 * var(--length)) color-mix(in oklab, var(--accent), transparent 55%)`
   // One thumb for every range input (slider, interval, the colour's alpha): a raised cap riding its groove
@@ -541,7 +558,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
   --well: ${well};
   --track: ${track};
   --channel: ${channel};
-  --r-panel: calc((var(--control-height) / 2 + var(--panel-padding)) * var(--roundness));   /* concentric with a capsule at its edge, as in the family */
+  --r-panel: calc((var(--control-height) / 2 + var(--panel-padding) / 4) * var(--roundness));   /* a capsule's radius and a quarter of the padding, as in the family */
   --r-pill: calc(var(--control-height) / 2 * var(--roundness));
   /* the material family's one measure (soft, skeu, glass, neu): 34px keys and fields, 14 between rows and under
      the title, 22 round the panel, at the 14px body */
@@ -626,16 +643,16 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     &:has(.s-mark-labels:not(:empty)) .s-track { margin-bottom: var(--lh); }   /* the mark labels' line */
     input[type="range"] {
       -webkit-appearance: none; appearance: none; height: calc(6 * var(--length)); border-radius: 999px;
-      background: linear-gradient(to right, var(--accent) var(--p, 0%), var(--channel) var(--p, 0%));
-      box-shadow: ${sunk('calc(2 * var(--length))')};
+      background: linear-gradient(to right, var(--accent) var(--p, 0%), transparent var(--p, 0%)), ${floorShade('calc(2 * var(--length))')}, var(--channel);
+      box-shadow: ${lipOut};
       ${thumb}
     }
     /* The readout fits its value and unit: at least 6ch, so the track holds still while dragging. */
     .s-readout { flex: none; min-width: calc(6ch + 12 * var(--space)); padding: 0 calc(6 * var(--space)); text-align: right; background: transparent; box-shadow: none; color: var(--fg-muted); font-size: var(--font-size-small);
       &:focus-visible { color: ${onWell}; background: var(--well); box-shadow: ${sunk()}; } }
     input.s-readout { width: calc(9ch + 12 * var(--space)); @supports (field-sizing: content) { field-sizing: content; width: auto; } }
-    &.s-multiple .s-interval-track { height: calc(6 * var(--length)); border-radius: 999px; box-shadow: ${sunk('calc(2 * var(--length))')};
-      background: linear-gradient(to right, var(--channel) var(--low, 0%), var(--accent) var(--low, 0%), var(--accent) var(--high, 100%), var(--channel) var(--high, 100%));
+    &.s-multiple .s-interval-track { height: calc(6 * var(--length)); border-radius: 999px; box-shadow: ${lipOut};
+      background: linear-gradient(to right, transparent var(--low, 0%), var(--accent) var(--low, 0%), var(--accent) var(--high, 100%), transparent var(--high, 100%)), ${floorShade('calc(2 * var(--length))')}, var(--channel);
       input[type="range"] { height: 100%; background: transparent; box-shadow: none; } }
     .s-mark-label { opacity: 1; color: ${markDim}; &.s-active { color: var(--fg); } }
   }
@@ -645,7 +662,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     &.s-switch {
       .s-track { width: calc(38 * var(--length)); height: calc(22 * var(--length)); margin: 0; border: none; border-radius: calc(11 * var(--length) * var(--roundness)); background: var(--track); box-shadow: ${sunk('calc(2 * var(--length))')};
         &::after { width: calc(16 * var(--length)); height: calc(16 * var(--length)); left: calc(3 * var(--length)); border-radius: calc(8 * var(--length) * var(--roundness)); ${faceOf(cap)} box-shadow: ${riding('calc(2 * var(--length))')}; } }
-      &:has(input:checked) .s-track { background: var(--accent); &::after { transform: translateX(calc(16 * var(--length))); } }
+      &:has(input:checked) .s-track { background: var(--accent); box-shadow: ${lipOut}; &::after { transform: translateX(calc(16 * var(--length))); } }
     }
     &.s-toggle .s-track {
       height: var(--control-height); padding: 0 calc(14 * var(--space)); border: none; border-radius: var(--r-pill);
@@ -676,17 +693,18 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
     label:has(input:focus-visible) .s-track { outline: ${ring}; outline-offset: calc(2 * var(--length)); }
   }
 
-  /* ── Segmented: one sunken track; the selected option is a raised piece inside it ── */
+  /* ── Segmented: the select's socket, wide and filled with its floor; the selected option a raised piece in it, as
+     far from the floor's top as its crevice is from the floor's bottom ── */
   .s-select.s-segmented {
-    .s-input { gap: 0; padding: calc(3 * var(--length)); border-radius: var(--r-pill); background: var(--track); box-shadow: ${sunk()}; }
+    .s-input { gap: 0; margin: 0 var(--g); padding: calc(3 * var(--length)) calc(3 * var(--length)) calc(3 * var(--length) + var(--g) * .35); border-radius: var(--r-pill); background: ${floor}; box-shadow: ${socket('var(--g)')}; }
     button {
-      flex: 1 1 auto; height: calc(var(--control-height) - 6 * var(--length)); min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share */
+      flex: 1 1 auto; height: calc(var(--control-height) - 6 * var(--length) - var(--g) * .35); min-width: 0; margin: 0; white-space: nowrap;   /* each label its width and an equal share */
       padding: 0 max(calc(8 * var(--space)), (var(--r-pill) - 3 * var(--length)) * .75);
       border: none; border-radius: calc(var(--r-pill) - 3 * var(--length)); background: transparent;
       color: ${onTrack}; font-size: inherit; font-weight: ${w(100)};
       transition: color 140ms, box-shadow 140ms;
       &:hover { filter: none; color: var(--fg); } &:active { filter: none; }
-      &.s-selected { ${faceOf(face)} color: ${onFace}; text-shadow: ${emboss}; box-shadow: ${riding('calc(2 * var(--length))')}; }
+      &.s-selected { ${faceOf(face)} color: ${onFace}; text-shadow: ${emboss}; box-shadow: inset 0 var(--hair) 0 ${rim}, inset 0 calc(-1 * var(--hair)) 0 ${rimLo}, 0 calc(var(--g) * .35) 0 0 ${crevice}; }
       &:focus-visible { outline: ${ring}; outline-offset: calc(1 * var(--length)); }
     }
   }

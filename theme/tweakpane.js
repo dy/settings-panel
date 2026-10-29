@@ -175,17 +175,11 @@ export default function tweakpane({
     &:active { background-color: var(--field-active); }
   }
   .s-text input[type="text"] { flex: 1; }
-  .s-scrub-trail { display: none; }   /* the field's own guide draws the drag */
   /* numeric fields (native .tp-txtv-num): right-aligned, drag-scrubbed, with the drag bar at the left */
   .s-number input[type="number"], .s-vector input[type="number"], .s-slider .s-readout {
     text-align: right; cursor: ew-resize; background: var(--guide); background-color: var(--field);
     -moz-appearance: textfield; &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     &:hover { background-color: var(--field-hover); } &:focus { background-color: var(--field-focus); cursor: text; } &:active { background-color: var(--field-active); }
-  }
-  /* native .tp-txtv_g: while a number drags, a line runs from its knob to where the pointer has gone, the drag's distance */
-  :is(.s-number input[type="number"], .s-vector input[type="number"], .s-slider .s-readout).s-scrubbing {
-    background: linear-gradient(var(--fg), var(--fg)) calc(var(--u) + var(--track) / 2 + min(0px, var(--scrub, 0px))) center / max(var(--scrub, 0px), -1 * var(--scrub, 0px)) var(--length) no-repeat, var(--guide);
-    background-color: var(--field-active);
   }
 
   /* ── Number ── */

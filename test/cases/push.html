@@ -25,7 +25,7 @@
   <div id="panel"></div>
   <script type="module">
     import settings from '../../index.js'
-    import { byId, colormaps, material } from '../themes.js'
+    import { byId, colormaps, material } from '../../demo/themes.js'
     const sun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".7" stroke-linecap="round" opacity=".6"><circle cx="12" cy="12" r="2.6"/><path d="M12 4.6v1.6M12 17.8v1.6M4.6 12h1.6M17.8 12h1.6M6.8 6.8l1.1 1.1M16.1 16.1l1.1 1.1M6.8 17.2l1.1-1.1M16.1 7.9l1.1-1.1"/></svg>`
     const theme = byId.soft, map = colormaps.graphite
     settings({ push: { type: 'button', label: false, icon: sun, name: 'Brightness', onClick() {} } },

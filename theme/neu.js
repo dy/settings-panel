@@ -34,8 +34,9 @@ const tones = L => {
 // Layers of a control-height part, in px: offset along the light (+ toward it), blur, spread,
 // strength. Relief n scales a part's layers; depth, softness and size scale every part.
 const RIM = 1
-const HALO = [10.5, 13.5, -5, .6]   // a raised part's spill at .6 of the measured light: at full it read as a white edge round each part
-const CREASE = [-2, .5, 0, .12]
+const HALO = [10.5, 13.5, -5, 1]   // a raised part's spill at the measured light: the chalk study's lit top edge
+const GLINT = [1.5, 1.5, 0, 1]   // the lit edge's own thin bright line, hugging it (the chalk study's Search key)
+const CREASE = [-1.25, .5, 0, .12]   // a hairline crease, a little over a pixel under the part (the chalk study's)
 const CONTACT = [-11.5, 5, -5.5, .38]
 const CAST = [-23.5, 24, -10.5, .9]
 
@@ -74,19 +75,26 @@ export default function neu({
   const bright = a => oklch(glow, alpha(a))
   const shadow = (a, tone = umbra) => oklch(tone, alpha(a))
 
+  // the glint shows on a pale material only: on a darker one the halo's light is all there is (the study's bronze and graphite)
+  const glint = clamp((base.L - .6) / .35, 0, 1)
   const rad = light * Math.PI / 180, lx = Math.sin(rad), ly = -Math.cos(rad)
   // Body 14px: Neu sets its labels and values at 14px.
   const body = 14
   const unit = scale(size, body), k = unit * Math.max(0, depth)
   const soft = Math.max(0, softness)
   const len = v => `${+(v * k).toFixed(2)}px`
-  const layer = (n, [d, blur, spread = 0], color, inset = '') =>
-    `${inset}${len(lx * d * n)} ${len(ly * d * n)} ${len(blur * soft * n)} ${len(spread * n)} ${color}`
+  // An outer layer stays on its part: its near edge, pushed off by the offset and the shrink, may pass the part's far edge
+  // (34 units on, a control's height at relief 1) by no more than its blur feathers back, so hard light (softness 0) or a
+  // deep relief draws a shorter shadow, never a copy of the part standing apart from it
+  const layer = (n, [d, blur, spread = 0], color, inset = '') => {
+    const off = Math.abs(d) - Math.min(0, spread), hold = inset || !off ? 1 : Math.min(1, (34 + depth * blur * soft / 2) / (Math.max(0, depth) * off) || 1)
+    return `${inset}${len(lx * d * n * hold)} ${len(ly * d * n * hold)} ${len(blur * soft * n)} ${len(spread * n * hold)} ${color}`
+  }
   // A knob riding in a groove spills no light: the spill would land on the ink beside it, and light
   // composited over ink fogs it (spill light on paint brightens it by a share, no more than it does the ground).
   const raise = (n, spill = true) => [
     layer(n, [-RIM, 0], bright(rimK), 'inset '),
-    ...spill ? [layer(n, HALO, bright(lightK * HALO[3]))] : [],
+    ...spill ? [layer(n, GLINT, bright(lightK * GLINT[3] * glint)), layer(n, HALO, bright(lightK * HALO[3]))] : [],
     layer(n, CREASE, shadow(CREASE[3])),
     layer(n, CONTACT, shadow(CONTACT[3] * shadeK)),
     layer(n, CAST, shadow(CAST[3] * shadeK, penumbra)),
@@ -149,11 +157,11 @@ export default function neu({
   --roundness: ${roundness};
   --r: calc(var(--u) * var(--roundness) * 3.52);
   --h: var(--control-height);
-  /* keys and one-line wells are capsules (the family's form), a text area keeps the wells' radius; the plate and
-     trays are concentric with the parts at their edge */
+  /* keys and one-line wells are capsules (the family's form), a text area keeps the wells' radius; trays are concentric
+     with the parts at their edge, and the plate rounds by a capsule's radius and a quarter of its padding */
   --r-key: calc(var(--h) / 2 * min(1, var(--roundness)));
   --tray-pad: calc(16 * var(--space));
-  --r-panel: calc((var(--h) / 2 + var(--panel-padding)) * var(--roundness));
+  --r-panel: calc((var(--h) / 2 + var(--panel-padding) / 4) * var(--roundness));
   --r-tray: calc(var(--r-key) + var(--tray-pad) * min(1, var(--roundness)));
   --knob: calc(var(--u) * 5.5);
   --glyph: calc(var(--u) * 3.5);       /* chevrons and steppers */

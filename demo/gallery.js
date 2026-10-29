@@ -53,28 +53,29 @@ let values = { ...defaults }, live
 const emptyExtras = () => Object.fromEntries(themes.map(t => [t.id, Object.fromEntries((t.extras || []).map(e => [e.key, null]))]))
 
 const state = store({
-  ...readLocation(), themes, accents, colormaps, query: '', filter: 'all', format: 'js',
-  feedback: '', copyStatus: '', codeStatus: '', link: '', codeCSS: '', codeJS: '',
+  ...readLocation(), themes, accents, colormaps,
+  feedback: '', codeStatus: '', code: '',
   get accent() { return this.look.accent || rendered(this.selected, this.look, this.extraValues, 'accent') || accents[0][1] },
   get selected() { return byId[this.theme] },
   get nativeRoundness() { return nativeDefault(this.selected, this.look, this.extraValues, 'roundness') ?? 1 },
-  get count() { return themes.filter(matches).length },
-  get code() { return this.link || (this.format === 'css' ? this.codeCSS : this.codeJS) },
   get themeExtras() { return this.selected.extras || [] },
   get extraValues() { return this.extras[this.theme] },
-  get extrasChanged() { return this.themeExtras.some(ex => this.extraValues[ex.key] != null) },
-  supported, matches, mountThumbnail, selectTheme, focusPreview, resetLook, resetExtras,
-  clearFilters() { state.filter = 'all'; state.query = ''; $('theme-search').focus() },
-  resetPreview() { batch(() => Object.assign(live, defaults)); state.feedback = 'Preview reset' },
+  supported, mountThumbnail, selectTheme, focusPreview, resetLook,
+  resetPreview() { batch(() => Object.assign(live, defaults)); state.feedback = '' },
   showCode() {
-    state.link = ''; state.format = 'js'; state.codeStatus = ''
-    const theme = state.selected, axes = axesFor(theme, state.look, state.extraValues)
-    state.codeCSS = theme.fn(axes)
-    state.codeJS = javascript(theme, axes)
+    state.codeStatus = ''
+    state.code = javascript(state.selected, axesFor(state.selected, state.look, state.extraValues))
     $('code-dialog').showModal()
   },
   closeCode() { $('code-dialog').close() },
-  copyCode, copyLink,
+  // every control in the selected theme with the axes on screen: the controls page, in a frame
+  showControls() {
+    const axes = axesFor(state.selected, state.look, state.extraValues)
+    $('controls-frame').src = `./demo/controls.html#${new URLSearchParams({ theme: state.theme, axes: JSON.stringify(axes), embed: '' })}`
+    $('controls-dialog').showModal()
+  },
+  closeControls() { $('controls-dialog').close() },
+  copyCode,
 })
 
 function readLocation() {
@@ -121,12 +122,12 @@ function updateLocation(push = false) {
   history[push ? 'pushState' : 'replaceState'](null, '', `${location.pathname}${location.search}#${hash}`)
 }
 
+// the look and the selected theme's own axes, back to the theme's defaults
 function resetLook() {
-  batch(() => Object.assign(state.look, { colormap: 'native', accent: null, spacing: null, roundness: null, size: null, font: 'theme' }))
-}
-
-function resetExtras() {
-  batch(() => { for (const ex of state.themeExtras) state.extraValues[ex.key] = null })
+  batch(() => {
+    Object.assign(state.look, { colormap: 'native', accent: null, spacing: null, roundness: null, size: null, font: 'theme' })
+    for (const ex of state.themeExtras) state.extraValues[ex.key] = null
+  })
 }
 
 function surround(shade) {
@@ -208,12 +209,6 @@ function focusPreview() {
   $('preview').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
 }
 
-function matches(theme) {
-  const category = theme.classic ? 'classic' : 'original'
-  return (state.filter === 'all' || category === state.filter) &&
-    `${theme.name} ${category} ${theme.description}`.toLowerCase().includes(state.query.trim().toLowerCase())
-}
-
 function javascript(theme, axes) {
   const name = theme.id.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
   return `import settings from 'settings-panel'\nimport ${name} from 'settings-panel/theme/${theme.file || theme.id}.js'\n\nconst panel = settings({\n  name: { type: 'text', value: ${JSON.stringify(values.name)} },\n  blend: { options: ${JSON.stringify(blends)}, value: ${JSON.stringify(values.blend)} },\n  opacity: { type: 'slider', value: ${values.opacity}, min: 0, max: 100, step: 1, format: v => v + '%' },\n  enabled: { type: 'boolean', variant: 'switch', value: ${values.enabled}, hint: 'Show this layer' },\n  tint: { type: 'color', value: ${JSON.stringify(values.tint)} },\n  apply: { type: 'button', label: false, buttons: {\n    Reset: { variant: 'secondary', onClick: () => Object.assign(panel, ${JSON.stringify(defaults)}) },\n    'Apply effect': {},\n  } },\n}, {\n  title: 'Layer',\n  theme: ${name}(${JSON.stringify(axes, null, 2).replaceAll('\n', '\n  ')})\n})`
@@ -222,15 +217,6 @@ async function copyCode() {
   try { await navigator.clipboard.writeText(state.code); state.codeStatus = 'Copied' }
   catch { state.codeStatus = 'Copy unavailable. Select the code above to copy it.' }
 }
-async function copyLink() {
-  updateLocation()
-  try { await navigator.clipboard.writeText(location.href); state.copyStatus = 'Preview link copied' }
-  catch {
-    state.link = location.href
-    state.codeStatus = 'Copy unavailable. Select the link above to copy it.'
-    $('code-dialog').showModal()
-  }
-}
 
 window.addEventListener('popstate', () => {
   const loc = readLocation()
@@ -238,6 +224,10 @@ window.addEventListener('popstate', () => {
 })
 
 sprae(document.body, state)
+
+// the preview stays under the header and the Look bar: their height, as the sticky offset
+const head = document.querySelector('.app-head')
+new ResizeObserver(() => document.documentElement.style.setProperty('--app-head', head.offsetHeight + 'px')).observe(head)
 
 // Three concerns, three effects – replacing one coupled render that remounted
 // the live panel (and, before this rework, silently froze every thumbnail) on
@@ -257,7 +247,6 @@ effect(() => {
     })
     document.title = `${theme.name} — settings-panel themes`
     state.feedback = ''
-    state.copyStatus = ''
   })
 })
 
@@ -281,7 +270,7 @@ effect(() => {
 
 // 3. URL sync – every shareable key, cheap, no DOM rebuild. Spreading
 // extraValues (not just referencing it) is what subscribes to each of the
-// selected theme's own extras, so a Theme-controls edit re-syncs the link too.
+// selected theme's own extras, so an edit of the theme's axes re-syncs the URL too.
 effect(() => {
   const snap = { theme: state.theme, ...state.look, extra: { ...state.extraValues } }
   untracked(updateLocation)

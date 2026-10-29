@@ -46,8 +46,8 @@ export const follow = (move, end) => {
  * readout passes its track's value per pixel, so the number drags as the slider does).
  * Returns a pointerdown handler; a focused input keeps native text editing.
  * On a label it drags its field's value and a click focuses that field (Figma, Blender).
- * While it drags, the element carries --scrub, the pointer's offset from where the drag began (px), for a
- * theme that draws the drag (Tweakpane's guide), and its row holds an .s-scrub-trail from the press to the pointer.
+ * While it drags, an .s-scrub-trail runs from the press to the pointer over the page, in the panel's ink haloed by its
+ * ground, so it reads past the panel's edge.
  */
 export const scrub = (get, set, step = 1) => {
   return e => {
@@ -59,12 +59,11 @@ export const scrub = (get, set, step = 1) => {
     // the drag runs past the screen's edge: once it moves, the pointer is locked and its movement summed, so the
     // value keeps changing however far the hand goes (where the lock is refused, the pointer's place is the drag)
     let x0 = e.clientX, dx = 0, moved = false, locked = false, trail
-    // the change drawn while it is made: a trail in the row from where the press began toward the pointer, held to
-    // the panel's width
+    // the change drawn while it is made: a trail over the page from where the press began toward the pointer, past
+    // the panel's edge if the hand goes there (held to the window, where a locked pointer runs on)
     const draw = () => {
-      const r = row.getBoundingClientRect(), y = el.getBoundingClientRect(), p = panel?.getBoundingClientRect() || r
-      const x = Math.min(Math.max(x0 + dx, p.left), p.right)
-      trail.style.cssText = `left:${Math.min(x0, x) - r.left}px;width:${Math.abs(x - x0)}px;top:${y.top + y.height / 2 - r.top}px`
+      const y = el.getBoundingClientRect(), x = Math.min(Math.max(x0 + dx, 0), innerWidth)
+      Object.assign(trail.style, { left: `${Math.min(x0, x)}px`, width: `${Math.abs(x - x0)}px`, top: `${y.top + y.height / 2}px` })
       trail.dataset.dir = dx < 0 ? 'left' : 'right'
     }
     const move = ev => {
@@ -75,11 +74,14 @@ export const scrub = (get, set, step = 1) => {
       if (!moved && Math.abs(dx) < 3) return
       if (!moved) {
         moved = true; el.setPointerCapture(e.pointerId); el.classList.add('s-scrubbing'); drag(row, true)
-        if (row) { trail = document.createElement('i'); trail.className = 's-scrub-trail'; trail.ariaHidden = 'true'; row.append(trail) }
+        trail = document.createElement('i'); trail.className = 's-scrub-trail'; trail.ariaHidden = 'true'
+        const ink = getComputedStyle(field), ground = panel && getComputedStyle(panel)
+        trail.style.color = ink.color
+        trail.style.setProperty('--halo', ground?.getPropertyValue('--bg').trim() || ground?.backgroundColor || 'transparent')
+        document.body.append(trail)
         el.requestPointerLock?.()?.catch?.(() => {})
       }
-      if (trail) draw()
-      el.style.setProperty('--scrub', Math.round(dx) + 'px')
+      draw()
       // toFixed(10) kills float noise without quantizing away the value's own precision
       set(+(v0 + Math.round(dx) * rate * stepMul(ev)).toFixed(10))
     }
@@ -87,7 +89,6 @@ export const scrub = (get, set, step = 1) => {
       if (document.pointerLockElement === el) document.exitPointerLock()
       trail?.remove()
       el.classList.remove('s-scrubbing')
-      el.style.removeProperty('--scrub')
       if (!moved) { field.focus(); field.select?.(); return }
       drag(row, false)
       // a drag ends in a click; on a label that click would focus its field, so the drag swallows it

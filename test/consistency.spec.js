@@ -15,6 +15,7 @@ const typeExceptions = {
   controlkit: ['button', 'folder'],                // chrome buttons 10px caps, group titles 12px
   devtools: ['segment', 'button'],                 // Chrome's 12px action pills
   editorial: ['button'],                           // actions in the reference's small tracked capitals
+  tracked: ['label', 'folder', 'button', 'segment'], // the reference's tracked capitals: 11px labels and keys, 14px headings
 }
 // painted button rows whose side inset follows another grid by design
 const sideInsetExceptions = { controlkit: 'the label grid sets the side inset' }
@@ -118,6 +119,10 @@ test('glass, neu, skeu and soft keep every row in place and round alike', async 
     for (const file of ['glass', 'neu', 'skeu', 'default']) { await mount(page, file, schema, axes); seen[file] = await layout() }
     for (const file of ['neu', 'skeu', 'default']) expect(seen[file], `${file} against glass at ${JSON.stringify(axes)}`).toEqual(seen.glass)
   }
+  // the panel rounds by a capsule's radius and a quarter of its padding
+  await mount(page, 'glass', schema)
+  const { panel, pad, h } = await page.evaluate(() => { const P = document.querySelector('#consistency .s-panel'), cs = getComputedStyle(P); return { panel: parseFloat(cs.borderTopLeftRadius), pad: parseFloat(cs.paddingLeft), h: document.querySelector('#consistency [data-key=name] input').getBoundingClientRect().height } })
+  expect(panel).toBeCloseTo(h / 2 + pad / 4, 0)
 })
 
 for (const [id, file] of files) test.describe(id, () => {

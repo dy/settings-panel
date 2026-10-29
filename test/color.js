@@ -1,6 +1,6 @@
 import './register.js'
 import test, { is, ok } from 'tst'
-import { resolveRoles, normalizeHex, parseColor } from '../theme/color.js'
+import { resolveRoles, normalizeHex, parseColor, ink } from '../theme/color.js'
 
 test('normalizeHex: #rgb → #rrggbb', () => {
   is(normalizeHex('#fff'), '#ffffff')
@@ -199,4 +199,12 @@ test('mix: endpoints, sRGB channel interpolation and OKLab', async () => {
   is(mix('#000', '#fff', 0, 'oklab'), '#000000')
   is(mix('#000', '#fff', 1, 'oklab'), '#ffffff')
   is(mix('#fff', '#000', 1.5), '#000000', 'an overshoot stays a color')
+})
+
+// side holds one polarity: a mid ground dark lettering can't hold at 7:1 returns black, not white
+test('color: ink keeps its side', () => {
+  is(ink('#7a5a48', 7, '#333333'), '#ffffff', 'unsided: the extreme that can reach the ratio')
+  is(ink('#7a5a48', 7, '#333333', 0), '#000000', 'dark side: black, short of the ratio')
+  is(ink('#7a5a48', 3, '#000000', 1), '#000000', 'a passing tone is unchanged, whatever its side')
+  ok(parseColor(ink('#7a5a48', 4, '#5a4030', 0)).L < parseColor('#7a5a48').L, 'dark side: moves darker')
 })

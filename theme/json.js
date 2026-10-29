@@ -19,12 +19,13 @@
  */
 import baseCSS from './base.js'
 import metrics from './metrics.js'
-import { resolveRoles, ink, mix } from './color.js'
+import { resolveRoles, ink, mix, parseColor } from './color.js'
 
 export default function json({ shade = '#ffffff', accent, size = 1, spacing = 1, font } = {}) {
   const { dark } = resolveRoles(shade, accent)
   const on = c => ink(shade, 4.5, c)
   const tone = dark ? { key: '#9cdcfe', str: '#ce9178', num: '#b5cea8', lit: '#569cd6', fg: '#d4d4d4' } : { key: '#0451a5', str: '#a31515', num: '#098658', lit: '#0000ff', fg: '#000000' }
+  const side = +(parseColor(on(tone.fg)).L > parseColor(shade).L)
   // an entry: a row that holds a value (buttons hold none; separators are not rows)
   const entry = '.s-control:not(.s-button, .s-separator)'
   const body = 12
@@ -33,7 +34,7 @@ export default function json({ shade = '#ffffff', accent, size = 1, spacing = 1,
   ${metrics({ size, spacing, font }, { body, fontSize: 12, lineHeight: 18, controlHeight: 18, inset: 0, rowGap: 0, columnGap: 8, sectionGap: 0, panelPadding: 12, fontFamily: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace" })}
   --bg: ${shade}; --fg: ${on(tone.fg)}; --key: ${on(accent ?? tone.key)};
   --str: ${on(tone.str)}; --num: ${on(tone.num)}; --lit: ${on(tone.lit)};
-  --muted: ${[shade, mix(shade, tone.fg, dark ? .08 : .05)].reduce((t, g) => ink(g, 4.6, t), dark ? '#858585' : '#767676')};   /* on the row and under the pointer's wash */
+  --muted: ${[shade, mix(shade, tone.fg, dark ? .08 : .05)].reduce((t, g) => ink(g, 4.6, t, side), dark ? '#858585' : '#767676')};   /* on the row and under the pointer's wash, on the lettering's side */
   --hover: color-mix(in srgb, var(--fg) ${dark ? 8 : 5}%, transparent);
   --accent: var(--key);
   --indent: calc(2ch * var(--spacing));

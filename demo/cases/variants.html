@@ -17,7 +17,6 @@
     .caption { margin-top: 28px; display: flex; justify-content: space-between; gap: 12px; font-size: 11px; letter-spacing: .02em; }
     .caption a { color: inherit; text-underline-offset: 3px; }
     body[data-material="porcelain"] { --scene: #edf3f2; --scene-ink: #617f83; background-image: url(./marble.svg); background-size: 720px; }
-    body[data-material="soft"] { --scene: #c9c8c3; --scene-ink: #4e514e; }
   </style>
 </head>
 <body>
@@ -28,13 +27,11 @@
   <script type="module">
     import settings from '../../index.js'
     import porcelain from '../../theme/porcelain.js'
-    import matte from '../../theme/matte.js'
 
     // Same working controls make differences in material and density comparable.
     // The hash survives static hosts that redirect .html to a clean URL.
     const finishes = {
       porcelain: { name: 'Porcelain', theme: porcelain, axes: { size: 14 / 13 } },
-      soft: { name: 'Matte / Soft', theme: matte, axes: { shade: '#dadbd6', accent: '#476254', spacing: 1.6, depth: .7, bevel: .8, roundness: 1.35, size: 14 / 13 } },
     }
     const key = Object.hasOwn(finishes, location.hash.slice(1)) ? location.hash.slice(1) : 'porcelain'
     const finish = finishes[key]

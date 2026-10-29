@@ -19,7 +19,9 @@
  *
  * Themes read `.s-track`'s --p (fill, %), --t (the same as a 0–1 number, for fills that end under a thumb) and --steps
  * (step intervals across the range, absent when stepless) and carries the value as data-value (for a theme that prints it);
- * the row is .s-over-label while a dragged thumb is over its label.
+ * the row is .s-over-label while a dragged thumb is over its label, and carries --s-label-end / --s-value-start (where
+ * the label ends and the value begins along the track) once the pointer is on it, its marks .s-under-label /
+ * .s-under-value where those cover them.
  */
 
 import control from './control.js'
@@ -68,6 +70,24 @@ const resolveReadout = (readout, format) => {
 const overLabel = (row, x) => {
   const r = row?.querySelector('.s-label')?.getBoundingClientRect()
   row?.classList.toggle('s-over-label', !!r && x >= r.left - 6 && x <= r.right + 6)
+}
+
+// Where, from the track's start, the label ends and the value begins: --s-label-end and --s-value-start (px) on the
+// row, and each mark .s-under-label / .s-under-value where one covers it (with overLabel's slack), for themes that
+// ride both on the track and keep its marks clear of them (studio). Measured as the pointer comes onto the row and
+// while a thumb in hand moves, as the value's width changes with it.
+const clearance = row => {
+  const t = row?.querySelector('.s-track')?.getBoundingClientRect()
+  if (!t?.width) return
+  const l = row.querySelector('.s-label')?.getBoundingClientRect(), v = row.querySelector('.s-readout')?.getBoundingClientRect()
+  // every rect read before anything is written: one layout per call, however many marks
+  const marks = [...row.querySelectorAll('.s-mark')].map(m => { const r = m.getBoundingClientRect(); return [m, r.left + r.width / 2] })
+  row.style.setProperty('--s-label-end', `${l?.width ? l.right - t.left : 0}px`)
+  row.style.setProperty('--s-value-start', `${v?.width ? v.left - t.left : t.width}px`)
+  for (const [m, x] of marks) {
+    m.classList.toggle('s-under-label', !!l?.width && x >= l.left - 6 && x <= l.right + 6)
+    m.classList.toggle('s-under-value', !!v?.width && x >= v.left - 6 && x <= v.right + 6)
+  }
 }
 
 // Curve: maps [0,1] → [0,1] non-linearly
@@ -276,7 +296,7 @@ export default (sig, opts = {}) => {
   let dragging = false
   const moved = signal(false)
   let x0 = 0, row = null
-  const sweep = e => { if (!moved.value && Math.abs(e.clientX - x0) >= 3) { moved.value = true; drag(null, true) } overLabel(row, e.clientX) }
+  const sweep = e => { if (!moved.value && Math.abs(e.clientX - x0) >= 3) { moved.value = true; drag(null, true) } overLabel(row, e.clientX); clearance(row) }
   const release = () => { dragging = false; if (moved.value) drag(null, false); moved.value = false; row?.classList.remove('s-over-label') }
   const grab = e => {
     if (e.button) return
@@ -352,6 +372,8 @@ export default (sig, opts = {}) => {
     scrubR: scrub(() => value.value, d => { dragging = true; set(clamp(d, dMin, dMax)); dragging = false },
       e => (dMax - dMin) / (e.currentTarget.closest('.s-input').querySelector('input[type=range]').getBoundingClientRect().width || 100))
   })
+
+  result.el.addEventListener('pointerenter', () => clearance(result.el))
 
   // el is now in live DOM (panel mounted before controls) — detect sync
   if (nativeTicksOpt == null) {

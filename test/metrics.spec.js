@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { contrast, mix } from '../theme/color.js'
 import { themes as registry } from '../demo/themes.js'
 
-const themes = ['default', 'skeu', 'matte', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit', 'json']
+const themes = ['default', 'skeu', 'matte', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit', 'json', 'tracked']
 
 test('DevTools empty declarations keep braces on static panels and through collapse cycles', async ({ page }) => {
   await page.goto('/')
@@ -136,7 +136,7 @@ test('Swiss preserves its transparent demo surface and action spacing through co
 })
 
 test('DevTools declarations edit, collapse, reopen and reset', async ({ page }) => {
-  await page.goto('/demo/cases/devtools')
+  await page.goto('/test/cases/devtools')
   await page.locator('[data-key=display] select').selectOption('flex')
   await page.locator('[data-key=opacity] input[type=range]').press('Home')
   await page.locator('[data-key=visible] input').uncheck()
@@ -159,7 +159,7 @@ test('DevTools declarations edit, collapse, reopen and reset', async ({ page }) 
 })
 
 test('DevTools light and dark keep Chrome colors, inline fields and edited values through appearance changes', async ({ page }) => {
-  await page.goto('/demo/cases/devtools')
+  await page.goto('/test/cases/devtools')
   await page.setViewportSize({ width: 320, height: 700 })
   const panel = page.locator('.s-panel'), field = page.locator('[data-key=transform] input')
   await field.fill('')
@@ -648,7 +648,7 @@ test.describe('text measured from pixels', () => {
     const gallery = page.locator('#live-panel .s-panel').first()
     await lettering('gallery', gallery)
     await placeholders('gallery', gallery.locator('input[type=text]').first(), 'Search…')
-    await page.goto('/demo/cases/glass.html', { waitUntil: 'networkidle' })
+    await page.goto('/test/cases/glass.html', { waitUntil: 'networkidle' })
     const card = page.locator('.s-panel').first()
     await lettering('case', card)
     await placeholders('case', card.locator('input[type=text]').first(), 'Search…')
