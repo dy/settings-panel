@@ -99,8 +99,8 @@ test('theme, colormap, accent and density preserve edited values; reset restores
   await expect(page.getByRole('button', { name: 'Roomy', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })
 
-test('Dark matches Lab01’s demo; secondary reset retains focus and toggle help', async ({ page }) => {
-  await page.goto('/#theme=lab01&colormap=dark')
+test('Dark matches Lab’s demo; secondary reset retains focus and toggle help', async ({ page }) => {
+  await page.goto('/#theme=lab&colormap=dark')
   const live = page.locator('#live-panel')
   await expect(live.locator('.s-panel')).toHaveCSS('--bg', '#111111')
   await expect(live.locator('[data-key=enabled] .s-hint')).toHaveText('Show this layer')
@@ -172,10 +172,10 @@ const defaultBg = (page, file) => page.evaluate(async file => (await import(`/th
 
 test('native Light resolves per theme; reset look restores it', async ({ page }) => {
   await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
-  for (const [id, file] of [['glass', 'glass'], ['lab01', 'lab01'], ['tweakpane', 'tweakpane'], ['soft', 'default'], ['studio', 'studio']])
+  for (const [id, file] of [['glass', 'glass'], ['lab', 'lab'], ['tweakpane', 'tweakpane'], ['soft', 'default'], ['studio', 'studio']])
     await expect(page.locator(`[data-theme=${id}] .s-panel`)).toHaveCSS('--bg', await defaultBg(page, file))
-  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
-  await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'dark') // lab01's default is near-black
+  await page.getByRole('button', { name: 'Preview Lab', exact: true }).click()
+  await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'dark') // lab's default is near-black
   await page.getByRole('button', { name: 'Preview DevTools', exact: true }).click()
   await expect(page.locator('#live-panel .s-panel')).toHaveCSS('color-scheme', 'light') // devtools defaults to white
 
@@ -218,15 +218,15 @@ test('range and custom color write-back exports typed axes; skip link preserves 
 
 test("Corners shows each theme's own native default, not one shared anchor", async ({ page }) => {
   await expect(page.locator('#roundness')).toHaveValue('1') // glass, the initial theme: the material family's capsules
-  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
+  await page.getByRole('button', { name: 'Preview Lab', exact: true }).click()
   await expect(page.locator('#roundness')).toHaveValue('1.5')
   await expect(page.locator('#roundness-value')).toHaveText('1.5')
   await page.getByRole('button', { name: 'Preview Porcelain', exact: true }).click()
   await expect(page.locator('#roundness')).toHaveValue('1')
   await page.getByRole('button', { name: 'Preview Swiss', exact: true }).click()
   await expect(page.locator('#roundness')).toHaveValue('0') // swiss keeps its own corners sharp regardless of the axis
-  await page.getByRole('button', { name: 'Preview Lab01', exact: true }).click()
-  await page.locator('#roundness').press('ArrowRight') // continuous from Lab01's real 1.5, no snap to a shared anchor
+  await page.getByRole('button', { name: 'Preview Lab', exact: true }).click()
+  await page.locator('#roundness').press('ArrowRight') // continuous from Lab's real 1.5, no snap to a shared anchor
   await expect(page.locator('#roundness-value')).toHaveText('1.6')
 })
 
@@ -236,7 +236,7 @@ for (const width of [320, 375, 414, 768, 1440]) {
     const bar = await page.locator('.look-bar').evaluate(el => el.getBoundingClientRect())
     expect(bar.left, 'look-bar').toBeGreaterThanOrEqual(0)
     expect(bar.right, 'look-bar').toBeLessThanOrEqual(width)
-    for (const name of ['glass', 'neu', 'porcelain', 'brutal', 'swiss', 'lab01', 'dat', 'figma']) {
+    for (const name of ['glass', 'neu', 'porcelain', 'brutal', 'swiss', 'lab', 'dat', 'figma']) {
       await page.locator(`[data-theme="${name}"] .theme-choice`).click()
       const result = await page.locator('#live-panel').evaluate(host => {
         const p = host.getBoundingClientRect()
@@ -425,7 +425,7 @@ test('a colormap exports its ink and texture only for themes that declare them, 
   }
   await setLight(page, 'chalk')
   expect(await exported()).toContain('"texture": "grain"')
-  await page.goto('/#theme=lab01&colormap=bronze')
+  await page.goto('/#theme=lab&colormap=bronze')
   const code = await exported()
   expect(code).toContain('"shade": "#ca9d63"')
   expect(code).not.toContain('"ink"')
@@ -438,7 +438,7 @@ test('colormap URLs restore exports and reject missing, empty, unknown and inher
     await expect(page.locator('input[name="light"][value="native"]')).toBeChecked()
     await expect(page.locator('#custom-accent')).toHaveValue('#2563eb')
   }
-  await page.goto('/#theme=lab01&colormap=gold')
+  await page.goto('/#theme=lab&colormap=gold')
   await expect(page.locator('input[name="light"][value="gold"]')).toBeChecked()
   await page.getByRole('button', { name: 'Use theme', exact: false }).click()
   await expect(page.locator('#theme-code')).toContainText('"shade": "#ba965a"')
@@ -446,7 +446,7 @@ test('colormap URLs restore exports and reject missing, empty, unknown and inher
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Preview Neu', exact: true }).click()
   await page.goBack()
-  await expect(page.locator('#preview-title')).toHaveText('Lab01')
+  await expect(page.locator('#preview-title')).toHaveText('Lab')
   await expect(page.locator('input[name="light"][value="gold"]')).toBeChecked()
 })
 

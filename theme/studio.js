@@ -155,7 +155,7 @@ export default function studio({
      a band round the panel), so any shade keeps its hue in it and the band shows on a ground as dark as the sheet */
   background: var(--bg);
   border-radius: var(--r-panel);
-  box-shadow: 0 0 0 calc(7 * var(--length)) color-mix(in oklab, var(--bg), transparent 85%), var(--shadow);
+  box-shadow: 0 0 0 calc(7 * var(--length)) color-mix(in oklab, var(--bg), transparent 75%), var(--shadow);
   color: var(--ink-label);
   width: min(100%, var(--w));
   max-width: min(100%, var(--w));

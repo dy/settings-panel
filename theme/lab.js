@@ -1,5 +1,5 @@
 /**
- * Lab01 theme — frosted glass with gradient borders
+ * Lab theme — frosted glass with gradient borders
  *
  * Inspired by lab01.dev/experiments/01.
  * Frosted translucent panel, gradient border, noise texture, glass controls.
@@ -10,7 +10,7 @@
  * Token VALUES are derived from the `shade` (its lightness & hue) so a chromatic
  * shade (e.g. gold) yields a coherent warm theme.
  *
- * lab01(axes?) → CSS string
+ * lab(axes?) → CSS string
  */
 
 import metrics from './metrics.js'
@@ -23,7 +23,7 @@ const chevron = (c) => `url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns
 // Noise SVG filter (static)
 const noiseSvg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8'/%3E%3C/filter%3E%3C/svg%3E#n")`
 
-export default function lab01({
+export default function lab({
   shade = '#111111',
   accent,
   spacing = 1,
@@ -495,7 +495,7 @@ export default function lab01({
     color: ${fg('.83')};
     text-shadow: var(--btn-text-shadow);
 
-    /* kill the base theme's filter:brightness hover — lab01 uses its own bg hover */
+    /* kill the base theme's filter:brightness hover — lab uses its own bg hover */
     &:hover, &:active { filter: none; }
     &:active { translate: 0 1px; }
     &:focus-visible { outline: var(--outline-w) solid var(--focus-ring); outline-offset: var(--outline-gap); transition: none; }

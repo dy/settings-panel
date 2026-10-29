@@ -3,8 +3,8 @@ import { contrast } from '../theme/color.js'
 
 const variants = ['porcelain']
 // a case page: the public cases, or the fixtures the tests keep (test/cases)
-const caseOf = name => ['dialkit', 'studio', 'lab01', 'uil', 'leva'].includes(name) ? `/demo/cases/${name}` : `/test/cases/${name}`
-const demos = ['glass', 'neu', 'brutal', 'lab01', 'apple', 'figma', 'uil', 'leva']
+const caseOf = name => ['dialkit', 'studio', 'lab', 'uil', 'leva'].includes(name) ? `/demo/cases/${name}` : `/test/cases/${name}`
+const demos = ['glass', 'neu', 'brutal', 'lab', 'apple', 'figma', 'uil', 'leva']
 
 for (const name of [...demos, ...variants]) {
   const path = variants.includes(name) ? `/demo/cases/variants#${name}` : caseOf(name)
@@ -59,8 +59,8 @@ const controlsIn = async (page, theme) => {
   await page.locator('#theme-picker').selectOption(theme)
 }
 
-test('Lab01 segmented is one sunken track with the raised selection inside; image cards stay framed', async ({ page }) => {
-  await controlsIn(page, 'lab01')
+test('Lab segmented is one sunken track with the raised selection inside; image cards stay framed', async ({ page }) => {
+  await controlsIn(page, 'lab')
   await page.locator('.s-folder[data-key=sel] > summary').click()
   const quality = page.locator('.s-folder[data-key=sel] [data-key=mode]')
   const layout = () => quality.locator('.s-input').evaluate(el => {
@@ -84,14 +84,14 @@ test('Lab01 segmented is one sunken track with the raised selection inside; imag
   // two and five options touch too: borderless options keep no overlap meant for collapsing borders
   for (const key of ['toggle', 'size']) expect(await page.locator(`.s-folder[data-key=sel] [data-key=${key}] .s-input`).evaluate(el =>
     [...el.querySelectorAll('button')].map(b => b.getBoundingClientRect()).every((b, i, bs) => !i || Math.abs(b.left - bs[i - 1].right) < .5)), key).toBe(true)
-  await page.goto('/demo/cases/lab01')
+  await page.goto('/demo/cases/lab')
   const cards = page.locator('.s-segmented .s-input')
   await expect(cards).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   expect(parseFloat(await cards.evaluate(el => getComputedStyle(el).columnGap)), 'image cards keep their gap').toBeGreaterThan(0)
 })
 
-test('Lab01 collapsed folder closes with the overlaid hairline pair, not a solid border', async ({ page }) => {
-  await controlsIn(page, 'lab01')
+test('Lab collapsed folder closes with the overlaid hairline pair, not a solid border', async ({ page }) => {
+  await controlsIn(page, 'lab')
   const folder = page.locator('.s-folder[data-key=sel]'), summary = folder.locator('> summary')
   const rule = () => summary.evaluate(el => {
     const r = getComputedStyle(el, '::before')
@@ -107,7 +107,7 @@ test('Lab01 collapsed folder closes with the overlaid hairline pair, not a solid
 })
 
 test('Lab image options expose names and selected state; collapse preserves the setting', async ({ page }) => {
-  await page.goto('/demo/cases/lab01')
+  await page.goto('/demo/cases/lab')
   await page.getByRole('button', { name: 'Gold', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Gold', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await page.locator('.s-panel > summary').click()
@@ -116,8 +116,8 @@ test('Lab image options expose names and selected state; collapse preserves the 
   await expect(page.getByRole('button', { name: 'Gold', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })
 
-test('Lab01 inputs share the inactive toggle track; fonts, color editing and slider endpoints survive palette changes', async ({ page }) => {
-  await page.goto('/#theme=lab01&colormap=graphite')
+test('Lab inputs share the inactive toggle track; fonts, color editing and slider endpoints survive palette changes', async ({ page }) => {
+  await page.goto('/#theme=lab&colormap=graphite')
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.evaluate(() => document.fonts.ready)
   expect(await page.evaluate(() => ['Geist', 'Geist Mono'].every(font => document.fonts.check(`13px "${font}"`)))).toBe(true)
@@ -162,26 +162,26 @@ test('Lab01 inputs share the inactive toggle track; fonts, color editing and sli
   await expect(live.locator('input[type=color]')).toHaveValue('#8b80f9')
 })
 
-test('Lab01 gallery materials show matching thumbs and recessed controls', async ({ page }) => {
+test('Lab gallery materials show matching thumbs and recessed controls', async ({ page }) => {
   for (const map of ['dark', 'graphite', 'gray', 'gold']) {
-    await page.goto('/#theme=lab01&colormap=' + map)
+    await page.goto('/#theme=lab&colormap=' + map)
     await page.evaluate(() => document.fonts.ready)
-    await expect(page.locator('#live-panel')).toHaveScreenshot(`lab01-${map}.png`, { animations: 'disabled', maxDiffPixelRatio: .01 })
+    await expect(page.locator('#live-panel')).toHaveScreenshot(`lab-${map}.png`, { animations: 'disabled', maxDiffPixelRatio: .01 })
   }
 })
 
-test('Lab01 focused fields share the selected image-card ring for dark and light materials', async ({ page }) => {
+test('Lab focused fields share the selected image-card ring for dark and light materials', async ({ page }) => {
   for (const map of ['dark', 'gold', 'chalk']) {
-    await page.goto('/#theme=lab01&colormap=' + map)
+    await page.goto('/#theme=lab&colormap=' + map)
     // A hash-only goto restyles the mounted preview in place; let its shadow transitions settle.
     await expect(page.locator(`input[name=light][value=${map}]`)).toBeChecked()
     await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)))
     const expected = await page.evaluate(async () => {
       const { default: settings } = await import('/index.js')
-      const { default: lab01 } = await import('/theme/lab01.js')
+      const { default: lab } = await import('/theme/lab.js')
       const host = document.createElement('div'); document.body.append(host)
       const shade = getComputedStyle(document.querySelector('#live-panel .s-panel')).getPropertyValue('--bg').trim()
-      const panel = settings({ plate: { type: 'select', variant: 'segmented', value: 'a', options: [{ value: 'a', label: 'A', style: 'background-image:linear-gradient(black,white)' }] } }, { container: host, theme: lab01({ shade }) })
+      const panel = settings({ plate: { type: 'select', variant: 'segmented', value: 'a', options: [{ value: 'a', label: 'A', style: 'background-image:linear-gradient(black,white)' }] } }, { container: host, theme: lab({ shade }) })
       const shadow = getComputedStyle(host.querySelector('button.s-selected'), '::before').boxShadow
       panel[Symbol.dispose](); host.remove()
       return shadow
@@ -198,16 +198,16 @@ test('Lab01 focused fields share the selected image-card ring for dark and light
   }
 })
 
-test('Lab01 RGBA stays readable and switches stay centered at size and density boundaries', async ({ page }) => {
+test('Lab RGBA stays readable and switches stay centered at size and density boundaries', async ({ page }) => {
   await page.goto('/')
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const issues = await page.evaluate(async () => {
     const { default: settings } = await import('/index.js')
-    const { default: lab01 } = await import('/theme/lab01.js')
+    const { default: lab } = await import('/theme/lab.js')
     const host = document.createElement('div'); host.style.width = '288px'; document.body.append(host)
     const issues = []
     for (const axes of [{ size: .8, spacing: .65 }, { size: 1.2, spacing: 1.5 }]) {
-      const panel = settings({ tint: { type: 'color', variant: 'rgba', value: '#ff668880' }, enabled: { type: 'boolean', variant: 'switch', value: false } }, { container: host, theme: lab01(axes) })
+      const panel = settings({ tint: { type: 'color', variant: 'rgba', value: '#ff668880' }, enabled: { type: 'boolean', variant: 'switch', value: false } }, { container: host, theme: lab(axes) })
       const text = host.querySelector('input[type=text]'), swatch = host.querySelector('input[type=color]')
       if (text.getBoundingClientRect().width < parseFloat(getComputedStyle(text).fontSize) * 5) issues.push('RGBA readout squeezed')
       const bounds = host.getBoundingClientRect()

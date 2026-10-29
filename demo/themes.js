@@ -10,7 +10,7 @@ import brutal from '../theme/brutal.js'
 import swiss from '../theme/swiss.js'
 import skeu from '../theme/skeu.js'
 import matte from '../theme/matte.js'
-import lab01 from '../theme/lab01.js'
+import lab from '../theme/lab.js'
 import porcelain from '../theme/porcelain.js'
 import terminal from '../theme/terminal.js'
 import dat from '../theme/dat.js'
@@ -37,7 +37,7 @@ import dialkit from '../theme/dialkit.js'
 const weight = (native) => ({ key: 'weight', label: 'Weight', min: 100, max: 900, step: 100, default: native })
 
 export const themes = [
-  { id: 'lab01', name: 'Lab01', fn: lab01, surface: 'glass', axes: 'accent spacing roundness size', description: 'Frosted glass with gradient borders and a noise texture.',
+  { id: 'lab', name: 'Lab', fn: lab, surface: 'glass', axes: 'accent spacing roundness size', description: 'Frosted glass with gradient borders and a noise texture.',
     extras: [weight(400), { key: 'noise', label: 'Noise', type: 'boolean', default: true }] },
   { id: 'studio', name: 'Studio', fn: studio, axes: 'spacing roundness size', description: 'The row is the instrument: labels ride the fill, values edit in place.',
     extras: [weight(500)] },

@@ -14,7 +14,7 @@ const cases = [
   { name: 'control-panel', path: '/demo/cases/control-panel.html' },
   { name: 'control-panel-light', path: '/demo/cases/control-panel.html#shade=ebebeb' },
   { name: 'skeu', path: '/test/cases/skeu.html' },
-  { name: 'lab01', path: '/demo/cases/lab01.html' },
+  { name: 'lab', path: '/demo/cases/lab.html' },
   { name: 'brutal', path: '/test/cases/brutal.html' },
   { name: 'neu', path: '/test/cases/neu.html' },
   { name: 'glass', path: '/test/cases/glass.html' },

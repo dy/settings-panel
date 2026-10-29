@@ -22,7 +22,7 @@ Purpose-built parameter controls that _feel right_. Miniature app helper, not ap
   - `theme/texture.js` — `grain`, `woodGrain`, `woodFigure`: material textures as SVG turbulence, laid over a surface with `soft-light`; `surface(texture, shade)` gives a surface's calibrated layers
   - `theme/base.js` — shared structural reset
   - `theme/metrics.js` — shared size, spacing, and body-font tokens; themes provide their baselines
-  - `theme/default.js`: soft (the default) is `form()` plus soft's own look layer; `form()` is the rounded form `lab01` and `skeu` build on, kept stable so soft can change without restyling them
+  - `theme/default.js`: soft (the default) is `form()` plus soft's own look layer; `form()` is the rounded form `lab` and `skeu` build on, kept stable so soft can change without restyling them
 - `/index.js` — `settings()`, `infer()`, `register()`.
 - `/demo/themes.js`: gallery registry: themes, colormaps (palettes: shade, accent, and optionally ink and texture), core axes, per-theme extras.
 - `/signals.js` — decorators + re-exports: `signal`, `effect`, `computed`, `batch`, `untracked`, `store`, `use`.
@@ -60,4 +60,4 @@ Panel flow: `settings() → theme <style> + panel el + controls + onchange effec
 Theme: `theme(axes?) → CSS string → <style>`. Nested CSS. Axes control intent, theme computes implementation.
 - `brutal.js` is the minimal canonical new-theme example (uses `resolveRoles`; one plate-shadow helper)
 - New themes: `brutal`, `neu`, `glass` use `resolveRoles` + mixins from `theme/color.js` + `theme/mixins.js`
-- Package: v2.1.2. Dependency: `sprae ^13.9.2` only (`sube` removed).
+- Package: v2.1.3. Dependency: `sprae ^13.9.2` only (`sube` removed).

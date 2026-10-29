@@ -122,8 +122,8 @@
       "source": "uil 4.4.2, demo/_ref/uil-ref.html",
       "mode": "element"
     },
-    "lab01-dark": {
-      "page": "demo/cases/lab01.html",
+    "lab-dark": {
+      "page": "demo/cases/lab.html",
       "viewport": [
         1440,
         900
@@ -132,8 +132,8 @@
       "source": "lab01.dev experiment 01, dark",
       "mode": "element"
     },
-    "lab01-light": {
-      "page": "demo/cases/lab01.html",
+    "lab-light": {
+      "page": "demo/cases/lab.html",
       "viewport": [
         1440,
         900
@@ -143,8 +143,8 @@
       "source": "lab01.dev experiment 01, light",
       "mode": "element"
     },
-    "lab01-gold": {
-      "page": "demo/cases/lab01.html",
+    "lab-gold": {
+      "page": "demo/cases/lab.html",
       "viewport": [
         1440,
         900

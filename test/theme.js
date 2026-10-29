@@ -184,7 +184,7 @@ test('gallery: a colormap carries shade to every theme, ink and texture only whe
   const { bronze, gold, chalk } = colormaps
   is(material(byId.soft, bronze), { shade: '#ca9d63', ink: '#603415', texture: 'wood' })
   is(material(byId.glass, bronze), { shade: '#ca9d63', ink: '#603415' }, 'glass has no surface of its own to texture')
-  is(material(byId.lab01, bronze), { shade: '#ca9d63' }, 'undeclared axes stay out')
+  is(material(byId.lab, bronze), { shade: '#ca9d63' }, 'undeclared axes stay out')
   is(material(byId.soft, gold), { shade: '#ba965a' }, 'a map without ink or texture carries only its surface')
   is(material(byId.neu, chalk), { shade: '#f1f2f4', ink: '#4a5362', texture: 'grain' })
   const a = material(byId.soft, bronze)

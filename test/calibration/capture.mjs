@@ -36,9 +36,9 @@ const CASES = {
   controlkit: { mode: 'switch', page: 'demo/cases/controlkit.html', viewport: [1100, 1600], source: 'ControlKit, demo/_ref/ck-ref.html' },
   // UIL draws a 20px close bar under its panel that ours has no element for.
   uil: { mode: 'element', page: 'demo/cases/uil.html', original: 'demo/_ref/uil-ref.html', root: '#wrap > div', source: 'uil 4.4.2, demo/_ref/uil-ref.html' },
-  'lab01-dark': { mode: 'element', page: 'demo/cases/lab01.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'dark', source: 'lab01.dev experiment 01, dark' },
-  'lab01-light': { mode: 'element', page: 'demo/cases/lab01.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'light', click: '.s-segmented button[aria-label=Light]', source: 'lab01.dev experiment 01, light' },
-  'lab01-gold': { mode: 'element', page: 'demo/cases/lab01.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'gold', click: '.s-segmented button[aria-label=Gold]', source: 'lab01.dev experiment 01, gold' },
+  'lab-dark': { mode: 'element', page: 'demo/cases/lab.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'dark', source: 'lab01.dev experiment 01, dark' },
+  'lab-light': { mode: 'element', page: 'demo/cases/lab.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'light', click: '.s-segmented button[aria-label=Light]', source: 'lab01.dev experiment 01, light' },
+  'lab-gold': { mode: 'element', page: 'demo/cases/lab.html', viewport: [1440, 900], original: 'https://lab01.dev/experiments/01/', root: '.container', theme: 'gold', click: '.s-segmented button[aria-label=Gold]', source: 'lab01.dev experiment 01, gold' },
   // Dear ImGui is one WebGL canvas, its demo window set up by clicks. The demo's Spacing() under the
   // hello line has no panel element, so the title bar and the body below it are measured apart.
   'imgui-title': { ...imgui(), rect: [650, 20, 550, 44] },

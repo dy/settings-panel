@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { contrast, mix } from '../theme/color.js'
 import { themes as registry } from '../demo/themes.js'
 
-const themes = ['default', 'skeu', 'matte', 'glass', 'neu', 'porcelain', 'brutal', 'lab01', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit', 'json', 'tracked']
+const themes = ['default', 'skeu', 'matte', 'glass', 'neu', 'porcelain', 'brutal', 'lab', 'swiss', 'terminal', 'control-panel', 'dat', 'tweakpane', 'leva', 'controlkit', 'uil', 'oui', 'figma', 'apple', 'devtools', 'studio', 'editorial', 'synth', 'imgui', 'retro', 'bitmap', 'industrial', 'dialkit', 'json', 'tracked']
 
 test('DevTools empty declarations keep braces on static panels and through collapse cycles', async ({ page }) => {
   await page.goto('/')
@@ -362,9 +362,9 @@ test('a long slider readout shows its whole value in every theme', async ({ page
   expect(whole).toEqual(Object.fromEntries(themes.map(name => [name, { input: true, text: true, volume: true }])))
 })
 
-// Lab01 draws a checked box's core in the switch's on fill, so the checked state reads at 3:1
+// Lab draws a checked box's core in the switch's on fill, so the checked state reads at 3:1
 // against an unchecked box (WCAG 1.4.11) in each of the source's three materials.
-test('lab01 on-states read in dark, light and gold: checked boxes and radios at 3:1, the toggle\'s On at 4.5:1', async ({ page }) => {
+test('lab on-states read in dark, light and gold: checked boxes and radios at 3:1, the toggle\'s On at 4.5:1', async ({ page }) => {
   await page.goto('/')
   const centre = async locator => page.evaluate(async png => {
     const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob())
@@ -385,10 +385,10 @@ test('lab01 on-states read in dark, light and gold: checked boxes and radios at 
   for (const shade of ['#111111', '#b4b4b4', '#ba965a']) {
     await page.evaluate(async shade => {
       const { default: settings } = await import('/index.js')
-      const { default: lab01 } = await import('/theme/lab01.js')
-      document.querySelector('#lab01-checks')?.remove()
+      const { default: lab } = await import('/theme/lab.js')
+      document.querySelector('#lab-checks')?.remove()
       const host = document.createElement('div')
-      host.id = 'lab01-checks'
+      host.id = 'lab-checks'
       host.style.cssText = `width: 360px; background: ${shade}`
       document.body.prepend(host)
       settings({
@@ -397,9 +397,9 @@ test('lab01 on-states read in dark, light and gold: checked boxes and radios at 
         list: { type: 'select', variant: 'checkboxes', multiple: true, options: ['A', 'B'], value: ['A'] },
         radio: { type: 'select', variant: 'radio', options: ['C', 'D'], value: 'C' },
         tg: { type: 'boolean', variant: 'toggle', value: true },
-      }, { container: host, collapsed: false, theme: lab01({ shade }) })
+      }, { container: host, collapsed: false, theme: lab({ shade }) })
     }, shade)
-    const host = page.locator('#lab01-checks'), list = host.locator('.s-checkboxes .s-track')
+    const host = page.locator('#lab-checks'), list = host.locator('.s-checkboxes .s-track')
     expect(contrast(await centre(list.nth(0)), await centre(list.nth(1))), `${shade}: list`).toBeGreaterThanOrEqual(3)
     expect(contrast(await centre(host.locator('[data-key=on] .s-track')), await centre(host.locator('[data-key=off] .s-track'))), `${shade}: checkbox`).toBeGreaterThanOrEqual(3)
     const radios = host.locator('.s-radio input')
@@ -467,7 +467,7 @@ const quiet = page => page.evaluate(() => {
 })
 
 // Text reads at WCAG 1.4.3 contrast (4.5:1; large text, 24px or 18.66px bold, 3:1) in every theme at its
-// native defaults and in the palettes its case pages show (lab01's three materials, DevTools, Synth and
+// native defaults and in the palettes its case pages show (lab's three materials, DevTools, Synth and
 // Industrial dark, ImGui and Control Panel light), on a panel holding text in each role. A replica keeps
 // its original's look, not its defects: where the original's ink fails, the theme moves it to the minimum.
 // Axe-core decides what it can. Text it leaves undecided (laid over pseudo-elements, gradients, backdrops or
@@ -477,7 +477,7 @@ const quiet = page => page.evaluate(() => {
 // symbol (axe's non-text characters: a stepper's arrow) identifies its control: 3:1, WCAG 1.4.11. A glass
 // pane is measured over its own colour; Glass's scene has a test of its own. Disabled controls are exempt
 // (axe skips them).
-const palettes = [['lab01', '#b4b4b4'], ['lab01', '#ba965a'], ['devtools', '#282828'], ['imgui', '#f0f0f0'], ['control-panel', '#ebebeb'], ['synth', '#1b1b1d'], ['industrial', '#2a2a2c']]
+const palettes = [['lab', '#b4b4b4'], ['lab', '#ba965a'], ['devtools', '#282828'], ['imgui', '#f0f0f0'], ['control-panel', '#ebebeb'], ['synth', '#1b1b1d'], ['industrial', '#2a2a2c']]
 test.describe('text meets WCAG contrast', () => {
   const axePath = fileURLToPath(new URL('../node_modules/axe-core/axe.min.js', import.meta.url))
   const grounds = Object.fromEntries(registry.filter(t => t.ground).map(t => [t.file || t.id, t.ground]))
@@ -592,11 +592,11 @@ test.describe('text measured from pixels', () => {
     expect(failures).toEqual({})
   })
 
-  // Lab01's light and gold recesses are mid-tones: a field's value and its placeholder read 4.5:1 on them at
+  // Lab's light and gold recesses are mid-tones: a field's value and its placeholder read 4.5:1 on them at
   // rest, hovered and focused, in the source's light (#b4b4b4) and gold (#BA965A, the case page's Gold) palettes
-  // and in the gallery's sage and ivory, which take gold's recipe. Axe cannot judge lab01 (its bevel and grain
+  // and in the gallery's sage and ivory, which take gold's recipe. Axe cannot judge lab (its bevel and grain
   // are pseudo-elements laid over the text), so the text is measured from pixels.
-  test('lab01 field text reads on its recess in the light and gold palettes', async ({ browser }) => {
+  test('lab field text reads on its recess in the light and gold palettes', async ({ browser }) => {
     test.setTimeout(120_000)
     const page = await browser.newPage({ deviceScaleFactor: 2 })
     await page.goto('/')
@@ -605,16 +605,16 @@ test.describe('text measured from pixels', () => {
     for (const shade of ['#b4b4b4', '#ba965a', '#c0cbb9', '#f4ecdc']) {
       await page.evaluate(async shade => {
         const { default: settings } = await import('/index.js')
-        const { default: lab01 } = await import('/theme/lab01.js')
-        window.lab01Panel?.[Symbol.dispose]()
-        document.querySelector('#lab01-field')?.remove()
+        const { default: lab } = await import('/theme/lab.js')
+        window.labPanel?.[Symbol.dispose]()
+        document.querySelector('#lab-field')?.remove()
         const host = document.createElement('div')
-        host.id = 'lab01-field'
+        host.id = 'lab-field'
         host.style.cssText = `width: 360px; background: ${shade}`
         document.body.prepend(host)
-        window.lab01Panel = settings({ q: { type: 'text', value: '' } }, { container: host, title: 'Contrast', collapsed: false, theme: lab01({ shade }) })
+        window.labPanel = settings({ q: { type: 'text', value: '' } }, { container: host, title: 'Contrast', collapsed: false, theme: lab({ shade }) })
       }, shade)
-      const field = page.locator('#lab01-field input[type=text]')
+      const field = page.locator('#lab-field input[type=text]')
       for (const [kind, text] of [['value', { value: 'Aurora' }], ['placeholder', { placeholder: 'Search…' }]]) {
         for (const [state, { ink, bg, ratio }] of Object.entries(await fieldText(page, field, { ...text, settle: 50 }))) if (ratio < 4.5) failures[`${shade} ${kind} ${state}`] = `${ink} on ${bg} ${ratio}:1`
       }

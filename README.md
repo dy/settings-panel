@@ -64,7 +64,7 @@ Seventeen original themes, all functions: `theme(axes?) → CSS string`. The gal
 
 | Import | Name | Character |
 |--------|------|-----------|
-| `settings-panel/theme/lab01` | **lab01** | Frosted glass with gradient borders, noise texture. |
+| `settings-panel/theme/lab` | **lab** | Frosted glass with gradient borders, noise texture. |
 | `settings-panel/theme/studio` | **studio** | The row is the instrument: labels ride the slider fill, values edit in place. |
 | `settings-panel/theme/glass` | **glass** | A liquid-glass pane; controls are lenses with a rim and a caustic. |
 | `settings-panel/theme/neu` | **neu** | One material, raised and pressed by light from above. |

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab01 — Glass Panel</title>
+  <title>Lab — Glass Panel</title>
   <script type="importmap">
   {
     "imports": {
@@ -39,7 +39,7 @@
 
   <script type="module">
     import settings from '../../index.js'
-    import lab01 from '../../theme/lab01.js'
+    import lab from '../../theme/lab.js'
 
     const img = 'https://lab01.dev/experiments/01/assets/img/'
     const shades = { dark: '#111111', light: '#b4b4b4', gold: '#ba965a' }
@@ -72,7 +72,7 @@
       container: '#panel',
       title: 'Appearance',
       collapsed: false,
-      theme: (s) => lab01({ shade: shades[s?.theme] || shades.dark }),
+      theme: (s) => lab({ shade: shades[s?.theme] || shades.dark }),
       onchange(s) { setBg(s.theme) },
     })
   </script>

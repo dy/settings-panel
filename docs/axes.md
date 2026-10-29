@@ -212,7 +212,7 @@ Theme-specific extras (the gallery shows the selected theme's under its preview)
 | hues | synth | colours cycled over the panel's folders in order (default `#23b2fe`, `#00d692`, `#febc2d`, `#e4525a`: oscillator, amplitude, filter, modulation); `[]` gives every folder the accent |
 | hairline | swiss | rule and border weight in px (default `1`) |
 | scale | swiss | multiplies the type ramp, independent of `size` (default `1`) |
-| noise | lab01 | surface noise texture on or off (default `true`) |
+| noise | lab | surface noise texture on or off (default `true`) |
 | rule | editorial | hairline row-rule weight in px; the masthead rule is always 3× (default `1`) |
 
 | Group | Axes |
@@ -277,7 +277,7 @@ the cell to its character grid.
 
 Baselines intentionally differ: bodies are Bitmap's Geneva 9, OUI and Industrial 10px,
 dat.gui/Tweakpane/Leva/ControlKit/UIL/Figma/DevTools/Control Panel/Retro 11px, Synth
-12px, Apple/Lab01/Studio/Terminal/Editorial/Dear ImGui 13px, and Soft/Skeu/Glass/Neu/
+12px, Apple/Lab/Studio/Terminal/Editorial/Dear ImGui 13px, and Soft/Skeu/Glass/Neu/
 Porcelain/Brutal/Swiss 14px. They set proportions, not the drawn size: at `size: 1` each body is
 13px and the rest of its baseline scales with it. A native inspector can have zero
 row gap while Neu has a 16px gap for its shadows. Density changes their space,

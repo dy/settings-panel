@@ -434,7 +434,7 @@ const softCSS = (t) => `@layer s-soft {
 // marks on-states only. Every tone follows from the shade: a crevice shows the material after
 // more bounces (its colour multiplied by itself), a lit face lifts by the headroom L(1 - L),
 // which vanishes at black and white. A later layer than the form, so it restyles soft alone;
-// lab01 and skeu keep the form beneath.
+// lab and skeu keep the form beneath.
 // the most a groove's floor may contrast with the material it is cut in (WCAG ratio)
 const GROOVE = 1.3
 const lookCSS = ({ shade, accent, ink, texture, weight }) => {
@@ -763,7 +763,7 @@ const lookCSS = ({ shade, accent, ink, texture, weight }) => {
 }
 
 /**
- * The rounded form lab01 and skeu are built on: soft's structure and its first
+ * The rounded form lab and skeu are built on: soft's structure and its first
  * look, kept as they are so soft's own look can evolve without restyling them.
  */
 export function form({
